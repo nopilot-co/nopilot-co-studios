@@ -1,84 +1,89 @@
 #!/usr/bin/env bash
-# Install the Studios plugins.
+# Install the Studios marketplace + plugins.
 #
-# Two paths, both kept working:
-#   1. Marketplace registration (preferred for new installs) — registers this
-#      repo as a Claude Code / Cowork plugin marketplace so the three plugins
-#      (studios, design-studio, messaging-studio) can be installed/updated via
-#      the host's plugin commands.
-#   2. Direct symlinks into ~/.claude/plugins (backward-compat) — for hosts/
-#      versions that load plugins straight from that directory.
+# This script:
+#   1. Registers this repo as a Claude Code / Cowork plugin marketplace
+#      (via the .claude-plugin/marketplace.json manifest).
+#   2. Installs the three studios plugins (studios, design-studio,
+#      messaging-studio) from that marketplace.
+#   3. Reports per-studio Python CLI status and native dependency status.
 #
-# Reports runtime dependency status — does not install system tools for you.
+# Idempotent: safe to re-run any time (existing marketplace/plugin installs
+# are detected and skipped).
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGINS="$HOME/.claude/plugins"
-mkdir -p "$PLUGINS"
+PLUGINS=("studios" "design-studio" "messaging-studio")
 
-# ---------------------------------------------------------------- 1. symlinks
-link() { # link <target-dir> <plugin-name>
-  local target="$1" name="$2" dest="$PLUGINS/$2"
-  if [ -L "$dest" ] || [ -e "$dest" ]; then
-    echo "  • $name already present ($dest)"
-  else
-    ln -s "$target" "$dest"
-    echo "  ✓ linked $name -> $target"
-  fi
-}
-
-echo "Installing Studios plugins (symlinks):"
-link "$ROOT" "studios"
-# Each active studio in studios.yml ships its own plugin; link the ones present.
-[ -d "$ROOT/design" ]    && link "$ROOT/design"    "design-studio"
-[ -d "$ROOT/messaging" ] && link "$ROOT/messaging" "messaging-studio"
-
-# ---------------------------------------------------------------- 2. marketplace
-# `.claude-plugin/marketplace.json` declares the three plugins; register this
-# repo with whichever hosts are on PATH. Best-effort: prints the manual command
-# if a host's CLI lacks the subcommand or isn't installed.
+# ---------------------------------------------------------------- 1. marketplace
 register_marketplace() { # register_marketplace <host-cli>
   local host="$1"
   if ! command -v "$host" >/dev/null 2>&1; then
     echo "  • $host not on PATH — skip (manual: $host plugin marketplace add $ROOT)"
-    return
+    return 1
   fi
-  if "$host" plugin marketplace add "$ROOT" >/dev/null 2>&1; then
-    echo "  ✓ registered with $host"
-  else
-    echo "  ! $host did not accept 'plugin marketplace add $ROOT'"
-    echo "    run manually (or check 'host plugin --help' for the right command)"
+  # `add` errors if already added; treat that as success.
+  if "$host" plugin marketplace add "$ROOT" 2>&1 | grep -qE "(Successfully added|already)"; then
+    echo "  ✓ marketplace registered with $host"
+    return 0
   fi
+  # Fall back to listing — if 'studios' shows up, we're good.
+  if "$host" plugin marketplace list 2>/dev/null | grep -q "studios"; then
+    echo "  ✓ marketplace already registered with $host"
+    return 0
+  fi
+  echo "  ! $host did not accept 'plugin marketplace add $ROOT' — register manually"
+  return 1
 }
 
-echo
-echo "Registering as a plugin marketplace:"
-if [ -f "$ROOT/.claude-plugin/marketplace.json" ]; then
-  register_marketplace claude
-  register_marketplace cowork
-else
-  echo "  ✗ .claude-plugin/marketplace.json missing — skipping marketplace registration"
-fi
+install_plugins() { # install_plugins <host-cli>
+  local host="$1" name
+  for name in "${PLUGINS[@]}"; do
+    if "$host" plugin list 2>/dev/null | grep -q "^  ❯ $name@studios"; then
+      echo "  • $name@studios already installed"
+    else
+      if "$host" plugin install "$name@studios" >/dev/null 2>&1; then
+        echo "  ✓ installed $name@studios"
+      else
+        echo "  ✗ failed to install $name@studios — run 'claude plugin install $name@studios' for details"
+      fi
+    fi
+  done
+}
 
-# ---------------------------------------------------------------- 3. python pkg
-echo
-echo "Studio Python packages:"
-if [ -f "$ROOT/design/install.sh" ]; then
-  echo "  → run 'design/install.sh'     for the design 'studio' CLI (Quarto-backed)"
+echo "Studios marketplace:"
+if [ ! -f "$ROOT/.claude-plugin/marketplace.json" ]; then
+  echo "  ✗ .claude-plugin/marketplace.json missing — aborting"
+  exit 1
 fi
-if [ -x "$ROOT/design/.venv/bin/studio" ]; then
-  echo "    ✓ studio CLI present (design/.venv/bin/studio)"
+for host in claude cowork; do
+  if register_marketplace "$host"; then
+    echo "  Installing plugins via $host:"
+    install_plugins "$host" | sed 's/^/  /'
+  fi
+done
+
+# ---------------------------------------------------------------- 2. python CLIs
+echo
+echo "Studio Python CLIs (the skills call these — install for full functionality):"
+if [ -f "$ROOT/design/install.sh" ]; then
+  if [ -x "$ROOT/design/.venv/bin/studio" ]; then
+    echo "  ✓ studio CLI present (design/.venv/bin/studio)"
+  else
+    echo "  → run 'design/install.sh'     for the design 'studio' CLI (Quarto-backed)"
+  fi
 fi
 if [ -f "$ROOT/messaging/install.sh" ]; then
-  echo "  → run 'messaging/install.sh'  for the messaging 'message' CLI (MJML for HTML email)"
-fi
-if [ -x "$ROOT/messaging/.venv/bin/message" ]; then
-  echo "    ✓ message CLI present (messaging/.venv/bin/message)"
+  if [ -x "$ROOT/messaging/.venv/bin/message" ]; then
+    echo "  ✓ message CLI present (messaging/.venv/bin/message)"
+  else
+    echo "  → run 'messaging/install.sh'  for the messaging 'message' CLI"
+  fi
 fi
 
-# ---------------------------------------------------------------- 4. runtime deps
+# ---------------------------------------------------------------- 3. native deps
 echo
-echo "Runtime dependencies (for rendering):"
+echo "Runtime dependencies:"
 check() { # check <tool> <hint>
   local t="$1" hint="$2"
   if command -v "$t" >/dev/null 2>&1; then
@@ -88,11 +93,12 @@ check() { # check <tool> <hint>
   fi
 }
 check quarto      "brew install --cask quarto       (design — required to render)"
-check typst       "brew install typst                (design — PDF engine)"
+check typst       "brew install typst                (design — PDF engine; usually bundled with Quarto)"
 check libreoffice "brew install --cask libreoffice  (design — PPTX→PDF for QA; binary may be 'soffice')"
 check mjml        "npm install -g mjml              (messaging — optional, HTML email only)"
 
 echo
-echo "Done. Try:  /studio <your brief>     (creative-director)"
-echo "      or:   /design-studio <file.md> (design studio directly)"
-echo "      or:   /messaging-studio        (messaging studio directly)"
+echo "Done. Try:"
+echo "    /studio <your brief>             (creative-director)"
+echo "    /design-studio <file.md>          (design studio directly)"
+echo "    /messaging-studio                 (messaging studio directly)"
