@@ -1,0 +1,16 @@
+# Export: revealjs — self-running web deck (HTML slides).
+export: revealjs
+name: RevealJS
+asset_type: webdeck
+render:
+  engine: quarto
+  studio_format: revealjs   # emits HTML
+requires:
+  render: [quarto]
+style_guide:
+  layout: 16:9 web slides; can be self-navigated without a presenter
+  notes: more text than pptx is acceptable since there may be no speaker
+ruleset:
+  max_slides: 30
+  aspect_ratio: "16:9"
+  responsive: true

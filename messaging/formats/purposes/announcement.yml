@@ -1,0 +1,24 @@
+# Purpose: announcement — share news (launch, update, milestone) in brand voice.
+purpose: announcement
+name: Announcement
+description: Share news clearly and make the reader care, with one obvious next step.
+
+style_guide:
+  voice: confident, clear, not breathless
+  length: medium — enough to convey the what and the so-what
+  do:
+    - Lead with what changed and why it matters to the reader
+    - One primary CTA
+  dont:
+    - Hype words and exclamation pile-ups
+    - Burying the news under preamble
+
+execution_brief:
+  objective: Make the audience understand the news and take the next step.
+  audience: Existing audience (customers, subscribers, team).
+  required_sections: [headline, what-changed, why-it-matters, cta]
+
+ruleset:
+  required_sections: [headline, what-changed, cta]
+  must_include_cta: true
+  forbidden: ["we are thrilled to announce", "game-changer", "revolutionary"]

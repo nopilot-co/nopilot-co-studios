@@ -1,0 +1,51 @@
+# design-studio brand spec — example
+# Single source of truth for a brand. Quarto consumes this directly for PDF
+# (Typst), PPTX, HTML, and RevealJS. See: https://posit-dev.github.io/brand-yml/
+#
+# Copy to ~/context/studios/brand/<brand-slug>/_brand.yml and edit.
+
+meta:
+  name: Example Brand
+  link: https://example.com
+
+color:
+  # Named palette — referenced from primary/secondary etc by name OR hex
+  palette:
+    cobalt:    "#0044CC"
+    slate:     "#1A1A1A"
+    paper:     "#FAFAF7"
+    sand:      "#E8E4D9"
+    accent:    "#FF6B35"
+
+  primary:    "#0044CC"   # links, accents, CTA
+  secondary:  "#1A1A1A"
+  foreground: "#1A1A1A"   # body text
+  background: "#FAFAF7"   # page
+
+typography:
+  fonts:
+    - family: "Inter"
+      source: google
+    - family: "Source Serif 4"
+      source: google
+    - family: "JetBrains Mono"
+      source: google
+
+  base:
+    family: "Inter"
+    size:   "11pt"
+    line-height: 1.5
+
+  headings:
+    family: "Source Serif 4"
+    weight: 600
+    color:  "#0044CC"
+
+  monospace:
+    family: "JetBrains Mono"
+    size:   "0.9em"
+
+logo:
+  small:  "assets/logo.svg"
+  medium: "assets/logo.svg"
+  large:  "assets/logo.svg"

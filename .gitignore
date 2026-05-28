@@ -1,0 +1,26 @@
+# macOS noise
+.DS_Store
+
+# Python build artifacts
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Per-machine venvs (recreated by */install.sh)
+.venv/
+
+# Local Claude config (per-user/per-machine)
+.claude/
+
+# Dual-graph local memory/cache (per-user)
+.dual-graph/
+
+# Node (in case anything ever ends up here, e.g. mjml dev installs)
+node_modules/
+
+# Editor scratch
+.vscode/
+.idea/

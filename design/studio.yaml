@@ -1,0 +1,35 @@
+# Design Studio — capability manifest.
+# How the creative-director discovers and invokes this studio. The studio's own
+# skills do the work; this just declares what it offers and how to call it.
+studio: design
+name: Design Studio
+summary: Brand-driven, multi-format design assets — pitches and proposals rendered as PDF, PPTX, HTML, or RevealJS.
+plugin: design-studio            # .claude-plugin/plugin.json name
+
+entrypoints:
+  orchestrator: /design-studio   # slash command — runs the pipeline end to end
+  cli: studio                    # `studio <command>` — deterministic glue
+
+capabilities:
+  - id: render-asset
+    description: Compose and render a branded document/deck/page from a brief + source content.
+    produces: [pdf, pptx, html, revealjs]
+    purposes: [pitch, proposal]          # see formats/purposes/
+    formats_ref: formats/                # canonical <purpose>-<export> slugs
+  - id: brand-ingest
+    description: Build a canonical brand spec (_brand.yml) from source materials.
+
+inputs:
+  brief: free-text                       # the director may draft `source` from this
+  source: markdown                       # optional content to render
+  brand: slug                            # existing brand, or ingest a new one first
+  format: slug                           # <purpose>-<export>, e.g. pitch-pdf
+
+outputs:
+  location: ~/context/studios/design/<brand>/outputs/<session>/
+  artifacts: versioned files (outputs/) + visual-qa findings (qa/)
+
+resources:                               # canonical design choices this studio draws on
+  design_systems: resources/design-systems/
+  iconography: resources/iconography/
+  brand_voice: resources/brand-voice/

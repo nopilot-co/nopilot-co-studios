@@ -1,0 +1,6 @@
+# Format: proposal-pdf = purposes/proposal.yml <- exports/pdf.yml <- overrides
+extends: proposal
+export: pdf
+overrides:
+  ruleset:
+    max_pages: 25   # proposals run longer than pitches

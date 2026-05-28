@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Editable install metadata
+*.egg-link
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# pip / build artifacts
+build/
+dist/
+*.whl
+
+# pytest / coverage (when tests land)
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Session scratch (never commit a stale .tmp/ from a crashed render)
+**/.tmp/
+
+# Local Claude settings (per-project)
+.claude/settings.local.json

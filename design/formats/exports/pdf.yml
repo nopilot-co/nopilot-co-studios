@@ -1,0 +1,15 @@
+# Export: pdf — paginated print/screen document.
+export: pdf
+name: PDF
+asset_type: document
+render:
+  engine: quarto
+  studio_format: pdf      # studio render maps pdf -> Typst engine
+requires:
+  render: [quarto]      # Quarto bundles typst; no separate typst install needed
+style_guide:
+  layout: paginated A4/Letter with fixed page geometry
+  notes: mind page breaks; design for both print and on-screen scroll
+ruleset:
+  max_pages: 15
+  page_size: [A4, Letter]

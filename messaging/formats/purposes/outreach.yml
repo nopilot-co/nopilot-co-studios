@@ -1,0 +1,24 @@
+# Purpose: outreach — first-touch message that earns a reply.
+purpose: outreach
+name: Cold outreach
+description: A first-touch message that earns a reply from someone who doesn't know you yet.
+
+style_guide:
+  voice: warm, specific, low-pressure
+  length: short — respect the reader's time
+  do:
+    - Lead with the recipient's context, not your pitch
+    - One idea, one ask
+  dont:
+    - Multi-paragraph monologues
+    - More than one link or CTA
+
+execution_brief:
+  objective: Earn a reply or a single next step.
+  audience: A cold prospect who didn't ask to hear from you.
+  required_sections: [subject, hook, value, cta]
+
+ruleset:
+  required_sections: [subject, hook, cta]
+  must_include_cta: true
+  forbidden: ["just checking in", "circling back", "synergy", "leverage"]

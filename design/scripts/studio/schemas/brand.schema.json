@@ -1,0 +1,68 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://design-studio.local/brand.schema.json",
+  "title": "design-studio brand spec (subset of Posit brand.yml)",
+  "description": "Validation for the studios-level brand store ~/context/studios/brand/<slug>/_brand.yml (legacy: ~/context/studios/design/<slug>/brand/_brand.yml). Mirrors the subset of the Posit brand.yml standard that Quarto consumes.",
+  "type": "object",
+  "required": ["meta", "color", "typography"],
+  "additionalProperties": true,
+  "properties": {
+    "meta": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "link": { "type": "string" }
+      }
+    },
+    "color": {
+      "type": "object",
+      "required": ["primary", "foreground", "background"],
+      "properties": {
+        "palette": {
+          "type": "object",
+          "patternProperties": {
+            "^[a-zA-Z0-9_-]+$": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+          },
+          "additionalProperties": false
+        },
+        "primary":    { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "secondary":  { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "tertiary":   { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "foreground": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "background": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "success":    { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "warning":    { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "danger":     { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+      }
+    },
+    "typography": {
+      "type": "object",
+      "properties": {
+        "fonts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["family"],
+            "properties": {
+              "family": { "type": "string" },
+              "source": { "type": "string", "enum": ["google", "system", "file", "bunny"] },
+              "files":  { "type": "array", "items": { "type": "string" } }
+            }
+          }
+        },
+        "base":      { "type": "object" },
+        "headings":  { "type": "object" },
+        "monospace": { "type": "object" }
+      }
+    },
+    "logo": {
+      "type": "object",
+      "properties": {
+        "small":  { "type": ["string", "object"] },
+        "medium": { "type": ["string", "object"] },
+        "large":  { "type": ["string", "object"] }
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+# Channel: sms — very short, plain text.
+channel: sms
+name: SMS
+medium: sms
+render:
+  target: [txt]
+ruleset:
+  subject_required: false
+  max_body_chars: 320      # ~2 segments
+  max_links: 1

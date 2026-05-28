@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "messaging-studio"
+version = "0.1.0"
+description = "Brand-communications orchestrator for the messaging-studio Claude Code plugin"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Ted Stone", email = "juliantedstone@gmail.com" }]
+dependencies = [
+  "pyyaml>=6.0",
+  "jsonschema>=4.21",
+  "click>=8.1",
+  "markdown>=3.5",   # markdown body -> HTML fragment for MJML email rendering
+]
+
+[project.scripts]
+message = "message.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["scripts"]
+include = ["message*"]
+
+[tool.setuptools.package-data]
+message = ["schemas/*.json"]

@@ -1,0 +1,6 @@
+# Format: announcement-linkedin = purposes/announcement.yml <- channels/linkedin-post.yml <- overrides
+extends: announcement
+channel: linkedin-post
+overrides:
+  ruleset:
+    max_body_words: 180

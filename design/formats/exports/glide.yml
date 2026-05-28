@@ -1,0 +1,14 @@
+# Export: glide — interactive mobile-first app (Glide).
+# Canonical contract exists, but the studio renderer cannot produce this yet.
+export: glide
+name: Glide
+asset_type: app
+render:
+  engine: glide
+  studio_format: null      # not renderable by Quarto; `studio render` will refuse
+  status: planned
+style_guide:
+  layout: mobile-first interactive screens; navigation over pagination
+  notes: content is data + screens, not a linear document
+ruleset:
+  supported: false         # renderer guard — see scripts/studio/formats.py

@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studios/messaging/format.schema.json",
+  "title": "Resolved messaging format contract",
+  "description": "A format slug (<purpose>-<channel>) after merging purposes/<purpose>.yml, channels/<channel>.yml, and the slug file's overrides.",
+  "type": "object",
+  "required": ["slug", "purpose", "channel", "render", "style_guide", "execution_brief", "ruleset"],
+  "properties": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)+$" },
+    "purpose": { "type": "string" },
+    "channel": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "medium": { "type": "string" },
+    "render": {
+      "type": "object",
+      "required": ["target"],
+      "properties": {
+        "target": {
+          "type": "array",
+          "items": { "type": "string", "enum": ["txt", "md", "html", "eml"] },
+          "minItems": 1
+        }
+      }
+    },
+    "requires": {
+      "type": "object",
+      "description": "Native tools a channel's render targets need (e.g. mjml for HTML email). Text targets need none.",
+      "properties": {
+        "render": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "style_guide": { "type": "object" },
+    "execution_brief": {
+      "type": "object",
+      "required": ["objective", "required_sections"],
+      "properties": {
+        "objective": { "type": "string" },
+        "audience": { "type": "string" },
+        "required_sections": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "ruleset": {
+      "type": "object",
+      "properties": {
+        "required_sections": { "type": "array", "items": { "type": "string" } },
+        "must_include_cta": { "type": "boolean" },
+        "subject_required": { "type": "boolean" },
+        "max_subject_chars": { "type": "integer", "minimum": 1 },
+        "max_body_words": { "type": "integer", "minimum": 1 },
+        "max_body_chars": { "type": "integer", "minimum": 1 },
+        "max_links": { "type": "integer", "minimum": 0 },
+        "one_cta": { "type": "boolean" },
+        "forbidden": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

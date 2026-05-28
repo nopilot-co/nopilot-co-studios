@@ -1,0 +1,5 @@
+# Format: pitch-glide = purposes/pitch.yml <- exports/glide.yml <- overrides
+# Demonstrates a canonical format whose export is not yet renderable.
+extends: pitch
+export: glide
+overrides: {}

@@ -1,0 +1,32 @@
+# Purpose: proposal — centralised intent shared by every proposal-* format.
+purpose: proposal
+name: Proposal
+description: A detailed, structured offer with scope, terms, and rationale.
+
+style_guide:
+  voice: precise, credible, thorough
+  density: medium-high — completeness over brevity
+  visual: clear hierarchy; tables for scope, timeline, and pricing
+  do:
+    - State assumptions and what is out of scope
+    - Quantify deliverables, timeline, and price
+    - Make the terms unambiguous
+  dont:
+    - Marketing fluff in place of specifics
+    - Open-ended scope without boundaries
+
+execution_brief:
+  objective: Define scope and terms precisely enough to sign.
+  audience: Evaluators, procurement, and the eventual signer
+  required_sections:
+    - summary
+    - scope
+    - approach
+    - timeline
+    - pricing
+    - terms
+
+ruleset:
+  required_sections: [summary, scope, pricing, terms]
+  must_include_pricing_table: true
+  tone: [precise, credible]

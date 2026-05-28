@@ -1,0 +1,11 @@
+{
+  "name": "design-studio",
+  "version": "0.1.0",
+  "description": "Brand-aware multi-format design studio: Markdown → PDF, PPTX, HTML with per-brand templates, versioned outputs, and visual QA. Renders via Quarto + Typst; orchestrated in Python.",
+  "author": {
+    "name": "Ted Stone",
+    "email": "juliantedstone@gmail.com"
+  },
+  "homepage": "https://github.com/juliantedstone/studios/tree/main/design",
+  "keywords": ["design", "branding", "markdown", "pdf", "pptx", "quarto", "typst", "rendering"]
+}

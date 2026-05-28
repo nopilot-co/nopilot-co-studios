@@ -1,0 +1,45 @@
+# Studio registry — what the creative-director can route a brief to.
+# Each active studio declares full capabilities in <path>/studio.yaml; this file
+# is the discovery index. Add a studio here (with a manifest) and it becomes
+# routable immediately — no change to the director.
+
+studios:
+  - slug: design
+    path: design
+    manifest: design/studio.yaml
+    summary: Brand-driven multi-format design assets (decks, docs, web pages).
+    capabilities: [render-asset, brand-ingest]
+    status: active
+
+  - slug: messaging
+    path: messaging
+    manifest: messaging/studio.yaml
+    summary: Brand communications — emails, announcements, outreach, and one-pager messaging in a brand's voice.
+    capabilities: [compose-message, sequence]
+    status: active
+
+# External services the creative-director is the single point of contact for.
+# The director publishes/notifies through these; studios stay local and pure.
+# Each maps to an available MCP server; integrate only when authenticated.
+external_services:
+  publish:
+    - name: Gamma
+      mcp: claude_ai_Gamma
+      use: generate and share decks / docs / pages
+    - name: Canva
+      mcp: claude_ai_Canva
+      use: design exports, brand templates, asset upload
+    - name: Figma
+      mcp: claude_ai_Figma
+      use: design source / handoff (auth available; tools limited today)
+  notify:
+    - name: Slack
+      mcp: claude_ai_Slack
+      use: post artifacts and links to channels
+    - name: Gmail
+      mcp: claude_ai_Gmail
+      use: email deliverables to clients / stakeholders
+
+# Rule the director must honor for everything under external_services:
+# outward-facing actions (publishing, posting, emailing) require explicit
+# user confirmation before sending. Local rendering does not.

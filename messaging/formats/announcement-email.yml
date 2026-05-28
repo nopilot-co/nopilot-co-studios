@@ -1,0 +1,4 @@
+# Format: announcement-email = purposes/announcement.yml <- channels/email.yml <- overrides
+extends: announcement
+channel: email
+overrides: {}

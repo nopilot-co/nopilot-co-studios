@@ -1,0 +1,4 @@
+# Format: pitch-revealjs = purposes/pitch.yml <- exports/revealjs.yml <- overrides
+extends: pitch
+export: revealjs
+overrides: {}

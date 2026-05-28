@@ -1,0 +1,6 @@
+# Format: pitch-pdf = purposes/pitch.yml <- exports/pdf.yml <- overrides
+extends: pitch
+export: pdf
+overrides:
+  ruleset:
+    max_pages: 12   # pitches stay tight

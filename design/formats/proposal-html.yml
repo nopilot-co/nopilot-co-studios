@@ -1,0 +1,6 @@
+# Format: proposal-html = purposes/proposal.yml <- exports/html.yml <- overrides
+extends: proposal
+export: html
+overrides:
+  ruleset:
+    max_scroll_screens: 20

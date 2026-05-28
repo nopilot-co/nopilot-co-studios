@@ -1,0 +1,11 @@
+# Channel: linkedin-post — public social post (no subject).
+channel: linkedin-post
+name: LinkedIn post
+medium: social
+render:
+  target: [txt, md]
+ruleset:
+  subject_required: false
+  max_body_words: 220      # comfortably within LinkedIn's ~3000-char cap
+  max_links: 1
+  hashtags_max: 5

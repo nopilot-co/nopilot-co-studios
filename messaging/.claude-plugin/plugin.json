@@ -1,0 +1,11 @@
+{
+  "name": "messaging-studio",
+  "version": "0.1.0",
+  "description": "Messaging studio: brand communications — emails, announcements, outreach, sequences — composed in a brand's voice. Pairs with the design studio for full deliverables.",
+  "author": {
+    "name": "Ted Stone",
+    "email": "juliantedstone@gmail.com"
+  },
+  "homepage": "https://github.com/juliantedstone/studios/tree/main/messaging",
+  "keywords": ["messaging", "communications", "email", "outreach", "copywriting", "mjml"]
+}

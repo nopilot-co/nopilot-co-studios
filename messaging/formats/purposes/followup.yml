@@ -1,0 +1,24 @@
+# Purpose: followup — a later touch in a sequence, after no/partial response.
+purpose: followup
+name: Follow-up
+description: A short, additive nudge that gives a new reason to respond — never just a reminder.
+
+style_guide:
+  voice: brief, respectful, additive
+  length: shorter than the first touch
+  do:
+    - Add one new piece of value or context
+    - Make replying effortless (yes/no, a time, a link)
+  dont:
+    - Guilt or pressure ("just following up again…")
+    - Repeat the first message
+
+execution_brief:
+  objective: Re-open the thread with a new, low-friction reason to reply.
+  audience: Someone who saw (or ignored) an earlier message.
+  required_sections: [subject, new-angle, cta]
+
+ruleset:
+  required_sections: [new-angle, cta]
+  must_include_cta: true
+  forbidden: ["just following up", "just checking in", "bumping this", "per my last email"]

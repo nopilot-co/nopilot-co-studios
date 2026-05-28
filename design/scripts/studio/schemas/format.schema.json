@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studios/design/format.schema.json",
+  "title": "Resolved design-studio format contract",
+  "description": "A format slug (<purpose>-<export>) after merging purposes/<purpose>.yml, exports/<export>.yml, and the slug file's overrides.",
+  "type": "object",
+  "required": ["slug", "purpose", "export", "asset_type", "render", "style_guide", "execution_brief", "ruleset"],
+  "properties": {
+    "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)+$" },
+    "purpose": { "type": "string" },
+    "export": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "asset_type": { "type": "string" },
+    "render": {
+      "type": "object",
+      "required": ["engine", "studio_format"],
+      "properties": {
+        "engine": { "type": "string" },
+        "studio_format": {
+          "description": "Short studio render format (pdf|pptx|html|revealjs), or null if not renderable.",
+          "type": ["string", "null"],
+          "enum": ["pdf", "pptx", "html", "revealjs", null]
+        },
+        "status": { "type": "string" }
+      }
+    },
+    "requires": {
+      "description": "Native tools needed, by phase. Detected by studio doctor; not pip-installable.",
+      "type": "object",
+      "properties": {
+        "render": { "type": "array", "items": { "type": "string" } },
+        "qa": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "style_guide": { "type": "object" },
+    "execution_brief": {
+      "type": "object",
+      "required": ["objective", "required_sections"],
+      "properties": {
+        "objective": { "type": "string" },
+        "audience": { "type": "string" },
+        "narrative_arc": { "type": "string" },
+        "required_sections": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "ruleset": {
+      "type": "object",
+      "properties": {
+        "required_sections": { "type": "array", "items": { "type": "string" } },
+        "max_pages": { "type": "integer", "minimum": 1 },
+        "max_slides": { "type": "integer", "minimum": 1 },
+        "max_words_per_view": { "type": "integer", "minimum": 1 },
+        "max_scroll_screens": { "type": "integer", "minimum": 1 },
+        "supported": { "type": "boolean" }
+      }
+    }
+  }
+}

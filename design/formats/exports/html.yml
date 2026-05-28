@@ -1,0 +1,15 @@
+# Export: html — single responsive web page.
+export: html
+name: HTML
+asset_type: webpage
+render:
+  engine: quarto
+  studio_format: html
+requires:
+  render: [quarto]
+style_guide:
+  layout: single responsive scroll; no pagination
+  notes: progressive disclosure; links and anchors are first-class
+ruleset:
+  responsive: true
+  max_scroll_screens: 12   # advisory — QA enforces, not deterministic

@@ -1,0 +1,13 @@
+# Native runtime dependencies for the design studio renderer.
+# These are binaries, not Python packages — they can't be vendored in the plugin.
+# Install all at once:  brew bundle --file=design/Brewfile
+# Check status:         studio doctor
+#
+# For server invocation modes, bake these into the server image; this file is the
+# contract for what that image must contain.
+
+cask "quarto"        # render Markdown -> PDF / PPTX / HTML / RevealJS (bundles typst for PDF)
+cask "libreoffice"   # PPTX -> PDF for visual-QA rasterization
+
+# Note: PDF needs no separate `typst` — Quarto ships its own. Install typst only
+# if you invoke it directly outside the studio.

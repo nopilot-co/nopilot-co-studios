@@ -1,0 +1,6 @@
+# Format: nurture-email = purposes/nurture.yml <- channels/email.yml <- overrides
+extends: nurture
+channel: email
+overrides:
+  ruleset:
+    max_body_words: 220

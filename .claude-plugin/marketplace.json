@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "studios",
+  "owner": {
+    "name": "Ted Stone",
+    "email": "juliantedstone@gmail.com"
+  },
+  "description": "Studios marketplace — the studios-root creative-director and its studios (design, messaging).",
+  "plugins": [
+    {
+      "name": "studios",
+      "source": "./",
+      "version": "0.1.0",
+      "description": "Cross-studio creative-director: /studio <brief> routes work across studios and delivers to external services (Gamma, Canva, Slack, Gmail).",
+      "category": "orchestration",
+      "tags": ["creative-director", "studios", "orchestration"]
+    },
+    {
+      "name": "design-studio",
+      "source": "./design",
+      "version": "0.1.0",
+      "description": "Brand-aware multi-format design: Markdown → PDF, PPTX, HTML, RevealJS via Quarto + Typst, with versioned outputs and visual QA.",
+      "category": "design",
+      "tags": ["design", "branding", "quarto", "typst", "pdf", "pptx"]
+    },
+    {
+      "name": "messaging-studio",
+      "source": "./messaging",
+      "version": "0.1.0",
+      "description": "Brand communications: emails, outreach, announcements, nurture, and multi-step sequences, composed in a brand's voice. HTML email via MJML.",
+      "category": "communications",
+      "tags": ["messaging", "email", "outreach", "copywriting", "mjml"]
+    }
+  ]
+}

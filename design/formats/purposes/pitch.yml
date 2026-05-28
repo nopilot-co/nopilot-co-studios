@@ -1,0 +1,36 @@
+# Purpose: pitch — the centralised intent shared by every pitch-* format.
+# Export overlays (exports/<export>.yml) and per-slug overrides layer on top.
+purpose: pitch
+name: Pitch
+description: A persuasive narrative that moves a specific audience to a decision.
+
+style_guide:
+  voice: confident, concise, momentum-building
+  density: low — one idea per page or slide
+  visual: bold headlines, generous whitespace, a clear focal point per view
+  do:
+    - Lead with the problem and the stakes
+    - Use concrete numbers over adjectives
+    - End on a single, explicit ask
+  dont:
+    - Wall-of-text views
+    - Hedging or qualifier-heavy language
+    - More than one call-to-action
+
+execution_brief:
+  objective: Win buy-in, investment, or a yes.
+  audience: Decision-makers (investors, executives, buyers)
+  narrative_arc: hook -> problem -> solution -> why-now -> proof -> ask
+  required_sections:
+    - hook
+    - problem
+    - solution
+    - why-now
+    - proof
+    - ask
+
+ruleset:
+  required_sections: [hook, problem, solution, ask]
+  must_include_cta: true
+  max_words_per_view: 120
+  tone: [confident, concise]

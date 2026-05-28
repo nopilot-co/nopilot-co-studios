@@ -1,0 +1,38 @@
+# Messaging Studio — capability manifest (how the creative-director calls it).
+studio: messaging
+name: Messaging Studio
+summary: Brand communications — emails, announcements, outreach, and one-pager messaging in a brand's voice.
+plugin: messaging-studio
+
+entrypoints:
+  orchestrator: /messaging-studio:compose   # message-intake -> compose -> message-qa
+  cli: message                              # deterministic glue: formats / new / lint / render / status / sequence / doctor
+
+capabilities:
+  - id: compose-message
+    description: Compose a brand communication for a brief, in the brand's voice, shaped to a format (purpose × channel). May reference an upstream artifact (e.g. a deck from the design studio).
+    produces: [txt, md, html, eml]   # html/eml for email via MJML (see `message doctor`); txt/md always
+    purposes: [outreach, followup, announcement, nurture]   # see formats/purposes
+    channels: [email, linkedin-post, slack-post, sms]        # see formats/channels
+    formats_ref: formats/
+  - id: sequence
+    description: Compose a multi-step communication sequence (e.g. outreach -> follow-up -> break-up) as ordered, linked sessions.
+    entrypoint: message sequence new
+    templates_ref: resources/sequences/
+
+inputs:
+  brief: free-text
+  brand: slug                  # reuses the design studio's brand voice
+  format: slug                 # <purpose>-<channel>, e.g. outreach-email
+  upstream: path               # optional artifact to reference (e.g. a rendered deck)
+
+outputs:
+  location: ~/context/studios/messaging/<name>/
+  artifacts: composed message (inputs/message.md) + rendered targets (outputs/) + QA (review/)
+
+resources:
+  brand_voice: ../design/resources/brand-voice/   # shares the canonical voice library (brand is studios-level)
+  message_templates: resources/message-templates/  # reusable per-format skeletons
+  subject_lines: resources/subject-lines/           # email subject patterns + library
+  ctas: resources/ctas/                             # approved call-to-action phrasings
+  sequences: resources/sequences/                   # multi-step sequence templates

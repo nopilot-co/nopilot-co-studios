@@ -1,0 +1,14 @@
+# Channel: email — subject + preview + body.
+channel: email
+name: Email
+medium: email
+render:
+  target: [txt, md, html, eml]   # txt/md are pure-Python; html/eml are compiled with MJML
+requires:
+  render: [mjml]                 # HTML email (.html/.eml) needs the MJML CLI; txt/md need nothing
+ruleset:
+  subject_required: true
+  max_subject_chars: 60
+  max_body_words: 200
+  max_links: 2
+  one_cta: true

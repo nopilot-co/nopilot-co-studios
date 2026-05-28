@@ -1,0 +1,10 @@
+# Channel: slack-post — concise channel message (mrkdwn).
+channel: slack-post
+name: Slack post
+medium: chat
+render:
+  target: [txt, md]
+ruleset:
+  subject_required: false
+  max_body_words: 150
+  max_links: 3

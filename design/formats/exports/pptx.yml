@@ -1,0 +1,16 @@
+# Export: pptx — speaker-led slide deck.
+export: pptx
+name: PPTX
+asset_type: deck
+render:
+  engine: quarto
+  studio_format: pptx
+requires:
+  render: [quarto]
+  qa: [libreoffice]     # PPTX -> PDF for QA screenshots
+style_guide:
+  layout: 16:9 slides; one idea per slide; built for a presenter
+  notes: text supports the speaker, it does not replace them
+ruleset:
+  max_slides: 20
+  aspect_ratio: "16:9"

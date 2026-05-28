@@ -1,0 +1,24 @@
+# Purpose: nurture — educate and warm an audience without a hard sell.
+purpose: nurture
+name: Nurture
+description: Give something useful first; earn attention over time rather than asking for the sale.
+
+style_guide:
+  voice: generous, expert, unhurried
+  length: medium — lead with usefulness
+  do:
+    - Teach or give one genuinely useful thing
+    - Make the CTA soft (read, learn, reply if useful)
+  dont:
+    - Bait-and-switch into a pitch
+    - Pad with filler to look substantial
+
+execution_brief:
+  objective: Build trust by being useful; keep the relationship warm.
+  audience: A known contact not yet ready to buy.
+  required_sections: [subject, useful-thing, soft-cta]
+
+ruleset:
+  required_sections: [useful-thing]
+  must_include_cta: false
+  forbidden: ["act now", "limited time", "don't miss out"]

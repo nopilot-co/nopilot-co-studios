@@ -1,0 +1,7 @@
+# Format: outreach-email = purposes/outreach.yml <- channels/email.yml <- overrides
+extends: outreach
+channel: email
+overrides:
+  ruleset:
+    max_body_words: 140    # cold email stays tight
+    max_links: 1

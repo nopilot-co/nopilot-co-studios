@@ -1,0 +1,6 @@
+# Format: pitch-html = purposes/pitch.yml <- exports/html.yml <- overrides
+extends: pitch
+export: html
+overrides:
+  ruleset:
+    max_scroll_screens: 8

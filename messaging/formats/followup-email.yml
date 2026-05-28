@@ -1,0 +1,7 @@
+# Format: followup-email = purposes/followup.yml <- channels/email.yml <- overrides
+extends: followup
+channel: email
+overrides:
+  ruleset:
+    max_body_words: 90     # follow-ups are shorter than the first touch
+    max_links: 1

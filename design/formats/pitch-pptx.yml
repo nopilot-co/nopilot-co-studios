@@ -1,0 +1,6 @@
+# Format: pitch-pptx = purposes/pitch.yml <- exports/pptx.yml <- overrides
+extends: pitch
+export: pptx
+overrides:
+  ruleset:
+    max_slides: 15

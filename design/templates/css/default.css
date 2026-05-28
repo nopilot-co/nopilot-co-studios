@@ -1,0 +1,20 @@
+/* design-studio default HTML/RevealJS overrides.
+ *
+ * Quarto consumes _brand.yml automatically. Add CSS here only for behaviour
+ * the brand spec can't express (animations, hover states, print styles,
+ * unusual responsive behaviour).
+ *
+ * CSS custom properties exposed by Quarto from _brand.yml:
+ *   --brand-color-primary
+ *   --brand-color-secondary
+ *   --brand-color-foreground
+ *   --brand-color-background
+ *   --brand-font-base
+ *   --brand-font-headings
+ *   --brand-font-monospace
+ */
+
+/* example: tighter list spacing */
+/*
+ul li, ol li { margin-block: 0.2em; }
+*/
