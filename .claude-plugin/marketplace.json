@@ -18,7 +18,7 @@
     {
       "name": "design-studio",
       "source": "./design",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Brand-aware multi-format design: Markdown → PDF, PPTX, HTML, RevealJS via Quarto + Typst, with versioned outputs and visual QA.",
       "category": "design",
       "tags": ["design", "branding", "quarto", "typst", "pdf", "pptx"]
