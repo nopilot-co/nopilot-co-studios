@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "design-studio"
-version = "0.1.0"
+version = "0.1.1"
 description = "Brand-aware multi-format rendering orchestrator for the design-studio Claude Code plugin"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -1,6 +1,6 @@
 {
   "name": "design-studio",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Brand-aware multi-format design studio: Markdown → PDF, PPTX, HTML with per-brand templates, versioned outputs, and visual QA. Renders via Quarto + Typst; orchestrated in Python.",
   "author": {
     "name": "Ted Stone",
