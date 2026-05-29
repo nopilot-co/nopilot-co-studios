@@ -1,0 +1,36 @@
+# Default design principles — brand-agnostic visual + creative baselines.
+# Used by the nitpicker's visual-qa skill; available to the design studio too.
+baseline: design-principles
+name: Default design principles
+description: >
+  The visual and creative floor every rendered asset is held to, independent of
+  brand. Brand identity (colours, fonts, logo) layers on top; these are the
+  craft fundamentals that hold regardless.
+
+# Measurable visual fundamentals the nitpicker checks against.
+visual:
+  contrast: WCAG AA minimum — 4.5:1 for body text, 3:1 for large text/UI
+  line_length: 50-90 characters at body size
+  hierarchy: heading levels clearly and consistently differentiated
+  whitespace: sections, headings, and lists have room to breathe; no crowding
+  typography: no unintended fallback fonts (Times New Roman, Arial, system-ui
+    appearing where a brand font is expected)
+  color_use: brand colours used semantically (links, CTAs, emphasis), not as
+    decoration; no clashing or off-palette colours
+  alignment: a consistent grid; every element aligns to something on purpose
+  imagery: purposeful, high-quality; no stretched, low-res, or cliché stock
+
+# Qualitative creative fundamentals the nitpicker judges.
+creative:
+  concept_clarity: a single clear concept the reader can restate in one line
+  one_idea_per_unit: one idea per slide / section / view
+  originality: avoids the template-default look and visual clichés
+  craft: details finished — no orphans/widows, no truncation, no overflow
+  cohesion: the asset reads as one designed piece, not assembled fragments
+
+# How visual findings map to the shared verdict severities.
+severity:
+  critical: brand-breaking or illegible (wrong logo, failed contrast, truncated
+    or overflowing content)
+  significant: clearly off but not breaking (weak hierarchy, off-palette colour)
+  minor: polish (spacing nits, small alignment drift)

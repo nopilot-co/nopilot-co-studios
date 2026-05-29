@@ -1,0 +1,43 @@
+# Nitpicker Studio — capability manifest (how the creative-director calls it).
+# The studio's own skills do the work; this declares what it offers and how to
+# call it. The nitpicker reviews; it never edits the asset — fixes are the
+# producing studio's job.
+studio: nitpicker
+name: Nitpicker Studio
+summary: Rigorous review of an asset — visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice, and a configurable scored test battery — producing a weighted verdict.
+plugin: nitpicker-studio
+
+entrypoints:
+  orchestrator: /nitpicker-studio # review-intake -> capture -> the critique skills -> verdict
+  cli: nit # deterministic glue: tests / config / new / capture / score / status / doctor
+
+capabilities:
+  - id: review-asset
+    description: Review an asset (file or URL) against its brief, audience, brand voice, and the global standards, returning a scored verdict and findings.
+    consumes: [pdf, pptx, html, revealjs, image, md, url]
+    dimensions: [visual-qa, brief-fulfilment, audience-fit, tone-of-voice]
+    tests_ref: ../configs/tests/ # the scored battery (so-what / yawn / sniff, extensible)
+    baselines_ref: ../configs/default/ # tone-of-voice, design-principles, review-policy
+  - id: run-tests
+    description: Run an asset's content through the configurable, extensible scored test battery and aggregate a weighted verdict.
+    entrypoint: nit score
+
+inputs:
+  target: path-or-url # the asset under review (a rendered file, or a live URL)
+  brief: markdown # the brief the asset is supposed to fulfil
+  brand: slug # optional — pulls the brand's tone-of-voice overlay
+  icp: markdown # optional — the target audience / ICP the asset speaks to
+
+outputs:
+  location: ~/context/studios/nitpicker/<name>/
+  artifacts: capture (capture/v<ver>/) + findings (review/v<ver>/findings.md) + scored verdict (review/v<ver>/scorecard.json)
+
+# Global standards this studio reviews against (shared, brand-agnostic).
+configs:
+  baselines: ../configs/default/ # tone-of-voice + design-principles + review-policy
+  tests: ../configs/tests/ # extensible scored tests
+
+# The nitpicker pairs naturally downstream of the producing studios: it reviews
+# what design / messaging produce. The creative-director may route an artifact
+# here for sign-off before any outward delivery.
+pairs_with: [design, messaging]

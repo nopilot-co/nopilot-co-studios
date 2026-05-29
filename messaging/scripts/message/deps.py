@@ -6,6 +6,7 @@ each channel's targets need (`channels/<channel>.yml → requires`) and *detects
 presence here. `message doctor` reports status; `render` skips tool-gated targets
 with an actionable hint when the tool is absent. This module never installs.
 """
+
 from __future__ import annotations
 
 import shutil

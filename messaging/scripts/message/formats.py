@@ -4,6 +4,7 @@ A format slug is ``<purpose>-<channel>`` (e.g. ``outreach-email``). Its contract
 is the deep-merge of ``purposes/<purpose>.yml`` <- ``channels/<channel>.yml`` <-
 the slug file's ``overrides``. Mirrors the design studio's formats module.
 """
+
 from __future__ import annotations
 
 import copy

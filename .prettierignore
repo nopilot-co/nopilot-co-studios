@@ -1,0 +1,6 @@
+# Prettier only formats JSON here; keep it out of generated/local trees.
+**/.venv/
+.dual-graph/
+**/__pycache__/
+.claude/
+node_modules/

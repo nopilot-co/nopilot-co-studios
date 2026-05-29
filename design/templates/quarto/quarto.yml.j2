@@ -15,6 +15,15 @@ format:
     margin:
       x: 1in
       y: 1in
+{%- if logo %}
+    # Cap the brand header logo and keep it inside the top margin so it never
+    # overlaps body text on continuation pages (issue #2). This re-sets the page
+    # background after Quarto's brand layer (whose default 1.5in logo is too tall
+    # for square/portrait lockups); body still starts at the 1in top margin.
+    include-before-body:
+      text: |
+        #set page(background: align(left + top, box(inset: 0.4in, image("{{ logo }}", height: 0.4in))))
+{%- endif %}
 {%- elif fmt == "pptx" %}
   pptx:
 {%- if has_pptx_reference %}

@@ -5,6 +5,7 @@ the studio *declares* what each export needs (`exports/<export>.yml` → `requir
 and *detects* presence here. `studio doctor` reports status; render/qa fail with
 actionable messages at the point of use. This module never installs anything.
 """
+
 from __future__ import annotations
 
 import shutil

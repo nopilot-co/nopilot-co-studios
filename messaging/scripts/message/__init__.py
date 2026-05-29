@@ -50,5 +50,9 @@ SCHEMAS = Path(__file__).resolve().parent / "schemas"
 BRAND_ROOT = Path.home() / "context" / "studios" / "brand"
 DESIGN_CONTEXT = Path.home() / "context" / "studios" / "design"  # legacy brand location
 BRAND_VOICE_DEFAULT = (
-    PLUGIN_ROOT.parent / "design" / "resources" / "brand-voice" / "brand-voice-default.md"
+    PLUGIN_ROOT.parent
+    / "design"
+    / "resources"
+    / "brand-voice"
+    / "brand-voice-default.md"
 )

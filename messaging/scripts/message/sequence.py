@@ -7,6 +7,7 @@ manifest records order and links so the `sequence` skill and the
 creative-director can treat the steps as one campaign. Mechanics only; the
 copy/cadence judgment lives in the `sequence` skill.
 """
+
 from __future__ import annotations
 
 import json
@@ -43,7 +44,8 @@ def new(brand: str, name: str, steps: list[tuple[str, str]]) -> Path:
             errors.append(f"step '{sname}': invalid format '{fmt}' ({fmt_errors[0]})")
     if errors:
         raise ValueError(
-            "invalid sequence:\n  " + "\n  ".join(errors)
+            "invalid sequence:\n  "
+            + "\n  ".join(errors)
             + "\n  (run `message formats list` to see valid slugs)"
         )
 
@@ -65,12 +67,17 @@ def new(brand: str, name: str, steps: list[tuple[str, str]]) -> Path:
 
     manifest = root / "sequence.json"
     if not manifest.exists():
-        manifest.write_text(json.dumps({
-            "brand": brand,
-            "sequence": name,
-            "created": datetime.now(timezone.utc).isoformat(),
-            "steps": step_records,
-        }, indent=2))
+        manifest.write_text(
+            json.dumps(
+                {
+                    "brand": brand,
+                    "sequence": name,
+                    "created": datetime.now(timezone.utc).isoformat(),
+                    "steps": step_records,
+                },
+                indent=2,
+            )
+        )
     return root
 
 
@@ -85,7 +92,13 @@ def status(seq_path: Path) -> list[dict]:
         step_path = seq_path / step["session"]
         try:
             st = session_mod.read_state(step_path)
-            rows.append({**step, "status": st.get("status", "—"), "current": st.get("current", "—")})
+            rows.append(
+                {
+                    **step,
+                    "status": st.get("status", "—"),
+                    "current": st.get("current", "—"),
+                }
+            )
         except FileNotFoundError:
             rows.append({**step, "status": "missing", "current": "—"})
     return rows

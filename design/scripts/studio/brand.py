@@ -5,6 +5,7 @@ A brand is a studios-level entity living at ~/context/studios/brand/<slug>/
 (Posit brand.yml standard). Brands created before elevation live at the legacy
 ~/context/studios/design/<slug>/brand/ and are still read transparently.
 """
+
 from __future__ import annotations
 
 import json
@@ -72,13 +73,17 @@ def list_brands() -> list[dict[str, str]]:
         except yaml.YAMLError:
             continue
         primary = (data.get("color", {}) or {}).get("primary", "—")
-        font = ((data.get("typography", {}) or {}).get("headings", {}) or {}).get("family", "—")
-        rows.append({
-            "slug": slug,
-            "primary": str(primary),
-            "font": str(font),
-            "last_rendered": _last_rendered(slug),
-        })
+        font = ((data.get("typography", {}) or {}).get("headings", {}) or {}).get(
+            "family", "—"
+        )
+        rows.append(
+            {
+                "slug": slug,
+                "primary": str(primary),
+                "font": str(font),
+                "last_rendered": _last_rendered(slug),
+            }
+        )
     return rows
 
 
@@ -95,6 +100,7 @@ def _last_rendered(slug: str) -> str:
     if latest_mtime == 0:
         return ""
     from datetime import datetime, timezone
+
     return datetime.fromtimestamp(latest_mtime, tz=timezone.utc).strftime("%Y-%m-%d")
 
 
@@ -109,8 +115,10 @@ def validate(slug: str) -> list[str]:
     except FileNotFoundError as e:
         return [str(e)]
     validator = Draft202012Validator(schema)
-    return [f"{'.'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}"
-            for e in validator.iter_errors(data)]
+    return [
+        f"{'.'.join(str(p) for p in e.absolute_path) or '<root>'}: {e.message}"
+        for e in validator.iter_errors(data)
+    ]
 
 
 def show(slug: str) -> str:

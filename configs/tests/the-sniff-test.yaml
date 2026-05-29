@@ -1,0 +1,34 @@
+# The Sniff Test — does it sound credible, authoritative, believable, and
+# reliable? A scored test the nitpicker runs an asset through. This is a gate:
+# an asset that fails it fails overall (see configs/default/review-policy.yml).
+test: the-sniff-test
+name: The Sniff Test
+question: Does it sound credible, authoritative, believable, and reliable?
+description: >
+  Scores trust. Would a skeptical reader believe it? Are the claims specific and
+  substantiated; is the tone authoritative without overreaching; is it
+  internally consistent and honest about its limits?
+dimension: credibility
+applies_to: both
+
+scale:
+  min: 1
+  max: 5
+  labels:
+    1: Fails the sniff test — hype, unsupported, not believable.
+    2: Doubtful; claims feel inflated or vague.
+    3: Plausible but under-evidenced.
+    4: Credible; claims are specific and supported.
+    5: Authoritative; trustworthy, precise, and verifiable.
+
+criteria:
+  - Claims are specific and substantiated (numbers, proof, named sources)
+  - No hype or superlatives that outrun the evidence
+  - Tone is authoritative without arrogance or overreach
+  - Internally consistent — no contradictions between claims
+  - Honest about limits — no over-promising or hand-waving
+
+weight: 1.0
+threshold:
+  pass: 4
+  warn: 3

@@ -1,4 +1,5 @@
 """Session folder management + semver versioning."""
+
 from __future__ import annotations
 
 import json
@@ -24,8 +25,9 @@ def init(slug: str, name: str, source: Path, fmt: str) -> Path:
     errors = formats_mod.validate(fmt)
     if errors:
         raise ValueError(
-            f"invalid format '{fmt}':\n  " + "\n  ".join(errors)
-            + f"\n  (run `studio formats list` to see valid slugs)"
+            f"invalid format '{fmt}':\n  "
+            + "\n  ".join(errors)
+            + "\n  (run `studio formats list` to see valid slugs)"
         )
 
     root = session_root(slug, name)
@@ -42,15 +44,20 @@ def init(slug: str, name: str, source: Path, fmt: str) -> Path:
 
     version_json = root / "version.json"
     if not version_json.exists():
-        version_json.write_text(json.dumps({
-            "brand": slug,
-            "session": name,
-            "format": fmt,
-            "source_filename": source.name,
-            "created": datetime.now(timezone.utc).isoformat(),
-            "current": "0.0.0",
-            "history": [],
-        }, indent=2))
+        version_json.write_text(
+            json.dumps(
+                {
+                    "brand": slug,
+                    "session": name,
+                    "format": fmt,
+                    "source_filename": source.name,
+                    "created": datetime.now(timezone.utc).isoformat(),
+                    "current": "0.0.0",
+                    "history": [],
+                },
+                indent=2,
+            )
+        )
     return root
 
 
@@ -82,13 +89,17 @@ def next_version(session_path: Path, kind: str) -> str:
     return bump(state["current"], kind)
 
 
-def record_render(session_path: Path, version: str, formats: list[str], outputs: dict[str, Path]) -> None:
+def record_render(
+    session_path: Path, version: str, formats: list[str], outputs: dict[str, Path]
+) -> None:
     state = read_state(session_path)
     state["current"] = version
-    state["history"].append({
-        "version": version,
-        "rendered_at": datetime.now(timezone.utc).isoformat(),
-        "formats": formats,
-        "outputs": {fmt: str(p) for fmt, p in outputs.items()},
-    })
+    state["history"].append(
+        {
+            "version": version,
+            "rendered_at": datetime.now(timezone.utc).isoformat(),
+            "formats": formats,
+            "outputs": {fmt: str(p) for fmt, p in outputs.items()},
+        }
+    )
     write_state(session_path, state)

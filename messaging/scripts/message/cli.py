@@ -8,6 +8,7 @@ Subcommands match the skills:
   message status --session PATH [--set draft|approved|sent]
   message doctor
 """
+
 from __future__ import annotations
 
 import sys
@@ -74,10 +75,16 @@ def formats_validate(slug: str) -> None:
 
 # ---------------------------------------------------------------- new
 @main.command("new")
-@click.option("--brand", required=True, help="Brand slug (shares the design studio's voice)")
+@click.option(
+    "--brand", required=True, help="Brand slug (shares the design studio's voice)"
+)
 @click.option("--name", required=True, help="Session name (kebab-case)")
-@click.option("--format", "fmt", required=True,
-              help="Format slug to lock in, e.g. outreach-email (see `message formats list`)")
+@click.option(
+    "--format",
+    "fmt",
+    required=True,
+    help="Format slug to lock in, e.g. outreach-email (see `message formats list`)",
+)
 def new_cmd(brand: str, name: str, fmt: str) -> None:
     try:
         path = session_mod.new(brand, name, fmt)
@@ -91,7 +98,12 @@ def new_cmd(brand: str, name: str, fmt: str) -> None:
 
 # ---------------------------------------------------------------- lint
 @main.command("lint")
-@click.option("--session", "session_path", required=True, type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--session",
+    "session_path",
+    required=True,
+    type=click.Path(exists=True, path_type=Path),
+)
 def lint_cmd(session_path: Path) -> None:
     """Enforce the locked format's deterministic ruleset against the composed message."""
     try:
@@ -108,7 +120,12 @@ def lint_cmd(session_path: Path) -> None:
 
 # ---------------------------------------------------------------- render
 @main.command("render")
-@click.option("--session", "session_path", required=True, type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--session",
+    "session_path",
+    required=True,
+    type=click.Path(exists=True, path_type=Path),
+)
 @click.option("--bump", default="patch", type=click.Choice(["patch", "minor", "major"]))
 def render_cmd(session_path: Path, bump: str) -> None:
     """Render the composed message to its channel target(s); enforces the ruleset."""
@@ -125,8 +142,10 @@ def render_cmd(session_path: Path, bump: str) -> None:
     missing = deps_mod.missing_render_tools(resolved)
     if gated and missing:
         hint = deps_mod.INSTALL_HINTS.get(missing[0], "install it")
-        click.echo(f"\n⚠ skipped {', '.join(sorted(gated))} — needs {', '.join(missing)}: {hint}",
-                   err=True)
+        click.echo(
+            f"\n⚠ skipped {', '.join(sorted(gated))} — needs {', '.join(missing)}: {hint}",
+            err=True,
+        )
 
     violations = lint_mod.lint(session_path)
     if violations:
@@ -138,15 +157,26 @@ def render_cmd(session_path: Path, bump: str) -> None:
 
 # ---------------------------------------------------------------- status
 @main.command("status")
-@click.option("--session", "session_path", required=True, type=click.Path(exists=True, path_type=Path))
-@click.option("--set", "new_status", default=None,
-              type=click.Choice(["draft", "approved", "sent"]),
-              help="Update the message status")
+@click.option(
+    "--session",
+    "session_path",
+    required=True,
+    type=click.Path(exists=True, path_type=Path),
+)
+@click.option(
+    "--set",
+    "new_status",
+    default=None,
+    type=click.Choice(["draft", "approved", "sent"]),
+    help="Update the message status",
+)
 def status_cmd(session_path: Path, new_status: str | None) -> None:
     if new_status:
         session_mod.set_status(session_path, new_status)
     state = session_mod.read_state(session_path)
-    click.echo(f"{state['session']}  format={state['format']}  status={state['status']}  v{state['current']}")
+    click.echo(
+        f"{state['session']}  format={state['format']}  status={state['status']}  v{state['current']}"
+    )
 
 
 # ---------------------------------------------------------------- sequence
@@ -156,11 +186,18 @@ def sequence() -> None:
 
 
 @sequence.command("new")
-@click.option("--brand", required=True, help="Brand slug (shares the design studio's voice)")
+@click.option(
+    "--brand", required=True, help="Brand slug (shares the design studio's voice)"
+)
 @click.option("--name", required=True, help="Sequence name (kebab-case)")
-@click.option("--step", "steps", multiple=True, required=True,
-              help="Repeatable NAME:FORMAT, in order "
-                   "(e.g. --step cold:outreach-email --step bump:followup-email)")
+@click.option(
+    "--step",
+    "steps",
+    multiple=True,
+    required=True,
+    help="Repeatable NAME:FORMAT, in order "
+    "(e.g. --step cold:outreach-email --step bump:followup-email)",
+)
 def sequence_new(brand: str, name: str, steps: tuple[str, ...]) -> None:
     parsed: list[tuple[str, str]] = []
     for s in steps:
@@ -175,20 +212,28 @@ def sequence_new(brand: str, name: str, steps: tuple[str, ...]) -> None:
     click.echo(str(root))
     for i, (step_name, fmt) in enumerate(parsed, start=1):
         sid = sequence_mod.step_id(i, step_name)
-        click.echo(f"  step {i}: {step_name} [{fmt}]  -> compose into {root}/{sid}/inputs/message.md")
+        click.echo(
+            f"  step {i}: {step_name} [{fmt}]  -> compose into {root}/{sid}/inputs/message.md"
+        )
 
 
 @sequence.command("status")
-@click.option("--sequence", "seq_path", required=True,
-              type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--sequence",
+    "seq_path",
+    required=True,
+    type=click.Path(exists=True, path_type=Path),
+)
 def sequence_status(seq_path: Path) -> None:
     try:
         rows = sequence_mod.status(seq_path)
     except FileNotFoundError as e:
         raise click.ClickException(f"not a sequence ({e})") from e
     for r in rows:
-        click.echo(f"  step {r['step']:>2}  {r['name']:<16} {r['format']:<20} "
-                   f"status={r['status']:<9} v{r['current']}")
+        click.echo(
+            f"  step {r['step']:>2}  {r['name']:<16} {r['format']:<20} "
+            f"status={r['status']:<9} v{r['current']}"
+        )
 
 
 # ---------------------------------------------------------------- doctor
@@ -203,11 +248,17 @@ def doctor_cmd() -> None:
         if ok:
             click.echo(f"  ✓ {tool}")
         else:
-            click.echo(f"  ✗ {tool}   →  {deps_mod.INSTALL_HINTS.get(tool, '(install it)')}")
+            click.echo(
+                f"  ✗ {tool}   →  {deps_mod.INSTALL_HINTS.get(tool, '(install it)')}"
+            )
     click.echo("\nFormats:")
     for f in rep["formats"]:
         targets = ",".join(f["targets"]) or "—"
-        status = "✓ ready" if f["render_ready"] else f"✗ needs: {', '.join(f['render_missing'])}"
+        status = (
+            "✓ ready"
+            if f["render_ready"]
+            else f"✗ needs: {', '.join(f['render_missing'])}"
+        )
         click.echo(f"  {f['slug']:<22} {targets:<22} {status}")
 
 

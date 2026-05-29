@@ -72,4 +72,3 @@ The palette is built around high-contrast neutrals and a single accent that driv
 - **Do** let Neutral carry the composition — negative space is a feature.
 - **Don't** introduce gradients. This system is flat on purpose.
 - **Don't** mix Tertiary with alternate accents; the single-accent rule is load-bearing.
-

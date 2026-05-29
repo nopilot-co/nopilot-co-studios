@@ -22,18 +22,21 @@
         "palette": {
           "type": "object",
           "patternProperties": {
-            "^[a-zA-Z0-9_-]+$": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+            "^[a-zA-Z0-9_-]+$": {
+              "type": "string",
+              "pattern": "^#[0-9A-Fa-f]{6}$"
+            }
           },
           "additionalProperties": false
         },
-        "primary":    { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
-        "secondary":  { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
-        "tertiary":   { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "primary": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "secondary": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "tertiary": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
         "foreground": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
         "background": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
-        "success":    { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
-        "warning":    { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
-        "danger":     { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+        "success": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "warning": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" },
+        "danger": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
       }
     },
     "typography": {
@@ -46,22 +49,25 @@
             "required": ["family"],
             "properties": {
               "family": { "type": "string" },
-              "source": { "type": "string", "enum": ["google", "system", "file", "bunny"] },
-              "files":  { "type": "array", "items": { "type": "string" } }
+              "source": {
+                "type": "string",
+                "enum": ["google", "system", "file", "bunny"]
+              },
+              "files": { "type": "array", "items": { "type": "string" } }
             }
           }
         },
-        "base":      { "type": "object" },
-        "headings":  { "type": "object" },
+        "base": { "type": "object" },
+        "headings": { "type": "object" },
         "monospace": { "type": "object" }
       }
     },
     "logo": {
       "type": "object",
       "properties": {
-        "small":  { "type": ["string", "object"] },
+        "small": { "type": ["string", "object"] },
         "medium": { "type": ["string", "object"] },
-        "large":  { "type": ["string", "object"] }
+        "large": { "type": ["string", "object"] }
       }
     }
   }

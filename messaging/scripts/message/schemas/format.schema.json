@@ -4,7 +4,15 @@
   "title": "Resolved messaging format contract",
   "description": "A format slug (<purpose>-<channel>) after merging purposes/<purpose>.yml, channels/<channel>.yml, and the slug file's overrides.",
   "type": "object",
-  "required": ["slug", "purpose", "channel", "render", "style_guide", "execution_brief", "ruleset"],
+  "required": [
+    "slug",
+    "purpose",
+    "channel",
+    "render",
+    "style_guide",
+    "execution_brief",
+    "ruleset"
+  ],
   "properties": {
     "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)+$" },
     "purpose": { "type": "string" },

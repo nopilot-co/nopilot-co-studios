@@ -41,17 +41,14 @@ echo
 echo "==> dependency check"
 missing=()
 
-# Detect Homebrew once — affects how we phrase install hints.
-if command -v brew >/dev/null 2>&1; then
-  has_brew=1
-else
-  has_brew=0
+# Warn early if Homebrew is missing — the install hints below all use it.
+if ! command -v brew > /dev/null 2>&1; then
   echo "  ⚠ Homebrew not found — install from https://brew.sh first to get the tools below"
 fi
 
 check() {
   local name="$1" install_hint="$2"
-  if command -v "$name" >/dev/null 2>&1; then
+  if command -v "$name" > /dev/null 2>&1; then
     echo "  ✓ $name"
   else
     echo "  ✗ $name — install with: $install_hint"
@@ -59,23 +56,24 @@ check() {
   fi
 }
 
-check quarto       "brew install --cask quarto"
-check typst        "brew install typst"
-check libreoffice  "brew install --cask libreoffice  (binary may be 'soffice')"
+check quarto "brew install --cask quarto"
+check typst "brew install typst"
+check libreoffice "brew install --cask libreoffice  (binary may be 'soffice')"
 
 # libreoffice on macOS installs as 'soffice' — handle that variant
-if [[ " ${missing[*]} " == *" libreoffice "* ]] && command -v soffice >/dev/null 2>&1; then
+if [[ " ${missing[*]} " == *" libreoffice "* ]] && command -v soffice > /dev/null 2>&1; then
   echo "  ℹ found 'soffice' (LibreOffice macOS binary) — that satisfies libreoffice"
-  missing=("${missing[@]/libreoffice}")
+  missing=("${missing[@]/libreoffice/}")
 fi
 
 # Find a Python ≥ 3.10 — prefer newer
 PY=""
 for cand in python3.13 python3.12 python3.11 python3.10 python3; do
-  if command -v "$cand" >/dev/null 2>&1; then
-    ver="$($cand -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2>/dev/null)"
-    major="${ver%.*}"; minor="${ver#*.}"
-    if (( major > 3 )) || { (( major == 3 )) && (( minor >= 10 )); }; then
+  if command -v "$cand" > /dev/null 2>&1; then
+    ver="$($cand -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2> /dev/null)"
+    major="${ver%.*}"
+    minor="${ver#*.}"
+    if ((major > 3)) || { ((major == 3)) && ((minor >= 10)); }; then
       PY="$cand"
       echo "  ✓ python ($cand → $ver)"
       break
@@ -91,8 +89,8 @@ fi
 echo
 echo "==> installing studio Python package (editable)"
 if [[ -n "$PY" ]]; then
-  pip_major="$($PY -m pip --version 2>/dev/null | awk '{print $2}' | cut -d. -f1)"
-  if [[ -n "$pip_major" ]] && (( pip_major < 23 )); then
+  pip_major="$($PY -m pip --version 2> /dev/null | awk '{print $2}' | cut -d. -f1)"
+  if [[ -n "$pip_major" ]] && ((pip_major < 23)); then
     echo "  ℹ pip $pip_major is too old for PEP 660 editable installs — upgrading"
     $PY -m pip install --user --upgrade pip 2>&1 | tail -3 || true
   fi
@@ -102,7 +100,7 @@ if [[ -n "$PY" ]]; then
   pip_rc=${PIPESTATUS[0]}
   set -e
 
-  if (( pip_rc == 0 )); then
+  if ((pip_rc == 0)); then
     echo "✓ studio package installed (using $PY)"
   else
     echo "✗ pip install failed (rc=$pip_rc) — symlink + workspace are still set up"

@@ -1,0 +1,21 @@
+# Relaxed yamllint for the studios format contracts and manifests.
+# Goal: catch real breakage (bad indentation, duplicate keys, tabs) without
+# nagging about cosmetic line length or document-start markers.
+extends: relaxed
+
+ignore: |
+  .venv/
+  **/.venv/
+  .dual-graph/
+
+rules:
+  line-length: disable
+  document-start: disable
+  comments:
+    min-spaces-from-content: 1
+  truthy:
+    # Allow yes/no/on/off as well as true/false in format files.
+    check-keys: false
+  indentation:
+    spaces: 2
+    indent-sequences: consistent

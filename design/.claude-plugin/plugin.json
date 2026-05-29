@@ -7,5 +7,14 @@
     "email": "juliantedstone@gmail.com"
   },
   "homepage": "https://github.com/juliantedstone/studios/tree/main/design",
-  "keywords": ["design", "branding", "markdown", "pdf", "pptx", "quarto", "typst", "rendering"]
+  "keywords": [
+    "design",
+    "branding",
+    "markdown",
+    "pdf",
+    "pptx",
+    "quarto",
+    "typst",
+    "rendering"
+  ]
 }

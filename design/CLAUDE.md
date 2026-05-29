@@ -100,7 +100,7 @@ studio qa capture --session PATH [--version X.Y.Z]
 - `session init` **locks in a format slug** (validated against the contracts) and
   records it in `version.json`. The export to render is fixed by that slug, so
   `render` takes no `--formats` — it maps the locked export (`pdf → typst`
-  engine; `revealjs` emits HTML), builds a Quarto project in `<session>/.tmp/`
+  engine; `revealjs` emits HTML), builds a Quarto project in `<session>/_render/`
   from `templates/quarto/quarto.yml.j2`, renders, moves the output to `outputs/`
   with a versioned filename, records to `version.json`, **enforces the count
   ruleset** (`max_pages`/`max_slides`), and cleans up.
@@ -146,7 +146,7 @@ render; then patch / minor / major bumps.
 | `formats.py` | Resolve / validate format slugs (purpose × export merge); deterministic ruleset checks |
 | `ingest.py` | Deterministic extraction from sources; draft `_brand.yml` + report; `synthesize-pptx` |
 | `session.py` | Session folders + semver versioning; locks the format into `version.json` |
-| `render.py` | Quarto subprocess wrapper: derive export from locked format → `.tmp/` project → versioned move |
+| `render.py` | Quarto subprocess wrapper: derive export from locked format → `_render/` project → versioned move |
 | `qa.py` | Capture: PDF→PNG (pypdfium2), PPTX→PDF→PNG (libreoffice), HTML screenshot |
 | `schemas/brand.schema.json` | JSON Schema for `_brand.yml` |
 | `schemas/format.schema.json` | JSON Schema for a resolved format contract |

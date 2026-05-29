@@ -8,6 +8,7 @@ Source paths may be files OR folders. Folders are recursively walked and every
 supported file inside is extracted; the folder itself is also copied as-is to
 ingest-sources/ so the original structure is preserved for later re-ingestion.
 """
+
 from __future__ import annotations
 
 import shutil
@@ -43,7 +44,10 @@ def _walk_supported(path: Path) -> Iterable[Path]:
         if p.is_symlink():
             continue
         # Skip if any path component is hidden or a noise dir
-        if any(part.startswith(".") or part in _SKIP_DIRS for part in p.relative_to(path).parts):
+        if any(
+            part.startswith(".") or part in _SKIP_DIRS
+            for part in p.relative_to(path).parts
+        ):
             continue
         if p.is_file() and p.suffix.lower() in _SUPPORTED_EXTS:
             yield p
@@ -80,7 +84,9 @@ def run(slug: str, sources: list[Path]) -> str:
                 report_lines.append("- (no supported files found inside)")
                 report_lines.append("")
                 continue
-            report_lines.append(f"- Walked folder, found {len(files)} supported file(s):")
+            report_lines.append(
+                f"- Walked folder, found {len(files)} supported file(s):"
+            )
 
         for f in files:
             rel = f.relative_to(src) if src.is_dir() else f.name
@@ -90,22 +96,28 @@ def run(slug: str, sources: list[Path]) -> str:
                 colors, fonts = _extract_from_pdf(f)
                 extracted_colors.extend(colors)
                 extracted_fonts.update(fonts)
-                report_lines.append(f"{label} (pdf) — colors: {', '.join(colors[:5]) or '(none)'} · "
-                                    f"fonts: {', '.join(sorted(fonts)) or '(none)'}")
+                report_lines.append(
+                    f"{label} (pdf) — colors: {', '.join(colors[:5]) or '(none)'} · "
+                    f"fonts: {', '.join(sorted(fonts)) or '(none)'}"
+                )
             elif ext == ".pptx":
                 has_pptx = True
                 colors, fonts, ref_path = _extract_from_pptx(f, brand)
                 extracted_colors.extend(colors)
                 extracted_fonts.update(fonts)
-                report_lines.append(f"{label} (pptx) — colors: {', '.join(colors[:5]) or '(none)'} · "
-                                    f"fonts: {', '.join(sorted(fonts)) or '(none)'} · "
-                                    f"reference deck → {ref_path.name}")
+                report_lines.append(
+                    f"{label} (pptx) — colors: {', '.join(colors[:5]) or '(none)'} · "
+                    f"fonts: {', '.join(sorted(fonts)) or '(none)'} · "
+                    f"reference deck → {ref_path.name}"
+                )
             elif ext in (".png", ".jpg", ".jpeg", ".svg"):
                 logo_paths.append(f)
                 colors = _extract_from_image(f)
                 extracted_colors.extend(colors)
-                report_lines.append(f"{label} (image) — dominant colors: "
-                                    f"{', '.join(colors[:5]) or '(none)'}")
+                report_lines.append(
+                    f"{label} (image) — dominant colors: "
+                    f"{', '.join(colors[:5]) or '(none)'}"
+                )
         report_lines.append("")
 
     # Promote first logo to canonical
@@ -125,10 +137,12 @@ def run(slug: str, sources: list[Path]) -> str:
     draft = _draft_brand_yml(slug, top_colors, sorted(extracted_fonts))
     brand_yml = brand / "_brand.yml"
     if brand_yml.exists():
-        backup = brand / f"_brand.yml.bak"
+        backup = brand / "_brand.yml.bak"
         shutil.copy2(brand_yml, backup)
         report_lines.append(f"**Existing _brand.yml backed up to:** {backup}")
-    brand_yml.write_text(yaml.safe_dump(draft, sort_keys=False, default_flow_style=False))
+    brand_yml.write_text(
+        yaml.safe_dump(draft, sort_keys=False, default_flow_style=False)
+    )
 
     # Stub voice/style files if absent
     for fname, content in [
@@ -139,20 +153,24 @@ def run(slug: str, sources: list[Path]) -> str:
         if not p.exists():
             p.write_text(content)
 
-    report_lines.extend([
-        "## Draft _brand.yml written",
-        "",
-        f"Path: `{brand_yml}`",
-        "",
-        "**Decisions needed from the LLM (brand-ingest skill):**",
-        "- Confirm/correct primary color (currently set to most-frequent extracted color)",
-        "- Choose heading vs body typeface from the extracted font list",
-        "- Add accent/dataviz colors if needed",
-        "- Fill `tone-of-voice.md` and `style-guide.md` from source guideline text",
-    ])
+    report_lines.extend(
+        [
+            "## Draft _brand.yml written",
+            "",
+            f"Path: `{brand_yml}`",
+            "",
+            "**Decisions needed from the LLM (brand-ingest skill):**",
+            "- Confirm/correct primary color (currently set to most-frequent extracted color)",
+            "- Choose heading vs body typeface from the extracted font list",
+            "- Add accent/dataviz colors if needed",
+            "- Fill `tone-of-voice.md` and `style-guide.md` from source guideline text",
+        ]
+    )
     if not has_pptx:
-        report_lines.append("- No PPTX source — run `studio ingest synthesize-pptx --brand "
-                            f"{slug}` to generate a reference deck from the brand tokens")
+        report_lines.append(
+            "- No PPTX source — run `studio ingest synthesize-pptx --brand "
+            f"{slug}` to generate a reference deck from the brand tokens"
+        )
 
     report = "\n".join(report_lines)
     (brand / "_ingest-report.md").write_text(report)
@@ -160,6 +178,7 @@ def run(slug: str, sources: list[Path]) -> str:
 
 
 # -------------------------------------------------------- extractors
+
 
 def _extract_from_pdf(pdf: Path) -> tuple[list[str], set[str]]:
     """Extract dominant colors and font family names from a PDF."""
@@ -220,6 +239,7 @@ def _extract_from_image(img_path: Path) -> list[str]:
     if not pixels:
         return []
     from PIL import Image as _Image
+
     tmp = _Image.new("RGB", (len(pixels), 1))
     tmp.putdata(pixels)
     return _dominant_colors(tmp, n=5)
@@ -228,13 +248,14 @@ def _extract_from_image(img_path: Path) -> list[str]:
 def _dominant_colors(pil_image, n: int = 5) -> list[str]:
     """k-means-ish via PIL's adaptive palette."""
     from PIL import Image
+
     img = pil_image.convert("RGB").resize((128, 128))
     pal = img.convert("P", palette=Image.Palette.ADAPTIVE, colors=n)
     palette = pal.getpalette()
     counts = sorted(pal.getcolors(), reverse=True)
     hexes: list[str] = []
     for _, idx in counts[:n]:
-        r, g, b = palette[idx * 3: idx * 3 + 3]
+        r, g, b = palette[idx * 3 : idx * 3 + 3]
         # Skip near-white / near-black (usually paper/ink, not brand)
         if max(r, g, b) > 245 and min(r, g, b) > 245:
             continue
@@ -245,6 +266,7 @@ def _dominant_colors(pil_image, n: int = 5) -> list[str]:
 
 
 # -------------------------------------------------------- drafts
+
 
 def _draft_brand_yml(slug: str, colors: list[str], fonts: list[str]) -> dict:
     primary = colors[0] if colors else "#0066CC"
@@ -319,14 +341,13 @@ def _style_stub(slug: str) -> str:
 
 def synthesize_reference_pptx(slug: str) -> Path:
     """Render an empty 5-slide deck via Quarto to use as reference.pptx."""
-    from . import render as render_mod
     import tempfile
 
     brand = brand_mod.brand_root(slug)
     if not (brand / "_brand.yml").exists():
         raise FileNotFoundError(f"no _brand.yml for {slug}")
 
-    sample_md = (TEMPLATES / "pptx" / "reference-skeleton.md")
+    sample_md = TEMPLATES / "pptx" / "reference-skeleton.md"
     if not sample_md.exists():
         # Fallback: inline a minimal 5-slide skeleton
         sample_md_content = """---
@@ -368,9 +389,12 @@ Right
                 "project:\n  type: default\nformat:\n  pptx: default\nbrand: _brand.yml\n"
             )
             import subprocess
+
             result = subprocess.run(
                 ["quarto", "render", "sample.md", "--to", "pptx"],
-                cwd=td_path, capture_output=True, text=True,
+                cwd=td_path,
+                capture_output=True,
+                text=True,
             )
             if result.returncode != 0:
                 raise RuntimeError(f"synthesize failed:\n{result.stderr}")

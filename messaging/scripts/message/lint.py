@@ -4,6 +4,7 @@ Checks the machine-verifiable rules (subject length, body budget, link count,
 forbidden phrases). Subjective rules (required sections present, CTA strength,
 voice) are the `message-qa` skill's job.
 """
+
 from __future__ import annotations
 
 import re
@@ -62,17 +63,23 @@ def lint(session_path: Path) -> list[str]:
     if "max_body_words" in ruleset:
         bw = _word_count(body)
         if bw > ruleset["max_body_words"]:
-            violations.append(f"body {bw} words exceeds max_body_words={ruleset['max_body_words']}")
+            violations.append(
+                f"body {bw} words exceeds max_body_words={ruleset['max_body_words']}"
+            )
     if "max_body_chars" in ruleset:
         bc = _char_count(body)
         if bc > ruleset["max_body_chars"]:
-            violations.append(f"body {bc} chars exceeds max_body_chars={ruleset['max_body_chars']}")
+            violations.append(
+                f"body {bc} chars exceeds max_body_chars={ruleset['max_body_chars']}"
+            )
     if "max_links" in ruleset:
         lc = _link_count(body)
         if lc > ruleset["max_links"]:
             violations.append(f"{lc} links exceeds max_links={ruleset['max_links']}")
 
-    forbidden = list(ruleset.get("forbidden", [])) + voice_mod.forbidden_words(state.get("brand"))
+    forbidden = list(ruleset.get("forbidden", [])) + voice_mod.forbidden_words(
+        state.get("brand")
+    )
     haystack = f"{subject} {body}".lower()
     for term in forbidden:
         if term and term.lower() in haystack:

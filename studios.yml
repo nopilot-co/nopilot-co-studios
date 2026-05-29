@@ -18,6 +18,13 @@ studios:
     capabilities: [compose-message, sequence]
     status: active
 
+  - slug: nitpicker
+    path: nitpicker
+    manifest: nitpicker/studio.yaml
+    summary: Rigorous asset review — visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice, and a configurable scored test battery — returning a weighted verdict.
+    capabilities: [review-asset, run-tests]
+    status: active
+
 # External services the creative-director is the single point of contact for.
 # The director publishes/notifies through these; studios stay local and pure.
 # Each maps to an available MCP server; integrate only when authenticated.

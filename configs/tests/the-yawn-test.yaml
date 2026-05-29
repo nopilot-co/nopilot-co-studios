@@ -1,0 +1,33 @@
+# The Yawn Test — is it interesting, readable, and engaging, or does it induce
+# a yawn? A scored test the nitpicker runs an asset through.
+test: the-yawn-test
+name: The Yawn Test
+question: Is it interesting, readable, and engaging — or does it induce a yawn?
+description: >
+  Scores attention and readability. Does the opening earn the next line; does
+  the piece sustain interest to the end; is it effortless to read rather than a
+  chore?
+dimension: engagement
+applies_to: both
+
+scale:
+  min: 1
+  max: 5
+  labels:
+    1: Yawn — abandoned in the first line.
+    2: Skimmed and dropped.
+    3: Readable but flat; attention drifts.
+    4: Engaging; pulls the reader through.
+    5: Gripping; hard to stop reading or looking.
+
+criteria:
+  - The opening earns attention — no warm-up, no throat-clearing
+  - Momentum — each sentence/section/slide earns the next
+  - Effortless to read — skimmable, concrete, low cognitive load
+  - Varied rhythm — no monotony, no wall of text
+  - No filler, padding, or jargon fog
+
+weight: 1.0
+threshold:
+  pass: 4
+  warn: 3

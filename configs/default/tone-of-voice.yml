@@ -1,0 +1,76 @@
+# Standardised tone-of-voice baseline — brand-agnostic.
+# A brand's own tone-of-voice.md (in the shared brand store) overlays this; the
+# nitpicker's tone-of-voice skill scores an asset against the resolved standard.
+baseline: tone-of-voice
+name: Default tone of voice
+description: >
+  The standard the nitpicker holds copy to when no brand voice is supplied, and
+  the floor it is held to even when one is. Brand voice specialises these; it
+  does not relax them.
+
+# The character the writing should project.
+attributes:
+  - clear
+  - confident
+  - human
+  - specific
+  - respectful of the reader's time
+
+principles:
+  - id: clarity-over-cleverness
+    rule: Say the thing. A clever line that obscures the point loses.
+  - id: lead-with-the-reader
+    rule: Open with the reader's situation and stake, not the writer's news.
+  - id: show-dont-assert
+    rule: Earn claims with specifics — numbers, proof, examples — not adjectives.
+  - id: one-idea-per-unit
+    rule: One idea per sentence, one job per paragraph, one ask per piece.
+  - id: cut-the-warm-up
+    rule: Delete throat-clearing. The first line should already be working.
+
+mechanics:
+  voice: active
+  person: second ("you"); first-person plural ("we") sparingly
+  tense: present where possible
+  sentence_length: vary; default short
+  hedging: minimal — no "we think maybe perhaps"
+
+do:
+  - Use plain, concrete words over abstract or corporate ones
+  - Make every sentence earn the next
+  - Prefer verbs to nominalisations ("decide", not "make a decision")
+  - Be specific about who, what, and how much
+
+dont:
+  - Pile up hype, superlatives, or exclamation marks
+  - Bury the point under preamble or qualification
+  - Use jargon where a plain word exists
+  - Pad to length
+
+# Phrases that should not appear. The nitpicker flags any of these on sight.
+forbidden:
+  - synergy
+  - leverage
+  - circle back
+  - just checking in
+  - touch base
+  - game-changer
+  - revolutionary
+  - cutting-edge
+  - world-class
+  - best-in-class
+  - seamless
+  - frictionless
+  - at the end of the day
+  - in today's fast-paced world
+
+# Preferred substitutions — swap the left for the right.
+preferred:
+  - instead: utilise
+    use: use
+  - instead: in order to
+    use: to
+  - instead: a number of
+    use: a specific count
+  - instead: solutions
+    use: the actual thing you do

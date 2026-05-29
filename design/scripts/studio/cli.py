@@ -10,6 +10,7 @@ Subcommands match the skills:
   studio qa capture --session PATH [--version X.Y.Z]
   studio doctor
 """
+
 from __future__ import annotations
 
 import sys
@@ -46,7 +47,9 @@ def brand_list() -> None:
     width = max(len(r["slug"]) for r in rows)
     for r in rows:
         last = r.get("last_rendered") or "never"
-        click.echo(f"{r['slug']:<{width}}  {r['primary']:<9}  {r['font']:<28}  last: {last}")
+        click.echo(
+            f"{r['slug']:<{width}}  {r['primary']:<9}  {r['font']:<28}  last: {last}"
+        )
 
 
 @brand.command("validate")
@@ -116,10 +119,11 @@ def formats_validate(slug: str) -> None:
 @main.group(invoke_without_command=True)
 @click.option("--brand", "slug", help="Brand slug (kebab-case)")
 @click.option(
-    "--sources", multiple=True,
+    "--sources",
+    multiple=True,
     type=click.Path(exists=True, file_okay=True, dir_okay=True, path_type=Path),
     help="One or more files OR folders. Folders are walked recursively; "
-         "hidden files and __pycache__/node_modules/.git are skipped.",
+    "hidden files and __pycache__/node_modules/.git are skipped.",
 )
 @click.pass_context
 def ingest(ctx: click.Context, slug: str | None, sources: tuple[Path, ...]) -> None:
@@ -155,8 +159,12 @@ def session() -> None:
 @session.command("init")
 @click.option("--brand", "slug", required=True)
 @click.option("--name", required=True, help="Session name (kebab-case)")
-@click.option("--format", "fmt", required=True,
-              help="Format slug to lock in, e.g. pitch-pdf (see `studio formats list`)")
+@click.option(
+    "--format",
+    "fmt",
+    required=True,
+    help="Format slug to lock in, e.g. pitch-pdf (see `studio formats list`)",
+)
 @click.option("--source", required=True, type=click.Path(exists=True, path_type=Path))
 def session_init(slug: str, name: str, fmt: str, source: Path) -> None:
     try:
@@ -168,7 +176,12 @@ def session_init(slug: str, name: str, fmt: str, source: Path) -> None:
 
 # ---------------------------------------------------------------- render
 @main.command("render")
-@click.option("--session", "session_path", required=True, type=click.Path(exists=True, path_type=Path))
+@click.option(
+    "--session",
+    "session_path",
+    required=True,
+    type=click.Path(exists=True, path_type=Path),
+)
 @click.option("--bump", default="patch", type=click.Choice(["patch", "minor", "major"]))
 def render_cmd(session_path: Path, bump: str) -> None:
     """Render the session's locked format. The export is fixed by the format slug."""
@@ -200,7 +213,9 @@ def doctor_cmd() -> None:
         if ok:
             click.echo(f"  ✓ {tool}")
         else:
-            click.echo(f"  ✗ {tool}   →  {deps_mod.INSTALL_HINTS.get(tool, '(install it)')}")
+            click.echo(
+                f"  ✗ {tool}   →  {deps_mod.INSTALL_HINTS.get(tool, '(install it)')}"
+            )
     click.echo("\nFormats:")
     for f in rep["formats"]:
         if not f["renderable"]:
@@ -221,11 +236,20 @@ def qa() -> None:
 
 
 @qa.command("capture")
-@click.option("--session", "session_path", required=True, type=click.Path(exists=True, path_type=Path))
-@click.option("--version", default=None, help="Version to capture (defaults to current)")
+@click.option(
+    "--session",
+    "session_path",
+    required=True,
+    type=click.Path(exists=True, path_type=Path),
+)
+@click.option(
+    "--version", default=None, help="Version to capture (defaults to current)"
+)
 def qa_capture(session_path: Path, version: str | None) -> None:
     images = qa_mod.capture(session_path, version)
-    click.echo(f"✓ captured {len(images)} images to {images[0].parent if images else '(none)'}")
+    click.echo(
+        f"✓ captured {len(images)} images to {images[0].parent if images else '(none)'}"
+    )
 
 
 if __name__ == "__main__":

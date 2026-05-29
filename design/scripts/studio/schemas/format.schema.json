@@ -4,7 +4,16 @@
   "title": "Resolved design-studio format contract",
   "description": "A format slug (<purpose>-<export>) after merging purposes/<purpose>.yml, exports/<export>.yml, and the slug file's overrides.",
   "type": "object",
-  "required": ["slug", "purpose", "export", "asset_type", "render", "style_guide", "execution_brief", "ruleset"],
+  "required": [
+    "slug",
+    "purpose",
+    "export",
+    "asset_type",
+    "render",
+    "style_guide",
+    "execution_brief",
+    "ruleset"
+  ],
   "properties": {
     "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)+$" },
     "purpose": { "type": "string" },

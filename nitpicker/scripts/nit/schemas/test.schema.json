@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://studios/nitpicker/test.schema.json",
+  "title": "Nitpicker scored-test definition",
+  "description": "A configurable, extensible scoring mechanism in configs/tests/ (e.g. the-so-what-test). Poses a question, defines a scored scale with labelled anchors, lists the criteria the score is judged against, and declares its weight + thresholds.",
+  "type": "object",
+  "required": ["test", "name", "question", "scale", "criteria"],
+  "properties": {
+    "test": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "name": { "type": "string" },
+    "question": { "type": "string" },
+    "description": { "type": "string" },
+    "dimension": { "type": "string" },
+    "applies_to": {
+      "type": "string",
+      "enum": ["text", "visual", "both"]
+    },
+    "scale": {
+      "type": "object",
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "integer" },
+        "max": { "type": "integer" },
+        "labels": { "type": "object" }
+      }
+    },
+    "criteria": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1
+    },
+    "weight": { "type": "number", "minimum": 0 },
+    "threshold": {
+      "type": "object",
+      "properties": {
+        "pass": { "type": "number" },
+        "warn": { "type": "number" }
+      }
+    }
+  }
+}

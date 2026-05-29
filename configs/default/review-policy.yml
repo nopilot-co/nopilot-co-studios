@@ -1,0 +1,39 @@
+# Default review policy — how the nitpicker turns scores into a verdict.
+# Global and brand-agnostic. `nit score` reads this to aggregate per-test and
+# per-dimension scores into one weighted result + verdict.
+baseline: review-policy
+name: Default review policy
+description: >
+  The aggregation rules for a review. Each test/dimension is scored on its own
+  scale; scores are normalised to 0-1, weighted, and averaged to an overall
+  0-100. Gate items can unilaterally fail an asset regardless of the average.
+
+# Fallback scale for any item that does not declare its own.
+scale:
+  min: 1
+  max: 5
+
+# Overall (0-100) verdict bands.
+verdict:
+  pass: 80 # >= pass            -> pass
+  revise: 60 # >= revise, < pass -> revise; < revise -> fail
+  # A gate item scoring at or below (min + fail_floor_ratio*(max-min)) forces a
+  # 'fail' verdict no matter how high the weighted average is.
+  fail_floor_ratio: 0.4
+
+# Items that can unilaterally fail the asset. Credibility is non-negotiable: an
+# asset that fails the sniff test fails, however polished.
+gates:
+  - the-sniff-test
+  - brief-fulfilment
+
+# Weights for the weighted average. Per-test weights declared in a test's own
+# YAML win over `tests.default`; dimension weights come from here.
+weights:
+  tests:
+    default: 1.0
+  dimensions:
+    visual-qa: 1.0
+    brief-fulfilment: 1.5 # fulfilling the brief is the point of the asset
+    audience-fit: 1.25
+    tone-of-voice: 1.0

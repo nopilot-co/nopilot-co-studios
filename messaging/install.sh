@@ -23,15 +23,15 @@ echo "Installing the 'message' package (editable)…"
 # ---- optional native dep: MJML (HTML email) --------------------------------
 echo
 echo "Checking MJML (optional — HTML email rendering):"
-if command -v mjml >/dev/null 2>&1; then
-  echo "  ✓ mjml ($(mjml --version 2>/dev/null | head -1))"
+if command -v mjml > /dev/null 2>&1; then
+  echo "  ✓ mjml ($(mjml --version 2> /dev/null | head -1))"
 else
-  if command -v npm >/dev/null 2>&1; then
+  if command -v npm > /dev/null 2>&1; then
     # Only install automatically when MESSAGING_INSTALL_MJML=1 — otherwise just hint.
     if [ "${MESSAGING_INSTALL_MJML:-0}" = "1" ]; then
       echo "  → installing mjml globally via npm…"
-      if npm install -g mjml >/dev/null 2>&1; then
-        echo "  ✓ mjml installed ($(mjml --version 2>/dev/null | head -1))"
+      if npm install -g mjml > /dev/null 2>&1; then
+        echo "  ✓ mjml installed ($(mjml --version 2> /dev/null | head -1))"
       else
         echo "  ✗ npm install -g mjml failed — try: sudo npm install -g mjml"
       fi

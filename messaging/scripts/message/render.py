@@ -5,6 +5,7 @@ compiled with MJML (a Node CLI, declared as the email channel's `requires`);
 when MJML is absent those targets are skipped and the CLI prints an install
 hint. Deterministic only — no judgment.
 """
+
 from __future__ import annotations
 
 import html as _html
@@ -30,6 +31,7 @@ def _md_to_html(body: str) -> str:
     text = body.strip()
     try:
         import markdown  # pure-Python, optional
+
         return markdown.markdown(text, extensions=["extra"])
     except ImportError:
         paras = [p.strip() for p in text.split("\n\n") if p.strip()]
@@ -49,7 +51,9 @@ def _mjml_html(body_html: str) -> str:
         f.write(doc)
         mjml_path = f.name
     try:
-        result = subprocess.run(["mjml", "-s", mjml_path], capture_output=True, text=True)
+        result = subprocess.run(
+            ["mjml", "-s", mjml_path], capture_output=True, text=True
+        )
     finally:
         Path(mjml_path).unlink(missing_ok=True)
     if result.returncode != 0:
@@ -92,7 +96,9 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
 
     # Compile the HTML body once if any MJML-gated target is requested and mjml exists.
     need_mjml = bool(_MJML_TARGETS & set(targets))
-    body_html = _mjml_html(_md_to_html(body)) if need_mjml and deps_mod.have("mjml") else None
+    body_html = (
+        _mjml_html(_md_to_html(body)) if need_mjml and deps_mod.have("mjml") else None
+    )
 
     for target in targets:
         dest = out_dir / f"{slug}.v{new_version}.{target}"

@@ -1,0 +1,34 @@
+# The So-What Test — does the content earn the reader's attention and change
+# their mind? A scored test the nitpicker runs an asset through.
+test: the-so-what-test
+name: The So-What Test
+question: Will this change the reader's mind?
+description: >
+  Scores whether the content is relevant, exciting, engaging, and impactful —
+  whether it gives the reader a real reason to think or act differently, rather
+  than information they can shrug off.
+dimension: impact
+applies_to: both
+
+scale:
+  min: 1
+  max: 5
+  labels:
+    1: So what? No reason to care; nothing changes for the reader.
+    2: Mildly relevant but forgettable.
+    3: Interesting; relevant but not compelling enough to act.
+    4: Compelling; a clear reason to care and likely to act.
+    5: Mind-changed; an urgent, specific payoff the reader cannot ignore.
+
+# What the score is judged against.
+criteria:
+  - Relevance to the reader's actual situation / ICP, not a generic audience
+  - A specific, concrete payoff — not a vague benefit
+  - Stakes — a real cost to the reader of ignoring it
+  - Memorability — the reader could repeat the core point afterwards
+  - A clear shift — what does the reader now think or do that they didn't before?
+
+weight: 1.5
+threshold:
+  pass: 4
+  warn: 3

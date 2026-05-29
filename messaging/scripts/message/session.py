@@ -3,10 +3,10 @@
 A session is one brand × one format slug × one message. `new` locks the format
 into version.json and scaffolds the composable source at inputs/message.md.
 """
+
 from __future__ import annotations
 
 import json
-import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -21,7 +21,7 @@ def session_root(name: str) -> Path:
 def _stub_message(resolved: dict) -> str:
     """A front-matter + section scaffold the compose skill fills in."""
     ruleset = resolved.get("ruleset") or {}
-    subject_line = "subject: \"\"\n" if ruleset.get("subject_required") else ""
+    subject_line = 'subject: ""\n' if ruleset.get("subject_required") else ""
     sections = (resolved.get("execution_brief") or {}).get("required_sections", [])
     body = "\n\n".join(f"<!-- {s} -->" for s in sections) or "<!-- body -->"
     return (
@@ -39,7 +39,8 @@ def new(brand: str, name: str, fmt: str) -> Path:
     errors = formats_mod.validate(fmt)
     if errors:
         raise ValueError(
-            f"invalid format '{fmt}':\n  " + "\n  ".join(errors)
+            f"invalid format '{fmt}':\n  "
+            + "\n  ".join(errors)
             + "\n  (run `message formats list` to see valid slugs)"
         )
     resolved = formats_mod.resolve(fmt)
@@ -55,17 +56,22 @@ def new(brand: str, name: str, fmt: str) -> Path:
 
     version_json = root / "version.json"
     if not version_json.exists():
-        version_json.write_text(json.dumps({
-            "brand": brand,
-            "session": name,
-            "format": fmt,
-            "channel": resolved.get("channel"),
-            "status": "draft",
-            "source_filename": "message.md",
-            "created": datetime.now(timezone.utc).isoformat(),
-            "current": "0.0.0",
-            "history": [],
-        }, indent=2))
+        version_json.write_text(
+            json.dumps(
+                {
+                    "brand": brand,
+                    "session": name,
+                    "format": fmt,
+                    "channel": resolved.get("channel"),
+                    "status": "draft",
+                    "source_filename": "message.md",
+                    "created": datetime.now(timezone.utc).isoformat(),
+                    "current": "0.0.0",
+                    "history": [],
+                },
+                indent=2,
+            )
+        )
     return root
 
 
@@ -92,15 +98,19 @@ def next_version(session_path: Path, kind: str) -> str:
     return bump(read_state(session_path)["current"], kind)
 
 
-def record_render(session_path: Path, version: str, targets: list[str], outputs: dict) -> None:
+def record_render(
+    session_path: Path, version: str, targets: list[str], outputs: dict
+) -> None:
     state = read_state(session_path)
     state["current"] = version
-    state["history"].append({
-        "version": version,
-        "rendered_at": datetime.now(timezone.utc).isoformat(),
-        "targets": targets,
-        "outputs": {t: str(p) for t, p in outputs.items()},
-    })
+    state["history"].append(
+        {
+            "version": version,
+            "rendered_at": datetime.now(timezone.utc).isoformat(),
+            "targets": targets,
+            "outputs": {t: str(p) for t, p in outputs.items()},
+        }
+    )
     write_state(session_path, state)
 
 

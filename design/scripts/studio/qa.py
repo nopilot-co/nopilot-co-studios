@@ -3,6 +3,7 @@
 The actual critique is written by the LLM (visual-qa skill) after looking at
 the captured images. This module only does deterministic capture.
 """
+
 from __future__ import annotations
 
 import shutil
@@ -65,10 +66,20 @@ def _pptx_to_png(pptx: Path, out_dir: Path, prefix: str) -> list[Path]:
     """Convert PPTX → PDF via libreoffice, then rasterize."""
     soffice = shutil.which("libreoffice") or shutil.which("soffice")
     if not soffice:
-        raise RuntimeError("libreoffice/soffice not found — install with: brew install --cask libreoffice")
+        raise RuntimeError(
+            "libreoffice/soffice not found — install with: brew install --cask libreoffice"
+        )
     with tempfile.TemporaryDirectory() as td:
         td_path = Path(td)
-        cmd = [soffice, "--headless", "--convert-to", "pdf", "--outdir", str(td_path), str(pptx)]
+        cmd = [
+            soffice,
+            "--headless",
+            "--convert-to",
+            "pdf",
+            "--outdir",
+            str(td_path),
+            str(pptx),
+        ]
         result = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
         if result.returncode != 0:
             raise RuntimeError(f"libreoffice PPTX→PDF failed:\n{result.stderr}")
@@ -105,7 +116,9 @@ def _html_to_png(html: Path, out_dir: Path, name: str) -> Path | None:
         dest = out_dir / name
         result = subprocess.run(
             [wkh, "--width", "1440", str(html), str(dest)],
-            capture_output=True, text=True, timeout=60,
+            capture_output=True,
+            text=True,
+            timeout=60,
         )
         if result.returncode == 0 and dest.exists():
             return dest

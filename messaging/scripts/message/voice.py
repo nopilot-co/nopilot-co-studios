@@ -4,6 +4,7 @@ Brand is a studios-level entity (SPEC §6, §12.1 resolved). A message is writte
 in a brand's voice, read from the shared brand store first, then the legacy
 design-owned location, then the canonical default in design/resources/brand-voice/.
 """
+
 from __future__ import annotations
 
 import re

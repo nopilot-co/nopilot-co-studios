@@ -9,6 +9,7 @@ This module is deterministic glue only — no judgment. It resolves, validates, 
 applies the *count-based* ruleset (max_pages, max_slides). Subjective rules
 (required sections, tone, CTA presence) are enforced by the ``visual-qa`` skill.
 """
+
 from __future__ import annotations
 
 import copy
@@ -117,7 +118,9 @@ def studio_format(resolved: dict[str, Any]) -> str | None:
 
 
 def is_renderable(resolved: dict[str, Any]) -> bool:
-    return studio_format(resolved) is not None and (resolved.get("ruleset") or {}).get("supported", True)
+    return studio_format(resolved) is not None and (resolved.get("ruleset") or {}).get(
+        "supported", True
+    )
 
 
 def show(slug: str) -> str:

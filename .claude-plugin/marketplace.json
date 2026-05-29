@@ -30,6 +30,14 @@
       "description": "Brand communications: emails, outreach, announcements, nurture, and multi-step sequences, composed in a brand's voice. HTML email via MJML.",
       "category": "communications",
       "tags": ["messaging", "email", "outreach", "copywriting", "mjml"]
+    },
+    {
+      "name": "nitpicker-studio",
+      "source": "./nitpicker",
+      "version": "0.1.0",
+      "description": "Rigorous asset review: visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice, and a configurable scored test battery (so-what / yawn / sniff), producing a weighted verdict.",
+      "category": "quality",
+      "tags": ["review", "qa", "critique", "tone-of-voice", "visual-qa"]
     }
   ]
 }
