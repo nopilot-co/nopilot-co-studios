@@ -14,17 +14,17 @@ across studios.
 
 ```bash
 # 1. Register the marketplace
-claude plugin marketplace add github:juliantedstone/studios
+claude plugin marketplace add github:nopilot-co/nopilot-co-studios
 
 # 2. Install the plugins (skills + slash commands)
-claude plugin install studios@studios
-claude plugin install design-studio@studios
-claude plugin install messaging-studio@studios
-claude plugin install nitpicker-studio@studios
+claude plugin install studios@nopilot-co-studios
+claude plugin install design-studio@nopilot-co-studios
+claude plugin install messaging-studio@nopilot-co-studios
+claude plugin install nitpicker-studio@nopilot-co-studios
 
 # 3. Install the deterministic CLIs (the skills call into these)
-git clone https://github.com/juliantedstone/studios.git
-cd studios
+git clone https://github.com/nopilot-co/nopilot-co-studios.git
+cd nopilot-co-studios
 ./design/install.sh        # 'studio'  CLI (Quarto/Typst)
 ./messaging/install.sh     # 'message' CLI (MJML optional)
 ./nitpicker/install.sh     # 'nit'     CLI (review/scoring)

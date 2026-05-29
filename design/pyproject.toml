@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "design-studio"
-version = "0.1.1"
+version = "0.1.2"
 description = "Brand-aware multi-format rendering orchestrator for the design-studio Claude Code plugin"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [{ name = "Ted Stone", email = "juliantedstone@gmail.com" }]
+authors = [{ name = "Julian Tedstone", email = "ted@nopilot.co" }]
 dependencies = [
   "pyyaml>=6.0",
   "jinja2>=3.1",

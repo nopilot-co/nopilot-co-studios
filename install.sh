@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install the Studios marketplace + plugins.
+# Install the nopilot-co-studios marketplace + plugins.
 #
 # This script:
 #   1. Registers this repo as a Claude Code / Cowork plugin marketplace
@@ -27,8 +27,8 @@ register_marketplace() { # register_marketplace <host-cli>
     echo "  ✓ marketplace registered with $host"
     return 0
   fi
-  # Fall back to listing — if 'studios' shows up, we're good.
-  if "$host" plugin marketplace list 2> /dev/null | grep -q "studios"; then
+  # Fall back to listing — if 'nopilot-co-studios' shows up, we're good.
+  if "$host" plugin marketplace list 2> /dev/null | grep -q "nopilot-co-studios"; then
     echo "  ✓ marketplace already registered with $host"
     return 0
   fi
@@ -39,19 +39,19 @@ register_marketplace() { # register_marketplace <host-cli>
 install_plugins() { # install_plugins <host-cli>
   local host="$1" name
   for name in "${PLUGINS[@]}"; do
-    if "$host" plugin list 2> /dev/null | grep -q "^  ❯ $name@studios"; then
-      echo "  • $name@studios already installed"
+    if "$host" plugin list 2> /dev/null | grep -q "^  ❯ $name@nopilot-co-studios"; then
+      echo "  • $name@nopilot-co-studios already installed"
     else
-      if "$host" plugin install "$name@studios" > /dev/null 2>&1; then
-        echo "  ✓ installed $name@studios"
+      if "$host" plugin install "$name@nopilot-co-studios" > /dev/null 2>&1; then
+        echo "  ✓ installed $name@nopilot-co-studios"
       else
-        echo "  ✗ failed to install $name@studios — run 'claude plugin install $name@studios' for details"
+        echo "  ✗ failed to install $name@nopilot-co-studios — run 'claude plugin install $name@nopilot-co-studios' for details"
       fi
     fi
   done
 }
 
-echo "Studios marketplace:"
+echo "nopilot-co-studios marketplace:"
 if [ ! -f "$ROOT/.claude-plugin/marketplace.json" ]; then
   echo "  ✗ .claude-plugin/marketplace.json missing — aborting"
   exit 1

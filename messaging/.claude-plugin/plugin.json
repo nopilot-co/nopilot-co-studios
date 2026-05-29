@@ -1,12 +1,12 @@
 {
   "name": "messaging-studio",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Messaging studio: brand communications — emails, announcements, outreach, sequences — composed in a brand's voice. Pairs with the design studio for full deliverables.",
   "author": {
-    "name": "Ted Stone",
-    "email": "juliantedstone@gmail.com"
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
   },
-  "homepage": "https://github.com/juliantedstone/studios/tree/main/messaging",
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/messaging",
   "keywords": [
     "messaging",
     "communications",

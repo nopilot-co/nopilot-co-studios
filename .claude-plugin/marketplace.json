@@ -1,16 +1,16 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
-  "name": "studios",
+  "name": "nopilot-co-studios",
   "owner": {
-    "name": "Ted Stone",
-    "email": "juliantedstone@gmail.com"
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
   },
-  "description": "Studios marketplace — the studios-root creative-director and its studios (design, messaging).",
+  "description": "nopilot-co-studios marketplace — the studios-root creative-director and its studios (design, messaging, nitpicker).",
   "plugins": [
     {
       "name": "studios",
       "source": "./",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "description": "Cross-studio creative-director: /studio <brief> routes work across studios and delivers to external services (Gamma, Canva, Slack, Gmail).",
       "category": "orchestration",
       "tags": ["creative-director", "studios", "orchestration"]
@@ -18,7 +18,7 @@
     {
       "name": "design-studio",
       "source": "./design",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "description": "Brand-aware multi-format design: Markdown → PDF, PPTX, HTML, RevealJS via Quarto + Typst, with versioned outputs and visual QA.",
       "category": "design",
       "tags": ["design", "branding", "quarto", "typst", "pdf", "pptx"]
@@ -26,7 +26,7 @@
     {
       "name": "messaging-studio",
       "source": "./messaging",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Brand communications: emails, outreach, announcements, nurture, and multi-step sequences, composed in a brand's voice. HTML email via MJML.",
       "category": "communications",
       "tags": ["messaging", "email", "outreach", "copywriting", "mjml"]
@@ -34,7 +34,7 @@
     {
       "name": "nitpicker-studio",
       "source": "./nitpicker",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "Rigorous asset review: visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice, and a configurable scored test battery (so-what / yawn / sniff), producing a weighted verdict.",
       "category": "quality",
       "tags": ["review", "qa", "critique", "tone-of-voice", "visual-qa"]

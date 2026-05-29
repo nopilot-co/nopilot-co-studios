@@ -1,12 +1,12 @@
 {
   "name": "design-studio",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Brand-aware multi-format design studio: Markdown → PDF, PPTX, HTML with per-brand templates, versioned outputs, and visual QA. Renders via Quarto + Typst; orchestrated in Python.",
   "author": {
-    "name": "Ted Stone",
-    "email": "juliantedstone@gmail.com"
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
   },
-  "homepage": "https://github.com/juliantedstone/studios/tree/main/design",
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/design",
   "keywords": [
     "design",
     "branding",

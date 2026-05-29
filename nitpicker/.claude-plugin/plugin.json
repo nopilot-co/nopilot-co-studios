@@ -1,12 +1,12 @@
 {
   "name": "nitpicker-studio",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Nitpicker studio: rigorous review of an asset — visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice, and a configurable scored test battery (so-what / yawn / sniff) — producing a weighted verdict.",
   "author": {
-    "name": "Ted Stone",
-    "email": "juliantedstone@gmail.com"
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
   },
-  "homepage": "https://github.com/juliantedstone/studios/tree/main/nitpicker",
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/nitpicker",
   "keywords": [
     "review",
     "qa",

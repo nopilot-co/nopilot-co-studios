@@ -1,12 +1,12 @@
 {
   "name": "studios",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Cross-studio creative-director: one brief, routed across studios (design, messaging, …) and delivered to external services (Gamma, Canva, Slack, Gmail). Studios do the work; the director sequences and is the single point of contact.",
   "author": {
-    "name": "Ted Stone",
-    "email": "juliantedstone@gmail.com"
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
   },
-  "homepage": "https://github.com/juliantedstone/studios",
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios",
   "keywords": [
     "orchestration",
     "creative-director",

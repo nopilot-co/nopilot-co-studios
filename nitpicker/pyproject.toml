@@ -4,11 +4,11 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "nitpicker-studio"
-version = "0.1.0"
+version = "0.1.1"
 description = "Asset-review orchestrator for the nitpicker-studio Claude Code plugin"
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [{ name = "Ted Stone", email = "juliantedstone@gmail.com" }]
+authors = [{ name = "Julian Tedstone", email = "ted@nopilot.co" }]
 dependencies = [
   "pyyaml>=6.0",
   "jsonschema>=4.21",
