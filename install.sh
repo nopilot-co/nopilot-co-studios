@@ -91,17 +91,21 @@ fi
 # ---------------------------------------------------------------- 3. native deps
 echo
 echo "Runtime dependencies:"
-check() { # check <tool> <hint>
-  local t="$1" hint="$2"
-  if command -v "$t" > /dev/null 2>&1; then
-    echo "  ✓ $t"
-  else
-    echo "  ✗ $t — $hint"
-  fi
+check() { # check <name> <hint> [alt-binary ...]
+  local name="$1" hint="$2"
+  shift 2
+  local cand
+  for cand in "$name" "$@"; do
+    if command -v "$cand" > /dev/null 2>&1; then
+      echo "  ✓ $name"
+      return
+    fi
+  done
+  echo "  ✗ $name — $hint"
 }
 check quarto "brew install --cask quarto       (design — required to render)"
 check typst "brew install typst                (design — PDF engine; usually bundled with Quarto)"
-check libreoffice "brew install --cask libreoffice  (design — PPTX→PDF for QA; binary may be 'soffice')"
+check libreoffice "brew install --cask libreoffice  (design — PPTX→PDF for QA; binary may be 'soffice')" soffice
 check mjml "npm install -g mjml              (messaging — optional, HTML email only)"
 
 echo
