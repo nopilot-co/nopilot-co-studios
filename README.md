@@ -167,6 +167,50 @@ change:
 The invariant for modes 2–3 is: invoke the **same** skills, never reimplement
 the logic server-side. See [`CLAUDE.md`](CLAUDE.md) for the studios model.
 
+## Running in cowork (or any cloud sandbox)
+
+cowork is a **hosted, account-bound environment** — there's no local `cowork`
+CLI on your machine, and its sandbox can't read your laptop's filesystem. So you
+don't point it at a local path; you bootstrap it **from inside cowork**, and it
+pulls the repo from GitHub.
+
+**1. Install the studios (gets skills + slash commands in):**
+
+```bash
+# inside cowork's environment
+git clone https://github.com/nopilot-co/nopilot-co-studios.git
+cd nopilot-co-studios
+cowork plugin marketplace add ./        # cowork's CLI, inside cowork
+# …then install the plugins (studios, design-studio, messaging-studio, nitpicker-studio)
+```
+
+**2. Provision the native render tools — this is the real gate.** `git clone`
+gets the *plugin* in, but `studio render` still needs binaries that aren't
+pip-installable, and a locked sandbox typically **blocks the download** (the
+HTTP 403 you'll see fetching Quarto). Minimum set:
+
+| Tool | Needed for | Notes |
+|---|---|---|
+| **Quarto** | rendering anything | **mandatory** — bundles Typst, so PDF needs only Quarto |
+| Typst | PDF engine | bundled inside Quarto — no separate install |
+| LibreOffice | **PPTX QA only** | optional; skip it for PDF / HTML / RevealJS (it's the big one) |
+
+Getting Quarto past a sandbox proxy — pick whichever cowork's settings allow:
+
+1. **Bake it into cowork's environment image** — pre-install Quarto so nothing
+   downloads at runtime. Cleanest; this is the modes 2–3 "compute image ships
+   the native tools" contract (`design/Brewfile` is that contract).
+2. **Allowlist the download host** — the 403 is a proxy *policy*; permit
+   `quarto.org` / the GitHub release CDN and the normal install works.
+3. **Vendor it through an allowed channel** — GitHub git is reachable, so pull
+   the Quarto release tarball from GitHub releases (or commit the binary into a
+   clonable repo) and unpack it.
+
+Until one of those is in place, cowork can run the **non-render** steps (planning,
+brand-ingest drafting, content/message composition, nitpicker review of existing
+assets) but **cannot produce a rendered asset** — by design, the studio fails at
+point of use rather than emitting a non-conforming substitute.
+
 ## Plugin authoring notes
 
 A couple of gotchas worth recording for anyone forking this or building a new
