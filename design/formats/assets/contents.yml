@@ -1,0 +1,17 @@
+asset: contents
+name: Contents / index
+description: A formatted table of contents listing sections with page references.
+buckets: [documents]
+exports: [html, pdf]
+style:
+  typography: "{typography.body}"
+  leader: "{colors.secondary}"
+authoring:
+  syntax: |
+    ::: contents
+    <!-- TOC entries are generated automatically from headings -->
+    :::
+  notes: Quarto fenced div with class `contents`.
+render_notes:
+  html: "<nav class='contents'> body typography, secondary-color dot leaders, anchor links"
+  pdf: "Typst outline: body type, secondary-color leaders, right-aligned page numbers"

@@ -1,0 +1,21 @@
+asset: kpi-tile
+name: KPI tile
+description: A compact tile showing a single key performance indicator with trend context.
+buckets: [decks]
+exports: [pptx, gslide, html, pdf]
+style:
+  figure: "{typography.display}"
+  accent: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: kpi
+    **£4.2 M**
+
+    Revenue — ↑ 12 % YoY
+    :::
+  notes: Quarto fenced div with class `kpi`.
+render_notes:
+  html: "<div class='kpi'> display figure, tertiary accent, trend label below"
+  pdf: "Typst block: display type for figure, tertiary color, small trend descriptor"
+  pptx: "text box: display-size number, tertiary accent, trend text below"
+  gslide: "tile layout: display number, tertiary accent, trend context"

@@ -1,0 +1,20 @@
+asset: asset-embed
+name: Asset embed
+description: A full-bleed or contained media embed (image, video, iframe) within a slide.
+buckets: [decks]
+exports: [pptx, gslide, html, pdf]
+style:
+  caption: "{typography.label}"
+authoring:
+  syntax: |
+    ::: embed
+    ![Description](path/to/asset.png)
+
+    Caption text for the embedded asset.
+    :::
+  notes: Quarto fenced div with class `embed`.
+render_notes:
+  html: "<figure class='embed'> full-width media with label-size caption below"
+  pdf: "Typst figure: full-width image, label-type caption"
+  pptx: "image placeholder: full-bleed or contained, label caption text box"
+  gslide: "image element with label caption below"

@@ -1,0 +1,19 @@
+asset: section-interstitial
+name: Section interstitial
+description: A full-width divider page that announces a new section of a document.
+buckets: [documents]
+exports: [html, pdf]
+style:
+  bg: "{colors.surface}"
+  title: "{typography.h1}"
+authoring:
+  syntax: |
+    ::: section
+    # Section Title
+
+    Optional one-line description.
+    :::
+  notes: Quarto fenced div with class `section`.
+render_notes:
+  html: "<div class='section'> full-width surface background, h1 title, optional descriptor"
+  pdf: "Typst page: surface bg fill, h1 type for section title, generous vertical padding"

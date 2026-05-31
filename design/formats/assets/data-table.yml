@@ -1,0 +1,17 @@
+asset: data-table
+name: Data table
+description: A styled table with a header band and rules for scannable data.
+buckets: [documents, decks]
+exports: [html, pdf, pptx, gslide]
+style:
+  header-bg: "{colors.surface}"
+  rule: "{colors.secondary}"
+  typography: "{typography.body}"
+authoring:
+  syntax: |
+    Standard Markdown table; the renderer applies the data-table style.
+  notes: No fenced div needed; pipe tables are styled automatically.
+render_notes:
+  html: "<table class='data-table'> header band + zebra rows"
+  pdf: "Typst table: header fill {colors.surface}, hairline rules"
+  pptx: "native table with branded header row"

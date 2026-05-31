@@ -1,0 +1,24 @@
+asset: hierarchy-diagram
+name: Hierarchy
+description: A tree diagram showing parent-child relationships between concepts or entities.
+buckets: [decks]
+exports: [pptx, gslide, html, pdf]
+style:
+  node: "{colors.surface}"
+  line: "{colors.secondary}"
+authoring:
+  syntax: |
+    ::: hierarchy
+    ```{mermaid}
+    graph TD
+      A[Root] --> B[Child A]
+      A --> C[Child B]
+      B --> D[Leaf]
+    ```
+    :::
+  notes: Quarto fenced div with class `hierarchy`.
+render_notes:
+  html: "<div class='hierarchy'> Mermaid tree SVG, surface-fill nodes, secondary lines"
+  pdf: "Typst: Mermaid SVG embedded, surface nodes, secondary connecting lines"
+  pptx: "SmartArt hierarchy or shape tree: surface nodes, secondary connector lines"
+  gslide: "tree shapes: surface node fill, secondary lines"

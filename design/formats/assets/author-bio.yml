@@ -1,0 +1,21 @@
+asset: author-bio
+name: Author bio
+description: A short biography block with author name, headshot, and credentials.
+buckets: [documents]
+exports: [html, pdf]
+style:
+  bg: "{colors.surface}"
+  name: "{typography.h3}"
+authoring:
+  syntax: |
+    ::: bio
+    ![Author photo](avatar.png)
+
+    **Jane Smith**
+
+    Senior Analyst with 10 years in market research.
+    :::
+  notes: Quarto fenced div with class `bio`.
+render_notes:
+  html: "<div class='bio'> surface background, h3 name, photo floated left"
+  pdf: "Typst block: surface fill, h3 name type, inline photo if provided"

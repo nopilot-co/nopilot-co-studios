@@ -1,0 +1,19 @@
+asset: precis
+name: Précis
+description: A concise summary block placed at the top of a document or section.
+buckets: [editorial, documents, decks]
+exports: [html, pdf, pptx, gslide]
+style:
+  typography: "{typography.lead}"
+  color: "{colors.secondary}"
+authoring:
+  syntax: |
+    ::: precis
+    One-paragraph summary of what follows.
+    :::
+  notes: Quarto fenced div with class `precis`.
+render_notes:
+  html: "<div class='precis'> styled with lead typography and secondary color"
+  pdf: "Typst block: lead type size, secondary color, slight bottom margin"
+  pptx: "prominent text box at slide top, secondary color, lead size"
+  gslide: "styled text box, secondary color, lead font size"

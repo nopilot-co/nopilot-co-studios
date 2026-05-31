@@ -1,0 +1,21 @@
+asset: cover
+name: Document cover
+description: Full-page cover carrying the document title, brand logo, and metadata.
+buckets: [documents]
+exports: [html, pdf]
+style:
+  bg: "{colors.neutral}"
+  title: "{typography.display}"
+authoring:
+  syntax: |
+    ::: cover
+    # Document Title
+
+    Subtitle or descriptor
+
+    Author · Date
+    :::
+  notes: Quarto fenced div with class `cover`.
+render_notes:
+  html: "<div class='cover'> full-viewport, neutral background, display title, logo injected"
+  pdf: "Typst page: neutral bg fill, display type title, logo at top, metadata footer"

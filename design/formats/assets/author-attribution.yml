@@ -1,0 +1,17 @@
+asset: author-attribution
+name: Byline
+description: Author name, role, and date attribution placed at the head of a piece.
+buckets: [editorial, documents]
+exports: [html, pdf]
+style:
+  typography: "{typography.label}"
+  color: "{colors.secondary}"
+authoring:
+  syntax: |
+    ::: byline
+    Jane Smith, Senior Analyst — 2026-05-31
+    :::
+  notes: Quarto fenced div with class `byline`.
+render_notes:
+  html: "<div class='byline'> label typography, secondary color, top-of-article placement"
+  pdf: "Typst block: label size, secondary color, sits immediately below the title"

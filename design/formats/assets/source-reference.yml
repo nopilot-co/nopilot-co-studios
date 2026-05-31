@@ -1,0 +1,16 @@
+asset: source-reference
+name: Source reference
+description: A footnoted or inline citation linking a claim to its source.
+buckets: [documents]
+exports: [html, pdf]
+style:
+  typography: "{typography.label}"
+authoring:
+  syntax: |
+    ::: reference
+    Source: Author (Year). *Title*. Publisher. URL.
+    :::
+  notes: Quarto fenced div with class `reference`.
+render_notes:
+  html: "<div class='reference'> label typography, subdued presentation below content"
+  pdf: "Typst block: label type size, placed at section end or page foot"

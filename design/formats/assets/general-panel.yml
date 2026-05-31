@@ -1,0 +1,19 @@
+asset: general-panel
+name: Panel
+description: A bordered container grouping related content without semantic emphasis.
+buckets: [documents, decks]
+exports: [html, pdf, pptx, gslide]
+style:
+  border: "1px {colors.secondary}"
+  rounded: "{rounded.md}"
+authoring:
+  syntax: |
+    ::: panel
+    Content grouped within the panel.
+    :::
+  notes: Quarto fenced div with class `panel`.
+render_notes:
+  html: "<div class='panel'> 1px secondary border, medium border-radius"
+  pdf: "Typst block: secondary stroke border, medium rounded corners"
+  pptx: "rounded rectangle, secondary border stroke, no fill"
+  gslide: "text box with secondary border, medium rounding"

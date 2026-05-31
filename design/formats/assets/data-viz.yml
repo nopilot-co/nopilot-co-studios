@@ -1,0 +1,24 @@
+asset: data-viz
+name: Data visualisation
+description: A chart or graph rendering quantitative data visually for analysis.
+buckets: [decks]
+exports: [pptx, gslide, html, pdf]
+style:
+  series: "{colors.tertiary}"
+  grid: "{colors.secondary}"
+authoring:
+  syntax: |
+    ::: chart
+    ```{python}
+    # Quarto-embedded chart code (matplotlib, plotly, etc.)
+    import matplotlib.pyplot as plt
+    plt.plot([1, 2, 3], [4, 5, 6])
+    plt.show()
+    ```
+    :::
+  notes: Quarto fenced div with class `chart`.
+render_notes:
+  html: "<div class='chart'> interactive or static chart, tertiary series colors, secondary grid"
+  pdf: "Typst: chart rendered to image, tertiary series, secondary gridlines"
+  pptx: "native chart object: tertiary series palette, secondary gridlines"
+  gslide: "embedded chart image: tertiary series, secondary grid"

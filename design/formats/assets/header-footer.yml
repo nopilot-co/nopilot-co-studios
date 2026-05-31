@@ -1,0 +1,17 @@
+asset: header-footer
+name: Running header/footer
+description: Persistent page-level header and footer carrying document metadata and branding.
+buckets: [documents]
+exports: [html, pdf]
+style:
+  typography: "{typography.label}"
+  color: "{colors.secondary}"
+authoring:
+  syntax: |
+    ::: running
+    Document Title | Section Name | Page {page}
+    :::
+  notes: Quarto fenced div with class `running`.
+render_notes:
+  html: "<header>/<footer class='running'> label typography, secondary color, fixed position"
+  pdf: "Typst header/footer: label type, secondary color, logo + document title + page number"

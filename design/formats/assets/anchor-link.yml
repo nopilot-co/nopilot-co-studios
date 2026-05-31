@@ -1,0 +1,16 @@
+asset: anchor-link
+name: Anchor link
+description: An inline or block hyperlink styled to stand out as a navigation target.
+buckets: [documents]
+exports: [html, pdf]
+style:
+  color: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: anchor
+    [Link text](https://example.com)
+    :::
+  notes: Quarto fenced div with class `anchor`.
+render_notes:
+  html: "<a class='anchor'> tertiary color, underline on hover"
+  pdf: "Typst link: tertiary color, URL preserved as clickable annotation"

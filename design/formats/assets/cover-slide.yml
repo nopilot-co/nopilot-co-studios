@@ -1,0 +1,23 @@
+asset: cover-slide
+name: Deck cover
+description: Opening slide carrying the deck title, subtitle, presenter, and brand logo.
+buckets: [decks]
+exports: [pptx, gslide, html, pdf]
+style:
+  bg: "{colors.neutral}"
+  title: "{typography.display}"
+authoring:
+  syntax: |
+    ::: cover-slide
+    # Deck Title
+
+    Subtitle or tagline
+
+    Presenter Name · Date
+    :::
+  notes: Quarto fenced div with class `cover-slide`.
+render_notes:
+  html: "<div class='cover-slide'> full-viewport, neutral background, display title, logo"
+  pdf: "Typst page: neutral bg fill, display type title, logo placed top-right"
+  pptx: "title slide layout: neutral bg, display title, subtitle, logo placeholder"
+  gslide: "title slide: neutral background, display title, subtitle, logo"

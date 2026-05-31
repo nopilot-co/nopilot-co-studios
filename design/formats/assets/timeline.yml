@@ -1,0 +1,21 @@
+asset: timeline
+name: Timeline
+description: A chronological axis with dated milestones or events shown in sequence.
+buckets: [decks]
+exports: [pptx, gslide, html, pdf]
+style:
+  axis: "{colors.secondary}"
+  marker: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: timeline
+    - **Q1 2025** — Project kick-off
+    - **Q2 2025** — Beta launch
+    - **Q4 2025** — General availability
+    :::
+  notes: Quarto fenced div with class `timeline`.
+render_notes:
+  html: "<div class='timeline'> horizontal axis in secondary color, tertiary milestone markers"
+  pdf: "Typst: horizontal rule in secondary, tertiary circle markers, date labels"
+  pptx: "SmartArt timeline or shape line: secondary axis, tertiary markers"
+  gslide: "line + shape timeline: secondary axis, tertiary milestone dots"

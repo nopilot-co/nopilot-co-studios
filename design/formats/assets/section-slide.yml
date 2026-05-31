@@ -1,0 +1,21 @@
+asset: section-slide
+name: Section slide
+description: A full-slide divider that introduces a new chapter or section of the deck.
+buckets: [decks]
+exports: [pptx, gslide, html, pdf]
+style:
+  bg: "{colors.surface}"
+  title: "{typography.h1}"
+authoring:
+  syntax: |
+    ::: section-slide
+    # Section Title
+
+    Optional short descriptor.
+    :::
+  notes: Quarto fenced div with class `section-slide`.
+render_notes:
+  html: "<div class='section-slide'> surface background, h1 section title"
+  pdf: "Typst page: surface bg fill, h1 type, centered or left-aligned"
+  pptx: "section divider layout: surface background, h1 title, optional subtitle"
+  gslide: "section divider slide: surface background, h1 title"

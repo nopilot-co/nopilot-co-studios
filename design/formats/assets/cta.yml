@@ -1,0 +1,17 @@
+asset: cta
+name: Call to action
+description: A prominent block prompting the reader to take a specific next step.
+buckets: [documents]
+exports: [html, pdf]
+style:
+  primary-bg: "{colors.tertiary}"
+  on: "{colors.on-primary}"
+authoring:
+  syntax: |
+    ::: cta
+    **Get started today** — [Sign up now](https://example.com)
+    :::
+  notes: Quarto fenced div with class `cta`.
+render_notes:
+  html: "<div class='cta'> tertiary background, on-primary text, full-width button link"
+  pdf: "Typst block: tertiary fill, on-primary text color, prominent placement"

@@ -1,0 +1,21 @@
+asset: stat-panel
+name: Stat panel
+description: A large-number callout that highlights a key metric with supporting context.
+buckets: [editorial, documents, decks]
+exports: [html, pdf, pptx, gslide]
+style:
+  figure: "{typography.display}"
+  accent: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: stat-panel
+    **42 %**
+
+    Year-on-year growth in active users.
+    :::
+  notes: Quarto fenced div with class `stat-panel`.
+render_notes:
+  html: "<div class='stat-panel'> display-size figure, tertiary accent, supporting text below"
+  pdf: "Typst block: display type for number, tertiary color, body-size descriptor"
+  pptx: "large number text box with tertiary accent, supporting label beneath"
+  gslide: "display-size number, tertiary accent color, supporting text"

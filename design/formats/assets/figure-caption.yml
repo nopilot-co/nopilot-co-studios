@@ -1,0 +1,19 @@
+asset: figure-caption
+name: Figure + caption
+description: An image or diagram with a labelled caption below it.
+buckets: [documents]
+exports: [html, pdf]
+style:
+  caption: "{typography.label}"
+  color: "{colors.secondary}"
+authoring:
+  syntax: |
+    ::: figure
+    ![Alt text](path/to/image.png)
+
+    Figure 1. Caption text describing the figure.
+    :::
+  notes: Quarto fenced div with class `figure`.
+render_notes:
+  html: "<figure class='figure'><img><figcaption> label typography, secondary color"
+  pdf: "Typst figure block: image + caption in label type, secondary color"

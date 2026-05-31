@@ -1,0 +1,21 @@
+asset: process
+name: Process
+description: A numbered sequence of steps showing how to complete a procedure.
+buckets: [decks]
+exports: [pptx, gslide, html, pdf]
+style:
+  step: "{colors.surface}"
+  index: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: process
+    1. **Discover** — Research the problem space.
+    2. **Define** — Articulate the opportunity.
+    3. **Deliver** — Ship the solution.
+    :::
+  notes: Quarto fenced div with class `process`.
+render_notes:
+  html: "<ol class='process'> surface step cards, tertiary index numbers"
+  pdf: "Typst list: surface-fill step blocks, tertiary numbered indices"
+  pptx: "step shapes: surface fill, tertiary index badges, connecting arrows"
+  gslide: "numbered step layout: surface cards, tertiary indices"
