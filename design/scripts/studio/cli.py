@@ -110,11 +110,27 @@ def formats_show(slug: str) -> None:
 @click.option("--format", "slug", required=True)
 def formats_validate(slug: str) -> None:
     errors = formats_mod.validate(slug)
+    try:
+        errors = errors + formats_mod.validate_asset_refs(formats_mod.resolve(slug))
+    except (FileNotFoundError, ValueError):
+        pass
     if errors:
         for e in errors:
             click.echo(f"  ✗ {e}", err=True)
         sys.exit(1)
     click.echo(f"✓ {slug} is valid")
+
+
+@formats.command("assets")
+def formats_assets() -> None:
+    """List the asset library (design/formats/assets/)."""
+    from . import assets as assets_mod
+
+    for slug in assets_mod.list_assets():
+        a = assets_mod.load_asset(None, slug)
+        buckets = ",".join(a.get("buckets", []))
+        exports = ",".join(a.get("exports", []))
+        click.echo(f"{slug:<22} {buckets:<28} {exports}")
 
 
 # ---------------------------------------------------------------- ingest

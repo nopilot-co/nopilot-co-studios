@@ -78,6 +78,16 @@ check(
     render_mod._strip_version_label("v1.2.3-notes") == "v1.2.3-notes",
 )
 
+# 4. formats.py surfaces assets + reference validation.
+formats_mod = importlib.import_module("studio.formats")
+resolved = formats_mod.resolve("post-html")
+check(
+    "resolved has assets list",
+    isinstance(resolved.get("assets"), list) and resolved["assets"],
+)
+ref_errs = formats_mod.validate_asset_refs(resolved)
+check("post-html asset refs valid", ref_errs == [], str(ref_errs))
+
 if failures:
     print(f"FAIL ({len(failures)})")
     for f in failures:

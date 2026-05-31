@@ -112,6 +112,23 @@ def validate(slug: str) -> list[str]:
     return errors
 
 
+def validate_asset_refs(resolved: dict[str, Any]) -> list[str]:
+    """Each asset a format references must exist and support the format's export."""
+    from . import assets as assets_mod
+
+    export = resolved.get("export")
+    known = set(assets_mod.list_assets())
+    errors: list[str] = []
+    for slug in resolved.get("assets", []) or []:
+        if slug not in known:
+            errors.append(f"unknown asset '{slug}'")
+            continue
+        asset = assets_mod.load_asset(None, slug)
+        if export and not assets_mod.supports_export(asset, export):
+            errors.append(f"asset '{slug}' does not support export '{export}'")
+    return errors
+
+
 def studio_format(resolved: dict[str, Any]) -> str | None:
     """The short studio render format (pdf|pptx|html|revealjs), or None if unrenderable."""
     return (resolved.get("render") or {}).get("studio_format")
