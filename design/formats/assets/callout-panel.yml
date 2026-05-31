@@ -1,8 +1,8 @@
 asset: callout-panel
 name: Callout
 description: An accented aside that flags warnings, tips, or important notes inline.
-buckets: [documents]
-exports: [html, pdf]
+buckets: [documents, decks]
+exports: [html, pdf, pptx, gslide]
 style:
   bg: "{colors.surface}"
   accent: "{colors.tertiary}"
@@ -15,3 +15,4 @@ authoring:
 render_notes:
   html: "<aside class='callout'> surface background, tertiary left-border accent"
   pdf: "Typst block: surface fill, tertiary left rule, body text"
+  pptx: "accented text box / shape, used sparingly on a slide"
