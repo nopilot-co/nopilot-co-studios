@@ -1,0 +1,25 @@
+# Purpose: post — a single social/LinkedIn post. Plainest bucket; CSS inherited.
+purpose: post
+name: Post
+description: A short, punchy social post that earns a stop-scroll and one idea.
+assets: [precis, pullquote, stat-panel, author-attribution]
+style_guide:
+  voice: first-person, direct, momentum; one clear idea
+  pov:
+    paragraph_length: 1–3 short sentences; frequent line breaks for rhythm
+    bullets: sparingly; only to list, never to think
+    punctuation: em-dashes and full stops; avoid semicolons; no exclamation spam
+    newline_usage: single blank line between beats; whitespace is pacing
+    target_length: 80–220 words
+    tone: confident, plain, a little opinionated
+    rhetoric: licensed — anaphora, rule-of-three, a single rhetorical question
+  do: [Open with the hook, One idea, End on a line that lands]
+  dont: [Wall of text, Hashtag stuffing, Hedging]
+execution_brief:
+  objective: Earn a stop-scroll and land one idea.
+  audience: A professional feed (peers, prospects)
+  required_sections: [hook, body, takeaway]
+ruleset:
+  required_sections: [hook, takeaway]
+  max_words_per_view: 220
+  tone: [direct, plain]

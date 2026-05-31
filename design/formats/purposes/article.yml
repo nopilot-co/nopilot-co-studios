@@ -1,0 +1,25 @@
+# Purpose: article — a considered, long-form written argument or explainer.
+purpose: article
+name: Article
+description: A well-structured, long-form piece that informs and persuades with a considered argument.
+assets: [precis, pullquote, stat-panel, author-attribution, figure-caption, source-reference]
+style_guide:
+  voice: first-person or authorial, considered, clear; argument-first
+  pov:
+    paragraph_length: 2–5 sentences; vary rhythm between short and long
+    bullets: used to list, not to think; parallel structure
+    punctuation: em-dashes for asides; full stops; semicolons only where required
+    newline_usage: section breaks between major moves; blank line before subheadings
+    target_length: 600–1400 words
+    tone: considered, clear, a little confident
+    rhetoric: anaphora, contrast, concrete examples; avoid hollow superlatives
+  do: [Open with the hook, Build an argument, Close with a clear takeaway]
+  dont: [Padding or repetition, Unsupported claims, Weak endings]
+execution_brief:
+  objective: Inform and persuade with a considered argument.
+  audience: Informed readers (practitioners, peers, interested generalists)
+  required_sections: [hook, body, conclusion]
+ruleset:
+  required_sections: [hook, conclusion]
+  max_words_per_view: 1400
+  tone: [considered, clear]

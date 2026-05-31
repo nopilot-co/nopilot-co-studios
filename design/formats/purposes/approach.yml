@@ -1,0 +1,22 @@
+# Purpose: approach — a methodical deck explaining how the work will be done.
+purpose: approach
+name: Approach
+description: A confident, methodical deck that explains how the work will be done and why.
+assets: [cover-slide, section-slide, flow-diagram, process, timeline, hierarchy-diagram,
+         callout-panel, stat-panel, highlight-panel, data-table]
+style_guide:
+  visual: process and flow diagrams over lists; timelines to ground the plan
+  word_count: low — headline + ≤3 lines per slide; diagrams carry the weight
+  consistency: each phase or stage should look structurally identical
+  typography: '"{typography.h1}" stage labels; "{typography.label}" activity names; "{typography.body}" rationale'
+  do: [Make the method visible, Show sequencing and dependencies, Anchor to outcomes]
+  dont: [Generic methodology slides, Undefined jargon, Plans without owners or dates]
+execution_brief:
+  objective: Explain how the work will be done.
+  audience: Evaluators, collaborators, and delivery teams
+  required_sections: [cover, approach, plan, outcomes]
+ruleset:
+  required_sections: [cover, approach]
+  max_slides: 18
+  max_words_per_view: 45
+  tone: [confident, methodical]

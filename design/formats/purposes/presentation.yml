@@ -1,0 +1,24 @@
+# Purpose: presentation — inform/persuade a room; visually consumed, low word-count.
+purpose: presentation
+name: Presentation
+description: A visual deck that conveys key points fast to a live or async audience.
+assets: [cover-slide, section-slide, kpi-tile, flow-diagram, timeline, process,
+         hierarchy-diagram, organigram, data-viz, asset-embed, pullquote,
+         stat-panel, callout-panel, data-table, highlight-panel]
+style_guide:
+  visual: one idea per slide; image/diagram over paragraphs; generous whitespace
+  word_count: very low — headline + ≤3 supporting lines per slide
+  consistency: identical structure across pptx, gslide, html, pdf
+  typography: '"{typography.h1}" headlines; "{typography.label}" eyebrows'
+  do: [One idea per view, Show don't tell, A single focal point]
+  dont: [Paragraphs on a slide, More than one CTA per view]
+execution_brief:
+  objective: Convey the key points fast and memorably.
+  audience: A room or an async viewer
+  narrative_arc: cover -> context -> insight -> implication -> ask
+  required_sections: [cover, agenda, body, summary]
+ruleset:
+  required_sections: [cover, summary]
+  max_slides: 20
+  max_words_per_view: 40
+  tone: [crisp, visual]

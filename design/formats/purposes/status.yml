@@ -1,0 +1,21 @@
+# Purpose: status — a concise update deck showing where things stand.
+purpose: status
+name: Status Update
+description: A brief, factual deck that shows where things stand at a glance.
+assets: [cover-slide, kpi-tile, data-table, timeline, callout-panel, stat-panel, highlight-panel]
+style_guide:
+  visual: scannable at speed; KPI tiles and status indicators front and centre
+  word_count: minimal — label + value or one-line status; no prose paragraphs
+  consistency: use RAG (red/amber/green) or equivalent status indicators consistently
+  typography: '"{typography.h1}" section labels; "{typography.label}" metric names; "{typography.body}" notes'
+  do: [Lead with overall status, Quantify progress, Flag risks clearly]
+  dont: [Narrative justification on status slides, Ambiguous indicators, Missing dates]
+execution_brief:
+  objective: Show where things stand at a glance.
+  audience: Sponsors, stakeholders, and team leads in a regular cadence
+  required_sections: [cover, status, risks, next]
+ruleset:
+  required_sections: [cover, status]
+  max_slides: 12
+  max_words_per_view: 40
+  tone: [factual, brief]

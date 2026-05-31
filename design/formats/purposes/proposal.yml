@@ -2,6 +2,9 @@
 purpose: proposal
 name: Proposal
 description: A detailed, structured offer with scope, terms, and rationale.
+assets: [cover, section-interstitial, contents, highlight-panel, callout-panel,
+         general-panel, data-table, figure-caption, source-reference, anchor-link,
+         cta, author-bio, header-footer, pullquote, stat-panel, precis]
 
 style_guide:
   voice: precise, credible, thorough

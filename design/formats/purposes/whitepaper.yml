@@ -1,0 +1,29 @@
+# Purpose: whitepaper — an authoritative, evidenced point of view.
+purpose: whitepaper
+name: Whitepaper
+description: A credible, evidenced argument that establishes authority on a topic.
+assets: [cover, section-interstitial, contents, highlight-panel, callout-panel,
+         general-panel, data-table, figure-caption, source-reference, anchor-link,
+         cta, author-bio, header-footer, pullquote, stat-panel, precis, data-viz]
+style_guide:
+  voice: authoritative, evidenced, measured
+  hierarchy:
+    h1: section titles; one per major theme
+    h2: sub-arguments
+    h3: supporting points
+    h4: rare; inline emphasis only
+    body: '"{typography.body}"; generous leading'
+    lists: parallel structure; lead with the noun
+  page_discipline: keep headings with their first paragraph; never split a panel or
+    a figure from its caption; group references at section ends
+  print: must print cleanly from HTML (documents bucket)
+  do: [Cite sources, Quantify claims, Lead with the thesis]
+  dont: [Marketing fluff, Unsupported superlatives]
+execution_brief:
+  objective: Establish authority and move the reader to a considered next step.
+  audience: Evaluators and informed practitioners
+  required_sections: [summary, context, argument, evidence, implications, references]
+ruleset:
+  required_sections: [summary, argument, evidence, references]
+  max_pages: 20
+  tone: [authoritative, evidenced]

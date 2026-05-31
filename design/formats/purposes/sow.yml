@@ -1,0 +1,26 @@
+# Purpose: sow — a Statement of Work defining scope, deliverables, and terms.
+purpose: sow
+name: Statement of Work
+description: A precise, contractual document that defines scope, deliverables, and terms clearly enough to sign.
+assets: [cover, section-interstitial, contents, data-table, general-panel, callout-panel,
+         figure-caption, source-reference, anchor-link, header-footer, cta, precis]
+style_guide:
+  voice: precise, contractual, unambiguous; no marketing language
+  hierarchy:
+    h1: major sections (Scope, Deliverables, Pricing, Terms)
+    h2: sub-sections and line items
+    h3: clarifications and caveats
+    body: '"{typography.body}"; tables preferred for structured data'
+    lists: numbered for sequential obligations; bulleted for non-sequential items
+  page_discipline: keep tables intact across pages; number all clauses; cross-reference by number
+  print: must print cleanly; header/footer with document title, version, and date
+  do: [Define all terms on first use, Quantify deliverables and timelines, State exclusions explicitly]
+  dont: [Vague scope, Open-ended commitments, Marketing language]
+execution_brief:
+  objective: Define scope and terms precisely enough to sign.
+  audience: Procurement, legal, and the eventual signer
+  required_sections: [summary, scope, deliverables, pricing, terms]
+ruleset:
+  required_sections: [summary, scope, pricing, terms]
+  max_pages: 20
+  tone: [precise, contractual]

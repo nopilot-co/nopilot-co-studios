@@ -3,6 +3,9 @@
 purpose: pitch
 name: Pitch
 description: A persuasive narrative that moves a specific audience to a decision.
+assets: [cover-slide, section-slide, kpi-tile, flow-diagram, timeline, process,
+         hierarchy-diagram, organigram, data-viz, asset-embed, pullquote,
+         stat-panel, callout-panel, data-table, highlight-panel]
 
 style_guide:
   voice: confident, concise, momentum-building

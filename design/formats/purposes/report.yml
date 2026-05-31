@@ -1,0 +1,22 @@
+# Purpose: report — a findings deck presented clearly and defensibly.
+purpose: report
+name: Report
+description: A structured deck that presents findings, data, and recommendations clearly and defensibly.
+assets: [cover-slide, section-slide, kpi-tile, data-viz, data-table, timeline, process,
+         callout-panel, stat-panel, pullquote, highlight-panel]
+style_guide:
+  visual: one finding per slide; data visualisations over prose; clear source attribution
+  word_count: low — headline + ≤4 supporting lines or one data element per slide
+  consistency: identical structure across all output formats
+  typography: '"{typography.h1}" headlines; "{typography.label}" eyebrows; "{typography.caption}" sources'
+  do: [Lead with the headline finding, Show the data, Make the recommendation explicit]
+  dont: [Burying the lede, Unlabelled axes or sources, Unsupported conclusions]
+execution_brief:
+  objective: Present findings clearly and defensibly.
+  audience: Stakeholders and decision-makers reviewing outcomes
+  required_sections: [cover, findings, recommendation]
+ruleset:
+  required_sections: [cover, summary]
+  max_slides: 24
+  max_words_per_view: 50
+  tone: [clear, evidenced]
