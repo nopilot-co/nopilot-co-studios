@@ -1,4 +1,6 @@
 # Format: pitch-revealjs = purposes/pitch.yml <- exports/revealjs.yml <- overrides
 extends: pitch
 export: revealjs
-overrides: {}
+overrides:
+  # Legacy export, outside the html/pdf/pptx/gslide asset vocabulary — no assets.
+  assets: []

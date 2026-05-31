@@ -2,4 +2,6 @@
 # Demonstrates a canonical format whose export is not yet renderable.
 extends: pitch
 export: glide
-overrides: {}
+overrides:
+  # Legacy export, outside the html/pdf/pptx/gslide asset vocabulary — no assets.
+  assets: []
