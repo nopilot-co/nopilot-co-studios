@@ -20,6 +20,11 @@
     "export": { "type": "string" },
     "name": { "type": "string" },
     "description": { "type": "string" },
+    "assets": {
+      "description": "Asset-library slugs this format may use (design/formats/assets/<slug>.yml).",
+      "type": "array",
+      "items": { "type": "string" }
+    },
     "asset_type": { "type": "string" },
     "render": {
       "type": "object",
