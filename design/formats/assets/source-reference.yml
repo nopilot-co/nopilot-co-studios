@@ -1,7 +1,7 @@
 asset: source-reference
 name: Source reference
 description: A footnoted or inline citation linking a claim to its source.
-buckets: [documents]
+buckets: [editorial, documents]
 exports: [html, pdf]
 style:
   typography: "{typography.label}"

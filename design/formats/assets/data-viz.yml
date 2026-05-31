@@ -1,7 +1,7 @@
 asset: data-viz
 name: Data visualisation
 description: A chart or graph rendering quantitative data visually for analysis.
-buckets: [decks]
+buckets: [documents, decks]
 exports: [pptx, gslide, html, pdf]
 style:
   series: "{colors.tertiary}"

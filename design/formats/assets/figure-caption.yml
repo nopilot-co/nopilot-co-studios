@@ -1,7 +1,7 @@
 asset: figure-caption
 name: Figure + caption
 description: An image or diagram with a labelled caption below it.
-buckets: [documents]
+buckets: [editorial, documents]
 exports: [html, pdf]
 style:
   caption: "{typography.label}"
