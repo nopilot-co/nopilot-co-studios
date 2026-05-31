@@ -12,6 +12,7 @@ defeats `embed-resources: true` and leaves an orphaned `_files/` sidecar
 
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 import sys
@@ -40,6 +41,14 @@ _EXT = {
     "html": ".html",
     "revealjs": ".html",  # RevealJS outputs HTML
 }
+
+_VER_LABEL_RE = re.compile(r"-v\d+\.\d+\.\d+$")
+
+
+def _strip_version_label(stem: str) -> str:
+    """Remove a trailing -v<semver> label so the render version isn't compounded
+    onto a content filename that already carries one (e.g. foo-v1.0.0 -> foo)."""
+    return _VER_LABEL_RE.sub("", stem)
 
 
 def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
@@ -120,7 +129,9 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
     # Render each format
     outputs: dict[str, Path] = {}
     src_stem = source_md.stem  # "source"
-    out_stem = state.get("source_filename", "source.md").rsplit(".", 1)[0] or "source"
+    out_stem = _strip_version_label(
+        state.get("source_filename", "source.md").rsplit(".", 1)[0] or "source"
+    )
 
     for fmt in formats:
         qfmt = _FORMAT_MAP.get(fmt, fmt)

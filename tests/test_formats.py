@@ -62,6 +62,22 @@ with tempfile.TemporaryDirectory() as td:
         not assets.supports_export(assets.load_asset(adir, "pullquote"), "pptx"),
     )
 
+# 3. render output-stem de-versioning (fixes …-v1.0.0.v1.1.0 compounding).
+render_mod = importlib.import_module("studio.render")
+check(
+    "strip versioned stem",
+    render_mod._strip_version_label("client-proposition-pitch-pdf-v1.0.0")
+    == "client-proposition-pitch-pdf",
+)
+check(
+    "leave unversioned stem",
+    render_mod._strip_version_label("client-proposition") == "client-proposition",
+)
+check(
+    "only trailing label stripped",
+    render_mod._strip_version_label("v1.2.3-notes") == "v1.2.3-notes",
+)
+
 if failures:
     print(f"FAIL ({len(failures)})")
     for f in failures:
