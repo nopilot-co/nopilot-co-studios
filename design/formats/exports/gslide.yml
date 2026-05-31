@@ -1,0 +1,18 @@
+# Export: gslide — Google Slides deck (editable native blocks).
+# Canonical contract exists; the studio produces this in slice 4 via PPTX import.
+export: gslide
+name: Google Slides
+asset_type: deck
+render:
+  engine: gslide
+  studio_format: null      # not renderable yet; `studio render` will refuse
+  status: planned
+requires:
+  render: [quarto]
+style_guide:
+  layout: 16:9 slides; one idea per slide; editable native shapes
+  notes: parity with pptx/html/pdf; blocks must remain natively editable in Google Slides
+ruleset:
+  supported: false         # renderer guard
+  max_slides: 20
+  max_words_per_view: 40

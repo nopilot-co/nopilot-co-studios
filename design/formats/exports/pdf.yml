@@ -8,8 +8,9 @@ render:
 requires:
   render: [quarto]      # Quarto bundles typst; no separate typst install needed
 style_guide:
-  layout: paginated A4/Letter with fixed page geometry
-  notes: mind page breaks; design for both print and on-screen scroll
+  layout: paginated A4/Letter portrait with fixed page geometry
+  notes: mind page breaks; keep sections/panels together; design for print and screen
+  page_discipline: avoid orphaned headings and split panels; group asset + caption
 ruleset:
   max_pages: 15
   page_size: [A4, Letter]

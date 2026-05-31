@@ -9,8 +9,8 @@ requires:
   render: [quarto]
   qa: [libreoffice]     # PPTX -> PDF for QA screenshots
 style_guide:
-  layout: 16:9 slides; one idea per slide; built for a presenter
-  notes: text supports the speaker, it does not replace them
+  layout: 16:9 slides; one idea per slide
+  notes: blocks render as native editable shapes/text (slice 4); parity with gslide/html/pdf
 ruleset:
   max_slides: 20
   aspect_ratio: "16:9"

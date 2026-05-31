@@ -10,6 +10,7 @@ requires:
 style_guide:
   layout: single responsive scroll; no pagination
   notes: progressive disclosure; links and anchors are first-class
+  print: clean print-from-HTML expected for documents (proposal/whitepaper/sow)
 ruleset:
   responsive: true
   max_scroll_screens: 12   # advisory — QA enforces, not deterministic
