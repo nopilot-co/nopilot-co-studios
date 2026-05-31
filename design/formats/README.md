@@ -71,3 +71,39 @@ studio formats validate --format pitch-pdf
 `pdf`, `html`, `pptx`, and `revealjs` exports are renderable today. `glide`
 (`asset_type: app`) is a canonical contract only — `studio render` refuses it
 until a Glide export pipeline exists.
+
+## Buckets
+
+Formats are organised into three buckets by audience and output shape:
+
+- **A · Editorial** — short-form publishing. Purposes: `post`, `article`.
+  Exports: `html`.
+- **B · Documents** — long-form written deliverables. Purposes: `proposal`,
+  `whitepaper`, `sow`. Exports: `html`, `pdf`.
+- **C · Decks** — visual presentations. Purposes: `pitch`, `presentation`,
+  `report`, `status`, `approach`. Exports: `pptx`, `gslide`, `html`, `pdf`.
+  Note: `gslide` is a contract-only export — rendering is not yet built.
+
+## Asset library
+
+Assets live in `formats/assets/<slug>.yml` (one file per asset type — e.g.
+`pullquote`, `cover`, `data-table`). Key properties:
+
+- **Token-referenced** — values such as `{colors.tertiary}` resolve against the
+  active design-system at render time.
+- **Authored in Markdown** — as Quarto fenced divs (e.g. `::: pullquote`).
+- **Scoped to buckets and exports** — each asset declares which buckets and
+  exports it supports; a format may only reference an asset that supports its
+  export.
+- **Referenced by format** — a format lists the assets it may include via its
+  `assets:` key; `validate_asset_refs` checks these at validation time.
+
+List and inspect assets with `studio formats assets`. Validate a format's asset
+references with `studio formats validate --format <slug>`.
+
+## Output-folder convention
+
+Docket render outputs flatten to `outputs/<primary>/<file>` — there is no
+redundant `<format>/` sub-folder. The format is already encoded in the filename
+(e.g. `client-proposition-pitch-pdf-v1.0.0.pdf`), so adding a folder layer
+would be redundant.

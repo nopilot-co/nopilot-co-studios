@@ -88,6 +88,30 @@ check(
 ref_errs = formats_mod.validate_asset_refs(resolved)
 check("post-html asset refs valid", ref_errs == [], str(ref_errs))
 
+# 5. AGGREGATE: every slug resolves, validates, and its asset refs hold.
+for slug in formats_mod.list_formats():
+    try:
+        r = formats_mod.resolve(slug)
+    except Exception as e:  # noqa: BLE001
+        check(f"resolve {slug}", False, str(e))
+        continue
+    check(
+        f"schema {slug}",
+        formats_mod.validate(slug) == [],
+        str(formats_mod.validate(slug)),
+    )
+    check(
+        f"asset-refs {slug}",
+        formats_mod.validate_asset_refs(r) == [],
+        str(formats_mod.validate_asset_refs(r)),
+    )
+for a in assets.list_assets():
+    check(
+        f"asset {a}",
+        assets.validate_asset(None, a) == [],
+        str(assets.validate_asset(None, a)),
+    )
+
 if failures:
     print(f"FAIL ({len(failures)})")
     for f in failures:
