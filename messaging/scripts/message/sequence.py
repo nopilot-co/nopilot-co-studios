@@ -14,12 +14,16 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
+from . import docket_root, docket_session
 from . import formats as formats_mod
 from . import resolve_context_root
 from . import session as session_mod
 
 
 def sequence_root(name: str) -> Path:
+    droot, dsession = docket_root(), docket_session()
+    if droot is not None and dsession:
+        return droot / dsession / "renders" / name
     return resolve_context_root() / name
 
 

@@ -19,7 +19,9 @@ sys.path.insert(0, str(REPO / "design" / "scripts"))
 sys.path.insert(0, str(REPO / "messaging" / "scripts"))
 
 import message  # noqa: E402
+import message.session as message_session  # noqa: E402
 import studio  # noqa: E402
+import studio.session as studio_session  # noqa: E402
 
 HOME = Path.home()
 STUDIOS = HOME / "context" / "studios"
@@ -80,6 +82,46 @@ for mod, sname in ((studio, "design"), (message, "messaging")):
         clear("STUDIOS_PROJECT_ROOT")
 
 os.chdir(REPO)
+
+# 5. Docket-session nesting: render sessions live under the production-session,
+#    not a sibling <slug>/outputs/ (design) or <name>/ (messaging) directory.
+with tempfile.TemporaryDirectory() as td:
+    dk = Path(td) / "prod_root"
+    clear("STUDIOS_DOCKET_ROOT", "STUDIOS_DOCKET_SESSION")
+
+    # No docket: legacy layouts unchanged.
+    check(
+        "design no-docket session",
+        studio_session.session_root("acme", "s1"),
+        STUDIOS / "design" / "acme" / "outputs" / "s1",
+    )
+    check(
+        "messaging no-docket session",
+        message_session.session_root("s1"),
+        STUDIOS / "messaging" / "s1",
+    )
+
+    # Docket root but no session name: falls back to docket root (not nested).
+    os.environ["STUDIOS_DOCKET_ROOT"] = str(dk)
+    check(
+        "design docket, no session",
+        studio_session.session_root("acme", "s1"),
+        dk.resolve() / "acme" / "outputs" / "s1",
+    )
+
+    # Docket root + session name: nested under <root>/<session>/renders/<name>.
+    os.environ["STUDIOS_DOCKET_SESSION"] = "proposition-def"
+    check(
+        "design nested session",
+        studio_session.session_root("acme", "cp-pitch-pdf"),
+        dk.resolve() / "proposition-def" / "renders" / "cp-pitch-pdf",
+    )
+    check(
+        "messaging nested session",
+        message_session.session_root("outreach"),
+        dk.resolve() / "proposition-def" / "renders" / "outreach",
+    )
+    clear("STUDIOS_DOCKET_ROOT", "STUDIOS_DOCKET_SESSION")
 
 if failures:
     print(f"FAIL ({len(failures)})")

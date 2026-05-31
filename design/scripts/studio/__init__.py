@@ -66,6 +66,17 @@ def brand_root_base() -> Path:
     return Path.home() / "context" / "studios" / "brand"
 
 
+def docket_session() -> str | None:
+    """The production-session a render belongs to, when running inside a docket.
+
+    Set via ``$STUDIOS_DOCKET_SESSION`` (alongside ``$STUDIOS_DOCKET_ROOT``) so a
+    render session nests under the production-session
+    (``<root>/<session>/renders/<name>``) instead of a sibling ``<slug>/outputs/``
+    directory — keeping everything for one production-session self-contained.
+    """
+    return os.environ.get("STUDIOS_DOCKET_SESSION") or None
+
+
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent.parent  # .../design/
 
 TEMPLATES = PLUGIN_ROOT / "templates"

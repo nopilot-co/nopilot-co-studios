@@ -62,6 +62,16 @@ def brand_root_base() -> Path:
     return Path.home() / "context" / "studios" / "brand"
 
 
+def docket_session() -> str | None:
+    """The production-session a message/sequence belongs to, when inside a docket.
+
+    Set via ``$STUDIOS_DOCKET_SESSION`` so sessions nest under the production-session
+    (``<root>/<session>/renders/<name>``) instead of a sibling ``<name>/`` directory.
+    Same contract as the design studio.
+    """
+    return os.environ.get("STUDIOS_DOCKET_SESSION") or None
+
+
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent.parent  # .../messaging/
 FORMATS = PLUGIN_ROOT / "formats"
 SCHEMAS = Path(__file__).resolve().parent / "schemas"

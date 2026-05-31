@@ -7,11 +7,18 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
+from . import docket_root, docket_session
 from . import formats as formats_mod
 from . import resolve_context_root
 
 
 def session_root(slug: str, name: str) -> Path:
+    # Inside a docket with a named production-session, nest the render session
+    # under it (<root>/<session>/renders/<name>) rather than as a sibling
+    # <slug>/outputs/ directory. Otherwise the legacy per-brand layout.
+    droot, dsession = docket_root(), docket_session()
+    if droot is not None and dsession:
+        return droot / dsession / "renders" / name
     return resolve_context_root() / slug / "outputs" / name
 
 
