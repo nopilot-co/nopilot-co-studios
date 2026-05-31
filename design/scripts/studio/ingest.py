@@ -29,6 +29,34 @@ _SUPPORTED_EXTS = {".pdf", ".pptx", ".png", ".jpg", ".jpeg", ".svg"}
 _SKIP_DIRS = {"__pycache__", "node_modules", ".git", ".venv"}
 
 
+def import_from(slug: str, src: Path) -> str:
+    """One-shot import of an existing Brand Docket into the (docket-local) brand
+    store. The origin is recorded as provenance only — there is no ongoing
+    dependency on ``src`` afterwards (issue #9)."""
+    from . import brand_root_base, docket_root
+    from . import docket as docket_mod
+
+    src = src.expanduser()
+    if not (src / "_brand.yml").exists():
+        raise ValueError(f"no _brand.yml in {src} — not a Brand Docket")
+    dest = brand_root_base() / slug
+    dest.mkdir(parents=True, exist_ok=True)
+    shutil.copytree(src, dest, dirs_exist_ok=True)
+
+    content_hash = docket_mod.hash_dir(dest)
+    root = docket_root()
+    if root is not None:
+        docket_mod.register_brand_import(
+            root, slug, imported_from=str(src), content_hash=content_hash
+        )
+    return (
+        f"✓ imported Brand Docket '{slug}'\n"
+        f"  from {src}\n"
+        f"  into {dest}\n"
+        f"  {content_hash[:23]}…  (origin recorded; no further dependency)"
+    )
+
+
 def _walk_supported(path: Path) -> Iterable[Path]:
     """Yield files we know how to extract from.
 

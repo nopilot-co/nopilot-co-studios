@@ -19,7 +19,9 @@ from pathlib import Path
 import click
 
 from . import brand as brand_mod
+from . import content as content_mod
 from . import deps as deps_mod
+from . import docket as docket_mod
 from . import formats as formats_mod
 from . import ingest as ingest_mod
 from . import qa as qa_mod
@@ -125,11 +127,25 @@ def formats_validate(slug: str) -> None:
     help="One or more files OR folders. Folders are walked recursively; "
     "hidden files and __pycache__/node_modules/.git are skipped.",
 )
+@click.option(
+    "--import-from",
+    "import_from",
+    default=None,
+    type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
+    help="One-shot import of an existing Brand Docket (a folder with _brand.yml) "
+    "into the docket-local brand store. Origin is recorded as provenance only.",
+)
 @click.pass_context
-def ingest(ctx: click.Context, slug: str | None, sources: tuple[Path, ...]) -> None:
+def ingest(
+    ctx: click.Context,
+    slug: str | None,
+    sources: tuple[Path, ...],
+    import_from: Path | None,
+) -> None:
     """Ingest source materials into a canonical brand folder.
 
-    With no subcommand: runs the full ingest pipeline.
+    With no subcommand: runs the full ingest pipeline, or — with --import-from —
+    copies an existing Brand Docket in (no extraction).
     Sources may be individual files (.pdf .pptx .png .jpg .jpeg .svg) or folders
     containing any mix of supported files at any depth.
     """
@@ -137,8 +153,16 @@ def ingest(ctx: click.Context, slug: str | None, sources: tuple[Path, ...]) -> N
         return
     if not slug:
         raise click.UsageError("--brand <slug> required")
+    if import_from is not None:
+        try:
+            click.echo(ingest_mod.import_from(slug, import_from))
+        except ValueError as e:
+            raise click.ClickException(str(e)) from e
+        return
     if not sources:
-        raise click.UsageError("--sources <path> [<path> ...] required")
+        raise click.UsageError(
+            "--sources <path> [<path> ...] (or --import-from) required"
+        )
     report = ingest_mod.run(slug, list(sources))
     click.echo(report)
 
@@ -172,6 +196,75 @@ def session_init(slug: str, name: str, fmt: str, source: Path) -> None:
     except ValueError as e:
         raise click.ClickException(str(e)) from e
     click.echo(str(path))
+
+
+# ---------------------------------------------------------------- docket
+@main.group()
+def docket() -> None:
+    """Scaffold and manage production dockets (self-contained production_root)."""
+
+
+@docket.command("init")
+@click.argument("production_root", type=click.Path(path_type=Path))
+@click.option("--brand", "slug", default=None, help="Brand slug to record (kebab-case)")
+@click.option(
+    "--session", "session_name", default=None, help="First production-session name"
+)
+def docket_init(
+    production_root: Path, slug: str | None, session_name: str | None
+) -> None:
+    """Create (or top up) a production docket under PRODUCTION_ROOT."""
+    try:
+        root = docket_mod.init_docket(production_root, brand=slug, session=session_name)
+    except ValueError as e:
+        raise click.ClickException(str(e)) from e
+    click.echo(str(root))
+
+
+@docket.command("validate")
+@click.argument(
+    "manifest", type=click.Path(exists=True, dir_okay=False, path_type=Path)
+)
+@click.option(
+    "--kind",
+    type=click.Choice(["production", "session"]),
+    required=True,
+    help="Which manifest schema to validate against.",
+)
+def docket_validate(manifest: Path, kind: str) -> None:
+    """Validate a production- or session-manifest against its JSON Schema."""
+    errors = docket_mod.validate_manifest(kind, docket_mod.read_manifest(manifest))
+    if errors:
+        for e in errors:
+            click.echo(f"  ✗ {e}", err=True)
+        sys.exit(1)
+    click.echo(f"✓ {manifest.name} is a valid {kind}-manifest")
+
+
+# ---------------------------------------------------------------- content
+@main.group()
+def content() -> None:
+    """Manage docket content files (primaries + format variants)."""
+
+
+@content.command("bump")
+@click.argument("file", type=click.Path(exists=True, dir_okay=False, path_type=Path))
+@click.option("--kind", default="patch", type=click.Choice(["patch", "minor", "major"]))
+@click.option("--author", default=None)
+@click.option("--status", default=None, help="draft | in-review | approved")
+@click.option("--note", default=None)
+def content_bump(
+    file: Path,
+    kind: str,
+    author: str | None,
+    status: str | None,
+    note: str | None,
+) -> None:
+    """Bump a content file's version: stamps the filename, front-matter, history."""
+    new_path, new_version = content_mod.bump(
+        file, kind, author=author, status=status, note=note
+    )
+    click.echo(f"✓ v{new_version}  {new_path}")
 
 
 # ---------------------------------------------------------------- render

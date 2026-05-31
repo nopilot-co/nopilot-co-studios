@@ -23,6 +23,7 @@ from jinja2 import Template
 from . import TEMPLATES
 from . import brand as brand_mod
 from . import formats as formats_mod
+from . import metacontent
 from . import session as session_mod
 
 # Quarto format names by our short names
@@ -80,9 +81,12 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
         shutil.rmtree(tmp)
     tmp.mkdir(parents=True)
 
-    # Copy source and brand assets into the tmp project
+    # Copy source and brand assets into the tmp project. The source is run through
+    # the meta-content strip first (issue #11): front-matter + every `nopilot:`
+    # region is removed BEFORE Quarto sees it, on every export path — HTML comments
+    # are not self-hiding on the HTML/RevealJS path, so this is mandatory.
     source_md = session_path / "inputs" / "source.md"
-    shutil.copy2(source_md, tmp / "source.md")
+    (tmp / "source.md").write_text(metacontent.strip(source_md), encoding="utf-8")
     shutil.copy2(brand_yml, tmp / "_brand.yml")
 
     brand_root = brand_mod.brand_root(slug)
@@ -192,6 +196,15 @@ def _emit_output(
     if fmt not in ("html", "revealjs"):
         shutil.move(str(produced), dest)
         return
+
+    # HTML-path verification of the meta-content strip (issue #11): HTML comments
+    # are not self-hiding here, so a surviving `nopilot:` region would ship inside
+    # client-facing source. Fail loudly rather than leak.
+    if metacontent.has_meta_leak(produced.read_text(encoding="utf-8")):
+        raise RuntimeError(
+            f"meta-content leak: a `nopilot:` region survived into {produced.name} "
+            "— the strip step must run before render (issue #11)."
+        )
 
     sidecar = tmp / f"{src_stem}_files"
     if not sidecar.exists():

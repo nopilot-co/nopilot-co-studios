@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "session-manifest",
+  "description": "The production graph for one production-session: inputs -> content (primaries -> format_targets -> variant files) -> outputs (-> render_record/version.json). One per session.",
+  "type": "object",
+  "required": ["schema_version", "session", "inputs", "content", "outputs"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "session": { "type": "string" },
+    "inputs": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "brief": { "type": "string" },
+        "response_to_brief": { "type": "string" }
+      }
+    },
+    "content": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["primary", "format_targets"],
+        "additionalProperties": true,
+        "properties": {
+          "primary": { "type": "string" },
+          "format_targets": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["format", "variant"],
+              "additionalProperties": true,
+              "properties": {
+                "format": { "type": "string" },
+                "variant": { "type": "string" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["format", "from"],
+        "additionalProperties": true,
+        "properties": {
+          "format": { "type": "string" },
+          "from": { "type": "string" },
+          "render_record": { "type": "string" },
+          "current": { "type": "string" }
+        }
+      }
+    }
+  }
+}

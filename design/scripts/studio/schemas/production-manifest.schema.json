@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "production-manifest",
+  "description": "Describes a production_root: brand dockets + provenance, specs/assets index, and the session list. One per production_root.",
+  "type": "object",
+  "required": ["schema_version", "plugin", "sessions"],
+  "additionalProperties": true,
+  "properties": {
+    "schema_version": { "type": "string" },
+    "plugin": { "type": "string" },
+    "brand_dockets": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["slug", "path"],
+        "additionalProperties": true,
+        "properties": {
+          "slug": { "type": "string" },
+          "path": { "type": "string" },
+          "imported_from": { "type": "string" },
+          "imported_at": { "type": "string" },
+          "content_hash": { "type": "string" }
+        }
+      }
+    },
+    "specs": { "type": "string" },
+    "assets": { "type": "string" },
+    "sessions": { "type": "array", "items": { "type": "string" } }
+  }
+}
