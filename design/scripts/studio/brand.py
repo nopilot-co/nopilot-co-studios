@@ -15,11 +15,11 @@ from typing import Any
 import yaml
 from jsonschema import Draft202012Validator
 
-from . import BRAND_ROOT, CONTEXT_ROOT, SCHEMAS
+from . import SCHEMAS, brand_root_base, resolve_context_root
 
 
 def _legacy_brand_root(slug: str) -> Path:
-    return CONTEXT_ROOT / slug / "brand"
+    return resolve_context_root() / slug / "brand"
 
 
 def brand_root(slug: str) -> Path:
@@ -29,7 +29,7 @@ def brand_root(slug: str) -> Path:
     location only when that's the one that exists. New brands are written to the
     shared store.
     """
-    shared = BRAND_ROOT / slug
+    shared = brand_root_base() / slug
     if shared.exists():
         return shared
     legacy = _legacy_brand_root(slug)
@@ -57,12 +57,14 @@ def list_brands() -> list[dict[str, str]]:
     shared store wins on slug collision.
     """
     brand_dirs: dict[str, Path] = {}
-    if BRAND_ROOT.exists():
-        for child in sorted(BRAND_ROOT.iterdir()):
+    brand_base = brand_root_base()
+    context_root = resolve_context_root()
+    if brand_base.exists():
+        for child in sorted(brand_base.iterdir()):
             if child.is_dir() and (child / "_brand.yml").exists():
                 brand_dirs.setdefault(child.name, child)
-    if CONTEXT_ROOT.exists():
-        for child in sorted(CONTEXT_ROOT.iterdir()):
+    if context_root.exists():
+        for child in sorted(context_root.iterdir()):
             if child.is_dir() and (child / "brand" / "_brand.yml").exists():
                 brand_dirs.setdefault(child.name, child / "brand")
 
@@ -89,7 +91,7 @@ def list_brands() -> list[dict[str, str]]:
 
 def _last_rendered(slug: str) -> str:
     # Render sessions stay design-owned even after brand elevation.
-    outputs = CONTEXT_ROOT / slug / "outputs"
+    outputs = resolve_context_root() / slug / "outputs"
     if not outputs.exists():
         return ""
     latest_mtime = 0.0

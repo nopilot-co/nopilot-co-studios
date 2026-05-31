@@ -7,12 +7,12 @@ import shutil
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import CONTEXT_ROOT
 from . import formats as formats_mod
+from . import resolve_context_root
 
 
 def session_root(slug: str, name: str) -> Path:
-    return CONTEXT_ROOT / slug / "outputs" / name
+    return resolve_context_root() / slug / "outputs" / name
 
 
 def init(slug: str, name: str, source: Path, fmt: str) -> Path:

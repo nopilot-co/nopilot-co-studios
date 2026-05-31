@@ -11,22 +11,33 @@ import os
 from pathlib import Path
 
 
-def resolve_context_root(studio_name: str = "design") -> Path:
-    """Resolve where this studio's session outputs live, with this override chain:
+def docket_root() -> Path | None:
+    """The explicit production-docket root, if the caller set one.
 
-    1. ``$STUDIOS_PROJECT_ROOT`` env var (if set) →
-       ``<env>/agents/claude/outbox/<studio>/``
-    2. Walk upward from ``cwd`` looking for ``.wip/config.yml`` — if found,
-       use ``<found>/agents/claude/outbox/<studio>/``
-    3. Fall back to the legacy global location
-       ``~/context/studios/<studio>/`` (preserves backward compatibility).
-
-    The intent: when the studio runs inside a ``~/context/<repo>/`` project that
-    has been bootstrapped with ``wip init``, its outputs land under that repo's
-    ``agents/claude/outbox/`` so they are co-located with the project they
-    belong to. Brands stay shared at ``~/context/studios/brand/`` regardless —
-    brand identity is cross-project.
+    When ``$STUDIOS_DOCKET_ROOT`` is set, the studio is operating inside a
+    self-contained **production docket**: brand *and* session outputs live under
+    that root with no external filesystem dependency (see the docket spec).
+    Resolved on every call so a long-lived host (server modes) can switch
+    dockets per request, not just per process.
     """
+    env = os.environ.get("STUDIOS_DOCKET_ROOT")
+    return Path(env).expanduser().resolve() if env else None
+
+
+def resolve_context_root(studio_name: str = "design") -> Path:
+    """Resolve where this studio's session outputs live. Override chain:
+
+    1. ``$STUDIOS_DOCKET_ROOT`` (if set) → the docket root itself — a
+       self-contained production docket.
+    2. ``$STUDIOS_PROJECT_ROOT`` → ``<env>/agents/claude/outbox/<studio>/``.
+    3. Walk upward from ``cwd`` for ``.wip/config.yml`` →
+       ``<found>/agents/claude/outbox/<studio>/`` (co-located with the project).
+    4. Legacy global ``~/context/studios/<studio>/`` (backward compatibility).
+    """
+    docket = docket_root()
+    if docket:
+        return docket
+
     env = os.environ.get("STUDIOS_PROJECT_ROOT")
     if env:
         return Path(env).expanduser() / "agents" / "claude" / "outbox" / studio_name
@@ -40,15 +51,21 @@ def resolve_context_root(studio_name: str = "design") -> Path:
     return Path.home() / "context" / "studios" / studio_name
 
 
-CONTEXT_ROOT = resolve_context_root("design")
-# Brand is a studios-level entity (shared by design + messaging), not design-owned.
-# It lives here; render sessions stay under CONTEXT_ROOT/<slug>/outputs/. The legacy
-# design-owned location (CONTEXT_ROOT/<slug>/brand/) is still read for back-compat —
-# see brand.brand_root(). (SPEC §12.1, resolved.)
-#
-# Note: BRAND_ROOT is intentionally NOT per-project. Brands are cross-project
-# identities; a single brand may render assets in many project repos.
-BRAND_ROOT = Path.home() / "context" / "studios" / "brand"
+def brand_root_base() -> Path:
+    """Base directory holding per-slug Brand Dockets.
+
+    Docket-local and **authoritative** when a docket root is set
+    (``<docket>/brand/``) — the docket carries its own brand with no external
+    dependency. Otherwise the shared studios-level store
+    (``~/context/studios/brand/``), used across projects. Resolved per call so
+    the override applies in-process, not only at import.
+    """
+    docket = docket_root()
+    if docket:
+        return docket / "brand"
+    return Path.home() / "context" / "studios" / "brand"
+
+
 PLUGIN_ROOT = Path(__file__).resolve().parent.parent.parent  # .../design/
 
 TEMPLATES = PLUGIN_ROOT / "templates"

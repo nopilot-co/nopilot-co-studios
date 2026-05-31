@@ -10,12 +10,12 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 
-from . import CONTEXT_ROOT
 from . import formats as formats_mod
+from . import resolve_context_root
 
 
 def session_root(name: str) -> Path:
-    return CONTEXT_ROOT / name
+    return resolve_context_root() / name
 
 
 def _stub_message(resolved: dict) -> str:

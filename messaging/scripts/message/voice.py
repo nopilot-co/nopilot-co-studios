@@ -10,13 +10,13 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from . import BRAND_ROOT, BRAND_VOICE_DEFAULT, DESIGN_CONTEXT
+from . import BRAND_VOICE_DEFAULT, DESIGN_CONTEXT, brand_root_base
 
 
 def voice_path(brand: str | None) -> Path | None:
     if brand:
-        # Shared studios-level store first, then the legacy design-owned location.
-        for base in (BRAND_ROOT / brand, DESIGN_CONTEXT / brand / "brand"):
+        # Docket-local / shared brand store first, then legacy design-owned.
+        for base in (brand_root_base() / brand, DESIGN_CONTEXT / brand / "brand"):
             p = base / "tone-of-voice.md"
             if p.exists():
                 return p
