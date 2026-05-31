@@ -1,0 +1,4 @@
+# Format: whitepaper-pdf = purposes/whitepaper.yml <- exports/pdf.yml <- overrides
+extends: whitepaper
+export: pdf
+overrides: {}

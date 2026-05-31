@@ -1,0 +1,4 @@
+# Format: status-gslide = purposes/status.yml <- exports/gslide.yml <- overrides
+extends: status
+export: gslide
+overrides: {}

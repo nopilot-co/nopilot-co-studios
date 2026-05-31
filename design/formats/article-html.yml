@@ -1,0 +1,4 @@
+# Format: article-html = purposes/article.yml <- exports/html.yml <- overrides
+extends: article
+export: html
+overrides: {}

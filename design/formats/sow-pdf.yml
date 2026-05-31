@@ -1,0 +1,4 @@
+# Format: sow-pdf = purposes/sow.yml <- exports/pdf.yml <- overrides
+extends: sow
+export: pdf
+overrides: {}

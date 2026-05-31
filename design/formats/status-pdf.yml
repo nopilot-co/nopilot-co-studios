@@ -1,0 +1,4 @@
+# Format: status-pdf = purposes/status.yml <- exports/pdf.yml <- overrides
+extends: status
+export: pdf
+overrides: {}

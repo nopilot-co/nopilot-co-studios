@@ -1,0 +1,4 @@
+# Format: approach-gslide = purposes/approach.yml <- exports/gslide.yml <- overrides
+extends: approach
+export: gslide
+overrides: {}

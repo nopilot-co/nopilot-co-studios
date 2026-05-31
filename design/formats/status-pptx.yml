@@ -1,0 +1,4 @@
+# Format: status-pptx = purposes/status.yml <- exports/pptx.yml <- overrides
+extends: status
+export: pptx
+overrides: {}

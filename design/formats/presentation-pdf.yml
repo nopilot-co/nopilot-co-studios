@@ -1,0 +1,4 @@
+# Format: presentation-pdf = purposes/presentation.yml <- exports/pdf.yml <- overrides
+extends: presentation
+export: pdf
+overrides: {}

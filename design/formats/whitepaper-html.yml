@@ -1,0 +1,4 @@
+# Format: whitepaper-html = purposes/whitepaper.yml <- exports/html.yml <- overrides
+extends: whitepaper
+export: html
+overrides: {}

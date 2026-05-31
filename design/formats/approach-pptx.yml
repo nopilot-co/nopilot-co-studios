@@ -1,0 +1,4 @@
+# Format: approach-pptx = purposes/approach.yml <- exports/pptx.yml <- overrides
+extends: approach
+export: pptx
+overrides: {}

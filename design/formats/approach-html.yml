@@ -1,0 +1,4 @@
+# Format: approach-html = purposes/approach.yml <- exports/html.yml <- overrides
+extends: approach
+export: html
+overrides: {}

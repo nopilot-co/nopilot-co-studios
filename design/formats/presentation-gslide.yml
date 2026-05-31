@@ -1,0 +1,4 @@
+# Format: presentation-gslide = purposes/presentation.yml <- exports/gslide.yml <- overrides
+extends: presentation
+export: gslide
+overrides: {}

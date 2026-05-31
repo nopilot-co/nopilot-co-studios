@@ -1,0 +1,4 @@
+# Format: pitch-gslide = purposes/pitch.yml <- exports/gslide.yml <- overrides
+extends: pitch
+export: gslide
+overrides: {}

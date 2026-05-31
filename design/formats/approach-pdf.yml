@@ -1,0 +1,4 @@
+# Format: approach-pdf = purposes/approach.yml <- exports/pdf.yml <- overrides
+extends: approach
+export: pdf
+overrides: {}

@@ -1,0 +1,4 @@
+# Format: report-pptx = purposes/report.yml <- exports/pptx.yml <- overrides
+extends: report
+export: pptx
+overrides: {}

@@ -1,0 +1,6 @@
+# Format: post-html = purposes/post.yml <- exports/html.yml <- overrides
+extends: post
+export: html
+overrides:
+  ruleset:
+    max_scroll_screens: 3
