@@ -13,7 +13,7 @@ Only classes in COMPONENTS are bridged; any other div is left untouched.
 
 local COMPONENTS = {
   precis = true, pullquote = true, ["stat-panel"] = true, byline = true,
-  highlight = true, callout = true, panel = true, cover = true,
+  highlight = true, ["ds-callout"] = true, panel = true, cover = true,
   section = true, contents = true, cta = true, bio = true, reference = true,
 }
 

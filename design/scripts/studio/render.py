@@ -115,27 +115,36 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
     # per brand via the generated token block.
     tok = tokens_mod.resolve(slug)
     comp_dir = TEMPLATES / "components"
+    # HTML: the :root token block + static component rules (one inlined file).
     (tmp / "_components.css").write_text(
         components_mod.css_root(tok) + (comp_dir / "components.css").read_text(),
         encoding="utf-8",
     )
-    (tmp / "_preamble.typ").write_text(
-        components_mod.typ_tokens(tok) + (comp_dir / "components.typ").read_text(),
-        encoding="utf-8",
-    )
     shutil.copy2(comp_dir / "components.lua", tmp / "components.lua")
 
-    # Generate quarto.yml from template. The header logo (if any) is passed in so
-    # the PDF/Typst block can cap it and reserve top margin — Quarto's default
-    # 1.5in background logo overlaps body text on continuation pages (issue #2).
+    # Typst preamble: the token dict (#let ds) + component functions (#let c_*),
+    # plus the capped header logo (issue #2). It MUST be injected via the template's
+    # include-before-body TEXT so the bindings land in the body's top-level scope —
+    # a file include / include-in-header gets wrapped in a #block that scopes the
+    # #let definitions away, so the Lua-injected `#c_<class>[ ... ]` calls can't see
+    # them (found via spike). HTML/PPTX ignore the typst-only template branch.
     header_logo = _brand_logo_path(brand_yml)
+    typst_preamble = (
+        components_mod.typ_tokens(tok) + (comp_dir / "components.typ").read_text()
+    )
+    if header_logo:
+        typst_preamble += (
+            "#set page(background: align(left + top, "
+            f'box(inset: 0.4in, image("/{header_logo}", height: 0.4in))))\n'
+        )
+
     quarto_tpl = (TEMPLATES / "quarto" / "quarto.yml.j2").read_text()
     quarto_yml = Template(quarto_tpl).render(
         formats=formats,
         format_map=_FORMAT_MAP,
         has_pptx_reference=pptx_ref.exists(),
         css_override=(brand_root / "css" / "overrides.css").exists(),
-        logo=(f"/{header_logo}" if header_logo else None),
+        typst_preamble=typst_preamble,
     )
     (tmp / "_quarto.yml").write_text(quarto_yml)
 

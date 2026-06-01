@@ -8,11 +8,11 @@ style:
   accent: "{colors.tertiary}"
 authoring:
   syntax: |
-    ::: callout
+    ::: ds-callout
     **Note:** Something the reader must not miss.
     :::
-  notes: Quarto fenced div with class `callout`.
+  notes: Quarto fenced div with class `ds-callout` (avoids Quarto's reserved `callout`).
 render_notes:
-  html: "<aside class='callout'> surface background, tertiary left-border accent"
+  html: "<aside class='ds-callout'> surface background, tertiary left-border accent"
   pdf: "Typst block: surface fill, tertiary left rule, body text"
   pptx: "accented text box / shape, used sparingly on a slide"

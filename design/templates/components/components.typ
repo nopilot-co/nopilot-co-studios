@@ -36,7 +36,7 @@
   above: ds.space.md, below: ds.space.md,
 )[#body]
 
-#let c_callout(body) = block(
+#let c_ds_callout(body) = block(
   width: 100%, fill: ds.color.surface, inset: ds.space.md, radius: ds.radius.sm,
   above: ds.space.md, below: ds.space.md, stroke: (left: _rule),
 )[#body]

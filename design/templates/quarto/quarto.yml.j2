@@ -6,6 +6,11 @@ project:
 
 brand: _brand.yml
 
+# Component bridge: maps `::: <class>` divs to Typst component calls (HTML keeps
+# the div; CSS styles it). See components.lua / _components.css / the typst preamble.
+filters:
+  - components.lua
+
 format:
 {% for fmt in formats %}
 {%- if fmt == "pdf" %}
@@ -15,15 +20,12 @@ format:
     margin:
       x: 1in
       y: 1in
-{%- if logo %}
-    # Cap the brand header logo and keep it inside the top margin so it never
-    # overlaps body text on continuation pages (issue #2). This re-sets the page
-    # background after Quarto's brand layer (whose default 1.5in logo is too tall
-    # for square/portrait lockups); body still starts at the 1in top margin.
+    # Token dict (#let ds) + component functions (#let c_*) + capped header logo
+    # (issue #2), injected at the top of the body scope so `#c_<class>[ ... ]`
+    # calls resolve. include-before-body TEXT keeps them in top-level scope.
     include-before-body:
       text: |
-        #set page(background: align(left + top, box(inset: 0.4in, image("{{ logo }}", height: 0.4in))))
-{%- endif %}
+{{ typst_preamble | indent(8, true) }}
 {%- elif fmt == "pptx" %}
   pptx:
 {%- if has_pptx_reference %}
@@ -36,8 +38,10 @@ format:
     toc-location: left
     embed-resources: true
     theme: default
+    css:
+      - _components.css
 {%- if css_override %}
-    css: css/overrides.css
+      - css/overrides.css
 {%- endif %}
 {%- elif fmt == "revealjs" %}
   revealjs:
