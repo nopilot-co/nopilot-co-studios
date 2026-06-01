@@ -47,6 +47,7 @@ comp_typ = (REPO / "design/templates/components/components.typ").read_text()
 for fn in (
     "c_pullquote", "c_highlight", "c_ds_callout", "c_panel", "c_stat_panel",
     "c_cta", "c_precis", "c_section", "c_cover", "c_bio", "c_byline",
+    "c_figure", "c_embed",
 ):
     check(f"typ defines {fn}", f"#let {fn}(" in comp_typ, fn)
 

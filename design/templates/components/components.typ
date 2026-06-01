@@ -72,6 +72,24 @@
   #body
 ]
 
+// figure: an image/diagram with its caption. Author puts the image (markdown
+// image) then a caption paragraph inside the div; the caption gets label styling.
+#let c_figure(body) = block(width: 100%, above: ds.space.md, below: ds.space.md)[
+  #set align(center)
+  #set text(size: 0.82em, fill: ds.color.secondary)
+  #body
+]
+
+// embed: a placeholder frame for an embedded asset (video/interactive) that can't
+// live in a static PDF — renders a labelled surface block so the slot is visible.
+#let c_embed(body) = block(
+  width: 100%, fill: ds.color.surface, inset: ds.space.md, radius: ds.radius.md,
+  above: ds.space.md, below: ds.space.md, stroke: (paint: ds.color.secondary, dash: "dashed"),
+)[
+  #set text(size: 0.85em, fill: ds.color.secondary)
+  #body
+]
+
 #let c_contents(body) = block(
   width: 100%, inset: (y: ds.space.sm), above: ds.space.md, below: ds.space.md,
 )[#body]

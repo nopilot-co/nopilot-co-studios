@@ -53,6 +53,17 @@
 
 .reference { font-size: 0.8rem; color: var(--ds-color-secondary); margin-top: 0.5rem; }
 
+.figure { text-align: center; margin: 1rem 0; }
+.figure img { max-width: 100%; }
+.figure p, .figure figcaption { font-size: 0.82rem; color: var(--ds-color-secondary); margin-top: 0.4rem; }
+
+.embed {
+  background: var(--ds-color-surface);
+  border: 1px dashed var(--ds-color-secondary);
+  border-radius: var(--ds-radius-md); padding: 1rem; margin: 1.5rem 0;
+  font-size: 0.85rem; color: var(--ds-color-secondary);
+}
+
 .contents { margin: 1.5rem 0; padding: 0.5rem 0; }
 
 .section {

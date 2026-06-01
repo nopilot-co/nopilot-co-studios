@@ -15,6 +15,7 @@ local COMPONENTS = {
   precis = true, pullquote = true, ["stat-panel"] = true, byline = true,
   highlight = true, ["ds-callout"] = true, panel = true, cover = true,
   section = true, contents = true, cta = true, bio = true, reference = true,
+  figure = true, embed = true,
 }
 
 function Div(el)
