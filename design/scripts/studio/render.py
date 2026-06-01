@@ -23,9 +23,11 @@ from jinja2 import Template
 
 from . import TEMPLATES
 from . import brand as brand_mod
+from . import components as components_mod
 from . import formats as formats_mod
 from . import metacontent
 from . import session as session_mod
+from . import tokens as tokens_mod
 
 # Quarto format names by our short names
 _FORMAT_MAP = {
@@ -105,6 +107,23 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
     pptx_ref = brand_root / "reference.pptx"
     if pptx_ref.exists():
         shutil.copy2(pptx_ref, tmp / "reference.pptx")
+
+    # Materialize the component library (slice 2): static CSS/Typst component
+    # definitions + a per-brand design-token block they consume, plus the Lua
+    # bridge that maps `::: <class>` divs to Typst component calls. This is what
+    # turns a flat brand render into a designed one — same components, re-skinned
+    # per brand via the generated token block.
+    tok = tokens_mod.resolve(slug)
+    comp_dir = TEMPLATES / "components"
+    (tmp / "_components.css").write_text(
+        components_mod.css_root(tok) + (comp_dir / "components.css").read_text(),
+        encoding="utf-8",
+    )
+    (tmp / "_preamble.typ").write_text(
+        components_mod.typ_tokens(tok) + (comp_dir / "components.typ").read_text(),
+        encoding="utf-8",
+    )
+    shutil.copy2(comp_dir / "components.lua", tmp / "components.lua")
 
     # Generate quarto.yml from template. The header logo (if any) is passed in so
     # the PDF/Typst block can cap it and reserve top margin — Quarto's default
