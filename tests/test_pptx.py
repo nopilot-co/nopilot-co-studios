@@ -55,6 +55,27 @@ with tempfile.TemporaryDirectory() as td:
     prs = Presentation(str(out))
     check("pptx slide count", len(list(prs.slides)) == 3, str(len(list(prs.slides))))
 
+# Tier 2: a slide bearing ::: kpi / ::: panel / a markdown table emits native shapes.
+md2 = (
+    "## Numbers\n\n"
+    "::: kpi\n87% faster\n:::\n\n"
+    "::: panel\nA framed aside.\n:::\n\n"
+    "| Metric | Value |\n|---|---|\n| Revenue | 1.8M |\n| Margin | 17% |\n"
+)
+with tempfile.TemporaryDirectory() as td:
+    out = Path(td) / "d2.pptx"
+    pptx_render.build_pptx(md2, TOK, out)
+    from pptx import Presentation
+
+    prs = Presentation(str(out))
+    sl = list(prs.slides)[0]
+    has_table = any(getattr(sh, "has_table", False) for sh in sl.shapes)
+    has_auto = any("AUTO_SHAPE" in str(sh.shape_type) for sh in sl.shapes)
+    check(
+        "tier2 native table", has_table, str([str(sh.shape_type) for sh in sl.shapes])
+    )
+    check("tier2 panel autoshape", has_auto)
+
 if failures:
     print(f"FAIL ({len(failures)})")
     for f in failures:

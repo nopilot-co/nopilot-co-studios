@@ -188,38 +188,165 @@ def _render_section(s, slide, tokens, prs) -> None:
 
 
 def _render_content(s, slide, tokens, prs) -> None:
+    from pptx.util import Inches
+
+    c = tokens["color"]
+    top = 0.4
+    if slide.get("title"):
+        t = s.shapes.add_textbox(Inches(0.6), Inches(top), Inches(12), Inches(0.9))
+        _set_text(t.text_frame, slide["title"], size=30, color=c["primary"], bold=True)
+        top = 1.5
+
+    for block in _content_blocks(slide.get("body", "")):
+        top = _place_block(s, block, tokens, top)
+
+
+def _content_blocks(body: str) -> list[dict]:
+    """Sequence a slide body into blocks: fenced divs, markdown tables, text runs."""
+    blocks: list[dict] = []
+    text_acc: list[str] = []
+
+    def _flush_text():
+        if text_acc:
+            joined = "\n".join(text_acc).strip()
+            if joined:
+                blocks.append({"kind": "text", "body": joined})
+            text_acc.clear()
+
+    lines = body.splitlines()
+    i = 0
+    while i < len(lines):
+        line = lines[i]
+        m = re.match(r"^:::+\s*(?:\{\.)?([a-z][a-z0-9-]*)\}?\s*$", line)
+        if m:
+            _flush_text()
+            name = m.group(1)
+            inner = []
+            i += 1
+            while i < len(lines) and not re.match(r"^:::+\s*$", lines[i]):
+                inner.append(lines[i])
+                i += 1
+            i += 1
+            blocks.append({"kind": name, "body": "\n".join(inner).strip()})
+            continue
+        if line.strip().startswith("|") and "|" in line:
+            _flush_text()
+            tbl = []
+            while i < len(lines) and lines[i].strip().startswith("|"):
+                tbl.append(lines[i])
+                i += 1
+            blocks.append({"kind": "table", "rows": _parse_table(tbl)})
+            continue
+        text_acc.append(line)
+        i += 1
+    _flush_text()
+    return blocks
+
+
+def _parse_table(lines: list[str]) -> list[list[str]]:
+    rows = []
+    for ln in lines:
+        if re.match(r"^\s*\|?\s*:?-{2,}", ln):  # separator row
+            continue
+        cells = [c.strip() for c in ln.strip().strip("|").split("|")]
+        rows.append(cells)
+    return rows
+
+
+_PANEL_FILL = {
+    "panel": None,
+    "highlight": "surface",
+    "ds-callout": "surface",
+    "pullquote": None,
+    "stat-panel": "surface",
+    "kpi": "surface",
+}
+
+
+def _place_block(s, block, tokens, top: float) -> float:
+    from pptx.enum.shapes import MSO_SHAPE
+    from pptx.util import Inches
+
+    c = tokens["color"]
+    kind = block["kind"]
+    if kind == "table":
+        return _place_table(s, block["rows"], tokens, top)
+    if kind == "kpi":
+        shp = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE,
+            Inches(0.6),
+            Inches(top),
+            Inches(6),
+            Inches(1.6),
+        )
+        _solid(shp, c["surface"])
+        _set_text(
+            shp.text_frame, block["body"], size=40, color=c["tertiary"], bold=True
+        )
+        return top + 1.9
+    if kind in _PANEL_FILL:
+        h = 1.3
+        shp = s.shapes.add_shape(
+            MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.6), Inches(top), Inches(12), Inches(h)
+        )
+        fill = _PANEL_FILL[kind]
+        if fill:
+            _solid(shp, c[fill])
+        else:
+            shp.fill.background()
+            from pptx.dml.color import RGBColor
+
+            shp.line.color.rgb = RGBColor.from_string(_hex(c["secondary"]))
+        _set_text(shp.text_frame, block["body"], size=18, color=c["primary"])
+        return top + h + 0.3
+    # default: text
+    tb = s.shapes.add_textbox(Inches(0.6), Inches(top), Inches(12), Inches(1.2))
+    _set_text_multiline(tb.text_frame, block["body"], tokens)
+    return top + 1.3
+
+
+def _place_table(s, rows, tokens, top: float) -> float:
     from pptx.dml.color import RGBColor
     from pptx.util import Inches, Pt
 
     c = tokens["color"]
-    if slide.get("title"):
-        t = s.shapes.add_textbox(Inches(0.6), Inches(0.4), Inches(12), Inches(0.9))
-        _set_text(t.text_frame, slide["title"], size=30, color=c["primary"], bold=True)
-    body = slide.get("body", "")
-    bullets = [
-        ln[2:].strip() for ln in body.splitlines() if ln.strip().startswith("- ")
-    ]
-    paras = [
-        ln.strip()
-        for ln in body.splitlines()
-        if ln.strip() and not ln.strip().startswith("- ")
-    ]
-    tb = s.shapes.add_textbox(Inches(0.6), Inches(1.6), Inches(12), Inches(5))
-    tf = tb.text_frame
+    if not rows:
+        return top
+    nrows, ncols = len(rows), max(len(r) for r in rows)
+    gframe = s.shapes.add_table(
+        nrows, ncols, Inches(0.6), Inches(top), Inches(8), Inches(0.4 * nrows)
+    )
+    tbl = gframe.table
+    for ri, row in enumerate(rows):
+        for ci in range(ncols):
+            cell = tbl.cell(ri, ci)
+            cell.text = row[ci] if ci < len(row) else ""
+            for para in cell.text_frame.paragraphs:
+                for run in para.runs:
+                    run.font.size = Pt(14)
+                    run.font.color.rgb = RGBColor.from_string(
+                        _hex(c["on_primary"] if ri == 0 else c["primary"])
+                    )
+            if ri == 0:
+                cell.fill.solid()
+                cell.fill.fore_color.rgb = RGBColor.from_string(_hex(c["surface"]))
+    return top + 0.4 * nrows + 0.3
+
+
+def _set_text_multiline(tf, text: str, tokens) -> None:
+    from pptx.dml.color import RGBColor
+    from pptx.util import Pt
+
+    c = tokens["color"]
     tf.word_wrap = True
     first = True
-    for para in paras:
+    for ln in text.splitlines():
+        ln = ln.rstrip()
+        if not ln:
+            continue
         p = tf.paragraphs[0] if first else tf.add_paragraph()
         first = False
         run = p.add_run()
-        run.text = para
-        run.font.size = Pt(18)
-        run.font.color.rgb = RGBColor.from_string(_hex(c["primary"]))
-    for b in bullets:
-        p = tf.paragraphs[0] if first else tf.add_paragraph()
-        first = False
-        p.level = 0
-        run = p.add_run()
-        run.text = "• " + b
+        run.text = ("• " + ln[2:].strip()) if ln.strip().startswith("- ") else ln
         run.font.size = Pt(18)
         run.font.color.rgb = RGBColor.from_string(_hex(c["primary"]))
