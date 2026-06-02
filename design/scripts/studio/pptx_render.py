@@ -517,11 +517,14 @@ def _diagram_tree(s, nodes, edges, tokens, top: float) -> None:
     maxx = max((nd["x"] for nd in nodes), default=0) or 1
     maxd = max((nd["depth"] for nd in nodes), default=0) or 1
     w, h = 1.7, 0.7
-    left0, span_w = 1.0, 11.0
+    margin = 0.6
+    # The x-coordinate positions the box's LEFT edge; the span must leave room for
+    # a full box width on the right so the rightmost node stays on the 13.333" slide.
+    span_w = max(_SLIDE_W_IN - 2 * margin - w, 1.0)
     row_h = 3.6 / (maxd + 1)
     placed = {}
     for nd in nodes:
-        cx = left0 + (nd["x"] / maxx) * span_w if maxx else left0
+        cx = margin + (nd["x"] / maxx) * span_w if maxx else margin
         cy = top + 1.0 + nd["depth"] * row_h
         placed[nd["id"]] = _node_box(s, cx, cy, w, h, nd["label"], tokens)
     for a, b in edges:
