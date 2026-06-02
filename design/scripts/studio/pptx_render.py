@@ -106,7 +106,12 @@ def build_pptx(markdown: str, tokens: dict[str, Any], out_path: Path) -> Path:
     prs.slide_height = Inches(_SLIDE_H_IN)
     blank = prs.slide_layouts[6]
 
-    for slide in split_slides(markdown):
+    slides = split_slides(markdown)
+    if not slides:
+        # An empty source would yield a zero-slide deck, which some downstream
+        # tools (e.g. the LibreOffice QA conversion) choke on. Emit one blank slide.
+        slides = [{"kind": "content", "title": "", "body": ""}]
+    for slide in slides:
         s = prs.slides.add_slide(blank)
         if slide["kind"] == "cover-slide":
             _render_cover(s, slide, tokens, prs)
