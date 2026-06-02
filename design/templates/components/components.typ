@@ -111,3 +111,28 @@
   #set text(fill: ds.color.on_primary)
   #body
 ]
+
+// Deck-visual components (slice 4a). Proportioned for slides but valid inline.
+#let c_kpi(body) = block(
+  width: 100%, fill: ds.color.surface, inset: ds.space.lg, radius: ds.radius.lg,
+  above: ds.space.md, below: ds.space.md,
+)[
+  #set text(fill: ds.color.tertiary, size: 2.2em, weight: "bold")
+  #body
+]
+
+#let c_cover_slide(body) = block(
+  width: 100%, fill: ds.color.neutral, inset: ds.space.lg, radius: ds.radius.lg,
+  above: ds.space.md, below: ds.space.lg,
+)[
+  #set text(fill: ds.color.on_primary)
+  #body
+]
+
+#let c_section_slide(body) = block(
+  width: 100%, fill: ds.color.surface, inset: ds.space.lg, radius: ds.radius.md,
+  above: ds.space.lg, below: ds.space.lg,
+)[
+  #set text(size: 1.6em, weight: "bold", fill: ds.color.primary)
+  #body
+]

@@ -16,6 +16,7 @@ local COMPONENTS = {
   highlight = true, ["ds-callout"] = true, panel = true, cover = true,
   section = true, contents = true, cta = true, bio = true, reference = true,
   figure = true, embed = true,
+  kpi = true, ["cover-slide"] = true, ["section-slide"] = true,
 }
 
 function Div(el)

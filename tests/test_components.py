@@ -45,14 +45,37 @@ check("typ underscore key", "on_primary: rgb(" in typ, typ)
 # The static component library defines the bridged functions.
 comp_typ = (REPO / "design/templates/components/components.typ").read_text()
 for fn in (
-    "c_pullquote", "c_highlight", "c_ds_callout", "c_panel", "c_stat_panel",
-    "c_cta", "c_precis", "c_section", "c_cover", "c_bio", "c_byline",
-    "c_figure", "c_embed",
+    "c_pullquote",
+    "c_highlight",
+    "c_ds_callout",
+    "c_panel",
+    "c_stat_panel",
+    "c_cta",
+    "c_precis",
+    "c_section",
+    "c_cover",
+    "c_bio",
+    "c_byline",
+    "c_figure",
+    "c_embed",
+    "c_kpi",
+    "c_cover_slide",
+    "c_section_slide",
 ):
     check(f"typ defines {fn}", f"#let {fn}(" in comp_typ, fn)
 
 comp_css = (REPO / "design/templates/components/components.css").read_text()
-for cls in (".pullquote", ".highlight", ".ds-callout", ".panel", ".stat-panel", ".cta"):
+for cls in (
+    ".pullquote",
+    ".highlight",
+    ".ds-callout",
+    ".panel",
+    ".stat-panel",
+    ".cta",
+    ".kpi",
+    ".cover-slide",
+    ".section-slide",
+):
     check(f"css defines {cls}", cls + " " in comp_css or cls + "," in comp_css, cls)
 
 # The Lua bridge only acts on typst and lists the component classes.
