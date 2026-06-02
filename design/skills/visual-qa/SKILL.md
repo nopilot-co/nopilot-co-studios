@@ -1,6 +1,6 @@
 ---
 name: visual-qa
-description: Visual QA pass over a rendered version. Rasterises PDF pages, screenshots HTML, converts PPTX→PDF→images, and writes a brand-rubric critique to qa/v<version>/findings.md. Use after render.
+description: Visual QA pass over a rendered version. Rasterises PDF pages, screenshots HTML, converts PPTX→PDF→images, and writes a brand-and-component-rubric critique to qa/v<version>/findings.md — including whether the `::: ` components, charts, and diagrams actually render as designed, on-brand, and legible. Use after render.
 ---
 
 # visual-qa
@@ -52,6 +52,29 @@ Visual QA against the brand spec. Deterministic capture, LLM critique.
    - Is the heading typeface correct? Body typeface correct? Any unexpected fallbacks (Times New Roman, Arial, system-ui appearing where a brand font should be)?
    - Is the logo present, correct variant for the background, correctly sized and positioned?
    - Are brand colors used semantically (e.g. primary for links/CTAs, not body text)?
+
+   **Component & data-viz fidelity** (the rendering engine)
+   - Do the authored `::: ` components actually render as *designed* elements,
+     not flat text? Each one present in the source should read as a distinct,
+     branded block: **pullquote** (accent rule + lifted type), **highlight /
+     ds-callout / panel** (differentiated fill or border), **stat-panel / kpi**
+     (large accent figure on a tile), **cover / section** (banner fills),
+     **cta** (solid accent block), **figure** (centred + caption), **table**
+     (branded header row).
+   - **Panel-text contrast (critical trap):** text inside a filled panel must
+     contrast its *fill*, not just the page. Watch for dark text on a dark
+     surface fill (or light on light) — common when a brand colour and a chosen
+     design-system disagree. Illegible panel text is a **critical** finding.
+   - **Charts (`::: chart`):** is it a real chart (bars/line/pie/scatter/area)
+     with correct proportions, axis labels, and brand series colours — not a
+     broken/empty box or a default-themed (off-brand) chart?
+   - **Diagrams (`::: flow/process/timeline/hierarchy/org`):** branded boxes +
+     connectors, correct structure (arrows follow the flow / tree parent→child),
+     **nothing clipped off the page or slide edge**, no overlapping boxes,
+     labels legible.
+   - **PPTX specifically:** confirm shapes look native and on-brand (a chart is a
+     real chart, a table a real table) — not a single pasted image; and that
+     nothing runs off the 16:9 slide.
 
    **Hierarchy & legibility**
    - Heading levels clearly differentiated?
