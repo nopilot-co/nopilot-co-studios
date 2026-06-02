@@ -71,6 +71,16 @@ check("process html mermaid", "```mermaid" in ph and "Discover" in ph)
 pp = diagrams.expand(PROC, "pdf", TOK)
 check("process pdf fletcher", "fletcher" in pp and "Ship" in pp)
 
+# timeline: events with at/label.
+TL = (
+    "::: timeline\nevents:\n  - {at: Q1, label: Kickoff}\n"
+    "  - {at: Q2, label: Beta}\n  - {at: Q3, label: GA}\n:::\n"
+)
+th = diagrams.expand(TL, "html", TOK)
+check("timeline html", "```mermaid" in th and "Kickoff" in th and "Q3" in th)
+tp = diagrams.expand(TL, "pdf", TOK)
+check("timeline pdf", "fletcher" in tp and "Beta" in tp and "Q1" in tp)
+
 if failures:
     print(f"FAIL ({len(failures)})")
     for f in failures:

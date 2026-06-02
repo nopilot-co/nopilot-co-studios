@@ -59,6 +59,16 @@ def _render(name: str, spec: dict, export: str, tokens: dict) -> str:
             if export == "html"
             else _linear_pdf(labels, numbered, tokens)
         )
+    if name == "timeline":
+        events = spec.get("events") or []
+        pairs = [
+            (str(e.get("at", "")), str(e.get("label", "")))
+            for e in events
+            if isinstance(e, dict)
+        ]
+        return (
+            _timeline_html(pairs) if export == "html" else _timeline_pdf(pairs, tokens)
+        )
     raise NotImplementedError(f"diagram '{name}' not implemented")
 
 
@@ -107,6 +117,39 @@ def _linear_pdf(labels: list[str], numbered: bool, tokens: dict) -> str:
     body = ",\n  ".join(parts)
     lines.append("  " + body + "\n))")
     return "```{=typst}\n" + "\n".join(lines) + "\n```\n"
+
+
+def _timeline_html(pairs: list[tuple[str, str]]) -> str:
+    lines = ["```mermaid", "timeline"]
+    for at, label in pairs:
+        lines.append(f"  {_esc_mermaid(at)} : {_esc_mermaid(label)}")
+    lines.append("```")
+    return "\n".join(lines) + "\n"
+
+
+def _timeline_pdf(pairs: list[tuple[str, str]], tokens: dict) -> str:
+    head = _fletcher_header(tokens)
+    nodes = []
+    for i, (at, label) in enumerate(pairs):
+        nodes.append(
+            f"node(({i},0), text(fill: _tx, size: 0.85em)[{_esc_typst(label)}], "
+            f"corner-radius: 3pt, inset: 6pt)"
+        )
+        nodes.append(
+            f'node(({i},-0.7), text(fill: _ac, weight: "bold")[{_esc_typst(at)}])'
+        )
+        if i < len(pairs) - 1:
+            nodes.append(
+                "edge((" + str(i) + ",0), (" + str(i + 1) + ",0), stroke: _ac + 1pt)"
+            )
+    body = ",\n  ".join(nodes)
+    return (
+        "```{=typst}\n"
+        + head
+        + "#figure(diagram(spacing: 3em, node-stroke: 0.5pt, node-fill: _nf,\n  "
+        + body
+        + "\n))\n```\n"
+    )
 
 
 def _fallback(name: str, body: str, err: str) -> str:
