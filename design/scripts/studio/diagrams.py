@@ -143,7 +143,8 @@ def _timeline_pdf(pairs: list[tuple[str, str]], tokens: dict) -> str:
             f"corner-radius: 3pt, inset: 6pt)"
         )
         nodes.append(
-            f'node(({i},-0.7), text(fill: _ac, weight: "bold")[{_esc_typst(at)}])'
+            f'node(({i},-0.7), text(fill: _ac, weight: "bold")[{_esc_typst(at)}], '
+            f"fill: none, stroke: none)"
         )
         if i < len(pairs) - 1:
             nodes.append(
