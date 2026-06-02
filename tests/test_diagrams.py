@@ -81,6 +81,24 @@ check("timeline html", "```mermaid" in th and "Kickoff" in th and "Q3" in th)
 tp = diagrams.expand(TL, "pdf", TOK)
 check("timeline pdf", "fletcher" in tp and "Beta" in tp and "Q1" in tp)
 
+# hierarchy/org: nested tree, computed layout.
+TREE = (
+    "::: org\nroot: CEO\nchildren:\n  - root: CTO\n    children: [Eng, Data]\n"
+    "  - COO\n:::\n"
+)
+oh = diagrams.expand(TREE, "html", TOK)
+check("org html mermaid TD", "flowchart TD" in oh and "CEO" in oh and "Eng" in oh)
+check(
+    "org html edges", oh.count("-->") >= 4, oh
+)  # CEO->CTO, CEO->COO, CTO->Eng, CTO->Data
+op = diagrams.expand(TREE, "pdf", TOK)
+check("org pdf fletcher", "fletcher" in op and "CEO" in op and "Data" in op)
+check("org pdf edges", op.count("edge(") >= 4, op)
+# layout helper assigns distinct coordinates to siblings
+nodes, edges = diagrams._flatten_tree({"root": "A", "children": ["B", "C"]})
+xs = {n["x"] for n in nodes if n["depth"] == 1}
+check("layout: siblings distinct x", len(xs) == 2, str(nodes))
+
 if failures:
     print(f"FAIL ({len(failures)})")
     for f in failures:

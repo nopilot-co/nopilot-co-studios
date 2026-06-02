@@ -69,6 +69,13 @@ def _render(name: str, spec: dict, export: str, tokens: dict) -> str:
         return (
             _timeline_html(pairs) if export == "html" else _timeline_pdf(pairs, tokens)
         )
+    if name in ("hierarchy", "org"):
+        nodes, edges = _flatten_tree(spec)
+        return (
+            _tree_html(nodes, edges)
+            if export == "html"
+            else _tree_pdf(nodes, edges, tokens)
+        )
     raise NotImplementedError(f"diagram '{name}' not implemented")
 
 
@@ -147,6 +154,76 @@ def _timeline_pdf(pairs: list[tuple[str, str]], tokens: dict) -> str:
         "```{=typst}\n"
         + head
         + "#figure(diagram(spacing: 3em, node-stroke: 0.5pt, node-fill: _nf,\n  "
+        + body
+        + "\n))\n```\n"
+    )
+
+
+def _flatten_tree(spec: Any) -> tuple[list[dict], list[tuple[int, int]]]:
+    """Walk a nested {root, children} tree into positioned nodes + parent/child edges.
+
+    Returns (nodes, edges). Each node: {id, label, depth, x}. Leaves are assigned
+    sequential x positions left-to-right; a parent's x is centred over its subtree.
+    """
+    nodes: list[dict] = []
+    edges: list[tuple[int, int]] = []
+    leaf_counter = [0]
+
+    def _norm(n: Any) -> dict:
+        if isinstance(n, dict):
+            return {
+                "label": str(n.get("root", "")),
+                "children": n.get("children", []) or [],
+            }
+        return {"label": str(n), "children": []}
+
+    def _walk(raw: Any, depth: int) -> int:
+        node = _norm(raw)
+        nid = len(nodes)
+        nodes.append({"id": nid, "label": node["label"], "depth": depth, "x": 0.0})
+        kids = [_walk(c, depth + 1) for c in node["children"]]
+        for k in kids:
+            edges.append((nid, k))
+        if kids:
+            nodes[nid]["x"] = sum(nodes[k]["x"] for k in kids) / len(kids)
+        else:
+            nodes[nid]["x"] = float(leaf_counter[0])
+            leaf_counter[0] += 1
+        return nid
+
+    _walk(spec, 0)
+    return nodes, edges
+
+
+def _tree_html(nodes: list[dict], edges: list[tuple[int, int]]) -> str:
+    lines = ["```mermaid", "flowchart TD"]
+    for n in nodes:
+        lines.append(f'  n{n["id"]}["{_esc_mermaid(n["label"])}"]')
+    for a, b in edges:
+        lines.append(f"  n{a} --> n{b}")
+    lines.append("```")
+    return "\n".join(lines) + "\n"
+
+
+def _tree_pdf(nodes: list[dict], edges: list[tuple[int, int]], tokens: dict) -> str:
+    head = _fletcher_header(tokens)
+    parts = []
+    for n in nodes:
+        parts.append(
+            f'node(({n["x"]:.3f},{n["depth"]}), text(fill: _tx)[{_esc_typst(n["label"])}], '
+            f'corner-radius: 3pt, inset: 8pt)'
+        )
+    for a, b in edges:
+        na, nb = nodes[a], nodes[b]
+        parts.append(
+            f'edge(({na["x"]:.3f},{na["depth"]}), ({nb["x"]:.3f},{nb["depth"]}), '
+            f'"-|>", stroke: _ac + 1pt)'
+        )
+    body = ",\n  ".join(parts)
+    return (
+        "```{=typst}\n"
+        + head
+        + "#figure(diagram(spacing: (2em, 3em), node-stroke: 0.5pt, node-fill: _nf,\n  "
         + body
         + "\n))\n```\n"
     )
