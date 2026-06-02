@@ -108,7 +108,10 @@
   width: 100%, fill: ds.color.neutral, inset: ds.space.lg, radius: ds.radius.lg,
   above: ds.space.md, below: ds.space.lg,
 )[
+  // Force on-primary on text AND headings — Quarto's brand layer colours headings
+  // its own way, which is invisible on the dark cover fill without this override.
   #set text(fill: ds.color.on_primary)
+  #show heading: set text(fill: ds.color.on_primary)
   #body
 ]
 
@@ -126,6 +129,7 @@
   above: ds.space.md, below: ds.space.lg,
 )[
   #set text(fill: ds.color.on_primary)
+  #show heading: set text(fill: ds.color.on_primary)
   #body
 ]
 
