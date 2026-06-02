@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: Yacht Club
-description: Regatta: navy, rope cream, signal flag red.
+description: "Regatta: navy, rope cream, signal flag red."
 colors:
   primary: "#F7F0DE"
   secondary: "#B4A88A"

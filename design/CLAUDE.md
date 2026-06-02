@@ -77,9 +77,12 @@ instantiation that should be consistent with a chosen design-system, icon set,
 and voice. Aim: design choices stay **normalised, interchangeable, extensible,
 consistent** — referenced by slug, never hard-coded.
 
-> Not yet wired into the glue/skills: selecting a design-system / icon set per
-> session (parallel to format lock-in). Today resources are the canonical
-> catalog; the brand spec and skills consume them by convention.
+> **Design-system selection IS wired** (issue #21): `studio session init
+> --design-system <slug>` locks a system (see `studio design-systems`), stored in
+> `version.json`. `tokens.resolve(slug, design_system)` layers it under the brand
+> (precedence: defaults → design-system → brand colours), so a session can adopt a
+> whole visual system, not just inherit brand colours. Icon-set selection is still
+> by convention.
 
 ## CLI
 

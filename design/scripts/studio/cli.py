@@ -27,6 +27,7 @@ from . import ingest as ingest_mod
 from . import qa as qa_mod
 from . import render as render_mod
 from . import session as session_mod
+from . import tokens as tokens_mod
 
 
 @click.group()
@@ -206,12 +207,38 @@ def session() -> None:
     help="Format slug to lock in, e.g. pitch-pdf (see `studio formats list`)",
 )
 @click.option("--source", required=True, type=click.Path(exists=True, path_type=Path))
-def session_init(slug: str, name: str, fmt: str, source: Path) -> None:
+@click.option(
+    "--design-system",
+    "design_system",
+    default=None,
+    help="Optional design-system slug to lock (see `studio design-systems`); "
+    "its tokens layer under the brand.",
+)
+def session_init(
+    slug: str, name: str, fmt: str, source: Path, design_system: str | None
+) -> None:
+    if design_system and design_system not in tokens_mod.list_design_systems():
+        raise click.ClickException(
+            f"unknown design-system '{design_system}' "
+            f"(see `studio design-systems`)"
+        )
     try:
-        path = session_mod.init(slug, name, source, fmt)
+        path = session_mod.init(slug, name, source, fmt, design_system)
     except ValueError as e:
         raise click.ClickException(str(e)) from e
     click.echo(str(path))
+
+
+# ---------------------------------------------------------------- design-systems
+@main.command("design-systems")
+def design_systems_cmd() -> None:
+    """List available design-system slugs (lockable per session)."""
+    systems = tokens_mod.list_design_systems()
+    if not systems:
+        click.echo("(no design systems in resources/design-systems/)")
+        return
+    for s in systems:
+        click.echo(s)
 
 
 # ---------------------------------------------------------------- docket

@@ -91,7 +91,7 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
         )
         dest = session_path / "outputs" / f"{out_stem}.v{new_version}.pptx"
         dest.parent.mkdir(parents=True, exist_ok=True)
-        tok = tokens_mod.resolve(slug)
+        tok = tokens_mod.resolve(slug, state.get("design_system"))
         body = metacontent.strip(session_path / "inputs" / "source.md")
         pptx_mod.build_pptx(body, tok, dest)
         outputs = {sfmt: dest}
@@ -119,7 +119,7 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
     # Preprocess order: strip meta-content (issue #11), then expand structured
     # `::: <diagram>` blocks for THIS export — Mermaid for HTML, fletcher for PDF
     # (slice 4a). `sfmt` is the locked studio format; `tok` the resolved tokens.
-    tok = tokens_mod.resolve(slug)
+    tok = tokens_mod.resolve(slug, state.get("design_system"))
     body = metacontent.strip(source_md)
     body = diagrams_mod.expand(body, sfmt, tok)
     # Charts write a brand-styled SVG into the render dir and reference it (#20).

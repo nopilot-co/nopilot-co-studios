@@ -22,12 +22,16 @@ def session_root(slug: str, name: str) -> Path:
     return resolve_context_root() / slug / "outputs" / name
 
 
-def init(slug: str, name: str, source: Path, fmt: str) -> Path:
+def init(
+    slug: str, name: str, source: Path, fmt: str, design_system: str | None = None
+) -> Path:
     """Create the session folder structure, lock in a format, and copy source.
 
     `fmt` is a format slug (e.g. `pitch-pdf`); it is validated against the format
     contracts and stored in version.json so every later step renders and QAs the
-    same locked format. Returns the session root path.
+    same locked format. `design_system` optionally locks a visual system
+    (`resources/design-systems/<slug>`); render layers its tokens under the brand.
+    Returns the session root path.
     """
     errors = formats_mod.validate(fmt)
     if errors:
@@ -57,6 +61,7 @@ def init(slug: str, name: str, source: Path, fmt: str) -> Path:
                     "brand": slug,
                     "session": name,
                     "format": fmt,
+                    "design_system": design_system,
                     "source_filename": source.name,
                     "created": datetime.now(timezone.utc).isoformat(),
                     "current": "0.0.0",
