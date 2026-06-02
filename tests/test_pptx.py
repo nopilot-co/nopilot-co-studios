@@ -76,6 +76,27 @@ with tempfile.TemporaryDirectory() as td:
     )
     check("tier2 panel autoshape", has_auto)
 
+# Tier 3: ::: chart -> a NATIVE editable chart object.
+md3 = "## Revenue\n\n::: chart\ntype: bar\nx: [Q1, Q2, Q3]\ny: [12, 18, 15]\n:::\n"
+with tempfile.TemporaryDirectory() as td:
+    out = Path(td) / "d3.pptx"
+    pptx_render.build_pptx(md3, TOK, out)
+    from pptx import Presentation
+
+    prs = Presentation(str(out))
+    sl = list(prs.slides)[0]
+    check(
+        "tier3 native chart",
+        any(getattr(sh, "has_chart", False) for sh in sl.shapes),
+        str([str(sh.shape_type) for sh in sl.shapes]),
+    )
+# bad chart YAML -> slide still builds (degrade)
+md3b = "## Oops\n\n::: chart\ntype: nope\n:::\n"
+with tempfile.TemporaryDirectory() as td:
+    out = Path(td) / "d3b.pptx"
+    pptx_render.build_pptx(md3b, TOK, out)  # must not raise
+    check("tier3 bad chart no crash", out.exists())
+
 if failures:
     print(f"FAIL ({len(failures)})")
     for f in failures:

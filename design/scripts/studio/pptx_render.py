@@ -284,6 +284,8 @@ def _place_block(s, block, tokens, top: float) -> float:
             shp.text_frame, block["body"], size=40, color=c["tertiary"], bold=True
         )
         return top + 1.9
+    if kind == "chart":
+        return _place_chart(s, block["body"], tokens, top)
     if kind in _PANEL_FILL:
         h = 1.3
         shp = s.shapes.add_shape(
@@ -331,6 +333,81 @@ def _place_table(s, rows, tokens, top: float) -> float:
                 cell.fill.solid()
                 cell.fill.fore_color.rgb = RGBColor.from_string(_hex(c["surface"]))
     return top + 0.4 * nrows + 0.3
+
+
+def _place_chart(s, body, tokens, top: float) -> float:
+    from pptx.util import Inches
+
+    try:
+        import yaml
+
+        from . import charts as charts_mod
+
+        spec = yaml.safe_load(body) or {}
+        if not isinstance(spec, dict):
+            raise ValueError("chart body must be a YAML mapping")
+        ctype = spec.get("type", "bar")
+        if ctype not in charts_mod.CHART_TYPES:
+            raise ValueError(f"unknown chart type '{ctype}'")
+        series = charts_mod._series(spec)
+        cats = [str(v) for v in (spec.get("x") or spec.get("labels") or [])]
+        _add_native_chart(s, ctype, spec, series, cats, tokens, top)
+        return top + 4.2
+    except Exception:  # noqa: BLE001 — degrade: a chart must never crash the deck
+        tb = s.shapes.add_textbox(Inches(0.6), Inches(top), Inches(12), Inches(0.8))
+        _set_text(
+            tb.text_frame,
+            "[chart could not render]",
+            size=14,
+            color=tokens["color"]["secondary"],
+        )
+        return top + 1.0
+
+
+_XL = {
+    "bar": "COLUMN_CLUSTERED",
+    "line": "LINE",
+    "area": "AREA",
+    "pie": "PIE",
+    "scatter": "XY_SCATTER",
+}
+
+
+def _add_native_chart(s, ctype, spec, series, cats, tokens, top) -> None:
+    from pptx.chart.data import CategoryChartData
+    from pptx.dml.color import RGBColor
+    from pptx.enum.chart import XL_CHART_TYPE
+    from pptx.util import Inches
+
+    c = tokens["color"]
+    xltype = getattr(XL_CHART_TYPE, _XL.get(ctype, "COLUMN_CLUSTERED"))
+    cd = CategoryChartData()
+    if ctype == "pie":
+        cd.categories = cats or [str(i) for i in range(len(spec.get("values") or []))]
+        cd.add_series(
+            "", tuple(float(v) for v in (spec.get("values") or spec.get("y") or []))
+        )
+    else:
+        cd.categories = cats or [
+            str(i) for i in range(len(series[0]["y"]) if series else 0)
+        ]
+        for sname_y in series:
+            cd.add_series(sname_y["name"] or "series", tuple(sname_y["y"]))
+    gframe = s.shapes.add_chart(
+        xltype, Inches(0.6), Inches(top), Inches(8.5), Inches(4.0), cd
+    )
+    chart = gframe.chart
+    chart.has_legend = any(sy["name"] for sy in series)
+    try:
+        palette = [c["tertiary"], c["primary"], c["secondary"]]
+        for plot in chart.plots:
+            for si, ser in enumerate(plot.series):
+                ser.format.fill.solid()
+                ser.format.fill.fore_color.rgb = RGBColor.from_string(
+                    _hex(palette[si % len(palette)])
+                )
+    except Exception:  # noqa: BLE001 — colour is best-effort; never fail the render
+        pass
 
 
 def _set_text_multiline(tf, text: str, tokens) -> None:
