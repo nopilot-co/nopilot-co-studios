@@ -64,6 +64,13 @@ check("pdf: no raw div", "::: flow" not in pdf)
 plain = "Just text.\n\n::: pullquote\nA quote.\n:::\n"
 check("passthrough: pullquote untouched", diagrams.expand(plain, "html", TOK) == plain)
 
+# process: numbered steps, both targets.
+PROC = "::: process\nsteps: [Discover, Design, Build, Ship]\n:::\n"
+ph = diagrams.expand(PROC, "html", TOK)
+check("process html mermaid", "```mermaid" in ph and "Discover" in ph)
+pp = diagrams.expand(PROC, "pdf", TOK)
+check("process pdf fletcher", "fletcher" in pp and "Ship" in pp)
+
 if failures:
     print(f"FAIL ({len(failures)})")
     for f in failures:

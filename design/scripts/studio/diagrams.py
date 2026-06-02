@@ -50,7 +50,63 @@ def expand(markdown: str, export: str, tokens: dict[str, Any]) -> str:
 
 
 def _render(name: str, spec: dict, export: str, tokens: dict) -> str:
-    raise NotImplementedError  # filled in Task 2+
+    if name in ("flow", "process"):
+        labels = spec.get("nodes") or spec.get("steps") or []
+        labels = [str(x) for x in labels]
+        numbered = name == "process"
+        return (
+            _linear_html(labels, numbered)
+            if export == "html"
+            else _linear_pdf(labels, numbered, tokens)
+        )
+    raise NotImplementedError(f"diagram '{name}' not implemented")
+
+
+def _esc_mermaid(s: str) -> str:
+    return s.replace('"', "'")
+
+
+def _esc_typst(s: str) -> str:
+    return s.replace("\\", "\\\\").replace('"', '\\"')
+
+
+def _linear_html(labels: list[str], numbered: bool) -> str:
+    nodes = []
+    for i, lab in enumerate(labels):
+        text = f"{i + 1}. {lab}" if numbered else lab
+        nodes.append(f'n{i}["{_esc_mermaid(text)}"]')
+    chain = " --> ".join(f"n{i}" for i in range(len(labels)))
+    body = "\n  ".join(nodes + ([chain] if len(labels) > 1 else []))
+    return f"```mermaid\nflowchart LR\n  {body}\n```\n"
+
+
+def _fletcher_header(tokens: dict) -> str:
+    c = tokens["color"]
+    return (
+        '#import "@preview/fletcher:0.5.5" as fletcher: diagram, node, edge\n'
+        f'#let _nf = rgb("{c["neutral"]}")\n'
+        f'#let _ac = rgb("{c["tertiary"]}")\n'
+        f'#let _tx = rgb("{c["on_primary"]}")\n'
+    )
+
+
+def _linear_pdf(labels: list[str], numbered: bool, tokens: dict) -> str:
+    lines = [
+        _fletcher_header(tokens),
+        "#figure(diagram(spacing: 2.2em, node-stroke: 0.5pt, node-fill: _nf,",
+    ]
+    parts = []
+    for i, lab in enumerate(labels):
+        text = f"{i + 1}. {lab}" if numbered else lab
+        parts.append(
+            f"node(({i},0), text(fill: _tx)[{_esc_typst(text)}], "
+            f"corner-radius: 3pt, inset: 8pt)"
+        )
+        if i < len(labels) - 1:
+            parts.append('edge("-|>", stroke: _ac + 1pt)')
+    body = ",\n  ".join(parts)
+    lines.append("  " + body + "\n))")
+    return "```{=typst}\n" + "\n".join(lines) + "\n```\n"
 
 
 def _fallback(name: str, body: str, err: str) -> str:
