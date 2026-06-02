@@ -163,6 +163,22 @@ x: [Q1, Q2, Q3, Q4]
 embed it inline; PDF exports place it via Typst `#image()`. Both sides produce
 identical output — no per-export branching.
 
+### PPTX (native editable decks)
+
+`pptx` exports do **not** go through Quarto. `studio.pptx_render` builds the deck
+shape-by-shape into a real `.pptx` of **native, editable PowerPoint objects** —
+not flat images — from the same `::: ` block source:
+
+- A `#`/`##` heading or a `::: cover-slide` / `::: section-slide` block starts a
+  new slide; content accumulates onto the current slide.
+- `::: kpi` / `::: panel` / `::: highlight` / `::: stat-panel` → branded
+  autoshapes; markdown tables → **native tables**; `::: chart` → a **native
+  editable chart**; `::: flow` / `process` / `timeline` / `hierarchy` / `org` →
+  native autoshapes + connectors (shared layout with the HTML/PDF diagram engine).
+
+Every shape is brand-tokenized, so a user can open the deck and move/recolour/edit
+it. `gslide` (Google Slides import of the PPTX) is a separate, not-yet-wired step.
+
 ## Output-folder convention
 
 Docket render outputs flatten to `outputs/<primary>/<file>` — there is no
