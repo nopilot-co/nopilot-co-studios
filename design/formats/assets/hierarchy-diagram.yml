@@ -9,16 +9,13 @@ style:
 authoring:
   syntax: |
     ::: hierarchy
-    ```{mermaid}
-    graph TD
-      A[Root] --> B[Child A]
-      A --> C[Child B]
-      B --> D[Leaf]
-    ```
+    root: Strategy
+    children:
+      - root: Pillar A
+        children: [Initiative 1, Initiative 2]
+      - Pillar B
     :::
-  notes: Quarto fenced div with class `hierarchy`.
+  notes: Structured nested YAML fenced div; expanded per export by studio.diagrams.
 render_notes:
-  html: "<div class='hierarchy'> Mermaid tree SVG, surface-fill nodes, secondary lines"
-  pdf: "Typst: Mermaid SVG embedded, surface nodes, secondary connecting lines"
-  pptx: "SmartArt hierarchy or shape tree: surface nodes, secondary connector lines"
-  gslide: "tree shapes: surface node fill, secondary lines"
+  html: "Mermaid flowchart TD (inline SVG)"
+  pdf: "Typst fletcher tree with computed coordinates"

@@ -9,13 +9,9 @@ style:
 authoring:
   syntax: |
     ::: process
-    1. **Discover** — Research the problem space.
-    2. **Define** — Articulate the opportunity.
-    3. **Deliver** — Ship the solution.
+    steps: [Discover, Design, Build, Ship]
     :::
-  notes: Quarto fenced div with class `process`.
+  notes: Structured YAML fenced div; expanded per export by studio.diagrams.
 render_notes:
-  html: "<ol class='process'> surface step cards, tertiary index numbers"
-  pdf: "Typst list: surface-fill step blocks, tertiary numbered indices"
-  pptx: "step shapes: surface fill, tertiary index badges, connecting arrows"
-  gslide: "numbered step layout: surface cards, tertiary indices"
+  html: "Mermaid flowchart LR with numbered steps (inline SVG)"
+  pdf: "Typst fletcher diagram, numbered brand-tokenized nodes"

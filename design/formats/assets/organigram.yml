@@ -9,16 +9,13 @@ style:
 authoring:
   syntax: |
     ::: org
-    ```{mermaid}
-    graph TD
-      CEO --> CTO
-      CEO --> CFO
-      CTO --> Eng[Engineering]
-    ```
+    root: CEO
+    children:
+      - root: CTO
+        children: [Eng, Data]
+      - COO
     :::
-  notes: Quarto fenced div with class `org`.
+  notes: Structured nested YAML fenced div; expanded per export by studio.diagrams.
 render_notes:
-  html: "<div class='org'> Mermaid org chart SVG, surface-fill nodes, secondary lines"
-  pdf: "Typst: org chart SVG embedded, surface nodes, secondary reporting lines"
-  pptx: "SmartArt org chart: surface-fill role boxes, secondary connector lines"
-  gslide: "org chart shapes: surface node fill, secondary lines"
+  html: "Mermaid flowchart TD (inline SVG)"
+  pdf: "Typst fletcher tree with computed coordinates"

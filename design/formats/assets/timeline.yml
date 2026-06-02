@@ -9,13 +9,12 @@ style:
 authoring:
   syntax: |
     ::: timeline
-    - **Q1 2025** — Project kick-off
-    - **Q2 2025** — Beta launch
-    - **Q4 2025** — General availability
+    events:
+      - {at: Q1, label: Kickoff}
+      - {at: Q2, label: Beta}
+      - {at: Q3, label: GA}
     :::
-  notes: Quarto fenced div with class `timeline`.
+  notes: Structured YAML fenced div; expanded per export by studio.diagrams.
 render_notes:
-  html: "<div class='timeline'> horizontal axis in secondary color, tertiary milestone markers"
-  pdf: "Typst: horizontal rule in secondary, tertiary circle markers, date labels"
-  pptx: "SmartArt timeline or shape line: secondary axis, tertiary markers"
-  gslide: "line + shape timeline: secondary axis, tertiary milestone dots"
+  html: "Mermaid timeline (inline SVG)"
+  pdf: "Typst fletcher axis with period markers + labels"

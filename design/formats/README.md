@@ -101,6 +101,40 @@ Assets live in `formats/assets/<slug>.yml` (one file per asset type — e.g.
 List and inspect assets with `studio formats assets`. Validate a format's asset
 references with `studio formats validate --format <slug>`.
 
+### Diagrams
+
+Five diagram classes are available: `flow`, `process`, `timeline`, `hierarchy`,
+and `org`. Each is authored as a fenced div whose body is structured YAML —
+not raw Mermaid or Typst. The engine (`studio.diagrams`) expands the YAML per
+the session's locked export: **Mermaid** for HTML exports, **Typst fletcher**
+for PDF exports. Node and edge styles resolve against the active design-system
+tokens (`{colors.*}`) so diagrams stay brand-consistent automatically.
+
+```markdown
+::: flow
+nodes: [Brief, Plan, Render, Review]
+:::
+
+::: timeline
+events:
+  - {at: Q1, label: Kickoff}
+  - {at: Q2, label: Beta}
+  - {at: Q3, label: GA}
+:::
+
+::: hierarchy
+root: Strategy
+children:
+  - root: Pillar A
+    children: [Initiative 1, Initiative 2]
+  - Pillar B
+:::
+```
+
+`flow` and `process` generate left-to-right node chains; `timeline` generates
+a horizontal axis with period markers; `hierarchy` and `org` generate top-down
+trees with computed coordinates.
+
 ## Output-folder convention
 
 Docket render outputs flatten to `outputs/<primary>/<file>` — there is no

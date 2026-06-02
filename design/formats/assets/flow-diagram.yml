@@ -9,16 +9,9 @@ style:
 authoring:
   syntax: |
     ::: flow
-    ```{mermaid}
-    flowchart LR
-      A[Start] --> B{Decision}
-      B -->|Yes| C[Action]
-      B -->|No| D[End]
-    ```
+    nodes: [Brief, Plan, Render, Review]
     :::
-  notes: Quarto fenced div with class `flow`.
+  notes: Structured YAML fenced div; expanded per export by studio.diagrams.
 render_notes:
-  html: "<div class='flow'> Mermaid SVG rendered inline, surface nodes, secondary arrows"
-  pdf: "Typst: Mermaid diagram rendered as SVG then embedded, styled with surface/secondary"
-  pptx: "SmartArt or shape group: surface-fill nodes, secondary arrows"
-  gslide: "diagram shapes: surface nodes, secondary connectors"
+  html: "Mermaid flowchart LR (inline SVG)"
+  pdf: "Typst fletcher diagram, brand-tokenized nodes/edges"
