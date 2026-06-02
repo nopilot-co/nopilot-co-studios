@@ -28,6 +28,7 @@ from . import components as components_mod
 from . import diagrams as diagrams_mod
 from . import formats as formats_mod
 from . import metacontent
+from . import pptx_render as pptx_mod
 from . import session as session_mod
 from . import tokens as tokens_mod
 
@@ -56,13 +57,6 @@ def _strip_version_label(stem: str) -> str:
 
 
 def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
-    if detect_quarto() is None:
-        raise RuntimeError(
-            "quarto not found on PATH.\n"
-            "  Install: brew install --cask quarto  (or download from https://quarto.org/docs/get-started/)\n"
-            "  Then re-run: studio render ..."
-        )
-
     state = session_mod.read_state(session_path)
     slug = state["brand"]
 
@@ -89,6 +83,29 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
         raise FileNotFoundError(f"brand spec missing: {brand_yml}")
 
     new_version = session_mod.next_version(session_path, bump_kind)
+
+    # pptx renders through the native python-pptx engine (#19), not Quarto.
+    if sfmt == "pptx":
+        out_stem = _strip_version_label(
+            state.get("source_filename", "source.md").rsplit(".", 1)[0] or "source"
+        )
+        dest = session_path / "outputs" / f"{out_stem}.v{new_version}.pptx"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        tok = tokens_mod.resolve(slug)
+        body = metacontent.strip(session_path / "inputs" / "source.md")
+        pptx_mod.build_pptx(body, tok, dest)
+        outputs = {sfmt: dest}
+        session_mod.record_render(session_path, new_version, [sfmt], outputs)
+        return outputs
+
+    # Non-pptx (html/pdf/revealjs) render through Quarto.
+    if detect_quarto() is None:
+        raise RuntimeError(
+            "quarto not found on PATH.\n"
+            "  Install: brew install --cask quarto  (or download from https://quarto.org/docs/get-started/)\n"
+            "  Then re-run: studio render ..."
+        )
+
     tmp = session_path / "_render"
     if tmp.exists():
         shutil.rmtree(tmp)
