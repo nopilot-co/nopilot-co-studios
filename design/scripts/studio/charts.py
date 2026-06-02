@@ -57,8 +57,6 @@ def render_svg(spec: dict, tokens: dict) -> str:
     import matplotlib
 
     matplotlib.use("svg")
-    import io
-
     import matplotlib.pyplot as plt
 
     ctype = spec.get("type", "bar")
@@ -68,8 +66,20 @@ def render_svg(spec: dict, tokens: dict) -> str:
     c = tokens["color"]
     palette = _palette(tokens)
     fig, ax = plt.subplots(figsize=(6, 3.4))
+    try:
+        return _draw(fig, ax, ctype, spec, series_=_series(spec), tokens=tokens,
+                     palette=palette, c=c)
+    finally:
+        # Always release the figure — even if drawing/savefig raised (the caller
+        # turns the exception into a fallback panel; the figure must not leak).
+        plt.close(fig)
+
+
+def _draw(fig, ax, ctype, spec, series_, tokens, palette, c) -> str:
+    import io
+
+    series = series_
     x = [str(v) for v in (spec.get("x") or spec.get("labels") or [])]
-    series = _series(spec)
 
     if ctype == "pie":
         values = [float(v) for v in (spec.get("values") or spec.get("y") or [])]
@@ -119,6 +129,10 @@ def render_svg(spec: dict, tokens: dict) -> str:
     for sp in ("left", "bottom"):
         if sp in ax.spines:
             ax.spines[sp].set_color(c["secondary"])
+    # Subtle y gridlines on axis charts (the asset contract's `grid` token).
+    if ctype != "pie":
+        ax.grid(axis="y", color=c["secondary"], alpha=0.25, linewidth=0.6)
+        ax.set_axisbelow(True)
     if any(s["name"] for s in series) and ctype != "pie":
         ax.legend(frameon=False, labelcolor=c["primary"])
     fig.patch.set_alpha(0.0)
@@ -127,7 +141,6 @@ def render_svg(spec: dict, tokens: dict) -> str:
 
     buf = io.StringIO()
     fig.savefig(buf, format="svg")
-    plt.close(fig)
     return buf.getvalue()
 
 
