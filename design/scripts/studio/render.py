@@ -23,6 +23,7 @@ from jinja2 import Template
 
 from . import TEMPLATES
 from . import brand as brand_mod
+from . import charts as charts_mod
 from . import components as components_mod
 from . import diagrams as diagrams_mod
 from . import formats as formats_mod
@@ -104,6 +105,8 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
     tok = tokens_mod.resolve(slug)
     body = metacontent.strip(source_md)
     body = diagrams_mod.expand(body, sfmt, tok)
+    # Charts write a brand-styled SVG into the render dir and reference it (#20).
+    body = charts_mod.expand(body, sfmt, tok, tmp)
     (tmp / "source.md").write_text(body, encoding="utf-8")
     shutil.copy2(brand_yml, tmp / "_brand.yml")
 
