@@ -97,6 +97,29 @@ with tempfile.TemporaryDirectory() as td:
     pptx_render.build_pptx(md3b, TOK, out)  # must not raise
     check("tier3 bad chart no crash", out.exists())
 
+# Tier 4: ::: flow / ::: org -> native autoshapes (boxes) + connectors.
+md4 = "## Process\n\n::: flow\nnodes: [Brief, Plan, Render]\n:::\n"
+with tempfile.TemporaryDirectory() as td:
+    out = Path(td) / "d4.pptx"
+    pptx_render.build_pptx(md4, TOK, out)
+    from pptx import Presentation
+
+    prs = Presentation(str(out))
+    sl = list(prs.slides)[0]
+    autoshapes = [sh for sh in sl.shapes if "AUTO_SHAPE" in str(sh.shape_type)]
+    check("tier4 flow boxes", len(autoshapes) >= 3, str(len(autoshapes)))
+md4b = (
+    "## Org\n\n::: org\nroot: CEO\nchildren:\n  - root: CTO\n"
+    "    children: [Eng, Data]\n  - COO\n:::\n"
+)
+with tempfile.TemporaryDirectory() as td:
+    out = Path(td) / "d4b.pptx"
+    pptx_render.build_pptx(md4b, TOK, out)
+    prs = Presentation(str(out))
+    sl = list(prs.slides)[0]
+    autoshapes = [sh for sh in sl.shapes if "AUTO_SHAPE" in str(sh.shape_type)]
+    check("tier4 org boxes", len(autoshapes) >= 5, str(len(autoshapes)))
+
 if failures:
     print(f"FAIL ({len(failures)})")
     for f in failures:

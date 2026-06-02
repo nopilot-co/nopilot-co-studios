@@ -286,6 +286,8 @@ def _place_block(s, block, tokens, top: float) -> float:
         return top + 1.9
     if kind == "chart":
         return _place_chart(s, block["body"], tokens, top)
+    if kind in ("flow", "process", "timeline", "hierarchy", "org"):
+        return _place_diagram(s, kind, block["body"], tokens, top)
     if kind in _PANEL_FILL:
         h = 1.3
         shp = s.shapes.add_shape(
@@ -408,6 +410,122 @@ def _add_native_chart(s, ctype, spec, series, cats, tokens, top) -> None:
                 )
     except Exception:  # noqa: BLE001 — colour is best-effort; never fail the render
         pass
+
+
+def _place_diagram(s, kind, body, tokens, top: float) -> float:
+    try:
+        import yaml
+
+        spec = yaml.safe_load(body) or {}
+        if kind in ("flow", "process", "timeline"):
+            if kind == "timeline":
+                labels = [
+                    str(e.get("label", ""))
+                    for e in (spec.get("events") or [])
+                    if isinstance(e, dict)
+                ]
+            else:
+                labels = [
+                    str(x) for x in (spec.get("nodes") or spec.get("steps") or [])
+                ]
+            _diagram_linear(s, labels, tokens, top)
+        else:
+            from . import diagrams as diagrams_mod
+
+            nodes, edges = diagrams_mod._flatten_tree(spec)
+            _diagram_tree(s, nodes, edges, tokens, top)
+        return top + 4.2
+    except Exception:  # noqa: BLE001 — degrade
+        from pptx.util import Inches
+
+        tb = s.shapes.add_textbox(Inches(0.6), Inches(top), Inches(12), Inches(0.8))
+        _set_text(
+            tb.text_frame,
+            f"[diagram '{kind}' could not render]",
+            size=14,
+            color=tokens["color"]["secondary"],
+        )
+        return top + 1.0
+
+
+def _node_box(s, x_in, y_in, w_in, h_in, label, tokens):
+    from pptx.enum.shapes import MSO_SHAPE
+    from pptx.util import Inches
+
+    c = tokens["color"]
+    shp = s.shapes.add_shape(
+        MSO_SHAPE.ROUNDED_RECTANGLE,
+        Inches(x_in),
+        Inches(y_in),
+        Inches(w_in),
+        Inches(h_in),
+    )
+    _solid(shp, c["neutral"])
+    _set_text(shp.text_frame, label, size=14, color=c["on_primary"], bold=False)
+    return shp
+
+
+def _connect_v(s, a, b, tokens):
+    from pptx.dml.color import RGBColor
+    from pptx.enum.shapes import MSO_CONNECTOR
+    from pptx.util import Emu
+
+    c = tokens["color"]
+    conn = s.shapes.add_connector(
+        MSO_CONNECTOR.STRAIGHT,
+        Emu(a.left + a.width // 2),
+        Emu(a.top + a.height),
+        Emu(b.left + b.width // 2),
+        Emu(b.top),
+    )
+    conn.line.color.rgb = RGBColor.from_string(_hex(c["tertiary"]))
+    conn.line.width = Emu(19050)
+
+
+def _connect_h(s, a, b, tokens):
+    from pptx.dml.color import RGBColor
+    from pptx.enum.shapes import MSO_CONNECTOR
+    from pptx.util import Emu
+
+    c = tokens["color"]
+    conn = s.shapes.add_connector(
+        MSO_CONNECTOR.STRAIGHT,
+        Emu(a.left + a.width),
+        Emu(a.top + a.height // 2),
+        Emu(b.left),
+        Emu(b.top + b.height // 2),
+    )
+    conn.line.color.rgb = RGBColor.from_string(_hex(c["tertiary"]))
+    conn.line.width = Emu(19050)
+
+
+def _diagram_linear(s, labels, tokens, top: float) -> None:
+    n = max(len(labels), 1)
+    w = min(2.2, 11.0 / n - 0.3)
+    gap = 0.3
+    total = n * w + (n - 1) * gap
+    x = max(0.6, (13.333 - total) / 2)
+    boxes = []
+    for lab in labels:
+        boxes.append(_node_box(s, x, top + 1.4, w, 0.9, lab, tokens))
+        x += w + gap
+    for i in range(len(boxes) - 1):
+        _connect_h(s, boxes[i], boxes[i + 1], tokens)
+
+
+def _diagram_tree(s, nodes, edges, tokens, top: float) -> None:
+    maxx = max((nd["x"] for nd in nodes), default=0) or 1
+    maxd = max((nd["depth"] for nd in nodes), default=0) or 1
+    w, h = 1.7, 0.7
+    left0, span_w = 1.0, 11.0
+    row_h = 3.6 / (maxd + 1)
+    placed = {}
+    for nd in nodes:
+        cx = left0 + (nd["x"] / maxx) * span_w if maxx else left0
+        cy = top + 1.0 + nd["depth"] * row_h
+        placed[nd["id"]] = _node_box(s, cx, cy, w, h, nd["label"], tokens)
+    for a, b in edges:
+        _connect_v(s, placed[a], placed[b], tokens)
 
 
 def _set_text_multiline(tf, text: str, tokens) -> None:
