@@ -99,6 +99,22 @@ nodes, edges = diagrams._flatten_tree({"root": "A", "children": ["B", "C"]})
 xs = {n["x"] for n in nodes if n["depth"] == 1}
 check("layout: siblings distinct x", len(xs) == 2, str(nodes))
 
+# Escaping: labels with Typst-special chars (#, [, ]) must NOT break the content
+# block — they're emitted as a quoted string literal `[#"..."]`, so the raw `]`/`#`
+# never appears unquoted between the `[` and `]` of the node content.
+HAZ = '::: flow\nnodes: ["C#", "Q&A]", "Step #1"]\n:::\n'
+hp = diagrams.expand(HAZ, "pdf", TOK)
+check("escape: quoted string form", '[#"C#"]' in hp, hp)
+check("escape: bracket label quoted", '[#"Q&A]"]' in hp, hp)
+check("escape: no bare bracket break", "[Q&A]]" not in hp, hp)
+# Mermaid side: newline + bracket neutralised.
+hh = diagrams.expand('::: flow\nnodes: ["A]B"]\n:::\n', "html", TOK)
+check("escape: mermaid no raw bracket in label", '["A]B"]' not in hh, hh)
+
+# HTML diagrams are brand-tokenized (Mermaid %%{init}%% theme block).
+check("html: mermaid theme block", "%%{init:" in html and "themeVariables" in html, html)
+check("html: theme uses brand colour", "#142F54" in html or "142F54" in html, html)
+
 if failures:
     print(f"FAIL ({len(failures)})")
     for f in failures:

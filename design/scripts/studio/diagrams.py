@@ -55,7 +55,7 @@ def _render(name: str, spec: dict, export: str, tokens: dict) -> str:
         labels = [str(x) for x in labels]
         numbered = name == "process"
         return (
-            _linear_html(labels, numbered)
+            _linear_html(labels, numbered, tokens)
             if export == "html"
             else _linear_pdf(labels, numbered, tokens)
         )
@@ -67,12 +67,14 @@ def _render(name: str, spec: dict, export: str, tokens: dict) -> str:
             if isinstance(e, dict)
         ]
         return (
-            _timeline_html(pairs) if export == "html" else _timeline_pdf(pairs, tokens)
+            _timeline_html(pairs, tokens)
+            if export == "html"
+            else _timeline_pdf(pairs, tokens)
         )
     if name in ("hierarchy", "org"):
         nodes, edges = _flatten_tree(spec)
         return (
-            _tree_html(nodes, edges)
+            _tree_html(nodes, edges, tokens)
             if export == "html"
             else _tree_pdf(nodes, edges, tokens)
         )
@@ -80,21 +82,46 @@ def _render(name: str, spec: dict, export: str, tokens: dict) -> str:
 
 
 def _esc_mermaid(s: str) -> str:
-    return s.replace('"', "'")
+    # Mermaid is line-oriented and `"` closes the node label, `]` closes the node;
+    # collapse newlines and neutralise both so ordinary labels (C#, Q&A], multi-line)
+    # can't corrupt the diagram.
+    return (
+        s.replace("\\", "")
+        .replace("\n", " ")
+        .replace('"', "'")
+        .replace("]", ")")
+    )
 
 
-def _esc_typst(s: str) -> str:
-    return s.replace("\\", "\\\\").replace('"', '\\"')
+def _typ_str(s: str) -> str:
+    """A label as a Typst STRING literal (quoted). Emitted inside a content block as
+    `[#_typ_str(label)]` so `#`, `[`, `]` in the label are literal text, not code —
+    only `\\` and `"` are special in a string literal."""
+    return '#"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
 
-def _linear_html(labels: list[str], numbered: bool) -> str:
+def _mermaid_init(tokens: dict) -> str:
+    """A Mermaid `%%{init}%%` theme block from the token set, so HTML diagrams are
+    brand-styled to match the fletcher (PDF) side (spec parity requirement)."""
+    c = tokens["color"]
+    tv = (
+        f'"primaryColor":"{c["neutral"]}",'
+        f'"primaryTextColor":"{c["on_primary"]}",'
+        f'"primaryBorderColor":"{c["neutral"]}",'
+        f'"lineColor":"{c["tertiary"]}",'
+        f'"tertiaryColor":"{c["surface"]}"'
+    )
+    return "%%{init: {'theme':'base','themeVariables':{" + tv + "}}}%%\n"
+
+
+def _linear_html(labels: list[str], numbered: bool, tokens: dict) -> str:
     nodes = []
     for i, lab in enumerate(labels):
         text = f"{i + 1}. {lab}" if numbered else lab
         nodes.append(f'n{i}["{_esc_mermaid(text)}"]')
     chain = " --> ".join(f"n{i}" for i in range(len(labels)))
     body = "\n  ".join(nodes + ([chain] if len(labels) > 1 else []))
-    return f"```mermaid\nflowchart LR\n  {body}\n```\n"
+    return f"```mermaid\n{_mermaid_init(tokens)}flowchart LR\n  {body}\n```\n"
 
 
 def _fletcher_header(tokens: dict) -> str:
@@ -116,7 +143,7 @@ def _linear_pdf(labels: list[str], numbered: bool, tokens: dict) -> str:
     for i, lab in enumerate(labels):
         text = f"{i + 1}. {lab}" if numbered else lab
         parts.append(
-            f"node(({i},0), text(fill: _tx)[{_esc_typst(text)}], "
+            f"node(({i},0), text(fill: _tx)[{_typ_str(text)}], "
             f"corner-radius: 3pt, inset: 8pt)"
         )
         if i < len(labels) - 1:
@@ -126,8 +153,8 @@ def _linear_pdf(labels: list[str], numbered: bool, tokens: dict) -> str:
     return "```{=typst}\n" + "\n".join(lines) + "\n```\n"
 
 
-def _timeline_html(pairs: list[tuple[str, str]]) -> str:
-    lines = ["```mermaid", "timeline"]
+def _timeline_html(pairs: list[tuple[str, str]], tokens: dict) -> str:
+    lines = ["```mermaid", _mermaid_init(tokens).rstrip("\n"), "timeline"]
     for at, label in pairs:
         lines.append(f"  {_esc_mermaid(at)} : {_esc_mermaid(label)}")
     lines.append("```")
@@ -139,11 +166,11 @@ def _timeline_pdf(pairs: list[tuple[str, str]], tokens: dict) -> str:
     nodes = []
     for i, (at, label) in enumerate(pairs):
         nodes.append(
-            f"node(({i},0), text(fill: _tx, size: 0.85em)[{_esc_typst(label)}], "
+            f"node(({i},0), text(fill: _tx, size: 0.85em)[{_typ_str(label)}], "
             f"corner-radius: 3pt, inset: 6pt)"
         )
         nodes.append(
-            f'node(({i},-0.7), text(fill: _ac, weight: "bold")[{_esc_typst(at)}], '
+            f'node(({i},-0.7), text(fill: _ac, weight: "bold")[{_typ_str(at)}], '
             f"fill: none, stroke: none)"
         )
         if i < len(pairs) - 1:
@@ -196,8 +223,8 @@ def _flatten_tree(spec: Any) -> tuple[list[dict], list[tuple[int, int]]]:
     return nodes, edges
 
 
-def _tree_html(nodes: list[dict], edges: list[tuple[int, int]]) -> str:
-    lines = ["```mermaid", "flowchart TD"]
+def _tree_html(nodes: list[dict], edges: list[tuple[int, int]], tokens: dict) -> str:
+    lines = ["```mermaid", _mermaid_init(tokens).rstrip("\n"), "flowchart TD"]
     for n in nodes:
         lines.append(f'  n{n["id"]}["{_esc_mermaid(n["label"])}"]')
     for a, b in edges:
@@ -211,7 +238,7 @@ def _tree_pdf(nodes: list[dict], edges: list[tuple[int, int]], tokens: dict) -> 
     parts = []
     for n in nodes:
         parts.append(
-            f'node(({n["x"]:.3f},{n["depth"]}), text(fill: _tx)[{_esc_typst(n["label"])}], '
+            f'node(({n["x"]:.3f},{n["depth"]}), text(fill: _tx)[{_typ_str(n["label"])}], '
             f'corner-radius: 3pt, inset: 8pt)'
         )
     for a, b in edges:

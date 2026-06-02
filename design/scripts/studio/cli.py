@@ -337,6 +337,15 @@ def doctor_cmd() -> None:
             status = f"✗ needs: {', '.join(f['render_missing'])}"
         click.echo(f"  {f['slug']:<16} {status}")
 
+    click.echo(
+        "\nNotes:\n"
+        "  • PDF diagrams (flow/timeline/process/hierarchy/org) use the Typst "
+        "`fletcher` package,\n    fetched from the network on first use and cached "
+        "after. The first PDF-with-diagram\n    render needs internet; subsequent "
+        "renders are offline. (Pre-vendor the package into\n    the Typst cache for "
+        "fully offline/sandbox runs.)"
+    )
+
 
 # ---------------------------------------------------------------- qa
 @main.group()
