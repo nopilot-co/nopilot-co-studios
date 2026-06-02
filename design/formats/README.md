@@ -135,6 +135,34 @@ children:
 a horizontal axis with period markers; `hierarchy` and `org` generate top-down
 trees with computed coordinates.
 
+### Charts (data-viz)
+
+Charts are authored as `::: chart` fenced divs whose body is structured YAML.
+`type` must be one of `bar`, `line`, `pie`, `scatter`, or `area`. Supply either
+`x`/`y` arrays for a single series, or a `series:` list for multi-series data.
+`title` is optional.
+
+```markdown
+::: chart
+type: bar
+x: [Q1, Q2, Q3, Q4]
+y: [12, 18, 15, 24]
+:::
+
+::: chart
+type: line
+title: Monthly revenue
+series:
+  - {label: Product, y: [10, 14, 18, 22]}
+  - {label: Services, y: [5, 7, 6, 9]}
+x: [Q1, Q2, Q3, Q4]
+:::
+```
+
+`studio.charts` renders the YAML to a single **matplotlib SVG**. HTML exports
+embed it inline; PDF exports place it via Typst `#image()`. Both sides produce
+identical output — no per-export branching.
+
 ## Output-folder convention
 
 Docket render outputs flatten to `outputs/<primary>/<file>` — there is no

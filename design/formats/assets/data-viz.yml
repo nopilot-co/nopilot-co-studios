@@ -9,16 +9,12 @@ style:
 authoring:
   syntax: |
     ::: chart
-    ```{python}
-    # Quarto-embedded chart code (matplotlib, plotly, etc.)
-    import matplotlib.pyplot as plt
-    plt.plot([1, 2, 3], [4, 5, 6])
-    plt.show()
-    ```
+    type: bar          # bar | line | pie | scatter | area
+    title: Revenue
+    x: [Q1, Q2, Q3, Q4]
+    y: [12, 18, 15, 24]
     :::
-  notes: Quarto fenced div with class `chart`.
+  notes: Structured YAML fenced div; rendered to SVG by studio.charts (matplotlib).
 render_notes:
-  html: "<div class='chart'> interactive or static chart, tertiary series colors, secondary grid"
-  pdf: "Typst: chart rendered to image, tertiary series, secondary gridlines"
-  pptx: "native chart object: tertiary series palette, secondary gridlines"
-  gslide: "embedded chart image: tertiary series, secondary grid"
+  html: "Inline matplotlib SVG"
+  pdf: "Same SVG placed via Typst #image()"
