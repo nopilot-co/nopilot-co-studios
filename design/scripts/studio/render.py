@@ -24,6 +24,7 @@ from jinja2 import Template
 from . import TEMPLATES
 from . import brand as brand_mod
 from . import components as components_mod
+from . import diagrams as diagrams_mod
 from . import formats as formats_mod
 from . import metacontent
 from . import session as session_mod
@@ -97,7 +98,13 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
     # region is removed BEFORE Quarto sees it, on every export path — HTML comments
     # are not self-hiding on the HTML/RevealJS path, so this is mandatory.
     source_md = session_path / "inputs" / "source.md"
-    (tmp / "source.md").write_text(metacontent.strip(source_md), encoding="utf-8")
+    # Preprocess order: strip meta-content (issue #11), then expand structured
+    # `::: <diagram>` blocks for THIS export — Mermaid for HTML, fletcher for PDF
+    # (slice 4a). `sfmt` is the locked studio format; `tok` the resolved tokens.
+    tok = tokens_mod.resolve(slug)
+    body = metacontent.strip(source_md)
+    body = diagrams_mod.expand(body, sfmt, tok)
+    (tmp / "source.md").write_text(body, encoding="utf-8")
     shutil.copy2(brand_yml, tmp / "_brand.yml")
 
     brand_root = brand_mod.brand_root(slug)
@@ -113,7 +120,6 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
     # bridge that maps `::: <class>` divs to Typst component calls. This is what
     # turns a flat brand render into a designed one — same components, re-skinned
     # per brand via the generated token block.
-    tok = tokens_mod.resolve(slug)
     comp_dir = TEMPLATES / "components"
     # HTML: the :root token block + static component rules (one inlined file).
     (tmp / "_components.css").write_text(
