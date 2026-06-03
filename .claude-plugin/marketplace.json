@@ -10,7 +10,7 @@
     {
       "name": "utilities",
       "source": "./",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "description": "General-purpose utility skills. Currently: youtube-transcript (extract a YouTube video's transcript to a .txt, captions fast-path + optional Whisper fallback).",
       "category": "utilities",
       "tags": ["utilities", "youtube", "transcript", "ingest"]

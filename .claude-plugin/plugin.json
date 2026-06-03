@@ -1,6 +1,6 @@
 {
   "name": "utilities",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "General-purpose utility skills for nopilot-co. Currently ships youtube-transcript: extract a YouTube video's transcript to a .txt via existing captions, with an optional local Whisper fallback when none exist.",
   "author": {
     "name": "Julian Tedstone",
