@@ -34,6 +34,27 @@ python3 youtube-transcript/scripts/extract.py "https://www.youtube.com/watch?v=I
 
 Exit codes: `0` success · `2` no captions (re-run with `--fallback`) · `3` error.
 
+**Examples** (use `yt-transcript` after `install.sh`, or `python3 youtube-transcript/scripts/extract.py` from a checkout):
+
+```bash
+# Plain captions to a named file
+yt-transcript "https://youtu.be/ID" --out talk.txt
+
+# Bare video ID also works; prefer German then English; collapse into prose
+yt-transcript dQw4w9WgXcQ --lang "de,en" --paragraph --out talk.txt
+
+# No captions? Fall back to local Whisper (needs yt-dlp on PATH; downloads a model first run)
+yt-transcript "https://youtu.be/ID" --fallback --whisper-model small --out talk.txt
+
+# Keep the downloaded audio next to the transcript
+yt-transcript "https://youtu.be/ID" --fallback --keep-audio --out talk.txt
+```
+
+**Behaviour notes:**
+- Accepts full URLs (`watch?v=`, `youtu.be/`, `/shorts/`, `/embed/`, `/clip/`) or a bare 11-char ID.
+- If the requested `--lang` isn't published but other caption tracks exist, it uses the first available track and reports which (`via captions:<lang>`) rather than failing.
+- Exit `2` (`NO_CAPTIONS`) means captions are genuinely absent/disabled — re-run with `--fallback`. Real failures (private/removed video, IP block) return exit `3` and are **not** routed into the audio fallback.
+
 ## Install
 
 The quickest path — clone and run the root installer. It registers the marketplace,
@@ -95,9 +116,62 @@ youtube-transcript/           # a utility plugin (source: ./youtube-transcript)
 LICENSE                       # MIT
 ```
 
-To add another utility, create `<name>/.claude-plugin/plugin.json` (plus its
-`skills/`, `scripts/`, and `install.sh`), add an entry to `marketplace.json` with
-`"source": "./<name>"`, and append the name to the `PLUGINS` array in `install.sh`.
+## Adding a new utility (build guide)
+
+Every utility in this marketplace **must** follow the same shape so they install
+and maintain together. This convention is enforced — see `CLAUDE.md`.
+
+**Required structure** — one top-level directory per utility, named identically to
+its plugin (kebab-case):
+
+```
+<name>/
+  .claude-plugin/
+    plugin.json          # "name": "<name>", matching version, homepage .../tree/main/<name>
+  install.sh             # installs deps + links a standalone CLI into ~/.local/bin
+  skills/
+    <name>/
+      SKILL.md           # model-invoked; calls the CLI via "$CLAUDE_PLUGIN_ROOT/scripts/..."
+  scripts/
+    <cli>.py             # standalone, has `#!/usr/bin/env python3`, runnable without Claude Code
+  requirements.txt       # pinned/declared Python deps (also pip-installed by install.sh)
+```
+
+**Rules (all mandatory):**
+
+1. **Self-contained.** Everything the utility needs lives under `<name>/`. Never
+   reach into another utility's directory, and never put utility code at the repo root.
+2. **Standalone first.** The core logic is a script that runs on its own
+   (`python3 <name>/scripts/<cli>.py …`). The skill is a thin wrapper that calls it
+   via `$CLAUDE_PLUGIN_ROOT`; it must not contain logic the CLI lacks.
+3. **`install.sh` per utility.** It installs dependencies and links the CLI into
+   `~/.local/bin` (idempotent, `set -euo pipefail`). Heavy/optional deps go behind an
+   env flag (e.g. `YT_TRANSCRIPT_FALLBACK=1`), not on by default.
+4. **Catalog entry.** Add the plugin to `.claude-plugin/marketplace.json` with
+   `"source": "./<name>"`. The `name` and `version` there **must** match the plugin's
+   own `.claude-plugin/plugin.json`.
+5. **Wire the root installer.** Append `<name>` to the `PLUGINS` array in the root
+   `install.sh`.
+6. **Version discipline.** On any shippable change to a utility, bump the version in
+   **both** its `plugin.json` and its `marketplace.json` entry (same number) — see the
+   *Version bump required* note above. Use semver: patch for fixes, minor for features,
+   major for breaking changes (including a rename of the plugin or its CLI).
+7. **Document it.** Add a row to the table at the top of this README and a usage
+   section, including flags and exit codes.
+
+**Checklist before committing a new utility:**
+
+```
+[ ] <name>/.claude-plugin/plugin.json   (name == dir, version set, homepage points to /tree/main/<name>)
+[ ] <name>/install.sh                    (executable, idempotent, links CLI to ~/.local/bin)
+[ ] <name>/scripts/<cli>.py              (executable shebang, runs standalone)
+[ ] <name>/skills/<name>/SKILL.md        (calls CLI via $CLAUDE_PLUGIN_ROOT)
+[ ] <name>/requirements.txt
+[ ] marketplace.json entry               (source ./<name>; name+version match plugin.json)
+[ ] root install.sh PLUGINS array        (includes <name>)
+[ ] README                               (table row + usage section)
+[ ] verified: bash -n on both install.sh; ran <name>/install.sh; ran the CLI end-to-end
+```
 
 ## License
 

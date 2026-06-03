@@ -79,3 +79,32 @@ When the user signals they are done (e.g. "bye", "done", "wrap up", "end session
 - **Next Steps**: bullet list, max 3 items
 
 Keep `CONTEXT.md` under 20 lines total. Do NOT summarize the full conversation — only what's needed to resume next session.
+
+<!-- project-conventions -->
+## Marketplace & plugin conventions (ENFORCED)
+
+This repo is a Claude Code plugin **marketplace** mirroring `nopilot-co-studios`:
+the root holds the catalog only; **each utility is a self-contained plugin in its
+own top-level directory** with a standalone CLI. When adding or changing a utility,
+follow the build guide in `README.md` (§ *Adding a new utility*) — it is the source
+of truth. The non-negotiable rules:
+
+1. **One dir per utility**, named identically to its plugin (kebab-case). Layout:
+   `<name>/.claude-plugin/plugin.json`, `<name>/install.sh`, `<name>/scripts/<cli>.py`,
+   `<name>/skills/<name>/SKILL.md`, `<name>/requirements.txt`. Never place utility
+   code at the repo root and never create a `plugins/` wrapper dir.
+2. **Standalone-first.** Core logic is a script runnable without Claude Code
+   (executable shebang). The skill is a thin wrapper that calls it via
+   `$CLAUDE_PLUGIN_ROOT`; no logic lives only in the skill.
+3. **`source` must be `./<name>`** in `.claude-plugin/marketplace.json`, and the
+   entry's `name`/`version` MUST match the utility's own `plugin.json`.
+4. **Version bump on every shippable change** — bump BOTH `plugin.json` and the
+   `marketplace.json` entry to the same semver. `claude plugin update` compares the
+   version, not file contents, so content-only changes are otherwise ignored.
+5. **Wire it up**: add the dir name to the `PLUGINS` array in the root `install.sh`,
+   and add a table row + usage section to `README.md`.
+6. **Verify before commit**: `bash -n` both `install.sh` scripts, run the utility's
+   `install.sh`, and run the CLI end-to-end.
+
+Do NOT introduce a root-level plugin (the marketplace is catalog-only) unless a
+genuine cross-utility orchestrator is being added.
