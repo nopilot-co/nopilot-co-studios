@@ -35,7 +35,7 @@ Exit codes: `0` success · `2` no captions (re-run with `--fallback`) · `3` err
 
 ```bash
 # 1. Register the marketplace
-claude plugin marketplace add github:nopilot-co/nopilot-co-utilities
+claude plugin marketplace add nopilot-co/nopilot-co-utilities
 
 # 2. Install the plugin (skills)
 claude plugin install utilities@nopilot-co-utilities
