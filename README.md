@@ -41,6 +41,15 @@ claude plugin marketplace add nopilot-co/nopilot-co-utilities
 claude plugin install utilities@nopilot-co-utilities
 ```
 
+### Updating
+
+```bash
+claude plugin marketplace update nopilot-co-utilities   # refresh the marketplace clone
+claude plugin update utilities@nopilot-co-utilities      # re-copy into the installed cache
+```
+
+> **Version bump required.** `claude plugin update` compares the `version` in `.claude-plugin/plugin.json` (and the marketplace entry), **not** file contents — so a change to `extract.py` or a skill won't be picked up unless the version is bumped. Bump both manifests on every shippable change, then run the two commands above and restart Claude Code to load the new version.
+
 Python deps (`youtube-transcript-api`, and for the fallback `yt-dlp` + `faster-whisper`) auto-install on first use; see `requirements.txt`. `yt-dlp` must be on PATH for the fallback (`pip install yt-dlp` or `brew install yt-dlp`).
 
 ## Layout
