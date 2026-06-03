@@ -258,6 +258,11 @@ def _emit_output(
     sidecar survives, ship it alongside the output and rewrite the references —
     a working multi-file deliverable with a loud warning, never a silent break.
     """
+    # The session's outputs/ dir exists for `session init`-created sessions, but
+    # not for docket-scaffolded render sessions (just version.json + inputs/).
+    # Guarantee the destination dir before moving/writing (issue #34).
+    dest.parent.mkdir(parents=True, exist_ok=True)
+
     if fmt not in ("html", "revealjs"):
         shutil.move(str(produced), dest)
         return
