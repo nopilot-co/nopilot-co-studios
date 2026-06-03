@@ -19,6 +19,7 @@ from pathlib import Path
 import click
 
 from . import brand as brand_mod
+from . import config as config_mod
 from . import content as content_mod
 from . import deps as deps_mod
 from . import docket as docket_mod
@@ -70,6 +71,46 @@ def brand_validate(slug: str) -> None:
 @click.option("--brand", "slug", required=True)
 def brand_show(slug: str) -> None:
     click.echo(brand_mod.show(slug))
+
+
+# ---------------------------------------------------------------- config
+@main.group()
+def config() -> None:
+    """Per-slug persistent settings (working folder)."""
+
+
+@config.command("set-folder")
+@click.option("--slug", required=True, help="Slug to configure (kebab-case)")
+@click.option(
+    "--path",
+    "path",
+    required=True,
+    type=click.Path(path_type=Path),
+    help="Working-folder base. sessions → <path>/<session>; brand → <path>/brand/<slug>",
+)
+def config_set_folder(slug: str, path: Path) -> None:
+    resolved = config_mod.set_working_folder(slug, path)
+    click.echo(f"✓ {slug} working folder: {resolved}")
+    click.echo(f"  sessions → {resolved}/<session-name>")
+    click.echo(f"  brand    → {resolved / 'brand' / slug}")
+
+
+@config.command("show")
+@click.option("--slug", default=None, help="Show one slug (default: all configured)")
+def config_show(slug: str | None) -> None:
+    click.echo(f"config: {config_mod.config_path()}")
+    if slug:
+        wf = config_mod.working_folder(slug)
+        click.echo(f"{slug}: {wf or '(unset)'}")
+        return
+    slugs = config_mod.load().get("slugs") or {}
+    if not slugs:
+        click.echo(
+            "(no slugs configured — run: studio config set-folder --slug <slug> --path <dir>)"
+        )
+        return
+    for s in sorted(slugs):
+        click.echo(f"{s}: {config_mod.working_folder(s)}")
 
 
 # ---------------------------------------------------------------- formats
