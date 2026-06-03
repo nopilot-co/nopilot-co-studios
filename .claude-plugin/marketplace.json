@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "nopilot-co-utilities",
+  "owner": {
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
+  },
+  "description": "nopilot-co-utilities marketplace — small, brand-agnostic utility skills that support the studios and general workflows.",
+  "plugins": [
+    {
+      "name": "utilities",
+      "source": "./",
+      "version": "0.1.0",
+      "description": "General-purpose utility skills. Currently: youtube-transcript (extract a YouTube video's transcript to a .txt, captions fast-path + optional Whisper fallback).",
+      "category": "utilities",
+      "tags": ["utilities", "youtube", "transcript", "ingest"]
+    }
+  ]
+}
