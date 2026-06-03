@@ -17,7 +17,7 @@ Extract a YouTube video's transcript to a plain-text `.txt`.
 Trigger it by asking naturally (*"get me the transcript of `<url>` as a txt"*) or invoke the script directly:
 
 ```bash
-python3 scripts/extract.py "https://www.youtube.com/watch?v=ID" --out transcript.txt
+python3 plugins/utilities/scripts/extract.py "https://www.youtube.com/watch?v=ID" --out transcript.txt
 ```
 
 | Flag | Default | Description |
@@ -54,18 +54,30 @@ Python deps (`youtube-transcript-api`, and for the fallback `yt-dlp` + `faster-w
 
 ## Layout
 
+The repo root is the **marketplace** (a catalog); each plugin lives in its own
+directory under `plugins/`. Today there is one plugin, `utilities`, which bundles
+all utility skills so they install together — add new tools as further skill
+directories under `plugins/utilities/skills/`.
+
 ```
 .claude-plugin/
-  marketplace.json    # marketplace manifest (lists the `utilities` plugin)
-  plugin.json         # the `utilities` plugin manifest
-skills/
-  youtube-transcript/
-    SKILL.md          # model-invoked skill; calls scripts/extract.py via $CLAUDE_PLUGIN_ROOT
-scripts/
-  extract.py          # the CLI (also runnable standalone)
-requirements.txt
-LICENSE               # MIT
+  marketplace.json            # marketplace catalog — lists each plugin + its source
+plugins/
+  utilities/                  # the `utilities` plugin (source: ./plugins/utilities)
+    .claude-plugin/
+      plugin.json             # the plugin manifest
+    skills/
+      youtube-transcript/
+        SKILL.md              # model-invoked skill; calls scripts/extract.py via $CLAUDE_PLUGIN_ROOT
+    scripts/
+      extract.py              # the CLI (also runnable standalone)
+    requirements.txt
+LICENSE                       # MIT
 ```
+
+To add another **independently-installable** plugin later, create
+`plugins/<name>/.claude-plugin/plugin.json` and add an entry to `marketplace.json`
+with `"source": "./plugins/<name>"`.
 
 ## License
 
