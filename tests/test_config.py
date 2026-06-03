@@ -64,6 +64,14 @@ with tempfile.TemporaryDirectory() as _tmp:
     # An unconfigured slug is unaffected.
     check("other slug unset", cfg_mod.working_folder("acme") is None)
 
+    # `brand list` surfaces a brand living under the configured working folder.
+    (wf / "brand" / "360").mkdir(parents=True, exist_ok=True)
+    (wf / "brand" / "360" / "_brand.yml").write_text(
+        'meta:\n  name: "360"\ncolor:\n  primary: "#2A3548"\n'
+    )
+    listed = [r["slug"] for r in brand_mod.list_brands()]
+    check("brand list includes configured slug", "360" in listed, str(listed))
+
     # Precedence: an explicit docket env wins over the per-slug working folder.
     droot = tmp / "docket"
     os.environ["STUDIOS_DOCKET_ROOT"] = str(droot)

@@ -76,6 +76,11 @@ def list_brands() -> list[dict[str, str]]:
         for child in sorted(context_root.iterdir()):
             if child.is_dir() and (child / "brand" / "_brand.yml").exists():
                 brand_dirs.setdefault(child.name, child / "brand")
+    # Brands living under a slug's persistent working folder (<wf>/brand/<slug>).
+    for cfg_slug in sorted(config_mod.load().get("slugs") or {}):
+        bdir = brand_root(cfg_slug)
+        if (bdir / "_brand.yml").exists():
+            brand_dirs.setdefault(cfg_slug, bdir)
 
     rows: list[dict[str, str]] = []
     for slug, brand_dir in sorted(brand_dirs.items()):
