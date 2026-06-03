@@ -43,24 +43,55 @@ def pip_install(pkg: str):
     subprocess.run([sys.executable, "-m", "pip", "install", "--quiet", pkg], check=True)
 
 
+def _format(transcript, paragraph: bool) -> str:
+    from youtube_transcript_api.formatters import TextFormatter
+
+    if paragraph:
+        # Collapse to continuous prose: caption cues often contain an internal
+        # newline, so strip those too — not just the gaps between cues.
+        return " ".join(
+            " ".join(snippet.text.split()) for snippet in transcript
+        ).strip()
+    return TextFormatter().format_transcript(transcript)
+
+
 def fetch_captions(video_id: str, langs, paragraph: bool):
-    """Return transcript text, or None if no captions exist."""
+    """Fetch caption text for a video.
+
+    Returns (text, lang_code) on success, or None when the video genuinely has
+    no captions (disabled, or none published in any language). Real failures
+    (video unavailable, IP blocked, age-restricted, ...) propagate as exceptions
+    so the caller can surface them as an error rather than the no-captions path.
+    """
     try:
         import youtube_transcript_api  # noqa: F401
     except ImportError:
         pip_install("youtube-transcript-api")
     from youtube_transcript_api import YouTubeTranscriptApi
     from youtube_transcript_api._errors import TranscriptsDisabled, NoTranscriptFound
-    from youtube_transcript_api.formatters import TextFormatter
 
     api = YouTubeTranscriptApi()
+
+    # Preferred-language fast path.
     try:
         transcript = api.fetch(video_id, languages=langs)
-    except (TranscriptsDisabled, NoTranscriptFound):
+        return _format(transcript, paragraph), langs[0] if langs else "?"
+    except TranscriptsDisabled:
+        return None  # captions turned off for this video -> genuine no-captions
+    except NoTranscriptFound:
+        pass  # requested language(s) absent — but other tracks may exist; check below
+
+    # Requested language unavailable: fall back to any published track rather
+    # than falsely reporting "no captions" for a video that has them in another
+    # language. TranscriptsDisabled here still means a genuine no-captions video.
+    try:
+        available = list(api.list(video_id))
+    except TranscriptsDisabled:
         return None
-    if paragraph:
-        return " ".join(snippet.text for snippet in transcript)
-    return TextFormatter().format_transcript(transcript)
+    if not available:
+        return None
+    chosen = available[0]
+    return _format(chosen.fetch(), paragraph), chosen.language_code
 
 
 def whisper_fallback(video_id: str, model_size: str, keep_audio: bool) -> str:
@@ -124,9 +155,11 @@ def main() -> int:
     langs = [x.strip() for x in args.lang.split(",") if x.strip()]
 
     try:
-        text = fetch_captions(video_id, langs, args.paragraph)
-        source = "captions"
-        if text is None:
+        result = fetch_captions(video_id, langs, args.paragraph)
+        if result is not None:
+            text, lang_used = result
+            source = f"captions:{lang_used}"
+        else:
             if not args.fallback:
                 print("NO_CAPTIONS", file=sys.stderr)
                 return 2
