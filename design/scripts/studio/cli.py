@@ -392,9 +392,12 @@ def qa() -> None:
 )
 def qa_capture(session_path: Path, version: str | None) -> None:
     images = qa_mod.capture(session_path, version)
-    click.echo(
-        f"✓ captured {len(images)} images to {images[0].parent if images else '(none)'}"
-    )
+    if not images:
+        raise click.ClickException(
+            "captured 0 images — nothing was rasterized. The session's outputs "
+            "may be missing, or a rasterizer is unavailable (run `studio doctor`)."
+        )
+    click.echo(f"✓ captured {len(images)} images to {images[0].parent}")
 
 
 if __name__ == "__main__":

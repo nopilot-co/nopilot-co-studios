@@ -7,6 +7,7 @@ render:
   studio_format: html
 requires:
   render: [quarto]
+  qa: [html-raster]   # headless-browser rasterization for eyes-on-pixels QA
 style_guide:
   layout: single responsive scroll; no pagination
   notes: progressive disclosure; links and anchors are first-class

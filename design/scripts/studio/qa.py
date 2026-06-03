@@ -11,6 +11,7 @@ import subprocess
 import tempfile
 from pathlib import Path
 
+from . import deps as deps_mod
 from . import session as session_mod
 
 
@@ -38,9 +39,7 @@ def capture(session_path: Path, version: str | None = None) -> list[Path]:
         elif fmt == "pptx":
             images.extend(_pptx_to_png(out_path, qa_dir, prefix="pptx-slide"))
         elif fmt in ("html", "revealjs"):
-            png = _html_to_png(out_path, qa_dir, name=f"{fmt}-fullpage.png")
-            if png is not None:
-                images.append(png)
+            images.append(_html_to_png(out_path, qa_dir, name=f"{fmt}-fullpage.png"))
     return images
 
 
@@ -89,39 +88,44 @@ def _pptx_to_png(pptx: Path, out_dir: Path, prefix: str) -> list[Path]:
         return _pdf_to_png(pdf, out_dir, prefix=prefix)
 
 
-def _html_to_png(html: Path, out_dir: Path, name: str) -> Path | None:
-    """Screenshot HTML to PNG.
+def _html_to_png(html: Path, out_dir: Path, name: str) -> Path:
+    """Rasterize HTML to a full-page PNG via the declared `html-raster` capability.
 
-    Order of preference:
-      1. playwright (if installed + browsers installed)
-      2. wkhtmltoimage (if installed)
-      3. None — return None and let the skill capture via Claude_Preview MCP
+    Engine is resolved by ``deps.html_rasterizer()`` (Playwright Chromium, then
+    wkhtmltoimage). If none is present this raises with the exact provisioning
+    command — HTML QA is a *declared* dependency (``exports/html.yml`` →
+    ``requires.qa``), so missing it is a loud, actionable failure, never a silent
+    skip that reports success with zero images.
     """
-    try:
+    engine = deps_mod.html_rasterizer()
+    if engine is None:
+        raise RuntimeError(
+            "cannot rasterize HTML for QA — no headless browser available.\n"
+            f"  Install: {deps_mod.INSTALL_HINTS['html-raster']}\n"
+            "  Then re-run: studio qa capture ...\n"
+            "  (check readiness with `studio doctor`)"
+        )
+
+    dest = out_dir / name
+    if engine == "playwright":
         from playwright.sync_api import sync_playwright
 
         with sync_playwright() as p:
             browser = p.chromium.launch()
             page = browser.new_page(viewport={"width": 1440, "height": 900})
             page.goto(html.absolute().as_uri())
-            dest = out_dir / name
             page.screenshot(path=str(dest), full_page=True)
             browser.close()
-            return dest
-    except Exception:
-        pass
+        return dest
 
+    # wkhtmltoimage
     wkh = shutil.which("wkhtmltoimage")
-    if wkh:
-        dest = out_dir / name
-        result = subprocess.run(
-            [wkh, "--width", "1440", str(html), str(dest)],
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
-        if result.returncode == 0 and dest.exists():
-            return dest
-
-    # Neither available — caller (the skill) should use Claude_Preview MCP
-    return None
+    result = subprocess.run(
+        [wkh, "--width", "1440", str(html), str(dest)],
+        capture_output=True,
+        text=True,
+        timeout=60,
+    )
+    if result.returncode != 0 or not dest.exists():
+        raise RuntimeError(f"wkhtmltoimage failed to rasterize {html.name}:\n{result.stderr}")
+    return dest
