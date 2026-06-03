@@ -8,6 +8,7 @@ Each utility is a **self-contained plugin** in its own top-level directory, with
 |---|---|---|
 | **youtube-transcript** | `yt-transcript` | Extract a YouTube video's transcript to a `.txt`. |
 | **notion-sources** | `notion-sources` | Extract a Notion database into a batch of per-source `.md` files + a manifest. |
+| **source-enrich** | `source-enrich` | Enrich a source batch in place: fetch each source, fill front matter, extract body + assets into an Appendix. |
 
 ## Skills
 
@@ -181,6 +182,55 @@ properties:
 > The integration must be **shared with the database** (Notion → ⋯ → Connections) or
 > the API returns 404/403 and the run exits `2`. The token is read from the environment
 > and never printed.
+
+### source-enrich
+
+Enrich a `notion-sources` batch **in place**: for each source it fetches the page,
+fully populates the YAML front matter, replaces the stub with the extracted article
+body, downloads attached assets, and appends an **Appendix** listing them. Resumable
+(skips already-enriched). See `docs/architecture/DECISIONS.md` → **ADR-001** for the
+approach.
+
+**Tiered fetch.** A standalone Python engine (`trafilatura`) reads normal pages;
+YouTube reuses the `youtube-transcript` CLI; sources the engine can't read
+(LinkedIn/X login walls, JS shells) are flagged **`blocked`** rather than producing
+garbage. Blocked sources are escalated **politely** — fetch the rendered HTML through
+your *own logged-in browser* (`connect-chrome`) or Firecrawl and feed it back via
+`--html-file`. It never bypasses authentication.
+
+**Assets.** Inline images + linked documents (pdf/doc/ppt/xls/csv/zip…) download to
+`assets/<slug>/` (size-capped, hash-deduped); the Appendix lists Images / Downloads /
+Catalogued-not-downloaded with local path + source URL + size.
+
+```bash
+source-enrich --batch ~/context/.../research/sources --limit 5     # trial run
+python3 source-enrich/scripts/enrich.py --batch path/to/sources    # from a checkout
+
+# escalate one blocked source with HTML from your logged-in browser:
+source-enrich --batch path/to/sources --only 42 --html-file /tmp/source-42.html
+```
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `--batch DIR` | — | Batch directory (holds `sources.json` + `NNNN-*.md`) |
+| `--only N\|slug\|id` | — | Enrich only matching sources (repeatable) |
+| `--limit N` | all | Stop after N processed (trial runs) |
+| `--html-file` / `--md-file` | — | Ingest pre-fetched content (requires one `--only`) |
+| `--assets` | `images,docs` | `images,docs` \| `images` \| `none` |
+| `--max-asset-mb` | `25` | Per-asset size cap |
+| `--reenrich` | off | Re-process already-enriched sources |
+| `--delay` | `1.0` | Seconds between network requests (politeness) |
+| `--timeout` | `30` | Per-request timeout |
+| `--respect-robots` | off | Skip URLs disallowed by `robots.txt` |
+
+Front-matter fields added on enrichment: `enriched`, `enrich_status`
+(`enriched`\|`partial`\|`blocked`\|`error`), `enriched_at`, `extractor`,
+`http_status`, `source_name`, `published`, `word_count`, `lead_image`,
+`assets_count` — plus filled `title`/`author`/`precis`. The Notion `status` field is
+left untouched.
+
+Exit codes: `0` ran (per-source failures recorded, not fatal) · `2` bad invocation
+(missing batch/manifest, or `--html-file` without one `--only`) · `3` error.
 
 ## Install
 
