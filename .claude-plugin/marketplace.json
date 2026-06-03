@@ -8,12 +8,12 @@
   "description": "nopilot-co-utilities marketplace — small, brand-agnostic utility skills that support the studios and general workflows.",
   "plugins": [
     {
-      "name": "utilities",
-      "source": "./plugins/utilities",
-      "version": "0.1.2",
-      "description": "General-purpose utility skills. Currently: youtube-transcript (extract a YouTube video's transcript to a .txt, captions fast-path + optional Whisper fallback).",
+      "name": "youtube-transcript",
+      "source": "./youtube-transcript",
+      "version": "0.2.0",
+      "description": "Extract a YouTube video's transcript to a .txt — captions fast-path + optional local Whisper fallback. Standalone CLI: yt-transcript.",
       "category": "utilities",
-      "tags": ["utilities", "youtube", "transcript", "ingest"]
+      "tags": ["youtube", "transcript", "captions", "subtitles", "ingest"]
     }
   ]
 }
