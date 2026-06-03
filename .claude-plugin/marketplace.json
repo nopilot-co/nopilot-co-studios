@@ -22,6 +22,14 @@
       "description": "Extract a Notion database into a batch of per-source Markdown files (one per row, YAML front matter) plus a manifest (sources.json + index.md). Schema-agnostic: detects URLs anywhere in a row and maps metadata by property type + fuzzy name, handling differently-structured databases. Re-runs append new sources. Standalone CLI: notion-sources.",
       "category": "utilities",
       "tags": ["notion", "ingest", "sources", "batch", "manifest", "frontmatter", "extract", "urls", "schema-agnostic"]
+    },
+    {
+      "name": "source-enrich",
+      "source": "./source-enrich",
+      "version": "0.1.0",
+      "description": "Enrich a notion-sources batch in place: fetch each source, fully populate its front matter, extract the article body to Markdown, download attached assets (inline images + linked documents) into assets/<slug>/, and append an Appendix. Tiered fetch (Python engine + youtube-transcript + an --html-file escalation path for auth-walled sources like LinkedIn). Resumable. Standalone CLI: source-enrich.",
+      "category": "utilities",
+      "tags": ["enrich", "scrape", "extract", "article", "readability", "frontmatter", "assets", "appendix", "ingest", "batch"]
     }
   ]
 }

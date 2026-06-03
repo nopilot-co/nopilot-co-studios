@@ -15,7 +15,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 MARKETPLACE="nopilot-co-utilities"
 
 # Each utility lives in a top-level directory whose name matches its plugin.
-PLUGINS=("youtube-transcript" "notion-sources")
+PLUGINS=("youtube-transcript" "notion-sources" "source-enrich")
 
 # ---------------------------------------------------------------- 1. marketplace
 echo "== marketplace =="
