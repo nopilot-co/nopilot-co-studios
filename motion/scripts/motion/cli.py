@@ -16,6 +16,8 @@ from . import __version__, resolve_context_root
 from . import board as board_mod
 from . import capture as capture_mod
 from . import deps as deps_mod
+from . import produce as produce_mod
+from . import qa as qa_mod
 from . import storyboard as storyboard_mod
 from . import tokens as tokens_mod
 
@@ -125,11 +127,20 @@ def storyboard_board(path: Path, out: Path | None, png: bool) -> None:
 
 # ---------------------------------------------------------------- produce
 @main.command("produce")
-@click.option("--session", required=True, type=click.Path())
-@click.option("--bump", default="patch", type=click.Choice(["patch", "minor", "major"]))
-def produce_cmd(session: str, bump: str) -> None:
-    """Render the session's locked format from its storyboard."""
-    _todo("S2 (Remotion → explainer-mp4)")
+@click.option("--file", "path", required=True, type=click.Path(exists=True, path_type=Path))
+@click.option("--out", default=None, type=click.Path(path_type=Path),
+              help="output dir (default: alongside the storyboard)")
+@click.option("--engine", default="auto",
+              type=click.Choice(["auto", "declarative", "remotion"]))
+@click.option("--video/--no-video", default=True, help="record MP4 (needs capture extra + ffmpeg)")
+def produce_cmd(path: Path, out: Path | None, engine: str, video: bool) -> None:
+    """Render a storyboard → animated HTML preview (+ MP4)."""
+    try:
+        outputs = produce_mod.produce(path, out, engine=engine, make_video=video)
+    except (ValueError, RuntimeError) as e:
+        raise click.ClickException(str(e)) from e
+    for fmt, p in outputs.items():
+        click.echo(f"  ✓ {fmt:<5} {p}")
 
 
 # ---------------------------------------------------------------- twin
@@ -152,10 +163,31 @@ def qa() -> None:
 
 
 @qa.command("capture")
-@click.option("--session", required=True, type=click.Path())
-def qa_capture(session: str) -> None:
-    """Extract keyframes + a contact sheet for eyes-on-pixels review."""
-    _todo("S2 (keyframe capture)")
+@click.option("--file", "path", required=True, type=click.Path(exists=True, path_type=Path),
+              help="the storyboard (for scene timing)")
+@click.option("--video", default=None, type=click.Path(path_type=Path),
+              help="the MP4 (default: <storyboard>.mp4 beside it)")
+@click.option("--out", default=None, type=click.Path(path_type=Path),
+              help="QA output dir (default: <storyboard dir>/qa)")
+def qa_capture(path: Path, video: Path | None, out: Path | None) -> None:
+    """Extract one keyframe per scene + a contact sheet (eyes-on-pixels)."""
+    try:
+        spec = storyboard_mod.load(path)
+    except ValueError as e:
+        raise click.ClickException(str(e)) from e
+    mp4 = Path(video) if video else path.with_name(produce_mod._stem(path) + ".mp4")
+    if not mp4.exists():
+        raise click.ClickException(
+            f"video not found: {mp4} — run `motion produce` first or pass --video"
+        )
+    out_dir = Path(out) if out else path.parent / "qa"
+    try:
+        res = qa_mod.capture(mp4, spec, out_dir)
+    except RuntimeError as e:
+        raise click.ClickException(str(e)) from e
+    if res.get("contact_sheet"):
+        click.echo(f"  ✓ sheet  {res['contact_sheet']}")
+    click.echo(f"  ✓ {len(res['frames'])} keyframes in {out_dir}")
 
 
 if __name__ == "__main__":
