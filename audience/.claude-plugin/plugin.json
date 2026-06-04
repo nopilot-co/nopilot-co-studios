@@ -1,0 +1,18 @@
+{
+  "name": "audience-studio",
+  "version": "0.1.0",
+  "description": "Audience studio: model THE READER — a structured psychographic profile + need-state — and critique work against a derived weighted rubric, returning a reader-fit verdict + ranked strengthening areas. Reuses the nitpicker scoring engine.",
+  "author": {
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
+  },
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/audience",
+  "keywords": [
+    "audience",
+    "reader",
+    "persona",
+    "psychographics",
+    "need-state",
+    "critique"
+  ]
+}

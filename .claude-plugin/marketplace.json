@@ -5,7 +5,7 @@
     "name": "Julian Tedstone",
     "email": "ted@nopilot.co"
   },
-  "description": "nopilot-co-studios marketplace — the studios-root creative-director and its studios (design, messaging, nitpicker).",
+  "description": "nopilot-co-studios marketplace — the studios-root creative-director and its studios (design, messaging, nitpicker, audience).",
   "plugins": [
     {
       "name": "studios",
@@ -34,10 +34,18 @@
     {
       "name": "nitpicker-studio",
       "source": "./nitpicker",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "description": "Rigorous asset review: visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice, and a configurable scored test battery (so-what / yawn / sniff), producing a weighted verdict.",
       "category": "quality",
       "tags": ["review", "qa", "critique", "tone-of-voice", "visual-qa"]
+    },
+    {
+      "name": "audience-studio",
+      "source": "./audience",
+      "version": "0.1.0",
+      "description": "Model the reader — a structured psychographic profile + need-state — and critique work against a derived weighted rubric, returning a reader-fit verdict + strengthening areas. Reuses the nitpicker scoring engine.",
+      "category": "quality",
+      "tags": ["audience", "reader", "persona", "psychographics", "critique"]
     }
   ]
 }
