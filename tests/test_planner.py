@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""planner (#39) — composite-document composition manifest + deterministic merge.
+Standalone; run: design/.venv/bin/python tests/test_planner.py
+
+Exercises the planner mechanics that need no studio CLI: composition.json CRUD,
+rollup/ordering recompute, schema validation, and the assemble merge. Docket
+scaffolding (which shells out to `studio docket init`) is covered by the CLI
+end-to-end run, not here.
+"""
+
+from __future__ import annotations
+
+import sys
+import tempfile
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO / "scripts"))
+
+from planner import assemble as asm  # noqa: E402
+from planner import composition as comp  # noqa: E402
+
+failures: list[str] = []
+
+
+def check(name: str, cond: bool, detail: str = "") -> None:
+    if not cond:
+        failures.append(f"{name}{(' — ' + detail) if detail else ''}")
+
+
+def raises(fn, exc=Exception) -> bool:
+    try:
+        fn()
+    except exc:
+        return True
+    except Exception:
+        return False
+    return False
+
+
+with tempfile.TemporaryDirectory() as td:
+    root = Path(td)
+
+    # --- new -----------------------------------------------------------------
+    data = comp.new(
+        root,
+        brand="acme",
+        objective="Proposition doc",
+        fmt="proposal-pdf",
+        session="acme-prop",
+    )
+    check("new: file written", comp.exists(root))
+    check("new: validates clean", comp.validate(data) == [], str(comp.validate(data)))
+    check("new: starts at 0.0.0", data["current"] == "0.0.0")
+    check(
+        "new: refuses to clobber",
+        raises(lambda: comp.new(root, brand="x", objective="y", fmt="z", session="s")),
+    )
+
+    # --- sections + ordering -------------------------------------------------
+    comp.add_section(root, section_id="exec", title="Exec")
+    comp.add_section(root, section_id="market", title="Market", after="exec")
+    comp.add_section(root, section_id="team", title="Team")
+    comp.move_section(root, section_id="team", after="market")
+    data = comp.read(root)
+    ids = [s["id"] for s in data["sections"]]
+    check("order: respects add/move", ids == ["exec", "market", "team"], str(ids))
+    check("order: renumbered 1..n", [s["order"] for s in data["sections"]] == [1, 2, 3])
+    check("section: folder created", (root / "sections" / "exec").is_dir())
+    check(
+        "section: dup rejected",
+        raises(lambda: comp.add_section(root, section_id="exec", title="dupe")),
+    )
+    check(
+        "section: bad --after rejected",
+        raises(lambda: comp.add_section(root, section_id="x", title="X", after="nope")),
+    )
+
+    # --- data + viz contract -------------------------------------------------
+    comp.add_data(root, section_id="market", rel_path="assets/tam.csv", kind="csv")
+    comp.set_viz(
+        root,
+        section_id="market",
+        chart_type="bar",
+        source="assets/tam.csv",
+        x="seg",
+        y="tam",
+    )
+    data = comp.read(root)
+    mkt = next(s for s in data["sections"] if s["id"] == "market")
+    check(
+        "data: recorded",
+        mkt["data_sources"] == [{"path": "assets/tam.csv", "kind": "csv"}],
+    )
+    check("viz: rendered_by design", mkt["viz"]["rendered_by"] == "design")
+    check("viz: still valid", comp.validate(data) == [], str(comp.validate(data)))
+
+    # --- rollup --------------------------------------------------------------
+    comp.set_section(root, section_id="exec", status="approved")
+    data = comp.read(root)
+    check(
+        "rollup: 1/3 approved",
+        data["rollup"]["approved"] == 1 and data["rollup"]["percent_approved"] == 33,
+    )
+    check("rollup: not ready", data["rollup"]["ready_to_assemble"] is False)
+
+    # --- assemble guards -----------------------------------------------------
+    (root / "sections" / "exec" / "content.md").write_text("<!-- stub -->")
+    check(
+        "assemble: empty approved content errors",
+        raises(lambda: asm.assemble(root), asm.AssembleError),
+    )
+
+    # --- assemble merge ------------------------------------------------------
+    (root / "sections" / "exec" / "content.md").write_text("# Exec\n\nBody.\n")
+    (root / "sections" / "market" / "content.md").write_text("# Market\n\nTAM.\n")
+    (root / "sections" / "team" / "content.md").write_text("# Team\n\nPeople.\n")
+
+    # market/team still not approved → full assemble blocked without --allow-partial
+    check(
+        "assemble: partial needs flag",
+        raises(lambda: asm.assemble(root), asm.AssembleError),
+    )
+
+    comp.set_section(root, section_id="market", status="approved")
+    comp.set_section(root, section_id="team", status="approved")
+    data = comp.read(root)
+    check(
+        "rollup: ready when all approved", data["rollup"]["ready_to_assemble"] is True
+    )
+
+    result = asm.assemble(root, bump_kind="minor")
+    src = result["source"]
+    check(
+        "assemble: source at session/inputs",
+        src == root / "acme-prop" / "inputs" / "source.md",
+        str(src),
+    )
+    check("assemble: source exists", src.is_file())
+    body = src.read_text()
+    check(
+        "assemble: order preserved",
+        body.index("# Exec") < body.index("# Market") < body.index("# Team"),
+        body,
+    )
+    check("assemble: 0.0.0 → 1.0.0", result["version"] == "1.0.0")
+    check(
+        "assemble: render hint carries format+source",
+        "format=proposal-pdf" in result["render_hint"]
+        and str(src) in result["render_hint"],
+    )
+    check(
+        "assemble: logged in history",
+        comp.read(root)["history"][-1]["event"] == "assemble",
+    )
+
+
+if failures:
+    print(f"FAIL ({len(failures)})")
+    for f in failures:
+        print("  -", f)
+    sys.exit(1)
+print("PASS: planner (composition CRUD + rollup + ordering + assemble merge)")
