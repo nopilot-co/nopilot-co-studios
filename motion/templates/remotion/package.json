@@ -1,0 +1,19 @@
+{
+  "name": "motion-remotion",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Remotion render project for the motion studio — driven by inputProps {spec, tokens}.",
+  "scripts": {
+    "render": "remotion render"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.471",
+    "remotion": "4.0.471",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "typescript": "5.4.5"
+  }
+}
