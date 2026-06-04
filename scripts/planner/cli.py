@@ -6,7 +6,8 @@ here):
   planner plan new --root PATH --brand SLUG --objective TEXT --format SLUG
   planner section add --root PATH --id ID --title TEXT [--after ID]
   planner section move --root PATH --id ID [--after ID]
-  planner section set --root PATH --id ID [--status S] [--title T] [--note N]
+  planner section set --root PATH --id ID [--status S] [--title T] [--note N] [--force]
+  planner section fit --root PATH --id ID [--scorecard PATH | --verdict V [--overall N] [--gate-fail NEED]...]
   planner data add --root PATH --id ID --path REL --kind md|csv|image
   planner viz set --root PATH --id ID --type T --source REL [--x C] [--y C] [--caption T]
   planner brief write --root PATH --id ID
@@ -17,6 +18,7 @@ here):
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 import click
@@ -179,12 +181,20 @@ def section_move(root: Path, section_id: str, after: str | None) -> None:
 @click.option(
     "--note", default=None, help="Provenance / reference note for the section."
 )
+@click.option(
+    "--force",
+    is_flag=True,
+    default=False,
+    help="Approve even if the reader-fit gate is unmet (a bound reader requires a "
+    "reader-fit pass before approval).",
+)
 def section_set(
     root: Path,
     section_id: str,
     status: str | None,
     title: str | None,
     note: str | None,
+    force: bool,
 ) -> None:
     if status is None and title is None and note is None:
         _fail("nothing to set — pass --status, --title, and/or --note")
@@ -195,10 +205,79 @@ def section_set(
             status=status,
             title=title,
             note=note,
+            force=force,
         )
     except (FileNotFoundError, ValueError) as e:
         _fail(str(e))
-    click.echo(f"✓ updated '{section_id}'")
+    forced = "  (forced past reader-fit gate)" if force and status == "approved" else ""
+    click.echo(f"✓ updated '{section_id}'{forced}")
+
+
+@section.command("fit")
+@_root_opt
+@click.option("--id", "section_id", required=True)
+@click.option(
+    "--scorecard",
+    "scorecard",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="The audience studio's scorecard.json for this section's critique "
+    "(verdict/overall/gates_failed read from it).",
+)
+@click.option(
+    "--verdict",
+    default=None,
+    type=click.Choice(["pass", "revise", "fail"]),
+    help="Reader-fit verdict (if not reading a scorecard).",
+)
+@click.option(
+    "--overall", default=None, type=float, help="Overall reader-fit score 0-100."
+)
+@click.option(
+    "--gate-fail",
+    "gate_fail",
+    multiple=True,
+    help="A must-have (gate) need the section fails. Repeatable.",
+)
+def section_fit(
+    root: Path,
+    section_id: str,
+    scorecard: Path | None,
+    verdict: str | None,
+    overall: float | None,
+    gate_fail: tuple[str, ...],
+) -> None:
+    """Record a section's reader-fit result (from the audience studio's critique).
+
+    The critique itself is the audience studio's job (`audience review` →
+    `assess-audience-fit`); this records the verdict so approval can be gated."""
+    source = "manual"
+    gates = list(gate_fail)
+    if scorecard is not None:
+        card = json.loads(scorecard.read_text())
+        verdict = card.get("verdict")
+        overall = card.get("overall")
+        gates = card.get("gates_failed") or []
+        source = str(scorecard)
+    if verdict is None:
+        _fail("pass --scorecard <path> or --verdict pass|revise|fail")
+    try:
+        comp.record_fit(
+            root.expanduser(),
+            section_id=section_id,
+            verdict=verdict,
+            overall=overall,
+            gates_failed=gates,
+            source=source,
+        )
+    except (FileNotFoundError, ValueError) as e:
+        _fail(str(e))
+    extra = f"  gates_failed: {', '.join(gates)}" if gates else ""
+    click.echo(
+        f"✓ reader-fit '{section_id}': {verdict}"
+        + (f" ({overall}/100)" if overall is not None else "")
+        + extra
+    )
 
 
 # ---------------------------------------------------------------- data
@@ -331,9 +410,17 @@ def status_cmd(root: Path) -> None:
     for sec in data["sections"]:
         viz = "  +viz" if sec["viz"] else ""
         ds = f"  [{len(sec['data_sources'])} data]" if sec["data_sources"] else ""
+        fit = ""
+        if reader:
+            rf = sec.get("reader_fit")
+            if not rf:
+                fit = "  fit:—"
+            else:
+                bad = rf.get("verdict") == "fail" or rf.get("gates_failed")
+                fit = f"  fit:{'✗' if bad else '✓'}{rf.get('verdict')}"
         click.echo(
             f"  {marks.get(sec['status'], '?')} {sec['order']:>2}. "
-            f"{sec['id']:<28} {sec['status']:<9}{ds}{viz}"
+            f"{sec['id']:<28} {sec['status']:<9}{ds}{viz}{fit}"
         )
     r = data["rollup"]
     click.echo(
