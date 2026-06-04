@@ -22,6 +22,7 @@ from pathlib import Path
 import click
 
 from . import assemble as assemble_mod
+from . import audience_model_path
 from . import brief as brief_mod
 from . import composition as comp
 from . import deps as deps_mod
@@ -63,13 +64,25 @@ def plan() -> None:
     help="Design format slug to render as, e.g. proposal-pdf (see `studio formats list`).",
 )
 @click.option(
+    "--audience",
+    "audience",
+    default=None,
+    help="Reader-model slug (audience studio) to align the document to. Optional; "
+    "without it the planner aligns to brand voice only.",
+)
+@click.option(
     "--session",
     "session_name",
     default=None,
     help="Production-session name (default: <brand>-<kebab objective>).",
 )
 def plan_new(
-    root: Path, brand: str, objective: str, fmt: str, session_name: str | None
+    root: Path,
+    brand: str,
+    objective: str,
+    fmt: str,
+    audience: str | None,
+    session_name: str | None,
 ) -> None:
     """Create the docket (if needed) + the composition manifest."""
     root = root.expanduser()
@@ -87,14 +100,35 @@ def plan_new(
             err=True,
         )
 
+    model_path = audience_model_path(root, audience) if audience else None
+    if audience and model_path is None:
+        click.echo(
+            f"  ⚠ reader model '{audience}' not found (looked in <root>/audience/ and "
+            "~/context/studios/audience/) — storing the slug; build it with the "
+            "audience studio (`audience persona new --audience <slug>`)",
+            err=True,
+        )
+
     try:
         docket_bridge.init_docket(root, brand=brand, session=session)
-        comp.new(root, brand=brand, objective=objective, fmt=fmt, session=session)
+        comp.new(
+            root,
+            brand=brand,
+            objective=objective,
+            fmt=fmt,
+            session=session,
+            audience=audience,
+        )
     except (RuntimeError, ValueError) as e:
         _fail(str(e))
     (root / "sections").mkdir(parents=True, exist_ok=True)
     click.echo(f"✓ composition ready: {comp.path_for(root)}")
-    click.echo(f"  session: {session}   format: {fmt}   brand: {brand}")
+    line = f"  session: {session}   format: {fmt}   brand: {brand}"
+    if audience:
+        line += f"   reader: {audience}"
+    click.echo(line)
+    if model_path:
+        click.echo(f"  reader model: {model_path}  (align sections to its need-state)")
 
 
 # ---------------------------------------------------------------- section
@@ -254,6 +288,7 @@ def brief_write(root: Path, section_id: str) -> None:
     try:
         data = comp.read(root)
         sec = comp._find(data, section_id)
+        audience = data.get("audience")
         brief_path, _ = brief_mod.write_brief(
             root,
             section_id=section_id,
@@ -261,6 +296,8 @@ def brief_write(root: Path, section_id: str) -> None:
             objective=data["objective"],
             brand=data["brand"],
             fmt=data["format"],
+            audience=audience,
+            audience_ref=audience_model_path(root, audience) if audience else None,
         )
         # A brief now exists → at least 'briefed' (don't downgrade further-along work).
         if sec["status"] == "todo":
@@ -280,8 +317,13 @@ def status_cmd(root: Path) -> None:
     except FileNotFoundError as e:
         _fail(str(e))
     click.echo(f"{data['objective']}")
+    reader = data.get("audience")
+    reader_str = ""
+    if reader:
+        resolved = audience_model_path(root.expanduser(), reader)
+        reader_str = f"  reader={reader}" + ("" if resolved else " (model not found)")
     click.echo(
-        f"  brand={data['brand']}  format={data['format']}  v{data['current']}\n"
+        f"  brand={data['brand']}  format={data['format']}{reader_str}  v{data['current']}\n"
     )
     marks = {"todo": "·", "briefed": "○", "drafted": "◐", "approved": "●"}
     if not data["sections"]:
