@@ -32,6 +32,13 @@ studios:
     capabilities: [model-audience, assess-audience-fit]
     status: active
 
+  - slug: motion
+    path: motion
+    manifest: motion/studio.yaml
+    summary: Animated/narrated assets — explainer videos, animated (Remotion-style) infographics, embeddable SVG/Lottie, and photorealistic digital-twin presenters.
+    capabilities: [visualise, present]
+    status: planned          # scaffolded (S0); routable once S2 ships explainer-mp4
+
 # Root orchestration skills the creative-director invokes directly — NOT maker
 # studios (they make nothing on their own). These sequence work before routing to
 # a studio's capability. The director reaches them by skill name; they are listed
