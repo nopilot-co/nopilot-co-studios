@@ -1,0 +1,54 @@
+{
+  "version": "0.1",
+  "global": {
+    "brand": "360",
+    "title": "Brand name: framework",
+    "aspect": "16:9",
+    "fps": 30,
+    "motion_system": "calm-brief",
+    "captions": true
+  },
+  "scenes": [
+    {
+      "id": "open",
+      "duration": 4,
+      "narration": "A name does work before the first conversation begins.",
+      "transition": "fade",
+      "layers": [
+        { "type": "text", "content": "Brand name: framework", "region": "center", "role": "primary", "enter": "fade-up" },
+        { "type": "shape", "content": "accent-rule", "region": "lower-third", "role": "accent", "enter": "wipe-left" }
+      ]
+    },
+    {
+      "id": "criteria",
+      "duration": 6,
+      "narration": "Any candidate name must satisfy five things, in order of priority.",
+      "transition": "slide",
+      "layers": [
+        { "type": "text", "content": "The criteria", "region": "top", "role": "primary", "enter": "fade" },
+        { "type": "icon", "content": "checklist", "region": "left", "role": "accent", "enter": "fade-up", "emphasis": "pulse" },
+        { "type": "text", "content": "Meaning · Register · Ownable · Travel · One category", "region": "right", "role": "secondary", "enter": "fade-up" }
+      ]
+    },
+    {
+      "id": "categories",
+      "duration": 6,
+      "narration": "The exploration produced four families of names — each with its own buyer signal.",
+      "transition": "fade",
+      "layers": [
+        { "type": "text", "content": "The four categories", "region": "top", "role": "primary", "enter": "fade" },
+        { "type": "chart", "content": "categories:bar", "region": "center", "role": "accent", "enter": "fade-up", "emphasis": "count-up" }
+      ]
+    },
+    {
+      "id": "close",
+      "duration": 4,
+      "narration": "Pick a category. Narrow to two or three options inside it. Test.",
+      "transition": "cut",
+      "layers": [
+        { "type": "text", "content": "Next: pick a category, then test", "region": "center", "role": "primary", "enter": "fade-up" },
+        { "type": "image", "content": "assets/logo.svg", "region": "lower-third", "role": "secondary", "enter": "fade" }
+      ]
+    }
+  ]
+}

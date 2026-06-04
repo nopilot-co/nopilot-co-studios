@@ -1,16 +1,23 @@
 """CLI entry point: `motion <command>`. Subcommands mirror the skills 1:1.
 
-S0 scaffold: `doctor` and `info` are live; the pipeline subcommands are declared
-now (so the contract surface exists) and filled in by later slices — see the
+`doctor`/`info` (S0) and `storyboard validate`/`storyboard board` (S1) are live;
+`produce`/`qa`/`twin` are declared stubs filled in by later slices — see the
 build sequence in motion/CLAUDE.md.
 """
 
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import click
 
 from . import __version__, resolve_context_root
+from . import board as board_mod
+from . import capture as capture_mod
 from . import deps as deps_mod
+from . import storyboard as storyboard_mod
+from . import tokens as tokens_mod
 
 
 @click.group()
@@ -73,10 +80,47 @@ def storyboard() -> None:
 
 
 @storyboard.command("validate")
-@click.option("--file", "path", required=True, type=click.Path())
-def storyboard_validate(path: str) -> None:
+@click.option("--file", "path", required=True, type=click.Path(exists=True, path_type=Path))
+def storyboard_validate(path: Path) -> None:
     """Validate a storyboard.json against the schema."""
-    _todo("S1 (storyboard schema + validator)")
+    try:
+        spec = json.loads(path.read_text())
+    except json.JSONDecodeError as e:
+        raise click.ClickException(f"not valid JSON: {e}") from e
+    errors = storyboard_mod.validate(spec)
+    if errors:
+        click.echo(f"✗ {path.name} — {len(errors)} error(s):", err=True)
+        for e in errors:
+            click.echo(f"  - {e}", err=True)
+        raise SystemExit(1)
+    n = len(spec.get("scenes", []))
+    total = storyboard_mod.total_duration(spec)
+    click.echo(f"✓ {path.name} is valid — {n} scenes, {total:g}s total")
+
+
+@storyboard.command("board")
+@click.option("--file", "path", required=True, type=click.Path(exists=True, path_type=Path))
+@click.option("--out", default=None, type=click.Path(path_type=Path),
+              help="HTML output path (default: <storyboard>.board.html)")
+@click.option("--png/--no-png", default=True, help="also rasterize to PNG (needs the capture extra)")
+def storyboard_board(path: Path, out: Path | None, png: bool) -> None:
+    """Render a pictorial storyboard board — preview the plan before producing."""
+    try:
+        spec = storyboard_mod.load(path)
+    except ValueError as e:
+        raise click.ClickException(str(e)) from e
+    g = spec["global"]
+    tok = tokens_mod.resolve(g.get("brand"), g.get("motion_system"))
+    out_html = out or path.with_suffix(".board.html")
+    out_html.write_text(board_mod.render_html(spec, tok), encoding="utf-8")
+    click.echo(f"  ✓ board   {out_html}")
+    if png:
+        try:
+            out_png = out_html.with_suffix(".png")
+            capture_mod.html_to_png(out_html, out_png)
+            click.echo(f"  ✓ preview {out_png}")
+        except RuntimeError as e:
+            click.echo(f"  ○ PNG skipped — {e}", err=True)
 
 
 # ---------------------------------------------------------------- produce
