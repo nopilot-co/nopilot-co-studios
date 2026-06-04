@@ -73,12 +73,12 @@ CLI from a server, or server-side. You never reimplement a studio's logic.
 - **Composite (multi-section) documents** — when a brief asks for a document made
   of several parts that are composed separately (a proposition, prospectus,
   proposal, or report), don't draft it inline. Invoke the **`planner`**
-  orchestration skill first (see `studios.yml → orchestrators`): it scaffolds the
+  orchestration skill (see `studios.yml → orchestrators`): it scaffolds the
   sections over a production docket, tracks completion, and assembles a merged
-  `source.md`. Then route that `source.md` to the studio offering `render-asset`
-  (design) for the branded final — exactly the "draft the content first, then hand
-  it in" flow of step 4, but for documents with parts. `planner` plans and
-  assembles; it never renders.
+  `source.md`, which you then route to `render-asset` (design). `planner` plans and
+  assembles; it never renders. When the document is for a specific reader, run the
+  full **"Composite document for a reader"** play below rather than these steps
+  piecemeal.
 - If no active studio offers a needed capability, say so plainly and propose the
   closest alternative or a manual step. Never silently drop part of the brief.
 - One studio per capability per job. If the brief needs the same asset in two
@@ -93,6 +93,47 @@ CLI from a server, or server-side. You never reimplement a studio's logic.
   composition context — then route the same slug into the review gate's
   `assess-audience-fit` lens. Modelling the reader is a produce-time input, not only
   a review-time check.
+
+## Plays
+
+A play is a fixed chain you follow when a brief matches its shape. Still show the
+plan and get confirmation (step 3) before running it; still confirm before any
+outward send (step 7).
+
+### Composite document for a reader
+
+For a brief like *"a proposition document for a VP of Engineering at a Series-B
+scaleup"* — a multi-section document aimed at a specific reader. One reader slug
+threads through the whole chain, so the document is **built for** the reader and
+then **verified** against the same model.
+
+1. **Model the reader.** Invoke `/audience-studio` (`model-audience`): persona →
+   research → psychographic profile + need-state → derived rubric. Result: a
+   reusable **reader slug** (e.g. `vp-eng-scaleup`). Reuse an existing slug if one
+   already fits. An *inferred* persona must be user-validated before you lean on it.
+2. **Plan + build for the reader.** Run the `planner` skill, binding the reader:
+   `planner plan new --root <docket> --brand <slug> --objective "<text>" --format
+   <design-format> --audience <reader-slug>`. The planner proposes sections, briefs,
+   and viz from the need-state; you draft each `sections/<id>/content.md`.
+3. **Gate each section on reader-fit.** For each drafted section, critique its
+   content **as the reader** with the audience studio (`audience review … --target
+   <docket>/sections/<id>/content.md` → `assess-audience-fit`), record it
+   (`planner section fit --scorecard …`), then `planner section set --status
+   approved` (gated — it refuses approval until reader-fit passes). Loop
+   strengthening areas back into the content until it passes.
+4. **Assemble + render.** `planner assemble` → `<session>/inputs/source.md`; chain
+   it to design `render-asset` (`studio session init --source … && studio render`)
+   for the branded final.
+5. **Verify the whole.** Route the rendered artifact through the step-6 review gate
+   — nitpicker `review-asset` (objective) **and** audience `assess-audience-fit`
+   reusing the **same reader slug** (reader-subjective). Per-section gating already
+   cleared each part; this verifies the assembled, rendered whole.
+6. **Deliver** (step 7) once verdicts pass — confirm before any outward send.
+
+Brand-only variant: if no specific reader is named, skip steps 1 and the
+`--audience` binding; the planner aligns to brand voice only and the review gate
+runs the objective lens (and audience only if you still have a reader to check
+against).
 
 ## Conventions
 
