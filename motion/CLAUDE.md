@@ -1,0 +1,157 @@
+# Motion Studio
+
+One studio within **Studios** (see [`../CLAUDE.md`](../CLAUDE.md) for the studios
+model and the three invocation modes). The studios invariant applies: **this
+studio's skills are the single source of processing behavior** — the same skills
+run whether invoked as a local plugin, via CLI from a server, or programmatically
+server-side. Only the trigger and LLM host change.
+
+Packaged as the Claude Code plugin **`motion-studio`** (`v0.1.0`; manifest at
+`.claude-plugin/plugin.json`). `./install.sh` symlinks this directory to
+`~/.claude/plugins/motion-studio`, creates the workspace root, checks runtime
+deps, and installs the `motion` Python package (editable).
+
+> **Status: S0 — scaffold.** The contract surface (plugin, `studio.yaml`, the
+> `motion` CLI with live `doctor`/`info`, skill stubs) exists; rendering lands in
+> later slices. Build sequence below. Tracked in issue #42; engine decision in
+> [`../docs/architecture/DECISIONS.md`](../docs/architecture/DECISIONS.md)
+> (ADR-002).
+
+## What it does
+
+Turns a brief or existing content/data into **animated, narrated assets that
+tell the story**:
+
+- **Explainer videos** (MP4 / WebM / GIF) — Remotion / React.
+- **Animated, Remotion-style infographics** — data / process motion.
+- **Embeddable web** — self-contained animated SVG / interactive HTML, and
+  **Lottie** JSON.
+- **Static infographic** — the poster / frame-0 of a storyboard (one pipeline).
+- **Digital-twin presenters** — photorealistic face-to-camera explainers /
+  elevator pitches: `script → TTS → avatar lip-sync → composite`.
+
+Positioning vs the **design studio**: *doesn't move → design (static documents);
+moves or is narrated → motion.* Stills here are just a storyboard's frame-0, so
+there's one pipeline, not two.
+
+## Two layers (judgment vs mechanics)
+
+- **Skills** (`skills/<name>/SKILL.md`) — the LLM judgment and the contract.
+- **Deterministic glue** (`scripts/motion/`, the `motion` CLI) — no judgment.
+
+Each skill drives its matching `motion` command; the `/motion-studio` command
+(`commands/motion-studio.md`) orchestrates the pipeline end to end.
+
+| Skill | Drives | Does |
+|-------|--------|------|
+| `content-review` | (analysis) | read existing content/data; extract the story spine + key beats |
+| `ideate` | (analysis) | propose 2–3 visualisation concepts; pick an archetype + approach |
+| `storyboard` | `motion storyboard validate` | scene-by-scene plan → writes the validated `storyboard.json` |
+| `script` | (analysis) | narration/VO + on-screen copy + caption timing (SRT/VTT) |
+| `produce` | `motion produce` | render the locked format from the storyboard |
+| `visual-qa` | `motion qa capture` | sample keyframes; critique timing/legibility/brand/caption-sync |
+| `twin-ingest` | `motion twin ingest` | register a consenting person's likeness + voice (presenter) |
+
+## Source of truth — `storyboard.json`
+
+A render is driven by one storyboard spec (validated against
+`scripts/motion/schemas/storyboard.schema.json`, lands S1):
+
+```
+scenes[] { id, duration, layers[] (text|shape|image|icon|chart|presenter),
+           enter/emphasis/exit motions, transition }
+global   { aspect, fps, brand, motion_system, captions }
+```
+
+One spec → many exports (the studios invariant). Brand colour/type come from the
+shared `_brand.yml` via the design studio's token layer (reused, never copied);
+motion tokens (easing, durations, transitions) come from a locked motion-system.
+
+## Engine (ADR-002)
+
+Hybrid, declared per export and detected by `motion doctor`:
+
+- **Remotion** (React/Node, via `npx`) → MP4/WebM — explainer videos + animated
+  infographics.
+- **Declarative SVG/CSS** → animated HTML + **Lottie** — embeddable assets; needs
+  no node.
+- **Playwright capture** → frames → **ffmpeg** — fallback when Remotion is
+  overkill; ffmpeg also encodes GIF and extracts QA keyframes.
+- **Providers** (render-time external services, swappable adapter, keyed via env,
+  never the docket): **D-ID** (avatar lip-sync), **ElevenLabs** (TTS / cloned
+  twin voice). Optional local low-fi avatar fallback. External renders are cached
+  by `hash(twin + script + provider + params)` and stored as versioned session
+  inputs, so re-renders are reproducible and free.
+
+## Consent (load-bearing)
+
+The presenter archetype generates a person's face + voice. The `twin` entity
+**requires a consent record** in `presenter.yaml` before any avatar render; the
+skill refuses a third-party twin without explicit recorded consent. Legitimate
+use = your own twin, or a consenting subject.
+
+## Resources (canonical, by slug)
+
+`resources/` must represent 100% of the design choices the studio can make.
+
+- `motion-systems/` — motion design systems (easing / duration / transition
+  tokens + prose), same front-matter shape as the design studio's
+  `design-systems/`. Layered: defaults → motion-system → brand.
+- `design-systems/`, `iconography/`, `brand-voice/` — **reused** from the design
+  studio's resource model (colour/type tokens, icon sets, script tone).
+- `archetypes/` — scene templates per visualisation type (explainer, infographic,
+  flow, timeline, presenter).
+
+## Data root (outside the repo)
+
+```
+~/context/studios/brand/<slug>/    # shared brand store (studios-level)
+~/context/studios/twin/<slug>/     # digital-twin: portrait/clip, voice ref, presenter.yaml (consent)
+~/context/studios/motion/<slug>/outputs/<session>/
+  inputs/                 # source content/data; cached provider clips
+  storyboard.json         # the spec
+  script/                 # VO text + captions (SRT/VTT)
+  outputs/                # <stem>.vX.Y.Z.mp4 / .webm / .html / .lottie.json (semver)
+  qa/v<version>/          # keyframe PNGs, contact-sheet, findings.md
+  version.json            # { brand, twin?, session, format, source_filename, created, current, history[] }
+```
+
+Docket support via `$STUDIOS_DOCKET_ROOT` (+ `$STUDIOS_DOCKET_SESSION`), mirroring
+the design studio.
+
+## Build sequence (each slice shippable + eyes-on-pixels verified)
+
+- **S0** ✅ scaffold: plugin.json, `studio.yaml`, `studios.yml` entry, package
+  skeleton, `doctor`/`info`, Brewfile, skill stubs, ADR-002.
+- **S1** storyboard schema + validator + token / motion-system resolution.
+- **S2** Remotion → `explainer-mp4` + embeddable HTML preview; `produce`; QA
+  keyframes. ← **first renderable slice**
+- **S3** declarative SVG/HTML + **Lottie** export.
+- **S3.5** digital-twin presenter: D-ID adapter + ElevenLabs TTS + `twin` entity
+  + consent gate + `presenter` layer + compositing → `pitch-mp4`.
+- **S4** animated infographic + chart animation (leans on the design chart
+  engine).
+- **S5** flow / timeline archetypes; captions; optional more TTS voices.
+- **S6** creative-director routing + chaining (embed an explainer in design-studio
+  HTML; animate a deck section).
+- **Modes 2/3** the same skills run server-side; the Brewfile + provider env are
+  the server-image contract.
+
+## Verification bar
+
+Eyes-on-pixels extends to motion: render → extract keyframes / contact sheet →
+look. Check timing, legibility at target size, brand-token usage, and caption
+sync. Plus deterministic ruleset checks (duration, aspect, fps) like the design
+studio's `max_pages`.
+
+## Conventions
+
+- Keep all judgment in skills and all mechanics in `scripts/motion/` — this is
+  what makes the studio behave identically across invocation modes.
+- The `storyboard.json` is the only source of truth for a render; never hand-edit
+  generated outputs.
+- Brand / design-system tokens are **reused** from the design studio's layer —
+  never re-declared here.
+- Provider keys come from the environment, never the docket. No avatar render
+  without a consent-recorded twin.
+- One brand × one format slug per session, locked at session init.
