@@ -133,14 +133,17 @@ def storyboard_board(path: Path, out: Path | None, png: bool) -> None:
 @click.option("--engine", default="auto",
               type=click.Choice(["auto", "declarative", "remotion"]))
 @click.option("--video/--no-video", default=True, help="record MP4 (needs capture extra + ffmpeg)")
-def produce_cmd(path: Path, out: Path | None, engine: str, video: bool) -> None:
-    """Render a storyboard → animated HTML preview (+ MP4)."""
+@click.option("--lottie", is_flag=True, default=False, help="also emit a Lottie JSON (embeddable vector)")
+def produce_cmd(path: Path, out: Path | None, engine: str, video: bool, lottie: bool) -> None:
+    """Render a storyboard → animated HTML preview (+ MP4 and/or Lottie)."""
     try:
-        outputs = produce_mod.produce(path, out, engine=engine, make_video=video)
+        outputs = produce_mod.produce(
+            path, out, engine=engine, make_video=video, make_lottie=lottie
+        )
     except (ValueError, RuntimeError) as e:
         raise click.ClickException(str(e)) from e
     for fmt, p in outputs.items():
-        click.echo(f"  ✓ {fmt:<5} {p}")
+        click.echo(f"  ✓ {fmt:<6} {p}")
 
 
 # ---------------------------------------------------------------- twin

@@ -20,8 +20,11 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import json
+
 from . import TEMPLATES, animate
 from . import capture as capture_mod
+from . import lottie as lottie_mod
 from . import storyboard as storyboard_mod
 from . import tokens as tokens_mod
 
@@ -87,6 +90,7 @@ def produce(
     out_dir: Path | None = None,
     engine: str = "auto",
     make_video: bool = True,
+    make_lottie: bool = False,
 ) -> dict[str, Path]:
     """Render ``spec_path`` to outputs. Returns ``{export: path}``."""
     spec = storyboard_mod.load(spec_path)
@@ -103,6 +107,12 @@ def produce(
     html_path = out_dir / f"{stem}.html"
     html_path.write_text(animate.render_html(spec, tok), encoding="utf-8")
     outputs["html"] = html_path
+
+    # Lottie: the embeddable vector export (independent of the video engine).
+    if make_lottie:
+        lottie_path = out_dir / f"{stem}.lottie.json"
+        lottie_path.write_text(json.dumps(lottie_mod.render(spec, tok)), encoding="utf-8")
+        outputs["lottie"] = lottie_path
 
     if not make_video:
         return outputs
