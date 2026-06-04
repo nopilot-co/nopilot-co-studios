@@ -116,6 +116,28 @@ th, td { border-bottom: 0.5px solid var(--ds-color-secondary); padding: 0.5rem 0
  * Scoped to `main` so the TOC sidebar is never touched. Parity: components.typ.
  * ======================================================================== */
 
+/* Cover (#38): a light banner with a bold tertiary accent band — the "coloured
+ * block" — keeping logo + title legible regardless of logo ink. Mirrors the
+ * Typst cover page. Injected before the body when the doc has a leading H1. */
+.ds-cover {
+  border-top: 10px solid var(--ds-color-tertiary);
+  padding: 2rem 0 2.5rem; margin: 0 0 var(--ds-space-lg);
+  border-bottom: 0.5px solid var(--ds-color-secondary);
+}
+.ds-cover .ds-cover-logo { height: 44px; width: auto; display: block; margin-bottom: 2.5rem; }
+.ds-cover .ds-cover-title {
+  color: var(--ds-color-primary); font-size: 2.6rem; line-height: 1.12;
+  margin: 0; padding: 0; border: none; display: block; font-weight: 700;
+}
+.ds-cover .ds-cover-rule {
+  width: 3.5rem; height: 3px; background: var(--ds-color-tertiary);
+  margin: 1rem 0; border-radius: 2px;
+}
+.ds-cover .ds-cover-standfirst {
+  color: var(--ds-color-secondary); font-size: 1.2rem; line-height: 1.5;
+  margin: 0; max-width: 36em;
+}
+
 /* Running document header (logo + accent hairline), injected before the body. */
 .ds-doc-header {
   display: flex; align-items: center; justify-content: space-between;

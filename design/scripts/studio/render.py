@@ -16,6 +16,7 @@ import re
 import shutil
 import subprocess
 import sys
+from html import escape as _html_escape
 from pathlib import Path
 
 import yaml
@@ -54,6 +55,48 @@ def _strip_version_label(stem: str) -> str:
     """Remove a trailing -v<semver> label so the render version isn't compounded
     onto a content filename that already carries one (e.g. foo-v1.0.0 -> foo)."""
     return _VER_LABEL_RE.sub("", stem)
+
+
+_H1_RE = re.compile(r"^#\s+(\S.*)$")
+_PRECIS_OPEN_RE = re.compile(r"^:::+\s*\{?\.?(?:precis|lead)\b")
+_FENCE_CLOSE_RE = re.compile(r"^:::+\s*$")
+
+
+def _typst_str(value: str) -> str:
+    """A Typst double-quoted string literal (escape backslash + quote)."""
+    return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def _extract_cover(body: str) -> tuple[str | None, str | None, str]:
+    """Lift the document's leading title block onto a cover (#38).
+
+    Returns ``(title, standfirst, body_without_cover)``:
+    - ``title`` — text of the first level-1 heading (``# ...``); ``None`` (and an
+      unchanged body) if the document has no leading H1.
+    - ``standfirst`` — the inner text of a ``::: precis`` / ``::: lead`` block
+      that immediately follows the H1, if present.
+    Both are removed from the returned body so the cover content isn't repeated;
+    section headings (H2) then lead the running text.
+    """
+    lines = body.split("\n")
+    h1 = next((i for i, ln in enumerate(lines) if _H1_RE.match(ln)), None)
+    if h1 is None:
+        return None, None, body
+    title = _H1_RE.match(lines[h1]).group(1).strip()
+    del lines[h1]
+    j = h1
+    while j < len(lines) and not lines[j].strip():
+        j += 1
+    standfirst: str | None = None
+    if j < len(lines) and _PRECIS_OPEN_RE.match(lines[j]):
+        k = j + 1
+        inner: list[str] = []
+        while k < len(lines) and not _FENCE_CLOSE_RE.match(lines[k]):
+            inner.append(lines[k].strip())
+            k += 1
+        standfirst = " ".join(s for s in inner if s) or None
+        del lines[j : k + 1]  # drop the precis block incl. its closing fence
+    return title, standfirst, "\n".join(lines)
 
 
 def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
@@ -124,6 +167,10 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
     body = diagrams_mod.expand(body, sfmt, tok)
     # Charts write a brand-styled SVG into the render dir and reference it (#20).
     body = charts_mod.expand(body, sfmt, tok, tmp)
+    # Lift the leading title block onto a cover (#38): the first H1 becomes the
+    # cover title and an immediately-following precis/lead becomes the standfirst,
+    # both removed from the body so they aren't repeated.
+    cover_title, cover_standfirst, body = _extract_cover(body)
     (tmp / "source.md").write_text(body, encoding="utf-8")
     shutil.copy2(brand_yml, tmp / "_brand.yml")
 
@@ -161,13 +208,32 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
         components_mod.typ_tokens(tok) + (comp_dir / "components.typ").read_text()
     )
     logo_arg = f'"/{header_logo}"' if header_logo else "none"
-    typst_preamble += f"#show: doc_chrome.with(logo: {logo_arg})\n"
+    chrome_args = [f"logo: {logo_arg}"]
+    if cover_title:
+        chrome_args.append(f"title: {_typst_str(cover_title)}")
+    if cover_standfirst:
+        chrome_args.append(f"standfirst: {_typst_str(cover_standfirst)}")
+    typst_preamble += f"#show: doc_chrome.with({', '.join(chrome_args)})\n"
 
-    # HTML gets the same logo identity via a before-body header partial (issue
-    # #38 — the logo previously appeared on PDF only). embed-resources inlines
-    # the referenced asset at render, so the deliverable stays self-contained.
+    # HTML gets the same identity before the body (issue #38 — the logo
+    # previously appeared on PDF only). A leading H1 becomes a full cover banner;
+    # otherwise just the logo header. embed-resources inlines the referenced
+    # asset at render, so the deliverable stays self-contained.
     html_header = None
-    if header_logo:
+    if cover_title:
+        parts = ['<section class="ds-cover">']
+        if header_logo:
+            parts.append(f'<img class="ds-cover-logo" src="{header_logo}" alt="">')
+        parts.append(f'<h1 class="ds-cover-title">{_html_escape(cover_title)}</h1>')
+        parts.append('<div class="ds-cover-rule"></div>')
+        if cover_standfirst:
+            parts.append(
+                f'<p class="ds-cover-standfirst">{_html_escape(cover_standfirst)}</p>'
+            )
+        parts.append("</section>\n")
+        (tmp / "_cover.html").write_text("".join(parts), encoding="utf-8")
+        html_header = "_cover.html"
+    elif header_logo:
         (tmp / "_doc_header.html").write_text(
             '<header class="ds-doc-header">'
             f'<img src="{header_logo}" alt="">'

@@ -153,8 +153,39 @@
 // a comfortable measure + leading so body copy stops crowding, and brand-spent
 // headings (H1 title rule, H2 accent tab). Parity with the CSS in components.css.
 // `logo` is a project-root path string (e.g. "/assets/logo.svg") or none.
-#let doc_chrome(logo: none, doc) = {
+// `title` / `standfirst` (strings or none) render a full-page cover up front.
+#let doc_chrome(logo: none, title: none, standfirst: none, doc) = {
   set par(leading: 0.72em, spacing: 1.05em)
+
+  // Cover page (#38): a light field with a bold tertiary accent band — the
+  // "coloured block" — so the logo and title stay legible whatever the brand
+  // logo's ink (a full coloured field would hide a dark wordmark). Its own
+  // page, no running header/footer.
+  if title != none {
+    page(
+      fill: ds.color.background, margin: 0pt,
+      background: none, header: none, footer: none,
+    )[
+      #block(width: 100%, height: 0.4in, fill: ds.color.tertiary)
+      #block(
+        width: 100%,
+        inset: (left: 1.25in, right: 1.25in, top: 1.1in, bottom: 1.25in),
+      )[
+        #if logo != none { box(image(logo, height: 0.55in)) }
+        #v(2.2in)
+        #text(size: 2.8em, weight: "bold", fill: ds.color.primary)[#title]
+        #v(0.4em)
+        #box(width: 2.6in, height: 3pt, fill: ds.color.tertiary)
+        #if standfirst != none {
+          v(0.85em)
+          block(width: 82%)[
+            #text(size: 1.2em, fill: ds.color.secondary)[#standfirst]
+          ]
+        }
+      ]
+    ]
+  }
+
   set page(
     margin: (x: 1.25in, top: 1.1in, bottom: 1in),
     // Clear Quarto's auto brand-logo page background (a 1.5in top-left overlay
