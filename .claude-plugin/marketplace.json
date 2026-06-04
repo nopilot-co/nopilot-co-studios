@@ -40,20 +40,28 @@
       "tags": ["summarise", "position", "arguments", "comments", "thought-leadership", "evidence-base", "stub"]
     },
     {
+      "name": "theme-propose",
+      "source": "./theme-propose",
+      "version": "0.0.1",
+      "description": "STUB. Non-destructive theme-framework proposal + governing theme manifest. Digests the summarised sources, materialises a model-proposed framework (theme-proposal.md/.json) for the user to agree priorities + an editorial approach per theme, and freezes it into theme-manifest.json that governs all later theme-cluster/theme-entity runs. Never edits source files. Standalone CLI: theme-propose.",
+      "category": "utilities",
+      "tags": ["theme", "propose", "framework", "manifest", "editorial", "categorisation", "evidence-base", "stub"]
+    },
+    {
       "name": "theme-cluster",
       "source": "./theme-cluster",
-      "version": "0.0.1",
-      "description": "STUB. Group sources in a notion-sources batch into themes (consistent core discussion threads) — produces themes.json and optionally tags source front matter. Mechanical CLI + model-supplied assignment JSON. Standalone CLI: theme-cluster.",
+      "version": "0.0.2",
+      "description": "STUB. Group sources in a notion-sources batch into themes (consistent core discussion threads), honouring the agreed theme-manifest.json from theme-propose — produces themes.json and optionally tags source front matter. Mechanical CLI + model-supplied assignment JSON. Standalone CLI: theme-cluster.",
       "category": "utilities",
-      "tags": ["theme", "cluster", "grouping", "discussion-thread", "evidence-base", "thought-leadership", "stub"]
+      "tags": ["theme", "cluster", "grouping", "discussion-thread", "manifest", "evidence-base", "thought-leadership", "stub"]
     },
     {
       "name": "theme-entity",
       "source": "./theme-entity",
-      "version": "0.0.1",
-      "description": "STUB. Build a theme entity doc per theme — summary, precis, notable contributions, key disagreements, comment-reaction assessment, and backlinks to contributing sources grouped by author and timeline. Mechanical CLI + model-supplied synthesis JSON. Standalone CLI: theme-entity.",
+      "version": "0.0.2",
+      "description": "STUB. Build a theme entity doc per theme — summary, precis, notable contributions, key disagreements, comment-reaction assessment, and backlinks to contributing sources grouped by author and timeline — following the editorial approach in theme-manifest.json. Mechanical CLI + model-supplied synthesis JSON. Standalone CLI: theme-entity.",
       "category": "utilities",
-      "tags": ["theme", "entity", "synthesis", "evidence-base", "backlinks", "timeline", "thought-leadership", "stub"]
+      "tags": ["theme", "entity", "synthesis", "manifest", "evidence-base", "backlinks", "timeline", "thought-leadership", "stub"]
     }
   ]
 }

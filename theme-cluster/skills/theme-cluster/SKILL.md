@@ -14,6 +14,11 @@ the pipeline: `source-enrich` → `source-summarise` → **`theme-cluster`** →
 > *semantic* step — deciding which sources belong to the same thread — is the
 > model's job.
 
+> **Honour the manifest.** If `theme-manifest.json` exists in the batch (from
+> `theme-propose`), use its agreed themes, priorities, and `categorisation_guidance`
+> as the governing framework — assign sources to those themes per their
+> `inclusion_criteria` rather than inventing a new set.
+
 ## Procedure
 1. Read the manifest (and ideally the `## Core summary` of each source from
    `source-summarise`) to understand what each source argues.

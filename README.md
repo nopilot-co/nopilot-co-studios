@@ -10,7 +10,8 @@ Each utility is a **self-contained plugin** in its own top-level directory, with
 | **notion-sources** | `notion-sources` | Extract a Notion database into a batch of per-source `.md` files + a manifest. |
 | **source-enrich** | `source-enrich` | Enrich a source batch in place: fetch each source, fill front matter, extract body + assets into an Appendix. |
 | **source-summarise** 🚧 | `source-summarise` | _Stub._ Summarise each source — position, core arguments, comment reaction. |
-| **theme-cluster** 🚧 | `theme-cluster` | _Stub._ Group sources into themes (core discussion threads). |
+| **theme-propose** 🚧 | `theme-propose` | _Stub._ Non-destructive: propose a theme framework, agree priorities + editorial approach, freeze a theme manifest. |
+| **theme-cluster** 🚧 | `theme-cluster` | _Stub._ Group sources into themes (core discussion threads), honouring the manifest. |
 | **theme-entity** 🚧 | `theme-entity` | _Stub._ Build a theme entity: synthesis + sourced backlinks by author & timeline. |
 
 ## Skills
@@ -240,19 +241,24 @@ Exit codes: `0` ran (per-source failures recorded, not fatal) · `2` bad invocat
 
 ### Thematic evidence base 🚧 (stubs)
 
-`source-summarise`, `theme-cluster`, and `theme-entity` are **stubs** that extend
-the pipeline into a **thematic sourced evidence base** for a thought-leadership
-conversation:
+`source-summarise`, `theme-propose`, `theme-cluster`, and `theme-entity` are **stubs**
+that extend the pipeline into a **thematic sourced evidence base** for a
+thought-leadership conversation:
 
 ```
-notion-sources → source-enrich → source-summarise → theme-cluster → theme-entity
+notion-sources → source-enrich → source-summarise → theme-propose → theme-cluster → theme-entity
 ```
 
 - **source-summarise** — per source: a neutral digest, the author's **position**, the
   **core arguments**, and an assessment of the **comment-section reaction**, written
   into front matter + a `## Core summary` section.
+- **theme-propose** — _non-destructive._ Digest the summarised sources, propose a **theme
+  framework**, let the user **agree priorities + an editorial approach per theme**, and
+  freeze it into **`theme-manifest.json`** — the governing categorisation/editorial
+  guidance that all later theme runs read. Never edits source files.
 - **theme-cluster** — group sources into **themes** ("contributions to a consistent core
-  discussion thread") → `themes.json` (+ optional `themes:` tags on each source).
+  discussion thread"), **honouring `theme-manifest.json`** → `themes.json` (+ optional
+  `themes:` tags on each source).
 - **theme-entity** — render a **theme entity** doc per theme: summary, precis, notable
   contributions, key disagreements, comment-reaction assessment, and **backlinks to
   contributing sources grouped by author and by timeline**.
