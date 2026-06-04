@@ -1,0 +1,2 @@
+# source-summarise (STUB) — PyYAML only (read/write per-source .md front matter).
+PyYAML>=6.0
