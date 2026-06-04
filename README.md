@@ -198,9 +198,12 @@ garbage. Blocked sources are escalated **politely** — fetch the rendered HTML 
 your *own logged-in browser* (`connect-chrome`) or Firecrawl and feed it back via
 `--html-file`. It never bypasses authentication.
 
-**Assets.** Inline images + linked documents (pdf/doc/ppt/xls/csv/zip…) download to
-`assets/<slug>/` (size-capped, hash-deduped); the Appendix lists Images / Downloads /
-Catalogued-not-downloaded with local path + source URL + size.
+**Assets.** Inline **content** images + linked documents (pdf/doc/ppt/xls/csv/zip…)
+download to `assets/<slug>/` (size-capped, hash-deduped); the Appendix lists Images /
+Downloads / Catalogued-not-downloaded with local path + source URL + size. Page chrome
+— avatars/profile photos, UI sprites, emoji/icons, tracking pixels, and (on social
+posts) commenter pics — is filtered out, and links that resolve to an HTML page rather
+than a file are catalogued, not saved.
 
 ```bash
 source-enrich --batch ~/context/.../research/sources --limit 5     # trial run
