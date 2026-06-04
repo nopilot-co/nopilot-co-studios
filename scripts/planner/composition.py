@@ -127,9 +127,20 @@ def bump(current: str, kind: str) -> str:
 
 
 # ----------------------------------------------------------------- mutations
-def new(root: Path, *, brand: str, objective: str, fmt: str, session: str) -> dict:
+def new(
+    root: Path,
+    *,
+    brand: str,
+    objective: str,
+    fmt: str,
+    session: str,
+    audience: str | None = None,
+) -> dict:
     """Build and write the initial composition manifest. Idempotent: refuses to
-    clobber an existing one (start a new docket instead)."""
+    clobber an existing one (start a new docket instead).
+
+    ``audience`` optionally binds the composition to a reader model (audience
+    studio slug); sections/briefs/viz then align to that reader's need-state."""
     if exists(root):
         raise ValueError(
             f"composition.json already exists under {root} — "
@@ -141,6 +152,7 @@ def new(root: Path, *, brand: str, objective: str, fmt: str, session: str) -> di
         "objective": objective,
         "brand": brand,
         "format": fmt,
+        "audience": audience,
         "session": session,
         "created": _now(),
         "current": "0.0.0",
@@ -149,7 +161,10 @@ def new(root: Path, *, brand: str, objective: str, fmt: str, session: str) -> di
         "history": [],
     }
     _recompute(data)
-    _log(data, "plan-new", note=f"objective set; format={fmt}; session={session}")
+    note = f"objective set; format={fmt}; session={session}"
+    if audience:
+        note += f"; audience={audience}"
+    _log(data, "plan-new", note=note)
     write(root, data)
     return data
 

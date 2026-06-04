@@ -33,6 +33,10 @@
       "type": "string",
       "description": "Design format slug (<purpose>-<export>, e.g. proposal-pdf) the assembled source is rendered as."
     },
+    "audience": {
+      "type": ["string", "null"],
+      "description": "Optional reader-model slug (audience studio). When set, sections/briefs/viz are aligned to that reader's need-state, not only brand voice. Null = brand-only alignment (default)."
+    },
     "session": {
       "type": "string",
       "description": "The docket production-session that holds inputs/source.md (the assembled doc)."

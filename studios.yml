@@ -42,6 +42,7 @@ orchestrators:
     cli: planner
     summary: Plan + assemble a composite document from several separately-composed sections (proposition, prospectus, proposal, report); hands a merged source.md to design render-asset.
     use_when: a brief asks for a multi-section document rather than a single asset.
+    consumes: { audience: optional } # bind a reader model with --audience <slug> to align sections/briefs/viz
     produces_for: { studio: design, capability: render-asset }
     status: active
 

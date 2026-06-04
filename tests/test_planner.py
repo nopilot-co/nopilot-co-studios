@@ -18,6 +18,8 @@ REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO / "scripts"))
 
 from planner import assemble as asm  # noqa: E402
+from planner import audience_model_path  # noqa: E402
+from planner import brief as brief_mod  # noqa: E402
 from planner import composition as comp  # noqa: E402
 
 failures: list[str] = []
@@ -154,10 +156,88 @@ with tempfile.TemporaryDirectory() as td:
         comp.read(root)["history"][-1]["event"] == "assemble",
     )
 
+# --- reader-model binding (#46) ----------------------------------------------
+with tempfile.TemporaryDirectory() as td:
+    root = Path(td)
+
+    # no reader → audience is null, still valid
+    d0 = comp.new(root, brand="acme", objective="o", fmt="proposal-pdf", session="s0")
+    check("reader: default audience is null", d0["audience"] is None)
+    check(
+        "reader: valid without audience",
+        comp.validate(d0) == [],
+        str(comp.validate(d0)),
+    )
+
+with tempfile.TemporaryDirectory() as td:
+    root = Path(td)
+
+    # a docket-local reader model resolves; bound audience is stored + validates
+    model_dir = root / "audience" / "vp-eng"
+    model_dir.mkdir(parents=True)
+    (model_dir / "_audience.yml").write_text("audience: vp-eng\n")
+    check(
+        "reader: docket-local model resolves",
+        audience_model_path(root, "vp-eng") == model_dir / "_audience.yml",
+    )
+    check(
+        "reader: unknown slug resolves to None",
+        audience_model_path(root, "nobody") is None,
+    )
+
+    d1 = comp.new(
+        root,
+        brand="acme",
+        objective="o",
+        fmt="proposal-pdf",
+        session="s1",
+        audience="vp-eng",
+    )
+    check("reader: audience stored", d1["audience"] == "vp-eng")
+    check(
+        "reader: valid with audience", comp.validate(d1) == [], str(comp.validate(d1))
+    )
+    check(
+        "reader: plan-new note carries audience",
+        "audience=vp-eng" in d1["history"][0]["note"],
+    )
+
+    # brief is reader-aware when bound
+    comp.add_section(root, section_id="exec", title="Exec")
+    bp, _ = brief_mod.write_brief(
+        root,
+        section_id="exec",
+        title="Exec",
+        objective="o",
+        brand="acme",
+        fmt="proposal-pdf",
+        audience="vp-eng",
+        audience_ref=audience_model_path(root, "vp-eng"),
+    )
+    brief_text = bp.read_text()
+    check("reader: brief names the reader", "Reader: `vp-eng`" in brief_text)
+    check(
+        "reader: brief has Reader fit section + model ref",
+        "## Reader fit" in brief_text and "_audience.yml" in brief_text,
+    )
+
+    # brand-only brief falls back cleanly
+    bp2, _ = brief_mod.write_brief(
+        root,
+        section_id="exec",
+        title="Exec",
+        objective="o",
+        brand="acme",
+        fmt="proposal-pdf",
+    )
+    check("reader: brand-only brief notes no reader", "brand-only" in bp2.read_text())
+
 
 if failures:
     print(f"FAIL ({len(failures)})")
     for f in failures:
         print("  -", f)
     sys.exit(1)
-print("PASS: planner (composition CRUD + rollup + ordering + assemble merge)")
+print(
+    "PASS: planner (composition CRUD + rollup + ordering + assemble merge + reader binding)"
+)

@@ -16,6 +16,10 @@ _BRIEF_TEMPLATE = """\
 
 > Discrete brief for one section of: **{objective}**
 > Brand: `{brand}`  ·  Section: `{section_id}`  ·  Target format: `{fmt}`
+> Reader: {reader}
+
+## Reader fit
+_{reader_guidance}_
 
 ## Purpose
 _What this section must achieve for the reader, and how it serves the overall
@@ -43,6 +47,16 @@ _Brand voice notes for this section (see the brand's tone-of-voice)._
 _What "good" looks like for this kind of section._
 """
 
+_READER_GUIDANCE = (
+    "Which of this reader's needs, objections, and decision factors must this "
+    "section satisfy? Read the reader model at {ref} (`_audience.yml`) and name the "
+    "specific need-state items this section is responsible for."
+)
+_NO_READER_GUIDANCE = (
+    "No reader model bound (brand-only alignment). To make this section "
+    "reader-driven, bind one with `planner plan new --audience <slug>`."
+)
+
 _CONTENT_STUB = "<!-- {title} — composed content lands here (status: drafted). -->\n"
 
 
@@ -54,15 +68,30 @@ def write_brief(
     objective: str,
     brand: str,
     fmt: str,
+    audience: str | None = None,
+    audience_ref: Path | None = None,
 ) -> tuple[Path, Path]:
     """Write ``sections/<id>/brief.md`` (always) and ``content.md`` (if absent).
 
     Returns ``(brief_path, content_path)``. The brief is rewritten each call so an
     updated title/objective is reflected; existing composed content is never
-    overwritten.
+    overwritten. When ``audience`` is bound, the brief points the author at the
+    reader model so the section is composed to that reader's need-state.
     """
     sec_dir = root / "sections" / section_id
     sec_dir.mkdir(parents=True, exist_ok=True)
+
+    if audience:
+        ref = (
+            str(audience_ref)
+            if audience_ref
+            else f"~/context/studios/audience/{audience}/"
+        )
+        reader = f"`{audience}`"
+        reader_guidance = _READER_GUIDANCE.format(ref=ref)
+    else:
+        reader = "— (brand-only)"
+        reader_guidance = _NO_READER_GUIDANCE
 
     brief_path = sec_dir / "brief.md"
     brief_path.write_text(
@@ -72,6 +101,8 @@ def write_brief(
             brand=brand,
             section_id=section_id,
             fmt=fmt,
+            reader=reader,
+            reader_guidance=reader_guidance,
         )
     )
 
