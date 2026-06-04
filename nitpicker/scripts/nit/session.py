@@ -14,6 +14,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import CONTEXT_ROOT
+from . import audience as audience_mod
 
 STATUSES = ["draft", "reviewing", "reviewed", "signed-off", "rejected"]
 
@@ -45,6 +46,7 @@ def new(
     brief: str | None = None,
     brand: str | None = None,
     icp: str | None = None,
+    audience: str | None = None,
 ) -> Path:
     root = session_root(name)
     (root / "inputs" / "target").mkdir(parents=True, exist_ok=True)
@@ -59,8 +61,20 @@ def new(
     elif not brief_path.exists():
         brief_path.write_text("<!-- paste the brief this asset must fulfil -->\n")
 
+    # ICP / target-audience profile. A structured reader model (--audience <slug>)
+    # from the audience studio takes precedence: it's projected into icp.md so
+    # audience-fit reads one shared reader model. Else a --icp file, else a stub.
     icp_path = root / "inputs" / "icp.md"
-    if icp:
+    if audience:
+        mpath = audience_mod.model_path(audience)
+        if mpath is None:
+            raise ValueError(
+                f"no reader model '{audience}' (looked in "
+                f"$STUDIOS_DOCKET_ROOT/audience/ and ~/context/studios/audience/) — "
+                "build it with the audience studio (`audience persona new --audience <slug>`)"
+            )
+        icp_path.write_text(audience_mod.render_icp(audience_mod.load(mpath)))
+    elif icp:
         shutil.copy2(Path(icp).expanduser(), icp_path)
     elif not icp_path.exists():
         icp_path.write_text(
@@ -76,6 +90,7 @@ def new(
                     "target": target_ref,
                     "target_kind": target_kind,
                     "brand": brand,
+                    "audience": audience,
                     "status": "draft",
                     "created": datetime.now(timezone.utc).isoformat(),
                     "current": "0.0.0",

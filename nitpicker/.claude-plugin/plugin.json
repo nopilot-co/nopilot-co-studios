@@ -1,6 +1,6 @@
 {
   "name": "nitpicker-studio",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Nitpicker studio: rigorous review of an asset — visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice, and a configurable scored test battery (so-what / yawn / sniff) — producing a weighted verdict.",
   "author": {
     "name": "Julian Tedstone",

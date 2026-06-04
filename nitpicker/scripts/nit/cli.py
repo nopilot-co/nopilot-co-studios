@@ -3,7 +3,7 @@
 Subcommands mirror the skills:
   nit tests list | show --test SLUG | validate --test SLUG
   nit config show [--brand SLUG]
-  nit new --name NAME --target PATH_OR_URL [--brief PATH] [--brand SLUG] [--icp PATH]
+  nit new --name NAME --target PATH_OR_URL [--brief PATH] [--brand SLUG] [--icp PATH | --audience SLUG]
   nit capture --session PATH [--bump patch|minor|major]
   nit score --session PATH [--version X.Y.Z]
   nit aggregate --scores PATH [--tests-from RUBRIC] [--policy PATH]
@@ -109,9 +109,26 @@ def config_show(brand: str | None) -> None:
     type=click.Path(exists=True, path_type=Path),
     help="Markdown ICP / target-audience profile (optional; a stub is scaffolded otherwise)",
 )
+@click.option(
+    "--audience",
+    default=None,
+    help="Reader-model slug from the audience studio. Its structured _audience.yml "
+    "is projected into inputs/icp.md (takes precedence over --icp).",
+)
 def new_cmd(
-    name: str, target: str, brief: Path | None, brand: str | None, icp: Path | None
+    name: str,
+    target: str,
+    brief: Path | None,
+    brand: str | None,
+    icp: Path | None,
+    audience: str | None,
 ) -> None:
+    if audience and icp:
+        click.echo(
+            "  ⚠ both --audience and --icp given; --audience (structured reader "
+            "model) takes precedence — ignoring --icp",
+            err=True,
+        )
     try:
         path = session_mod.new(
             name,
@@ -119,6 +136,7 @@ def new_cmd(
             brief=str(brief) if brief else None,
             brand=brand,
             icp=str(icp) if icp else None,
+            audience=audience,
         )
     except ValueError as e:
         raise click.ClickException(str(e)) from e
@@ -126,7 +144,8 @@ def new_cmd(
     click.echo(str(path))
     click.echo(f"  target: {state['target']}  ({state['target_kind']})")
     click.echo(f"  brief : {path}/inputs/brief.md")
-    click.echo(f"  icp   : {path}/inputs/icp.md")
+    icp_note = f"  (from reader model '{audience}')" if audience else ""
+    click.echo(f"  icp   : {path}/inputs/icp.md{icp_note}")
     click.echo("  next  : nit capture --session <path>, then run the review skills")
 
 

@@ -54,3 +54,7 @@ TESTS = CONFIGS_ROOT / "tests"
 # tone-of-voice overlays the default baseline in configs/default/.
 BRAND_ROOT = Path.home() / "context" / "studios" / "brand"
 DESIGN_CONTEXT = Path.home() / "context" / "studios" / "design"  # legacy location
+
+# Reader models are a studios-level entity too (produced by the audience studio).
+# `nit new --audience <slug>` projects one into the review's inputs/icp.md.
+AUDIENCE_ROOT = Path.home() / "context" / "studios" / "audience"

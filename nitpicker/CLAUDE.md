@@ -21,7 +21,10 @@ target (a rendered file or a live URL) plus the brief it should fulfil, it judge
    playwright / chrome-devtools for live or HTML targets.
 2. **Brief fulfilment** — does the asset actually deliver what the brief asked?
 3. **Audience / ICP fit** — does it land for the target audience
-   (linguistically, in content, in the solution/offering it presents)?
+   (linguistically, in content, in the solution/offering it presents)? Pass
+   `nit new --audience <slug>` to project the audience studio's structured reader
+   model into `inputs/icp.md`, so this review and the audience studio share one
+   reader model (else a freetext `--icp` / stub).
 4. **Tone of voice** — rigorous application of the standardised ToV principles in
    `../configs/default/tone-of-voice.yml`, overlaid by the brand's voice if any.
 5. **The scored test battery** — runs the asset through the configurable,
@@ -71,7 +74,7 @@ nitpicker's.
 ```
 nit tests list | show --test SLUG | validate --test SLUG
 nit config show [--brand SLUG]
-nit new --name NAME --target PATH_OR_URL [--brief PATH] [--brand SLUG] [--icp PATH]
+nit new --name NAME --target PATH_OR_URL [--brief PATH] [--brand SLUG] [--icp PATH | --audience SLUG]
 nit capture --session PATH [--bump patch|minor|major]
 nit score --session PATH [--version X.Y.Z]
 nit status --session PATH [--set draft|reviewing|reviewed|signed-off|rejected]
