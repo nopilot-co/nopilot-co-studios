@@ -11,9 +11,11 @@ Packaged as the Claude Code plugin **`motion-studio`** (`v0.1.0`; manifest at
 `~/.claude/plugins/motion-studio`, creates the workspace root, checks runtime
 deps, and installs the `motion` Python package (editable).
 
-> **Status: S0 — scaffold.** The contract surface (plugin, `studio.yaml`, the
-> `motion` CLI with live `doctor`/`info`, skill stubs) exists; rendering lands in
-> later slices. Build sequence below. Tracked in issue #42; engine decision in
+> **Status: S1.** On top of the S0 scaffold: the storyboard spec — JSON schema +
+> validator, token / motion-system resolution, and a **pictorial board preview**
+> (`motion storyboard board`) so the plan is reviewable *before* anything is
+> produced. Video rendering lands in S2. Build sequence below. Tracked in issue
+> #42; engine decision in
 > [`../docs/architecture/DECISIONS.md`](../docs/architecture/DECISIONS.md)
 > (ADR-002).
 
@@ -46,7 +48,7 @@ Each skill drives its matching `motion` command; the `/motion-studio` command
 |-------|--------|------|
 | `content-review` | (analysis) | read existing content/data; extract the story spine + key beats |
 | `ideate` | (analysis) | propose 2–3 visualisation concepts; pick an archetype + approach |
-| `storyboard` | `motion storyboard validate` | scene-by-scene plan → writes the validated `storyboard.json` |
+| `storyboard` | `motion storyboard validate \| board` | scene-by-scene plan → validated `storyboard.json` + a pictorial board preview |
 | `script` | (analysis) | narration/VO + on-screen copy + caption timing (SRT/VTT) |
 | `produce` | `motion produce` | render the locked format from the storyboard |
 | `visual-qa` | `motion qa capture` | sample keyframes; critique timing/legibility/brand/caption-sync |
@@ -55,17 +57,25 @@ Each skill drives its matching `motion` command; the `/motion-studio` command
 ## Source of truth — `storyboard.json`
 
 A render is driven by one storyboard spec (validated against
-`scripts/motion/schemas/storyboard.schema.json`, lands S1):
+`scripts/motion/schemas/storyboard.schema.json`):
 
 ```
 scenes[] { id, duration, layers[] (text|shape|image|icon|chart|presenter),
-           enter/emphasis/exit motions, transition }
-global   { aspect, fps, brand, motion_system, captions }
+           region, role, enter/emphasis/exit motions, transition }
+global   { brand, title, aspect, fps, motion_system, captions, twin? }
 ```
 
 One spec → many exports (the studios invariant). Brand colour/type come from the
 shared `_brand.yml` via the design studio's token layer (reused, never copied);
 motion tokens (easing, durations, transitions) come from a locked motion-system.
+
+**Preview before producing.** `motion storyboard board --file <spec>` renders the
+spec to a **pictorial board** (self-contained HTML + a PNG via Playwright) — one
+panel per scene with the layer layout in a target-aspect mini-frame, the
+narration, the motion notes, and timing, all in the brand's colours. It's the
+cheap, no-engine "see it before it's built" step; the eyes-on-pixels bar, applied
+to the plan. An optional **concept-frame provider** (image-gen — see ADR-002 /
+the providers seam) can later replace each wireframe panel with an AI still.
 
 ## Engine (ADR-002)
 
@@ -123,7 +133,8 @@ the design studio.
 
 - **S0** ✅ scaffold: plugin.json, `studio.yaml`, `studios.yml` entry, package
   skeleton, `doctor`/`info`, Brewfile, skill stubs, ADR-002.
-- **S1** storyboard schema + validator + token / motion-system resolution.
+- **S1** ✅ storyboard schema + validator + token / motion-system resolution +
+  **pictorial board preview** (`motion storyboard board`).
 - **S2** Remotion → `explainer-mp4` + embeddable HTML preview; `produce`; QA
   keyframes. ← **first renderable slice**
 - **S3** declarative SVG/HTML + **Lottie** export.
