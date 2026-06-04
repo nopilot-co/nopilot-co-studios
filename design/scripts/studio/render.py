@@ -149,20 +149,32 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
     shutil.copy2(comp_dir / "components.lua", tmp / "components.lua")
 
     # Typst preamble: the token dict (#let ds) + component functions (#let c_*),
-    # plus the capped header logo (issue #2). It MUST be injected via the template's
-    # include-before-body TEXT so the bindings land in the body's top-level scope —
-    # a file include / include-in-header gets wrapped in a #block that scopes the
-    # #let definitions away, so the Lua-injected `#c_<class>[ ... ]` calls can't see
-    # them (found via spike). HTML/PPTX ignore the typst-only template branch.
+    # then the document-chrome wrapper (issue #38). It MUST be injected via the
+    # template's include-before-body TEXT so the bindings land in the body's
+    # top-level scope — a file include / include-in-header gets wrapped in a
+    # #block that scopes the #let definitions away, so the Lua-injected
+    # `#c_<class>[ ... ]` calls can't see them (found via spike). `#show:
+    # doc_chrome` then wraps the whole body for running header/footer, measure,
+    # and brand-spent headings. HTML/PPTX ignore the typst-only template branch.
     header_logo = _brand_logo_path(brand_yml)
     typst_preamble = (
         components_mod.typ_tokens(tok) + (comp_dir / "components.typ").read_text()
     )
+    logo_arg = f'"/{header_logo}"' if header_logo else "none"
+    typst_preamble += f"#show: doc_chrome.with(logo: {logo_arg})\n"
+
+    # HTML gets the same logo identity via a before-body header partial (issue
+    # #38 — the logo previously appeared on PDF only). embed-resources inlines
+    # the referenced asset at render, so the deliverable stays self-contained.
+    html_header = None
     if header_logo:
-        typst_preamble += (
-            "#set page(background: align(left + top, "
-            f'box(inset: 0.4in, image("/{header_logo}", height: 0.4in))))\n'
+        (tmp / "_doc_header.html").write_text(
+            '<header class="ds-doc-header">'
+            f'<img src="{header_logo}" alt="">'
+            "</header>\n",
+            encoding="utf-8",
         )
+        html_header = "_doc_header.html"
 
     quarto_tpl = (TEMPLATES / "quarto" / "quarto.yml.j2").read_text()
     quarto_yml = Template(quarto_tpl).render(
@@ -171,6 +183,7 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
         has_pptx_reference=pptx_ref.exists(),
         css_override=(brand_root / "css" / "overrides.css").exists(),
         typst_preamble=typst_preamble,
+        html_header=html_header,
     )
     (tmp / "_quarto.yml").write_text(quarto_yml)
 
