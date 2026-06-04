@@ -66,6 +66,15 @@ CLI from a server, or server-side. You never reimplement a studio's logic.
 - Match jobs to studios by **capability id**, not by name — that's what keeps new
   studios pluggable. A studio is routable the moment it appears in `studios.yml`
   with a manifest; nothing here hard-codes the studio list.
+- **Composite (multi-section) documents** — when a brief asks for a document made
+  of several parts that are composed separately (a proposition, prospectus,
+  proposal, or report), don't draft it inline. Invoke the **`planner`**
+  orchestration skill first (see `studios.yml → orchestrators`): it scaffolds the
+  sections over a production docket, tracks completion, and assembles a merged
+  `source.md`. Then route that `source.md` to the studio offering `render-asset`
+  (design) for the branded final — exactly the "draft the content first, then hand
+  it in" flow of step 4, but for documents with parts. `planner` plans and
+  assembles; it never renders.
 - If no active studio offers a needed capability, say so plainly and propose the
   closest alternative or a manual step. Never silently drop part of the brief.
 - One studio per capability per job. If the brief needs the same asset in two

@@ -66,6 +66,29 @@ done
 # ---------------------------------------------------------------- 2. python CLIs
 echo
 echo "Studio Python CLIs (the skills call these — install for full functionality):"
+
+# The root `planner` CLI (composite-document planning) ships with the root
+# `studios` plugin itself — no sub-install.sh — so install it here (editable).
+PY=""
+for cand in python3.13 python3.12 python3.11 python3.10 python3; do
+  if command -v "$cand" > /dev/null 2>&1; then
+    ver="$($cand -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")' 2> /dev/null)"
+    if [ -n "$ver" ] && [ "$(printf '%s\n3.10\n' "$ver" | sort -V | head -1)" = "3.10" ]; then
+      PY="$cand"
+      break
+    fi
+  fi
+done
+if [ -n "$PY" ]; then
+  if "$PY" -m pip install --user -e "$ROOT" > /dev/null 2>&1; then
+    echo "  ✓ planner CLI installed (root composite-document planner)"
+  else
+    echo "  ✗ planner CLI install failed — retry: $PY -m pip install --user -e $ROOT"
+  fi
+else
+  echo "  ✗ planner CLI skipped — no Python ≥ 3.10 found"
+fi
+
 if [ -f "$ROOT/design/install.sh" ]; then
   if [ -x "$ROOT/design/.venv/bin/studio" ]; then
     echo "  ✓ studio CLI present (design/.venv/bin/studio)"

@@ -25,6 +25,19 @@ studios:
     capabilities: [review-asset, run-tests]
     status: active
 
+# Root orchestration skills the creative-director invokes directly — NOT maker
+# studios (they make nothing on their own). These sequence work before routing to
+# a studio's capability. The director reaches them by skill name; they are listed
+# here for discovery, separate from the capability-routed `studios:` above.
+orchestrators:
+  - slug: planner
+    skill: planner
+    cli: planner
+    summary: Plan + assemble a composite document from several separately-composed sections (proposition, prospectus, proposal, report); hands a merged source.md to design render-asset.
+    use_when: a brief asks for a multi-section document rather than a single asset.
+    produces_for: { studio: design, capability: render-asset }
+    status: active
+
 # External services the creative-director is the single point of contact for.
 # The director publishes/notifies through these; studios stay local and pure.
 # Each maps to an available MCP server; integrate only when authenticated.
