@@ -59,6 +59,12 @@ DOC_EXT = {"pdf", "doc", "docx", "ppt", "pptx", "xls", "xlsx", "csv", "tsv",
            "zip", "rtf", "odt", "ods", "odp", "epub", "key", "pages", "numbers",
            "txt", "json", "md"}
 IMG_RE = re.compile(r"!\[[^\]]*\]\(([^)\s]+)")
+# image URLs that are page chrome, not article content — avatars, UI sprites,
+# emoji/icons, tracking pixels, and (for social posts) commenter/reactor pics
+ASSET_DENY = re.compile(
+    r"(profile-display|/aero-v1/sc/h/|static\.licdn\.com/sc/|comment-image|"
+    r"company-logo|/sprite|/emoji|emojicategory|/icons?/|favicon|"
+    r"\b1x1\b|/pixel|/beacon|tracking|spacer|ghost-)", re.I)
 
 
 def build_ssl_context():
@@ -215,6 +221,8 @@ def collect_assets(html, body_md, base_url, mode):
     if mode != "none":
         for u in IMG_RE.findall(body_md or ""):
             add(images, u)
+    # drop page-chrome images (avatars, sprites, icons, tracking, comment pics)
+    images = [u for u in images if not ASSET_DENY.search(u)]
     if mode == "none":
         images = []
     if mode == "images":
@@ -470,6 +478,9 @@ def process(entry, batch_dir, html_override, md_override, opts, hashes, log):
         imgs, docs = collect_assets(html, md, url, opts.assets)
         imgs, docs = imgs[:opts.max_assets], docs[:opts.max_assets]
         assets_dir = os.path.join(batch_dir, "assets", slug)
+        # regenerate cleanly — clear any prior (possibly stale) assets for this slug
+        import shutil
+        shutil.rmtree(assets_dir, ignore_errors=True)
         cap = int(opts.max_asset_mb * 1024 * 1024)
         si, ci = download_assets(imgs, assets_dir, cap, opts.timeout, url, opts.delay, hashes, log)
         sd, cd = download_assets(docs, assets_dir, cap, opts.timeout, url, opts.delay, hashes, log)
