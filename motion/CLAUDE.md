@@ -11,14 +11,14 @@ Packaged as the Claude Code plugin **`motion-studio`** (`v0.1.0`; manifest at
 `~/.claude/plugins/motion-studio`, creates the workspace root, checks runtime
 deps, and installs the `motion` Python package (editable).
 
-> **Status: S2.** On top of S0 (scaffold) + S1 (storyboard spec, tokens, board
-> preview): the first **moving output**. `motion produce` renders a storyboard to
-> an animated, brand-tokenised HTML (the embeddable preview) and records it to an
-> **H.264 MP4** via Playwright + ffmpeg (the declarative path, ADR-002); `motion
-> qa capture` pulls one keyframe per scene + a contact sheet. Remotion is the
-> optional high-fidelity engine — scaffolded under `templates/remotion/`, not yet
-> wired. Build sequence below. Tracked in issue #42; engine decision in
-> [`../docs/architecture/DECISIONS.md`](../docs/architecture/DECISIONS.md)
+> **Status: S3.** Both render engines are now live for the *same* storyboard
+> (ADR-002): the **declarative** path (animated HTML → MP4 via Playwright+ffmpeg,
+> default, no Node) and the **Remotion** high-fidelity path
+> (`motion produce --engine remotion` — React/Node project under
+> `templates/remotion/`; node_modules installed on first use and cached). `motion
+> qa capture` pulls a keyframe per scene + a contact sheet. (Lottie export is the
+> remaining S3 item — see build sequence.) Tracked in issue #42; engine decision
+> in [`../docs/architecture/DECISIONS.md`](../docs/architecture/DECISIONS.md)
 > (ADR-002).
 
 ## What it does
@@ -87,10 +87,13 @@ Hybrid, declared per export and detected by `motion doctor`:
   Playwright + **ffmpeg** (`capture.html_to_video`). **Wired (S2)** — needs no
   node, only what `motion doctor` finds. Also the embeddable preview and the
   source for QA keyframes. Lottie export lands S3.
-- **Remotion** (React/Node, via `npx`) → MP4/WebM for high-fidelity explainers +
-  animated infographics. **Scaffolded** (`templates/remotion/`), selected via
-  `--engine remotion` once the toolchain is detected; `--engine auto` falls back
-  to declarative.
+- **Remotion** (React/Node, via `npx`) → MP4 for high-fidelity explainers +
+  animated infographics. **Wired (S3)** — `motion produce --engine remotion`
+  renders the project under `templates/remotion/` (the `<Storyboard>` composition
+  reads `{spec, tokens}` as inputProps; layer/region/role semantics kept in sync
+  with `animate.py`). `node_modules` installs on first use and caches there
+  (gitignored). `--engine auto` keeps the declarative default; ask for `remotion`
+  explicitly. Needs `node` (`motion doctor`).
 - **Playwright capture** → frames → **ffmpeg** — also encodes GIF and extracts QA
   keyframes (`qa.py`).
 - **Providers** (render-time external services, swappable adapter, keyed via env,
@@ -145,8 +148,8 @@ the design studio.
   (declarative path); `qa capture` → keyframes + contact sheet. Remotion path
   scaffolded behind detection. (Reordered from the original "Remotion →
   explainer-mp4" so the no-Node path ships first; ADR-002.)
-- **S3** Remotion high-fidelity engine (wire `templates/remotion/`) + **Lottie**
-  export.
+- **S3** ✅ Remotion high-fidelity engine wired (`templates/remotion/`,
+  `--engine remotion`). **Lottie** export still outstanding (next).
 - **S3.5** digital-twin presenter: D-ID adapter + ElevenLabs TTS + `twin` entity
   + consent gate + `presenter` layer + compositing → `pitch-mp4`.
 - **S4** animated infographic + chart animation (leans on the design chart
