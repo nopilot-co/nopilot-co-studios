@@ -4,6 +4,55 @@ ADRs for nopilot-co-utilities. Newest first.
 
 ---
 
+## ADR-003 — `theme-propose` and the governing theme manifest
+
+- **Date:** 2026-06-04
+- **Status:** Accepted (stub)
+- **Issue:** [#11](https://github.com/nopilot-co/nopilot-co-utilities/issues/11)
+- **Extends:** ADR-002
+
+### Context
+
+Clustering straight from summaries (ADR-002) lets each `theme-cluster` run invent
+its own themes — categorisation and editorial voice can drift between runs, and
+the user has no point at which to set direction before the framework is fixed.
+
+### Decision
+
+Insert a **`theme-propose`** step before `theme-cluster`:
+
+```
+… → source-summarise → theme-propose → theme-cluster → theme-entity
+```
+
+1. **Non-destructive scan.** `theme-propose` only reads sources and writes
+   proposal/manifest files — it never edits source `.md`. It builds
+   `theme-context.json` (a digest of every summarised source: n, title, author,
+   date, position, summary).
+2. **Propose → agree.** The model proposes a theme framework (themes as coherent
+   discussion threads, with priorities, per-theme editorial approach, inclusion
+   criteria) from the digest. The CLI materialises it as `theme-proposal.json`
+   plus a human-editable `theme-proposal.md`. The user agrees priorities and the
+   editorial approach.
+3. **Freeze the manifest.** `--adopt` writes **`theme-manifest.json`** — the
+   single governing artifact: `editorial` (overall voice/purpose/audience),
+   `categorisation_guidance`, ordered `priorities`, and per-theme
+   `editorial_approach` + `inclusion_criteria`.
+4. **Manifest governs downstream.** `theme-cluster` assigns sources to the
+   manifest's themes per their inclusion criteria (rather than inventing a set);
+   `theme-entity` writes each dossier to the theme's agreed editorial approach.
+   `theme-cluster`/`theme-entity` bumped to `0.0.2` to record this dependency.
+
+### Consequences
+
+- One agreed framework drives every later run → consistent categorisation and
+  editorial voice; re-runs are reproducible against the frozen manifest.
+- A clear human-in-the-loop gate (agree the framework) before any theming work.
+- Same mechanical-CLI + model-supplied-JSON split as ADR-002, with an added
+  adopt/freeze step. Stub, `0.0.1`.
+
+---
+
 ## ADR-002 — Thematic evidence-base pipeline (`source-summarise`, `theme-cluster`, `theme-entity`)
 
 - **Date:** 2026-06-04

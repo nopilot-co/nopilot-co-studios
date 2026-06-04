@@ -16,6 +16,10 @@ See ADR-002.
 > disagreements, comment-reaction assessment) are the model's job, supplied via
 > `--spec`; without it they render as `_TODO_` placeholders.
 
+> **Follow the manifest.** If `theme-manifest.json` exists (from `theme-propose`),
+> write each theme's `--spec` in line with that theme's agreed `editorial_approach`
+> and the overall `editorial` voice — so the dossiers match the agreed framework.
+
 ## Procedure
 1. Ensure `theme-cluster` produced `themes.json` in the batch.
 2. Build the scaffolds (safe to run first to see structure + TODOs):

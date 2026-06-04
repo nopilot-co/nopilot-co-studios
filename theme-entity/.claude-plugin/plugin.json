@@ -1,6 +1,6 @@
 {
   "name": "theme-entity",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "STUB. Build a theme entity document per theme — the thematic sourced evidence base. Renders themes/<slug>.md with summary, precis, notable contributions, key disagreements, an assessment of the comment reaction, and backlinks to contributing sources grouped by author and by timeline. Mechanical CLI (assembles backlinks/author/timeline from the manifest) + model-supplied synthesis JSON. Standalone CLI: theme-entity.",
   "author": { "name": "Julian Tedstone", "email": "ted@nopilot.co" },
   "homepage": "https://github.com/nopilot-co/nopilot-co-utilities/tree/main/theme-entity",
