@@ -30,6 +30,30 @@
       "description": "Enrich a notion-sources batch in place: fetch each source, fully populate its front matter, extract the article body to Markdown, download attached assets (inline images + linked documents) into assets/<slug>/, and append an Appendix. Tiered fetch (Python engine + youtube-transcript + an --html-file escalation path for auth-walled sources like LinkedIn). Resumable. Standalone CLI: source-enrich.",
       "category": "utilities",
       "tags": ["enrich", "scrape", "extract", "article", "readability", "frontmatter", "assets", "appendix", "ingest", "batch"]
+    },
+    {
+      "name": "source-summarise",
+      "source": "./source-summarise",
+      "version": "0.0.1",
+      "description": "STUB. Summarise each source in an enriched notion-sources batch — neutral digest, overall position, core arguments, and assessment of the comment-section reaction — into front matter + a Core summary section. Mechanical CLI + model-supplied JSON. Standalone CLI: source-summarise.",
+      "category": "utilities",
+      "tags": ["summarise", "position", "arguments", "comments", "thought-leadership", "evidence-base", "stub"]
+    },
+    {
+      "name": "theme-cluster",
+      "source": "./theme-cluster",
+      "version": "0.0.1",
+      "description": "STUB. Group sources in a notion-sources batch into themes (consistent core discussion threads) — produces themes.json and optionally tags source front matter. Mechanical CLI + model-supplied assignment JSON. Standalone CLI: theme-cluster.",
+      "category": "utilities",
+      "tags": ["theme", "cluster", "grouping", "discussion-thread", "evidence-base", "thought-leadership", "stub"]
+    },
+    {
+      "name": "theme-entity",
+      "source": "./theme-entity",
+      "version": "0.0.1",
+      "description": "STUB. Build a theme entity doc per theme — summary, precis, notable contributions, key disagreements, comment-reaction assessment, and backlinks to contributing sources grouped by author and timeline. Mechanical CLI + model-supplied synthesis JSON. Standalone CLI: theme-entity.",
+      "category": "utilities",
+      "tags": ["theme", "entity", "synthesis", "evidence-base", "backlinks", "timeline", "thought-leadership", "stub"]
     }
   ]
 }

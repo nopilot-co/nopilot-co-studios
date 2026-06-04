@@ -9,6 +9,9 @@ Each utility is a **self-contained plugin** in its own top-level directory, with
 | **youtube-transcript** | `yt-transcript` | Extract a YouTube video's transcript to a `.txt`. |
 | **notion-sources** | `notion-sources` | Extract a Notion database into a batch of per-source `.md` files + a manifest. |
 | **source-enrich** | `source-enrich` | Enrich a source batch in place: fetch each source, fill front matter, extract body + assets into an Appendix. |
+| **source-summarise** 🚧 | `source-summarise` | _Stub._ Summarise each source — position, core arguments, comment reaction. |
+| **theme-cluster** 🚧 | `theme-cluster` | _Stub._ Group sources into themes (core discussion threads). |
+| **theme-entity** 🚧 | `theme-entity` | _Stub._ Build a theme entity: synthesis + sourced backlinks by author & timeline. |
 
 ## Skills
 
@@ -234,6 +237,32 @@ left untouched.
 
 Exit codes: `0` ran (per-source failures recorded, not fatal) · `2` bad invocation
 (missing batch/manifest, or `--html-file` without one `--only`) · `3` error.
+
+### Thematic evidence base 🚧 (stubs)
+
+`source-summarise`, `theme-cluster`, and `theme-entity` are **stubs** that extend
+the pipeline into a **thematic sourced evidence base** for a thought-leadership
+conversation:
+
+```
+notion-sources → source-enrich → source-summarise → theme-cluster → theme-entity
+```
+
+- **source-summarise** — per source: a neutral digest, the author's **position**, the
+  **core arguments**, and an assessment of the **comment-section reaction**, written
+  into front matter + a `## Core summary` section.
+- **theme-cluster** — group sources into **themes** ("contributions to a consistent core
+  discussion thread") → `themes.json` (+ optional `themes:` tags on each source).
+- **theme-entity** — render a **theme entity** doc per theme: summary, precis, notable
+  contributions, key disagreements, comment-reaction assessment, and **backlinks to
+  contributing sources grouped by author and by timeline**.
+
+Each follows the **mechanical-CLI + model-supplied-JSON** split (see
+`docs/architecture/DECISIONS.md` → **ADR-002**): the CLI does deterministic I/O and
+assembly (manifest read, backlinks, author/timeline grouping, rendering); the skill
+drives the semantic work (summarising, theming, synthesis) and feeds structured JSON
+back. Run any of them with no JSON arg to print its schema + a readiness check. These
+are scaffolding — semantic sections render as `_TODO_` until wired.
 
 ## Install
 

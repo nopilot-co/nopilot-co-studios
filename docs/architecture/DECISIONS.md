@@ -4,6 +4,56 @@ ADRs for nopilot-co-utilities. Newest first.
 
 ---
 
+## ADR-002 — Thematic evidence-base pipeline (`source-summarise`, `theme-cluster`, `theme-entity`)
+
+- **Date:** 2026-06-04
+- **Status:** Accepted (stubs)
+- **Issue:** [#7](https://github.com/nopilot-co/nopilot-co-utilities/issues/7)
+- **Builds on:** ADR-001 (`source-enrich`)
+
+### Context
+
+The aim is a **thematic sourced evidence base for a thought-leadership
+conversation**: take the enriched source batch and turn it into themed dossiers
+that show what each contributor argued, where they agree/disagree, how audiences
+reacted, and a sourced trail back to every contribution.
+
+### Decision
+
+Three utilities extend the pipeline, each shipped first as a **stub**:
+
+```
+notion-sources → source-enrich → source-summarise → theme-cluster → theme-entity
+```
+
+1. **source-summarise** — per source: neutral summary, overall `position`,
+   `core_arguments`, and `comment_reaction`.
+2. **theme-cluster** — group sources into themes (consistent core discussion
+   threads) → `themes.json` (+ optional `themes:` front-matter tags).
+3. **theme-entity** — render a theme entity doc per theme: summary, precis,
+   notable contributions, key disagreements, comment-reaction assessment, and
+   backlinks to contributing sources **grouped by author and by timeline**.
+
+**Mechanical-CLI + model-supplied-JSON split** (consistent with ADR-001's
+`--html-file` and youtube-transcript's `--chapters-json`): the standalone CLI
+does all deterministic work — manifest I/O, member resolution, backlink paths,
+author/timeline grouping, Markdown/front-matter rendering — and the skill drives
+the semantic work (summarising, theming, synthesis), feeding results back as
+JSON (`--summary-json`, `--assignments`, `--spec`). This preserves the
+standalone-first marketplace rule while keeping LLM judgement where it belongs.
+Running any CLI with no JSON prints its schema + a readiness check.
+
+### Consequences
+
+- Standalone-first holds: no utility hard-depends on an LLM; a future version may
+  add an optional direct-API engine or a deterministic clustering baseline.
+- Theme docs are an auditable evidence base — every synthesised claim backlinks to
+  source `.md` files, grouped by author and ordered on a timeline.
+- Stubs render semantic sections as `_TODO_` placeholders until wired; versions
+  start at `0.0.1`.
+
+---
+
 ## ADR-001 — `source-enrich` enrichment approach (tiered fetch, in-place, polite escalation)
 
 - **Date:** 2026-06-04
