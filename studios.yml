@@ -25,6 +25,13 @@ studios:
     capabilities: [review-asset, run-tests]
     status: active
 
+  - slug: audience
+    path: audience
+    manifest: audience/studio.yaml
+    summary: Model the reader (structured psychographic profile + need-state) and critique work against a derived weighted rubric — a reader-subjective review lens and a produce-time reader-model provider. Reuses the nitpicker scoring engine.
+    capabilities: [model-audience, assess-audience-fit]
+    status: active
+
 # Root orchestration skills the creative-director invokes directly — NOT maker
 # studios (they make nothing on their own). These sequence work before routing to
 # a studio's capability. The director reaches them by skill name; they are listed

@@ -88,7 +88,12 @@ def _flatten(scores: dict | None) -> dict[str, float]:
     return out
 
 
-def aggregate(scores: dict) -> dict[str, Any]:
+def aggregate(
+    scores: dict,
+    specs: dict[str, dict] | None = None,
+    gates: list[str] | None = None,
+    policy: dict | None = None,
+) -> dict[str, Any]:
     """Turn a ``scores.yml`` payload into a scorecard + verdict.
 
     ``scores`` shape::
@@ -97,8 +102,16 @@ def aggregate(scores: dict) -> dict[str, Any]:
         dimensions:   {visual-qa: 4, brief-fulfilment: 3, audience-fit: 4, tone-of-voice: 4}
 
     Returns ``{overall, verdict, items[], gates_failed[]}``.
+
+    ``specs`` supplies test definitions for slugs that do not live in the global
+    ``configs/tests/`` — used by other studios (e.g. the audience studio's
+    per-reader rubric) to score against the *same* engine without dropping their
+    per-test weight/scale/threshold. A supplied spec wins over the on-disk one.
+    ``gates`` adds extra gate slugs to the policy gates (a per-rubric rather than
+    global gate). ``policy`` overrides the default review policy wholesale.
     """
-    policy = config_mod.review_policy()
+    policy = config_mod.review_policy() if policy is None else policy
+    specs = specs or {}
     policy_scale = policy.get("scale") or {"min": 1, "max": 5}
     vbands = policy.get("verdict") or {}
     pass_band = float(vbands.get("pass", 80))
@@ -107,26 +120,30 @@ def aggregate(scores: dict) -> dict[str, Any]:
     weights = policy.get("weights") or {}
     test_weights = weights.get("tests") or {}
     dim_weights = weights.get("dimensions") or {}
-    gates = set(policy.get("gates") or [])
+    gate_set = set(policy.get("gates") or []) | set(gates or [])
 
     items: list[dict[str, Any]] = []
 
     for slug, score in _flatten(scores.get("tests")).items():
-        try:
-            spec = load(slug)
-        except FileNotFoundError:
-            spec = {}
+        spec = specs.get(slug)
+        if spec is None:
+            try:
+                spec = load(slug)
+            except FileNotFoundError:
+                spec = {}
         lo, hi = _scale(spec, policy_scale)
         if spec.get("weight") is not None:
             weight = float(spec["weight"])
         else:
             weight = float(test_weights.get(slug, test_weights.get("default", 1.0)))
-        items.append(_item("test", slug, score, lo, hi, weight, slug in gates, spec))
+        items.append(_item("test", slug, score, lo, hi, weight, slug in gate_set, spec))
 
     for key, score in _flatten(scores.get("dimensions")).items():
         lo, hi = float(policy_scale.get("min", 1)), float(policy_scale.get("max", 5))
         weight = float(dim_weights.get(key, 1.0))
-        items.append(_item("dimension", key, score, lo, hi, weight, key in gates, {}))
+        items.append(
+            _item("dimension", key, score, lo, hi, weight, key in gate_set, {})
+        )
 
     total_w = sum(i["weight"] for i in items) or 1.0
     overall = round(100 * sum(i["norm"] * i["weight"] for i in items) / total_w, 1)

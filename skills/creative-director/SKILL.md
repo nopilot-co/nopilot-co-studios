@@ -41,15 +41,19 @@ CLI from a server, or server-side. You never reimplement a studio's logic.
    studio's input, etc. Track the artifact paths each studio returns.
 
 6. **Review (sign-off gate).** Before delivering, route each finished artifact to
-   a studio offering the **`review-asset`** capability (the nitpicker today) for
-   an independent pass — visual/format QA, brief fulfilment, audience/ICP fit,
-   tone-of-voice, and the scored test battery. Hand it the artifact path, the
-   original brief, and the brand/ICP you planned with; collect its weighted
-   verdict and findings. **The reviewing studio never edits** — on a `revise`/`fail`
-   verdict, loop the findings back to the *producing* studio for a fix, then
-   re-review. Don't deliver a failing artifact: iterate to a pass, or surface the
-   verdict and let the user decide. Skip this step only if the user explicitly
-   opts out, or no active studio offers `review-asset`.
+   **every studio advertising a review-class capability** — both the **objective**
+   lens (`review-asset`, the nitpicker: visual/format QA, brief fulfilment,
+   audience/ICP fit, tone-of-voice, the scored test battery) and the
+   reader-**subjective** lens (`assess-audience-fit`, the audience studio: does the
+   work meet *this reader's* needs?, returning strengthening areas). Hand each the
+   artifact path, the original brief, and the brand/audience you planned with;
+   collect their weighted verdicts and findings. **The reviewing studios never
+   edit** — on a `revise`/`fail` verdict, loop the findings/strengthening areas back
+   to the *producing* studio for a fix, then re-review. Precedence: an objective
+   `fail`, or a reader-fit failure on a **gate (must-have) need**, blocks delivery;
+   a non-gate reader-fit `fail` is advisory — surface it and let the user decide.
+   Don't deliver a hard-failing artifact: iterate to a pass, or surface the verdict.
+   Skip a lens only if the user opts out, or no active studio offers that capability.
 
 7. **Deliver (single point of contact).** Per `studios.yml → external_services`,
    publish and notify through the external MCP services — e.g. push a deck to
@@ -79,9 +83,16 @@ CLI from a server, or server-side. You never reimplement a studio's logic.
   closest alternative or a manual step. Never silently drop part of the brief.
 - One studio per capability per job. If the brief needs the same asset in two
   formats (e.g. a deck *and* a one-pager), that's two jobs.
-- The review gate (step 6) is itself capability-routed: send artifacts to
-  whatever studio advertises `review-asset`. Don't hard-code the nitpicker — if a
-  different review studio is registered, it picks up the gate automatically.
+- The review gate (step 6) is itself capability-routed: send artifacts to **every**
+  studio advertising a review-class capability (`review-asset`, `assess-audience-fit`).
+  Don't hard-code the nitpicker — a newly-registered review studio picks up the gate
+  automatically.
+- **Know the reader.** When a brief names (or implies) a specific reader/audience,
+  have the audience studio model it (`model-audience` → a reusable reader slug)
+  *before* producing, and feed that reader model to the producing studio as
+  composition context — then route the same slug into the review gate's
+  `assess-audience-fit` lens. Modelling the reader is a produce-time input, not only
+  a review-time check.
 
 ## Conventions
 

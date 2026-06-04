@@ -6,6 +6,7 @@ Subcommands mirror the skills:
   nit new --name NAME --target PATH_OR_URL [--brief PATH] [--brand SLUG] [--icp PATH]
   nit capture --session PATH [--bump patch|minor|major]
   nit score --session PATH [--version X.Y.Z]
+  nit aggregate --scores PATH [--tests-from RUBRIC] [--policy PATH]
   nit status --session PATH [--set draft|reviewing|reviewed|signed-off|rejected]
   nit doctor
 """
@@ -194,6 +195,54 @@ def score_cmd(session_path: Path, version: str | None) -> None:
             f"  [{i['status']:>4}] {i['key']:<22} {i['score']:>4}/{i['max']:<3}{flag}"
         )
     click.echo(f"\nscorecard: {card_path}")
+
+
+# ---------------------------------------------------------------- aggregate
+@main.command("aggregate")
+@click.option(
+    "--scores",
+    "scores_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="A scores.yml payload ({tests: {...}, dimensions: {...}}).",
+)
+@click.option(
+    "--tests-from",
+    "tests_from",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="A rubric file supplying test definitions for slugs not in configs/tests/ "
+    "(e.g. the audience studio's per-reader rubric.yml). Its `gates:` are honored.",
+)
+@click.option(
+    "--policy",
+    "policy_path",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Override the review policy (defaults to configs/default/review-policy.yml).",
+)
+def aggregate_cmd(
+    scores_path: Path, tests_from: Path | None, policy_path: Path | None
+) -> None:
+    """Aggregate a supplied scores.yml against supplied test specs → scorecard JSON.
+
+    The single-sourced scoring engine, callable with an external rubric so other
+    studios score against the same math + policy. Prints the scorecard JSON to
+    stdout (machine-readable); writes nothing.
+    """
+    scores = yaml.safe_load(scores_path.read_text()) or {}
+    specs: dict[str, dict] = {}
+    gates: list[str] = []
+    if tests_from:
+        rubric = yaml.safe_load(tests_from.read_text()) or {}
+        for spec in rubric.get("tests") or []:
+            slug = spec.get("test")
+            if slug:
+                specs[slug] = spec
+        gates = list(rubric.get("gates") or [])
+    policy = yaml.safe_load(policy_path.read_text()) if policy_path else None
+    card = tests_mod.aggregate(scores, specs=specs, gates=gates, policy=policy)
+    click.echo(json.dumps(card, indent=2))
 
 
 # ---------------------------------------------------------------- status
