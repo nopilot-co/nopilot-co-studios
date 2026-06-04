@@ -39,9 +39,10 @@ check("has narration content", "first conversation begins" in html)
 # Scenes are sequenced (later scene has a non-zero animation-delay).
 check("sequenced delay", " 4s both" in html or " 4.0s both" in html or "4s both" in html, "no delayed scene")
 
-# Engine selection.
-check("auto → declarative (S2)", produce.select_engine("auto") == "declarative")
+# Engine selection — auto keeps the declarative default; both explicit.
+check("auto → declarative", produce.select_engine("auto") == "declarative")
 check("explicit declarative", produce.select_engine("declarative") == "declarative")
+check("explicit remotion", produce.select_engine("remotion") == "remotion")
 
 # produce(make_video=False) writes the HTML preview and returns it.
 with tempfile.TemporaryDirectory() as d:
@@ -49,12 +50,12 @@ with tempfile.TemporaryDirectory() as d:
     check("produce html output", "html" in out and out["html"].exists(), str(out))
     check("produce no video", "mp4" not in out)
 
-# Remotion engine is scaffolded, not wired → clean error.
-try:
-    produce.produce(SAMPLE, None, engine="remotion", make_video=False)
-    check("remotion errors", False, "expected RuntimeError")
-except RuntimeError:
-    check("remotion errors", True)
+# Remotion engine is wired (S3): the project ships and detection is boolean.
+rd = produce._remotion_dir()
+check("remotion package.json", (rd / "package.json").exists(), str(rd))
+for f in ("src/index.ts", "src/Root.tsx", "src/Storyboard.tsx"):
+    check(f"remotion {f}", (rd / f).exists())
+check("remotion availability is bool", isinstance(produce._remotion_available(), bool))
 
 if failures:
     print(f"FAIL ({len(failures)})")

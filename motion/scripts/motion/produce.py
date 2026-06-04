@@ -1,19 +1,26 @@
 """Render a storyboard to its export(s).
 
-S2 ships the **declarative** path (ADR-002): an animated, brand-tokenised HTML
-(the embeddable preview) recorded to an H.264 MP4. **Remotion** is the optional
-high-fidelity engine for the *same* storyboard — scaffolded under
-``templates/remotion/`` and selected with ``engine="remotion"`` once a Node
-toolchain + the project are present (detection lands with that slice).
+Two engines for the *same* storyboard (ADR-002):
+
+- **declarative** (default) — animated, brand-tokenised HTML recorded to MP4 via
+  Playwright + ffmpeg. No Node; renders in any host.
+- **remotion** — React/Node high-fidelity render of the storyboard via the
+  project under ``templates/remotion/``. Selected with ``engine="remotion"``;
+  ``node`` must be present (``motion doctor``). node_modules is installed into the
+  template dir on first use and cached.
+
+``engine="auto"`` keeps the safe default (declarative); ask for ``remotion``
+explicitly when you want the high-fidelity render.
 """
 
 from __future__ import annotations
 
+import json
 import shutil
+import subprocess
 from pathlib import Path
-from typing import Any
 
-from . import animate
+from . import TEMPLATES, animate
 from . import capture as capture_mod
 from . import storyboard as storyboard_mod
 from . import tokens as tokens_mod
@@ -27,17 +34,52 @@ def _stem(spec_path: Path) -> str:
     return spec_path.stem
 
 
-def select_engine(engine: str) -> str:
-    """Resolve the engine. ``auto`` → remotion if its toolchain is available,
-    else declarative. S2: declarative is the only wired engine."""
-    if engine in ("declarative", "remotion"):
-        return engine
-    return "remotion" if _remotion_available() else "declarative"
+def _remotion_dir() -> Path:
+    return TEMPLATES / "remotion"
 
 
 def _remotion_available() -> bool:
-    # A wired Remotion project + node would flip this on; not shipped in S2.
-    return False
+    return bool(shutil.which("node")) and (_remotion_dir() / "package.json").exists()
+
+
+def select_engine(engine: str) -> str:
+    """Resolve the engine. ``auto`` keeps the declarative default (fast, no Node);
+    ``declarative`` / ``remotion`` are explicit."""
+    if engine in ("declarative", "remotion"):
+        return engine
+    return "declarative"
+
+
+def _ensure_remotion_install(tpl: Path) -> None:
+    if (tpl / "node_modules").exists():
+        return
+    if not shutil.which("npm"):
+        raise RuntimeError("npm not found — install Node (brew install node)")
+    r = subprocess.run(
+        ["npm", "install", "--no-audit", "--no-fund"],
+        cwd=tpl, capture_output=True, text=True,
+    )
+    if r.returncode != 0:
+        raise RuntimeError(f"npm install (Remotion) failed:\n{r.stderr[-800:]}")
+
+
+def _render_remotion(spec: dict, tok: dict, out_dir: Path, stem: str) -> Path:
+    tpl = _remotion_dir()
+    if not shutil.which("node"):
+        raise RuntimeError("node not found — the Remotion engine needs Node (brew install node)")
+    _ensure_remotion_install(tpl)
+
+    props = out_dir / f"{stem}.props.json"
+    props.write_text(json.dumps({"spec": spec, "tokens": tok}), encoding="utf-8")
+    mp4 = out_dir / f"{stem}.mp4"
+    r = subprocess.run(
+        ["npx", "remotion", "render", "src/index.ts", "storyboard",
+         str(mp4.resolve()), f"--props={props.resolve()}"],
+        cwd=tpl, capture_output=True, text=True,
+    )
+    if r.returncode != 0:
+        raise RuntimeError(f"remotion render failed:\n{r.stderr[-1200:]}")
+    return mp4
 
 
 def produce(
@@ -54,21 +96,21 @@ def produce(
     out_dir = Path(out_dir) if out_dir else spec_path.parent
     out_dir.mkdir(parents=True, exist_ok=True)
     stem = _stem(spec_path)
-
-    eng = select_engine(engine)
-    if eng == "remotion":
-        raise RuntimeError(
-            "the Remotion engine is scaffolded but not wired yet — use the "
-            "declarative path (the default). See motion/CLAUDE.md / "
-            "templates/remotion/."
-        )
-
     outputs: dict[str, Path] = {}
+
+    # The animated HTML is always the embeddable preview (and the declarative
+    # capture source).
     html_path = out_dir / f"{stem}.html"
     html_path.write_text(animate.render_html(spec, tok), encoding="utf-8")
     outputs["html"] = html_path
 
-    if make_video:
+    if not make_video:
+        return outputs
+
+    eng = select_engine(engine)
+    if eng == "remotion":
+        outputs["mp4"] = _render_remotion(spec, tok, out_dir, stem)
+    else:
         w, h = animate.stage_size(spec)
         total = storyboard_mod.total_duration(spec)
         mp4 = out_dir / f"{stem}.mp4"

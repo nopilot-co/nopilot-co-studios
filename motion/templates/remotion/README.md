@@ -1,33 +1,34 @@
-# Remotion engine (high-fidelity video) — scaffold
+# Remotion engine (high-fidelity video) — wired (S3)
 
-ADR-002 names **Remotion** as the high-fidelity video engine for the motion
-studio. It is **not wired yet** — S2 ships the declarative path (animated HTML →
-MP4 via Playwright + ffmpeg), which needs only what `motion doctor` already finds
-(no Node). This directory is the placeholder for the Remotion project that a
-later slice fills in.
-
-## Intended shape (when wired)
+ADR-002's high-fidelity video engine for the motion studio. `motion produce
+--engine remotion` renders this project; the declarative path (animated HTML →
+MP4 via Playwright+ffmpeg) remains the default (no Node).
 
 ```
 templates/remotion/
   package.json           # remotion + @remotion/cli + react
-  remotion.config.ts
+  remotion.config.ts     # jpeg image format, overwrite
+  tsconfig.json
   src/
     index.ts             # registerRoot
-    Root.tsx             # <Composition id="storyboard" component={Storyboard} .../>
-    Storyboard.tsx       # reads inputProps: { spec, tokens } → renders scenes/layers
-    components/          # Text, Shape, Chart, Presenter layers (token-driven)
+    Root.tsx             # <Composition id="storyboard"> + calculateMetadata (size/fps/duration from props)
+    Storyboard.tsx       # reads inputProps {spec, tokens} → Sequence per scene, layers by region/role
 ```
 
-## How `produce` will use it
+## How `produce` uses it (`motion/scripts/motion/produce.py`)
 
-1. `produce(engine="remotion")` resolves tokens + normalizes the storyboard.
-2. Writes `{ spec, tokens }` as Remotion **inputProps** (JSON).
-3. Runs `npx remotion render src/index.ts storyboard out.mp4 --props=props.json
-   --fps=<fps> --height/--width` in a materialized copy of this project.
-4. `produce._remotion_available()` flips to `True` when `node` + an installed
-   project are detected (declare/detect/degrade); `engine="auto"` then prefers it,
-   else falls back to the declarative path.
+1. `produce(engine="remotion")` normalizes the storyboard + resolves tokens.
+2. `_ensure_remotion_install` runs `npm install` here on first use (cached in
+   `node_modules/`, gitignored).
+3. Writes `{ spec, tokens }` to `<out>/<stem>.props.json`.
+4. Runs `npx remotion render src/index.ts storyboard <out>.mp4
+   --props=<props.json>` (cwd = this dir). Size/fps/duration come from the
+   storyboard via `calculateMetadata`.
+5. `_remotion_available()` = `node` present + this `package.json` exists.
 
-The storyboard schema and token contract are identical across engines — only the
-renderer changes. Keep all layer/motion semantics in sync with `animate.py`.
+The storyboard schema + token contract are identical across engines — only the
+renderer changes. **Keep layer/region/role/motion semantics in sync with
+`animate.py`** (the declarative renderer).
+
+For server modes, prebuild `node_modules` into the image (it's the heaviest
+dependency; ADR-002).
