@@ -232,6 +232,71 @@ with tempfile.TemporaryDirectory() as td:
     )
     check("reader: brand-only brief notes no reader", "brand-only" in bp2.read_text())
 
+    # --- per-section reader-fit gate (#48) -----------------------------------
+    check(
+        "gate: new section starts with no reader_fit",
+        comp.read(root)["sections"][0]["reader_fit"] is None,
+    )
+    # approving without a recorded fit is blocked when a reader is bound
+    check(
+        "gate: approve blocked without reader-fit",
+        raises(
+            lambda: comp.set_section(root, section_id="exec", status="approved"),
+            ValueError,
+        ),
+    )
+    # a failing fit (gate need unmet) still blocks; --force overrides
+    comp.record_fit(
+        root,
+        section_id="exec",
+        verdict="fail",
+        overall=30,
+        gates_failed=["proof-at-scale"],
+    )
+    check(
+        "gate: approve blocked on failing fit",
+        raises(
+            lambda: comp.set_section(root, section_id="exec", status="approved"),
+            ValueError,
+        ),
+    )
+    forced = comp.set_section(root, section_id="exec", status="approved", force=True)
+    check(
+        "gate: --force overrides",
+        forced["sections"][0]["status"] == "approved"
+        and forced["history"][-1].get("forced") is True,
+    )
+    # a passing fit lets approval through normally
+    comp.set_section(root, section_id="exec", status="drafted")
+    comp.record_fit(
+        root,
+        section_id="exec",
+        verdict="pass",
+        overall=88,
+        source="review/v1.0.0/scorecard.json",
+    )
+    d2 = comp.set_section(root, section_id="exec", status="approved")
+    check(
+        "gate: approve allowed after passing fit",
+        d2["sections"][0]["status"] == "approved",
+    )
+    check(
+        "gate: reader_fit recorded + valid",
+        comp.validate(d2) == [],
+        str(comp.validate(d2)),
+    )
+
+with tempfile.TemporaryDirectory() as td:
+    # no reader bound → approval is NOT gated (unchanged behaviour)
+    root = Path(td)
+    comp.new(root, brand="acme", objective="o", fmt="proposal-pdf", session="s")
+    comp.add_section(root, section_id="x", title="X")
+    ungated = comp.set_section(root, section_id="x", status="approved")
+    check(
+        "gate: no reader → approval ungated",
+        ungated["sections"][0]["status"] == "approved",
+    )
+
 
 if failures:
     print(f"FAIL ({len(failures)})")
@@ -239,5 +304,5 @@ if failures:
         print("  -", f)
     sys.exit(1)
 print(
-    "PASS: planner (composition CRUD + rollup + ordering + assemble merge + reader binding)"
+    "PASS: planner (composition CRUD + rollup + ordering + assemble + reader binding + reader-fit gate)"
 )

@@ -84,19 +84,37 @@ rendering is the design studio's `render-asset`; you hand it a merged `source.md
    lands here) and marks the section `briefed`. When a reader is bound, the brief
    carries a **Reader fit** section — name the specific needs, objections, and
    decision factors *this* section must satisfy, so whoever composes it writes for
-   the reader. When content is drafted, mark it `drafted`; when it's good,
-   `approved`:
+   the reader. When content is drafted, mark it `drafted`.
+
+7. **Gate approval on reader-fit (when a reader is bound).** A section isn't *done*
+   until it meets the reader — so before approving, critique its content **as the
+   reader** with the audience studio, then record the result:
+   ```bash
+   # critique sections/<id>/content.md against the reader model (audience studio):
+   audience review new --name <id>-fit --audience <reader-slug> --target <root>/sections/<id>/content.md
+   #   → audience-critique scores it → audience review score → scorecard.json
+   planner section fit --root <root> --id <section-id> --scorecard <…>/review/v1.0.0/scorecard.json
+   planner section set  --root <root> --id <section-id> --status approved
+   ```
+   `section set --status approved` is **gated**: with a reader bound it refuses
+   approval until a reader-fit pass is recorded (no must-have/gate need unmet). On a
+   fail, loop the strengthening areas back into `content.md` and re-critique. Use
+   `--force` only to deliberately override the gate. **No reader bound → no gate**;
+   approve by judgment as before:
    ```bash
    planner section set --root <root> --id <section-id> --status approved
    ```
+   This per-section gate makes the document *built for* the reader; the audience
+   studio's `assess-audience-fit` on the rendered whole (the creative-director's
+   review gate) is the final verification.
 
-7. **Track completion.** Show the rollup; resolve whatever is blocking before
-   assembling:
+8. **Track completion.** Show the rollup (per-section status + reader-fit); resolve
+   whatever is blocking before assembling:
    ```bash
    planner status --root <root>
    ```
 
-8. **Synthesise, then assemble (handoff).** Do the synthesis judgment **first** —
+9. **Synthesise, then assemble (handoff).** Do the synthesis judgment **first** —
    read all approved sections, remove duplication, add connective tissue and an
    intro by editing `content.md` (or adding a synthesis section). *Then* merge:
    ```bash
@@ -125,6 +143,10 @@ rendering is the design studio's `render-asset`; you hand it a merged `source.md
 - **The reader model is an optional produce-time input.** Bound via `--audience`,
   it's read (not written) by this skill to drive section choice, briefs, and viz —
   the audience studio owns it. Without it, the planner aligns to brand voice only.
-  Reader-fit *critique* of the finished document is still the audience studio's
-  `assess-audience-fit` (run by the creative-director after design renders) — this
-  step makes the document built for the reader; that step verifies it.
+- **Reader-fit is gated per section, not just on the whole.** With a reader bound,
+  a section can't be `approved` until it passes the audience studio's reader-fit
+  critique (recorded via `planner section fit`); the *critique judgment* stays in
+  the audience studio (`assess-audience-fit`), the planner only records + gates on
+  it. So a composition reaches "ready to assemble" only when every section meets the
+  reader. The audience studio's critique of the *rendered* whole (creative-director
+  review gate) is the final verification on top.

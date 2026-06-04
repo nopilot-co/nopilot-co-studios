@@ -185,6 +185,7 @@ def add_section(
         "data_sources": [],
         "viz": None,
         "source": {"origin": "drafted", "provenance": ""},
+        "reader_fit": None,
     }
     if after:
         idx = next(
@@ -223,6 +224,29 @@ def move_section(root: Path, *, section_id: str, after: str | None) -> dict:
     return data
 
 
+def _approval_block(data: dict, sec: dict) -> str | None:
+    """Why a section can't be approved yet, or None if it can.
+
+    When the composition is bound to a reader, approval is gated on a recorded
+    reader-fit pass: a section isn't *done* until it meets the reader's needs."""
+    if not data.get("audience"):
+        return None  # no reader bound → ungated (original behaviour)
+    fit = sec.get("reader_fit")
+    if not fit:
+        return (
+            f"section '{sec['id']}' has a bound reader ({data['audience']}) but no "
+            "reader-fit check — run `planner section fit` (audience reader-fit critique) "
+            "first, or pass --force"
+        )
+    if fit.get("verdict") == "fail" or fit.get("gates_failed"):
+        gf = ", ".join(fit.get("gates_failed") or []) or "verdict=fail"
+        return (
+            f"section '{sec['id']}' fails reader-fit ({gf}) — strengthen it and "
+            "re-run `planner section fit`, or pass --force"
+        )
+    return None
+
+
 def set_section(
     root: Path,
     *,
@@ -230,12 +254,17 @@ def set_section(
     status: str | None = None,
     title: str | None = None,
     note: str | None = None,
+    force: bool = False,
 ) -> dict:
     data = read(root)
     sec = _find(data, section_id)
     if status is not None:
         if status not in STATUSES:
             raise ValueError(f"status must be one of {', '.join(STATUSES)}")
+        if status == "approved" and not force:
+            block = _approval_block(data, sec)
+            if block:
+                raise ValueError(block)
         sec["status"] = status
     if title is not None:
         sec["title"] = title
@@ -247,7 +276,38 @@ def set_section(
         "section-set",
         section=section_id,
         **{k: v for k, v in (("status", status), ("title", title)) if v is not None},
+        **({"forced": True} if force and status == "approved" else {}),
     )
+    write(root, data)
+    return data
+
+
+def record_fit(
+    root: Path,
+    *,
+    section_id: str,
+    verdict: str,
+    overall: float | None = None,
+    gates_failed: list[str] | None = None,
+    source: str = "manual",
+) -> dict:
+    """Record a section's reader-fit result (from the audience studio's critique).
+
+    The critique *judgment* lives in the audience studio; this only stores the
+    verdict so approval can be gated and ``status`` reflects reader-fit."""
+    if verdict not in ("pass", "revise", "fail"):
+        raise ValueError("verdict must be pass | revise | fail")
+    data = read(root)
+    sec = _find(data, section_id)
+    sec["reader_fit"] = {
+        "verdict": verdict,
+        "overall": overall,
+        "gates_failed": gates_failed or [],
+        "at": _now(),
+        "source": source,
+    }
+    _recompute(data)
+    _log(data, "section-fit", section=section_id, verdict=verdict)
     write(root, data)
     return data
 
