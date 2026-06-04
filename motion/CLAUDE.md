@@ -16,9 +16,10 @@ deps, and installs the `motion` Python package (editable).
 > default, no Node) and the **Remotion** high-fidelity path
 > (`motion produce --engine remotion` — React/Node project under
 > `templates/remotion/`; node_modules installed on first use and cached). `motion
-> qa capture` pulls a keyframe per scene + a contact sheet. (Lottie export is the
-> remaining S3 item — see build sequence.) Tracked in issue #42; engine decision
-> in [`../docs/architecture/DECISIONS.md`](../docs/architecture/DECISIONS.md)
+> qa capture` pulls a keyframe per scene + a contact sheet. **Lottie export**
+> (`motion produce --lottie`) emits an embeddable vector animation. **S3
+> complete.** Tracked in issue #42; engine decision in
+> [`../docs/architecture/DECISIONS.md`](../docs/architecture/DECISIONS.md)
 > (ADR-002).
 
 ## What it does
@@ -86,7 +87,12 @@ Hybrid, declared per export and detected by `motion doctor`:
 - **Declarative SVG/CSS** → animated HTML (`animate.py`), recorded to **MP4** via
   Playwright + **ffmpeg** (`capture.html_to_video`). **Wired (S2)** — needs no
   node, only what `motion doctor` finds. Also the embeddable preview and the
-  source for QA keyframes. Lottie export lands S3.
+  source for QA keyframes.
+- **Lottie** (`lottie.py`, `motion produce --lottie`) → an embeddable vector
+  animation JSON (Bodymovin), hand-built so it's dependency-free and portable to
+  any Lottie player. **Wired (S3)**, semantics in sync with `animate.py`. (Known
+  limit: Lottie text layers don't auto-wrap; long lines should be pre-wrapped —
+  a follow-up refinement.)
 - **Remotion** (React/Node, via `npx`) → MP4 for high-fidelity explainers +
   animated infographics. **Wired (S3)** — `motion produce --engine remotion`
   renders the project under `templates/remotion/` (the `<Storyboard>` composition
@@ -149,7 +155,7 @@ the design studio.
   scaffolded behind detection. (Reordered from the original "Remotion →
   explainer-mp4" so the no-Node path ships first; ADR-002.)
 - **S3** ✅ Remotion high-fidelity engine wired (`templates/remotion/`,
-  `--engine remotion`). **Lottie** export still outstanding (next).
+  `--engine remotion`) + **Lottie** export (`--lottie`).
 - **S3.5** digital-twin presenter: D-ID adapter + ElevenLabs TTS + `twin` entity
   + consent gate + `presenter` layer + compositing → `pitch-mp4`.
 - **S4** animated infographic + chart animation (leans on the design chart
