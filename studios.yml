@@ -60,6 +60,13 @@ studios:
     capabilities: [design-architecture]
     status: active
 
+  - slug: context
+    path: context-studio
+    manifest: context-studio/studio.yaml
+    summary: Infrastructural — orchestrates the tools/ tier (notion-sources / source-enrich / source-summarise / theme-propose / theme-cluster / theme-entity / yt-transcript) into a per-engagement context store. Other studios reference an engagement's context by slug (Principal mapping, audience reader models, delivery prior art). Source dir is `context-studio/` because the top-level `context/` directory holds operating-model briefs.
+    capabilities: [ingest-context, map-context, extend-context]
+    status: active
+
 # Root orchestration skills — NOT maker studios (they make nothing on their own).
 # Three are first-class today: the Principal (front-of-house — the user always
 # talks here first), the Producer (domain-neutral orchestrator the Principal
