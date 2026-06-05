@@ -143,8 +143,31 @@ A CI invariant (`scripts/check_tools_standalone.py`) ensures `tools/*` never
 imports a studio package, references `studios.yml`, or hardcodes a studio
 path. See [`tools/README.md`](tools/README.md) for the contract +
 [`docs/architecture/DECISIONS.md`](docs/architecture/DECISIONS.md) ADR-004 for
-the rationale. Status: **scaffold** (P1); the seven utilities listed in
-`context/briefs/02-consolidate.md` Appendix migrate in via P2.
+the rationale.
+
+| Tool | CLI | What it does |
+|---|---|---|
+| [`notion-sources`](tools/notion-sources) | `notion-sources` | Extract a Notion database → per-source `.md` batch + manifest. Schema-agnostic, incremental. |
+| [`source-enrich`](tools/source-enrich) | `source-enrich` | Enrich a sources batch in place — fetch each source, populate front matter, extract body (HTML/PDF/text) + assets, tidy bylines. |
+| [`source-summarise`](tools/source-summarise) | `source-summarise` | Materialise caller-supplied summaries (`--summary-json`) into front matter + a "Core summary" section. |
+| [`theme-propose`](tools/theme-propose) | `theme-propose` | Non-destructive theme-framework proposal; materialise a caller-supplied proposal; `--adopt` freezes into `theme-manifest.json`. |
+| [`theme-cluster`](tools/theme-cluster) | `theme-cluster` | Materialise caller-supplied theme `--assignments` → `themes.json` + optional source-tag updates. |
+| [`theme-entity`](tools/theme-entity) | `theme-entity` | Render per-theme dossiers from `themes.json` + caller-supplied `--spec`; author backlinks + a timeline per theme. |
+| [`youtube-transcript`](tools/youtube-transcript) | `yt-transcript` | YouTube URL → transcript `.txt`/`.md`. Captions fast-path with Whisper fallback. Optional front matter / paragraphs / timestamps / chapters. |
+
+Each tool is a **standalone installable plugin**:
+
+```bash
+# install one
+claude plugin install notion-sources@nopilot-co-studios
+# or get all tool CLIs on PATH at once
+STUDIOS_INSTALL_TOOLS=1 ./install.sh
+```
+
+Tools are registered in [`tools.yml`](tools.yml) (the discovery index, shape
+mirrors `studios.yml`) and each ships a `tool.yaml` capability manifest with
+`actions[]`, `invoke` templates, IO shape, exit codes, idempotency, and
+side-effects — the function-schema agents need.
 
 ## Repository structure
 
