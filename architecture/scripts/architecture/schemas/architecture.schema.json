@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/schemas/architecture/architecture.json",
+  "title": "Architecture — engagement spec",
+  "description": "Structured architecture spec: systems + data flows + integrations. Caller-supplied; CLI runs schema + referential-integrity invariants.",
+  "type": "object",
+  "required": ["engagement", "systems"],
+  "properties": {
+    "engagement": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string" },
+    "systems": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "role"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "role": { "type": "string", "minLength": 1 },
+          "owner": { "type": "string" },
+          "technology": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": ["existing", "new", "evolving", "retiring"]
+          },
+          "criticality": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "confidence": { "type": "string", "enum": ["low", "medium", "high"] }
+        },
+        "additionalProperties": true
+      }
+    },
+    "data_flows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "from", "to"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "from": { "type": "string", "minLength": 1 },
+          "to": { "type": "string", "minLength": 1 },
+          "direction": {
+            "type": "string",
+            "enum": ["one-way", "bidirectional"]
+          },
+          "frequency": {
+            "type": "string",
+            "enum": ["realtime", "batch", "on-event", "scheduled"]
+          },
+          "payload": { "type": "string" },
+          "sla": { "type": "string" },
+          "criticality": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "integrations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "flow"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "flow": { "type": "string", "minLength": 1 },
+          "technology": { "type": "string" },
+          "contract": { "type": "string" },
+          "auth": { "type": "string" },
+          "error_handling": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "provenance": { "type": "object" }
+  },
+  "additionalProperties": true
+}
