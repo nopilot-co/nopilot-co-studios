@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import re
 
-from . import autonomy
+from . import autonomy, ledger
 from .manifest import (
     JOB_STATUSES,
     append_history,
@@ -68,6 +68,19 @@ def add(
     jobs.append(job)
     append_history(data, f"job + {jid} ({capability}, {action_class})")
     write(root, data)
+    ledger.append(
+        root,
+        kind="job.add",
+        subject=jid,
+        summary=f"+ {jid} {capability} ({action_class})",
+        actor=role or "producer",
+        details={
+            "capability": capability,
+            "role": role,
+            "action_class": action_class,
+            "title": title,
+        },
+    )
     return job
 
 
@@ -78,9 +91,22 @@ def set_status(root, *, job_id: str, status: str) -> dict:
     for j in data.get("jobs", []):
         if j.get("id") == job_id:
             autonomy.check_transition(data, job=j, new_status=status)
+            prev = j.get("status")
             j["status"] = status
             append_history(data, f"job {job_id} → {status}")
             write(root, data)
+            ledger.append(
+                root,
+                kind="job.set_status",
+                subject=job_id,
+                summary=f"{job_id} {prev} → {status}",
+                actor=j.get("role") or "producer",
+                details={
+                    "previous": prev,
+                    "status": status,
+                    "action_class": j.get("action_class"),
+                },
+            )
             return j
     raise KeyError(f"no job '{job_id}'")
 

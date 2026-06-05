@@ -243,6 +243,82 @@ def autonomy(root: str) -> None:
     )
 
 
+# ----------------------------------------------------------------- ledger (Phase 7)
+
+
+@main.group()
+def ledger() -> None:
+    """Append-only event log (ledger.jsonl) — Bible §7."""
+
+
+@ledger.command("show")
+@click.option("--root", required=True, type=click.Path(file_okay=False))
+@click.option("--limit", default=50, type=int)
+@click.option("--kind", help="filter by event kind (e.g. job.set_status)")
+@click.option("--subject", help="filter by subject id (e.g. J-001)")
+def ledger_show(root: str, limit: int, kind: str | None, subject: str | None) -> None:
+    from . import ledger as ledger_mod
+
+    events = ledger_mod.show(Path(root), limit=limit, kind=kind, subject=subject)
+    for e in events:
+        click.echo(
+            f"{e['at']}  {e.get('actor','-'):<12}  {e['kind']:<26}  "
+            f"{e.get('subject','-'):<10}  {e['summary']}"
+        )
+
+
+@ledger.command("tail")
+@click.option("--root", required=True, type=click.Path(file_okay=False))
+@click.option("--limit", default=20, type=int)
+def ledger_tail(root: str, limit: int) -> None:
+    """Print the last N events as JSON (one object per line)."""
+    from . import ledger as ledger_mod
+
+    for e in ledger_mod.show(Path(root), limit=limit):
+        click.echo(json.dumps(e))
+
+
+# ----------------------------------------------------------------- sync (Phase 7)
+
+
+@main.group()
+def sync() -> None:
+    """SoR bridge — adapter-based docket → external system (Bible §8)."""
+
+
+@sync.command("github")
+@click.option("--root", required=True, type=click.Path(file_okay=False))
+@click.option("--owner", help="GitHub owner / org for the Project")
+@click.option(
+    "--project", "project_name", help="Project title (default: 'engagement: <slug>')"
+)
+@click.option(
+    "--apply",
+    "apply_flag",
+    is_flag=True,
+    help="(v0.1.1) actually call gh; v0.1.0 dry-runs even with --apply",
+)
+def sync_github(
+    root: str, owner: str | None, project_name: str | None, apply_flag: bool
+) -> None:
+    """Build (and optionally apply) the GitHub Projects sync plan."""
+    from .sor.github import GitHubProjectsAdapter
+
+    try:
+        m = man.read(Path(root))
+    except FileNotFoundError as e:
+        _die(str(e))
+    adapter = GitHubProjectsAdapter(owner=owner, project_name=project_name)
+    plan = adapter.build_sync_plan(m)
+    click.echo(json.dumps(plan.to_dict(), indent=2))
+    if apply_flag:
+        result = adapter.apply_plan(
+            plan, dry_run=True
+        )  # v0.1.0 dry-runs unconditionally
+        click.echo("---")
+        click.echo(json.dumps(result, indent=2))
+
+
 # ----------------------------------------------------------------- items (Q/B/R)
 
 

@@ -357,6 +357,8 @@ spine — and puts a portable, canonical layer underneath it.
   tool-bench (`tools/` — `notion-sources`, `source-enrich`,
   `source-summarise`, `theme-propose`, `theme-cluster`, `theme-entity`,
   `youtube-transcript`) with a CI-enforced dumb-tool invariant.
-- **Target (this framework builds toward):** the observability spine
-  (`ledger.jsonl`, uniform artifact provenance, append-only decision
-  records) and the docket → GitHub Projects bridge (Phase 7).
+- **Target (this framework builds toward):** the framework now describes
+  everything that's built. The next layer of work is operational —
+  shipping real engagements through it, adding Jira / Linear adapters,
+  and exercising the per-capability action-class declarations across the
+  full cast.

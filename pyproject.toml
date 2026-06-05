@@ -21,7 +21,7 @@ engagement = "engagement.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["scripts"]
-include = ["planner*", "engagement*"]
+include = ["planner*", "engagement*", "engagement.sor*"]
 
 [tool.setuptools.package-data]
 planner = ["schemas/*.json"]

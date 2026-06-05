@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+from . import ledger
 from .manifest import (
     CHECKPOINT_LEVELS,
     CHECKPOINT_STATUSES,
@@ -66,6 +67,14 @@ def open_checkpoint(
     cps.append(item)
     append_history(data, f"checkpoint + {item['id']} ({level}): {title}")
     write(root, data)
+    ledger.append(
+        root,
+        kind="checkpoint.open",
+        subject=item["id"],
+        summary=f"+ {item['id']} ({level}): {title}",
+        actor=raised_by_role or "producer",
+        details={"level": level, "blocking_jobs": blocking_jobs},
+    )
     return item
 
 
@@ -89,6 +98,18 @@ def clear(
                 cp["decided_by"] = decided_by
             append_history(data, f"checkpoint {checkpoint_id} → {status}")
             write(root, data)
+            ledger.append(
+                root,
+                kind="checkpoint.clear",
+                subject=checkpoint_id,
+                summary=f"{checkpoint_id} → {status}: {outcome}",
+                actor=decided_by or "producer",
+                details={
+                    "outcome": outcome,
+                    "decided_by": decided_by,
+                    "level": cp.get("level"),
+                },
+            )
             return cp
     raise KeyError(f"no checkpoint '{checkpoint_id}'")
 

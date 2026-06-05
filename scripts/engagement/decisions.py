@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+from . import ledger
 from .manifest import append_history, read, write
 
 
@@ -55,6 +56,14 @@ def add(
     decisions.append(item)
     append_history(data, f"decision + {item['id']}: {title}")
     write(root, data)
+    ledger.append(
+        root,
+        kind="decision.add",
+        subject=item["id"],
+        summary=f"+ {item['id']}: {title}",
+        actor=role or "producer",
+        details={"ref": ref, "summary": summary},
+    )
     return item
 
 
