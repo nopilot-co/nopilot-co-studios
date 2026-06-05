@@ -9,7 +9,7 @@ across studios.
 
 | Plugin | What it does |
 |---|---|
-| **studios** | Producer (was creative-director). `/studio <brief>` plans a brief, routes each job to a studio, chains artifacts between studios, and is the one place that delivers to external services (Gamma, Canva, Slack, Gmail). |
+| **studios** | Principal (front-of-house) + Producer (orchestrator, was creative-director). `/studio <brief>` enters at the Principal — who shapes the engagement (objective, audience, scope, cast) and gets L2 sign-off — then hands a focused brief to the Producer, who routes each job to a studio, chains artifacts, and delivers to external services (Gamma, Canva, Slack, Gmail) on L3 authorisation. |
 | **design-studio** | Markdown → branded **PDF / PPTX / HTML / RevealJS** via **Quarto + Typst**, driven by one `_brand.yml` (Posit brand.yml standard). Versioned outputs + visual QA. |
 | **messaging-studio** | Brand communications — **email, outreach, announcements, multi-step sequences** — composed in a brand's voice. **HTML email via MJML.** |
 | **nitpicker-studio** | Rigorous asset review — **visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice**, plus a configurable scored test battery (so-what / yawn / sniff) — returning a weighted verdict. Reviews; never edits. |
@@ -39,15 +39,20 @@ native dependencies are present. Re-run it any time.
 
 ## Quickstart
 
-### Cross-studio (the Producer)
+### Cross-studio (Principal + Producer)
 
 ```
 /studio <your brief>
 ```
 
-The Producer reads `studios.yml`, plans the brief into jobs, dispatches each to
-a studio by capability, then asks before publishing to any external service.
-(Previously named `creative-director`; same orchestrator, domain-neutral.)
+Enters at the **Principal**, the front-of-house skill: it shapes the
+opportunity into an engagement (objective, audience, value-based scope, cast),
+confirms scope with you (L2), and hands a focused brief to the **Producer**.
+The Producer reads `studios.yml`, plans the brief into jobs, dispatches each
+to a studio by capability, then asks before publishing to any external
+service (L3 — the Principal carries it back). See
+[`docs/operating-framework.md`](docs/operating-framework.md) §4 for the role
+split.
 
 ### Design studio
 
@@ -147,8 +152,9 @@ the rationale. Status: **scaffold** (P1); the seven utilities listed in
 .
 ├── .claude-plugin/
 │   ├── marketplace.json         # marketplace manifest (this repo)
-│   └── plugin.json              # root Producer plugin (was creative-director)
-├── skills/producer/             # the orchestrator skill (was creative-director)
+│   └── plugin.json              # root orchestration plugin
+├── skills/principal/            # front-of-house skill (/studio enters here)
+├── skills/producer/             # orchestrator skill (was creative-director)
 ├── commands/studio.md           # the /studio slash command
 ├── studios.yml                  # registry of active studios + external services
 ├── tools.yml                    # tool-bench registry (ADR-004; scaffold)

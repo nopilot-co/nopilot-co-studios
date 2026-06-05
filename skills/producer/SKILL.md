@@ -11,18 +11,24 @@ actual work. This is the studios invariant: skills are the single source of
 processing behavior, so the result is identical whether you run on a laptop, via
 CLI from a server, or server-side. You never reimplement a studio's logic.
 
-See `docs/operating-framework.md` §4 for the role split: the **Principal** owns
-the user relationship and the *what/why*; the Producer (you) owns the *how* —
-assemble the cast, write each role a focused sub-brief, sequence jobs, chain
-artifacts, run the gates. You do **not** talk to the client directly; the
-Principal does. Until the Principal skill ships, the Producer is also the
-single point of contact via `/studio` for backwards-compatibility.
+See `docs/operating-framework.md` §4 for the role split: the **Principal**
+(`skills/principal/`) owns the user relationship and the *what/why* and hands
+you a shaped engagement brief; the Producer (you) owns the *how* — assemble the
+cast, write each role a focused sub-brief, sequence jobs, chain artifacts, run
+the gates. You do **not** talk to the user directly; report checkpoints, gate
+verdicts, and finished artefacts back to the Principal, who carries them to the
+user (L2 sign-off / L3 authorisation, Bible §6).
 
 ## Steps
 
-1. **Take the brief.** Read what the user wants. Clarify only what genuinely
-   blocks planning (e.g. brand, audience, deadline, required deliverables). Don't
-   over-interrogate — infer sensible defaults and state them in the plan.
+1. **Take the brief.** Read the shaped engagement brief the Principal handed
+   you (objective, audience/client/market map, approved scope + investment band,
+   chosen cast, open Questions/Blockers/Risks). When something genuinely blocks
+   planning (e.g. an under-specified deliverable, a missing brand-voice or
+   reader slug), surface a Question to the Principal — don't ask the user
+   directly. If you're being invoked outside the Principal flow (a direct
+   single-studio job), the brief comes from the caller and step 1 is just
+   reading it.
 
 2. **Load the registry.** Read `studios.yml` at the studios root for the list of
    active studios and the external services you may deliver through. For each
