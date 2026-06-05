@@ -5,15 +5,15 @@
     "name": "Julian Tedstone",
     "email": "ted@nopilot.co"
   },
-  "description": "nopilot-co-studios marketplace — the studios-root Producer (was creative-director) and its studios (design, messaging, nitpicker, audience).",
+  "description": "nopilot-co-studios marketplace — front-of-house Principal + Producer (was creative-director) orchestration and the studios (design, messaging, nitpicker, audience).",
   "plugins": [
     {
       "name": "studios",
       "source": "./",
       "version": "0.1.2",
-      "description": "Cross-studio Producer (was creative-director): /studio <brief> routes work across studios and delivers to external services (Gamma, Canva, Slack, Gmail).",
+      "description": "Cross-studio front-of-house — /studio <brief> enters at the Principal, who shapes the engagement, then hands to the Producer (was creative-director) for routing and delivery (Gamma, Canva, Slack, Gmail).",
       "category": "orchestration",
-      "tags": ["producer", "studios", "orchestration"]
+      "tags": ["principal", "producer", "studios", "orchestration"]
     },
     {
       "name": "design-studio",

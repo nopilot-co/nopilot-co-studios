@@ -39,11 +39,29 @@ studios:
     capabilities: [visualise, present]
     status: planned          # scaffolded (S0); routable once S2 ships explainer-mp4
 
-# Root orchestration skills the Producer invokes directly — NOT maker studios
-# (they make nothing on their own). These sequence work before routing to a
-# studio's capability. The Producer reaches them by skill name; they are listed
-# here for discovery, separate from the capability-routed `studios:` above.
+# Root orchestration skills — NOT maker studios (they make nothing on their own).
+# Three are first-class today: the Principal (front-of-house — the user always
+# talks here first), the Producer (domain-neutral orchestrator the Principal
+# hands a shaped engagement to), and the planner (composite-document helper the
+# Producer chains into design). They are reached by skill name; the registry
+# below is for discovery, separate from the capability-routed `studios:` above.
 orchestrators:
+  - slug: principal
+    skill: principal
+    summary: Front-of-house. Shapes an opportunity into an engagement (objective, audience map, value-based scope, cast selection) and hands a focused brief to the Producer. Owns the user relationship + L2 sign-offs + L3 authorisation.
+    use_when: any new engagement / opportunity — `/studio` enters here.
+    consumes: { audience: optional, commercial: optional, growth-bd: optional } # used for mapping when routable; degrades cleanly when not
+    produces_for: { skill: producer }
+    status: active
+
+  - slug: producer
+    skill: producer
+    summary: Domain-neutral orchestrator. Takes the Principal's shaped engagement, assembles the cast, writes each role a focused sub-brief, sequences jobs, chains artefacts, runs the gates. Does not talk to the user directly — the Principal does. (Was `creative-director`.)
+    use_when: after the Principal has shaped the engagement; or directly for a single-studio job that doesn't need shaping.
+    consumes: { engagement-brief: required }
+    produces_for: { studios: "*" } # capability-routed across the registered studios above
+    status: active
+
   - slug: planner
     skill: planner
     cli: planner
@@ -75,6 +93,7 @@ external_services:
       mcp: claude_ai_Gmail
       use: email deliverables to clients / stakeholders
 
-# Rule the director must honor for everything under external_services:
+# Rule the Producer must honor for everything under external_services:
 # outward-facing actions (publishing, posting, emailing) require explicit
-# user confirmation before sending. Local rendering does not.
+# user confirmation before sending (the Principal carries it back, per Bible
+# §6 L3). Local rendering does not.

@@ -1,7 +1,7 @@
 {
   "name": "studios",
   "version": "0.1.2",
-  "description": "Cross-studio Producer (was creative-director): one brief, routed across studios (design, messaging, …) and delivered to external services (Gamma, Canva, Slack, Gmail). Studios do the work; the Producer sequences and orchestrates.",
+  "description": "Cross-studio front-of-house — /studio enters at the Principal, who shapes the engagement (objective, audience, scope, cast) and hands a focused brief to the Producer (was creative-director), who routes work across studios (design, messaging, …) and delivers to external services (Gamma, Canva, Slack, Gmail). Studios do the work; the Principal owns the user relationship; the Producer orchestrates.",
   "author": {
     "name": "Julian Tedstone",
     "email": "ted@nopilot.co"
@@ -9,6 +9,7 @@
   "homepage": "https://github.com/nopilot-co/nopilot-co-studios",
   "keywords": [
     "orchestration",
+    "principal",
     "producer",
     "studios",
     "design",

@@ -39,25 +39,34 @@ and all mechanics in the deterministic package so this holds.
 > invariant above is what they must preserve (invoke the *same* skills, never
 > reimplement the logic server-side).
 
-## Orchestration — the Producer
+## Orchestration — the Principal + the Producer
 
-`/studio <brief>` is the **single point of contact** across studios (until the
-Principal front door ships — see `docs/operating-framework.md` §4). The
-`producer` skill (`skills/producer/`, formerly `creative-director`) is a *thin
-coordinator*: it reads the studio registry, plans the brief into jobs, routes
-each to a studio's own orchestrator **by capability**, chains artifacts between
-studios, and is the one place that delivers to external services (Gamma, Canva,
-Slack, Gmail). It holds no domain judgment — the studios' skills do the work,
-which is what keeps results identical across the three invocation modes.
+`/studio <brief>` is the **single point of contact** across studios; it enters
+at the **Principal** (`skills/principal/`), the front-of-house orchestration
+skill. The Principal owns the user relationship and the *what + why*: it shapes
+an opportunity into an engagement (objective, client/audience/market map,
+value-based scope, cast selection), confirms scope with the user (L2 sign-off,
+per `docs/operating-framework.md` §6), then hands a focused brief to the
+**Producer**.
 
-- **Registry:** `studios.yml` (root) lists active studios + the external services
-  the Producer may deliver through.
+The **`producer`** skill (`skills/producer/`, formerly `creative-director`)
+owns the *how*: a *thin coordinator* that reads the studio registry, plans the
+brief into jobs, routes each to a studio's own orchestrator **by capability**,
+chains artifacts between studios, and is the one place that delivers to
+external services (Gamma, Canva, Slack, Gmail). It holds no domain judgment —
+the studios' skills do the work — which is what keeps results identical across
+the three invocation modes. The Producer reports checkpoints + gate verdicts +
+finished artefacts back to the Principal, who carries them to the user.
+
+- **Registry:** `studios.yml` (root) lists active studios + orchestration
+  skills (`principal`, `producer`, `planner`) + the external services the
+  Producer may deliver through.
 - **Per-studio contract:** each studio ships a `<studio>/studio.yaml` capability
   manifest (capabilities, entry points, inputs, outputs). A studio becomes
-  routable the moment it's in `studios.yml` with a manifest — the Producer isn't
-  edited to add one.
-- **Outward actions** (publish/post/email) require explicit user confirmation;
-  local rendering does not.
+  routable the moment it's in `studios.yml` with a manifest — neither the
+  Principal nor the Producer is edited to add one.
+- **Outward actions** (publish/post/email) require explicit user confirmation
+  (L3 — the Principal asks); local rendering does not.
 
 ## Layout
 
