@@ -1,0 +1,33 @@
+# Theme Cluster — capability manifest (how a caller invokes this tool).
+# Dumb tool: no studio dependency. Discovered via the root tools.yml.
+#
+# Caller-supplied-JSON pattern: the model produces theme assignments per
+# source; this tool deterministically writes themes.json (+ optional source
+# tag updates), so the assignments are auditable and replayable.
+tool: theme-cluster
+name: Theme Cluster
+summary: Materialise caller-supplied theme assignments (per-source --assignments JSON) into <batch>/themes.json; optionally also write themes[] into each source's front matter. Caller supplies the judgment; this tool materialises it.
+plugin: theme-cluster
+cli: theme-cluster
+depends_on_studio: false
+
+actions:
+  - id: cluster
+    description: Apply caller-supplied theme assignments to a batch; writes themes.json (+ optional source tag updates).
+    invoke: "theme-cluster --batch <dir> [--manifest <file>] --assignments <file> [--out <name>] [--write-tags] [--quiet]"
+    inputs:
+      batch: "batch directory holding sources.json + summarised NNNN-*.md"
+      assignments: "model-produced JSON mapping each source → its theme assignments (schema in the SKILL docstring)"
+      out: "output filename within --batch (default: themes.json)"
+      write_tags: "also write themes[] into each source's front matter"
+    outputs:
+      themes_json: "<batch>/themes.json"
+      tagged_md: "NNNN-*.md updated with themes[] in front matter when --write-tags"
+    exit_codes: { 0: ok, 2: bad-invocation, 3: error }
+    idempotent: true                 # re-running with the same JSON replaces themes.json + tags
+    side_effects: "writes under --batch only"
+
+install:
+  script: tools/theme-cluster/install.sh
+  cli: ~/.local/bin/theme-cluster
+  deps: [pyyaml]
