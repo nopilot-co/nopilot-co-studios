@@ -13,6 +13,7 @@ from pathlib import Path
 import click
 
 from . import __version__
+from . import autonomy as autonomy_mod
 from . import checkpoints as cp_mod
 from . import decisions as dec_mod
 from . import items as items_mod
@@ -156,9 +157,27 @@ def job() -> None:
 @click.option("--capability", required=True)
 @click.option("--role")
 @click.option("--title")
-def job_add(root: str, capability: str, role: str | None, title: str | None) -> None:
+@click.option(
+    "--action-class",
+    default="L1",
+    type=click.Choice(list(autonomy_mod.ACTION_CLASSES)),
+    help="Bible §6 autonomy class — L0 gather / L1 draft / L2 decide / L3 deliver",
+)
+def job_add(
+    root: str,
+    capability: str,
+    role: str | None,
+    title: str | None,
+    action_class: str,
+) -> None:
     try:
-        j = jobs_mod.add(Path(root), capability=capability, role=role, title=title)
+        j = jobs_mod.add(
+            Path(root),
+            capability=capability,
+            role=role,
+            title=title,
+            action_class=action_class,
+        )
     except (FileNotFoundError, ValueError) as e:
         _die(str(e))
     click.echo(json.dumps(j, indent=2))
@@ -171,6 +190,11 @@ def job_add(root: str, capability: str, role: str | None, title: str | None) -> 
 def job_set(root: str, job_id: str, status: str) -> None:
     try:
         j = jobs_mod.set_status(Path(root), job_id=job_id, status=status)
+    except autonomy_mod.AutonomyError as e:
+        # Exit code 4 = autonomy contract violation (distinct from generic
+        # input errors at 2). The Producer / Principal can branch on it.
+        click.echo(f"autonomy violation [{e.rule}]: {e}", err=True)
+        sys.exit(4)
     except (FileNotFoundError, KeyError, ValueError) as e:
         _die(str(e))
     click.echo(json.dumps(j, indent=2))
@@ -186,9 +210,37 @@ def job_list(root: str, status: str | None) -> None:
         _die(str(e))
     for j in rows:
         click.echo(
-            f"{j['id']}  {j.get('status','?'):<13}  {j['capability']:<26}  "
+            f"{j['id']}  {j.get('action_class','L1')}  "
+            f"{j.get('status','?'):<13}  {j['capability']:<26}  "
             f"{j.get('role','-'):<14}  {j.get('title','')}"
         )
+
+
+# ----------------------------------------------------------------- autonomy
+
+
+@main.command()
+@click.option("--root", required=True, type=click.Path(file_okay=False))
+def autonomy(root: str) -> None:
+    """Per-job autonomy state (Bible §6) — what can complete, what's blocked."""
+    try:
+        data = man.read(Path(root))
+    except FileNotFoundError as e:
+        _die(str(e))
+    rows = autonomy_mod.autonomy_state(data)
+    for r in rows:
+        marker = "✓" if r["can_complete"] else ("·" if r["status"] == "done" else "⛔")
+        click.echo(
+            f"{marker} {r['id']}  {r['action_class']}  {r['status']:<13}  "
+            + ("blocked: " + "; ".join(r["blocked_by"]) if r["blocked_by"] else "free")
+        )
+    counts = autonomy_mod.rollup_counts(data)
+    click.echo("")
+    click.echo(
+        f"summary: awaiting_l2={counts['awaiting_l2']}  "
+        f"awaiting_l3={counts['awaiting_l3']}  "
+        f"by_action_class={counts['by_action_class']}"
+    )
 
 
 # ----------------------------------------------------------------- items (Q/B/R)

@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import re
 
+from . import autonomy
 from .manifest import (
     JOB_STATUSES,
     append_history,
@@ -42,7 +43,12 @@ def add(
     title: str | None = None,
     inputs: dict | None = None,
     checkpoint: str | None = None,
+    action_class: str = "L1",
 ) -> dict:
+    if action_class not in autonomy.ACTION_CLASSES:
+        raise ValueError(
+            f"action_class must be one of: {', '.join(autonomy.ACTION_CLASSES)}"
+        )
     data = read(root)
     jobs = data.setdefault("jobs", [])
     jid = _allocate_id(jobs)
@@ -53,13 +59,14 @@ def add(
         "role": role or "",
         "title": title or "",
         "status": "planned",
+        "action_class": action_class,
     }
     if inputs:
         job["inputs"] = inputs
     if checkpoint:
         job["checkpoint"] = checkpoint
     jobs.append(job)
-    append_history(data, f"job + {jid} ({capability})")
+    append_history(data, f"job + {jid} ({capability}, {action_class})")
     write(root, data)
     return job
 
@@ -70,6 +77,7 @@ def set_status(root, *, job_id: str, status: str) -> dict:
     data = read(root)
     for j in data.get("jobs", []):
         if j.get("id") == job_id:
+            autonomy.check_transition(data, job=j, new_status=status)
             j["status"] = status
             append_history(data, f"job {job_id} → {status}")
             write(root, data)

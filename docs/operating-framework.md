@@ -337,7 +337,11 @@ spine — and puts a portable, canonical layer underneath it.
   (orchestrator, was `creative-director`); the **engagement** manifest
   (`engagement.json`) with first-class brief / cast / jobs / Questions /
   Blockers / Risks / Decisions / L2-L3 Checkpoints / deterministic
-  rollup; the reader-driven composite-document play; per-engagement
+  rollup; the **autonomy ladder as an enforced contract** (Phase 6) —
+  every job carries an `action_class` (L0 / L1 / L2 / L3) and the
+  `done` transition is contract-gated for L2 (requires a cleared
+  Checkpoint) and L3 (additionally requires `decided_by` for explicit
+  human authorisation); the reader-driven composite-document play; per-engagement
   docket + manifests (`production-manifest.json`, `composition.json`,
   `version.json`, `engagement.json`); review gates (nitpicker, audience
   reader-fit, commercial check-commercials) and their scorecards, with
@@ -353,7 +357,6 @@ spine — and puts a portable, canonical layer underneath it.
   tool-bench (`tools/` — `notion-sources`, `source-enrich`,
   `source-summarise`, `theme-propose`, `theme-cluster`, `theme-entity`,
   `youtube-transcript`) with a CI-enforced dumb-tool invariant.
-- **Target (this framework builds toward):** the supervised-autonomy
-  ladder as an enforced contract (Phase 6); the observability spine
+- **Target (this framework builds toward):** the observability spine
   (`ledger.jsonl`, uniform artifact provenance, append-only decision
   records) and the docket → GitHub Projects bridge (Phase 7).

@@ -41,17 +41,29 @@ reads it (via `engagement status`) to walk state back to the user.
      --justification "renderer for the proposition deck"
    ```
 
-4. **Open jobs.** Each job is one invocation of a capability:
+4. **Open jobs.** Each job is one invocation of a capability. **Declare
+   the action class** (Bible §6) — L0 gather, L1 draft (default), L2
+   decide, L3 deliver:
    ```bash
    engagement job add --root <docket> --capability render-asset \
-     --role design --title "investor deck v1"
-   # → J-001 planned
+     --role design --title "investor deck v1" --action-class L1
+   # → J-001 planned (L1)
+
+   engagement job add --root <docket> --capability assess-commercial-value \
+     --role commercial --title "Value-based scoping" --action-class L2
+   # → J-002 planned (L2) — will need a cleared Checkpoint before done
+
+   engagement job add --root <docket> --capability compose-message \
+     --role messaging --title "Send proposal email" --action-class L3
+   # → J-003 planned (L3) — will need cleared CP + decided_by before done
    ```
    As work progresses:
    ```bash
    engagement job set --root <docket> --id J-001 --status in-progress
    engagement job set --root <docket> --id J-001 --status done
    ```
+   For L2 / L3 jobs the `done` transition is **gated** — see step 7
+   (Checkpoints) and the autonomy section below.
 
 5. **Surface open items first-class** (Bible §8). Don't bury Questions /
    Blockers / Risks in prose — every one is a row:
@@ -87,7 +99,12 @@ reads it (via `engagement status`) to walk state back to the user.
    engagement status --root <docket>
    # → engagement / status / rollup (jobs total + by_status / percent_complete /
    #   open_questions / open_blockers / open_risks / pending_checkpoints /
-   #   next_checkpoint)
+   #   next_checkpoint / awaiting_l2 / awaiting_l3 / jobs_by_action_class)
+   ```
+   For per-job autonomy detail (which L2 / L3 jobs are blocked by what):
+   ```bash
+   engagement autonomy --root <docket>
+   # → one row per job: ✓ can complete · ⛔ blocked: needs cleared CP …
    ```
 
 9. **Close.** Move the engagement through its lifecycle states:
@@ -106,10 +123,15 @@ reads it (via `engagement status`) to walk state back to the user.
 - **Decisions point; they don't duplicate.** Each decision is a pointer
   to a record (ADR, assessment, plan). The full content lives where the
   decision was made.
-- **Checkpoints are the autonomy gate.** L2 (scope / price / cast / any
-  binding commitment) and L3 (any outward delivery) must be open
-  checkpoints, not implicit. The Principal carries them to the user
-  (Phase 6 will make this a contract).
+- **Checkpoints are the autonomy gate — contract-enforced.** L2 (scope
+  / price / cast / any binding commitment) and L3 (any outward delivery)
+  must be open Checkpoints, not implicit. As of Phase 6 this is a CLI
+  invariant: a job declared `--action-class L2` or `L3` **cannot** move
+  to `done` unless there's a cleared Checkpoint that lists the job in
+  `blocking_jobs[]`; L3 additionally requires the Checkpoint to carry
+  `decided_by` (explicit human authorisation, never automated). Attempts
+  exit with code 4 and a typed `AutonomyError` so callers can branch on
+  the rule. Inspect per-job state with `engagement autonomy --root <docket>`.
 - **Rollup is derived; never hand-set.** Every write recomputes the
   rollup from the canonical fields.
 - **History is append-only.** Every mutation adds a one-line note.

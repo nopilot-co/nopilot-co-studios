@@ -59,6 +59,10 @@
               "done"
             ]
           },
+          "action_class": {
+            "type": "string",
+            "enum": ["L0", "L1", "L2", "L3"]
+          },
           "inputs": { "type": "object" },
           "outputs": {
             "oneOf": [
