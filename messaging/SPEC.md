@@ -151,11 +151,11 @@ target from it.
 - **Judgment (`message-qa`):** voice adherence, clarity, CTA strength,
   deliverability (spam triggers), required sections present. Mirrors `visual-qa`.
 
-## 10. Creative-director integration
+## 10. Producer integration
 
 - **Capabilities** (update `studio.yaml`): `compose-message` (purpose×channel),
   `sequence`, `announcement`.
-- The director routes briefs and **chains** design → messaging (e.g. a rendered
+- The Producer routes briefs and **chains** design → messaging (e.g. a rendered
   deck → an `outreach-email` that references it), then **delivers** externally
   (Gmail/Slack) with explicit confirmation. The studio stays local and pure.
 
