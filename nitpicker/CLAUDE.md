@@ -27,9 +27,19 @@ target (a rendered file or a live URL) plus the brief it should fulfil, it judge
    reader model (else a freetext `--icp` / stub).
 4. **Tone of voice** — rigorous application of the standardised ToV principles in
    `../configs/default/tone-of-voice.yml`, overlaid by the brand's voice if any.
-5. **The scored test battery** — runs the asset through the configurable,
-   extensible tests in `../configs/tests/` (so-what / yawn / sniff, …) and
-   aggregates a weighted verdict.
+5. **Technical quality** *(Phase 4)* — correctness (facts, numbers, references,
+   technical claims) and completeness (required parts present, caveats and
+   edge cases addressed). Correctness is a gate.
+6. **Delivery quality** *(Phase 4)* — readiness (could it ship as-is — polish,
+   formatting, citations, accessibility?) and actionability (can the reader act
+   without coming back with structural questions?).
+7. **Brand integrity** *(Phase 4)* — voice-fidelity (does it sound like *this*
+   brand, not generic brand voice?) and brand-recognition (would a reader who
+   knows the brand recognise this as theirs?). Brand-recognition is a gate.
+8. **The scored test battery** — runs the asset through the configurable,
+   extensible tests in `../configs/tests/` (so-what / yawn / sniff / correctness
+   / completeness / readiness / actionability / voice-fidelity /
+   brand-recognition) and aggregates a weighted verdict.
 
 Judgment lives in the skills; the `nit` CLI does only mechanics (capture, config
 loading/validation, score aggregation).

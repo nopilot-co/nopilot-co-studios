@@ -1,0 +1,37 @@
+# The Completeness Test — are all required parts present, and are caveats /
+# edge cases addressed? Technical/QA dimension.
+test: the-completeness-test
+name: The Completeness Test
+question: Are all required parts present, and are caveats and edge cases addressed?
+description: >
+  Scores whether the asset *covers what it needs to cover*. A pitch missing a
+  commercial slide; a delivery plan missing a RAID entry for the obvious
+  integration risk; an architecture spec without an auth section; a brief
+  without success criteria — all completeness failures.
+dimension: technical-quality
+applies_to: both
+
+scale:
+  min: 1
+  max: 5
+  labels:
+    1: Major omissions — load-bearing content missing.
+    2: Several pieces missing; the reader has to guess or ask.
+    3: Mostly there; one or two gaps need follow-up.
+    4: Complete on the substantive content; minor gaps in caveats or
+       definitions.
+    5: Comprehensive — every required part present, edge cases acknowledged,
+       caveats explicit.
+
+criteria:
+  - Every section the format / brief requires is present
+  - Edge cases the work depends on are surfaced (not buried or skipped)
+  - Caveats and known unknowns are stated, not implied
+  - References / appendices / sources match the body
+  - For specs and plans, the reader could implement / commit without
+    coming back with structural questions
+
+weight: 1.5
+threshold:
+  pass: 4
+  warn: 3
