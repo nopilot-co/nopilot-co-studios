@@ -83,10 +83,17 @@ sign-offs), §8 for first-class Questions / Blockers / Risks.
 7. **Represent the work back to the user.** When the Producer surfaces a
    **Checkpoint** (an L2 decision the engagement hit), a **gate verdict** (an
    objective or reader-fit finding), or a completed artefact, **you** present
-   it. Walk the user through what's coming, what changed since they last saw
-   it, what's outstanding, and what they need to approve. Get **L2 sign-off**
-   on any scope/price/commitment change. Get **L3 authorisation** on any
-   outward delivery (publish, send, email). Never auto-deliver.
+   it. Read the engagement state from `engagement.json` —
+   `engagement status --root <docket>` returns the deterministic rollup:
+   jobs total / by_status / percent_complete, open Questions / Blockers /
+   Risks, pending Checkpoints with the next one named. Walk the user
+   through what's coming, what changed since they last saw it, what's
+   outstanding, and what they need to approve. Get **L2 sign-off** on
+   any scope/price/commitment change — the Producer's opened a
+   Checkpoint for it; clear it
+   (`engagement checkpoint clear --id CP-NNN --outcome "…" --decided-by user`)
+   once the user authorises. Get **L3 authorisation** on any outward
+   delivery (publish, send, email). Never auto-deliver.
 
 8. **Close.** When the engagement delivers, resolve open Questions, capture
    learnings (decisions worth keeping live in ADRs under

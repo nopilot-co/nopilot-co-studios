@@ -30,6 +30,14 @@ user (L2 sign-off / L3 authorisation, Bible §6).
    single-studio job), the brief comes from the caller and step 1 is just
    reading it.
 
+   **Open / pick up the engagement manifest** (`engagement.json` at the
+   docket root). If it doesn't exist, run `engagement new --root <docket>
+   --engagement <slug> --objective "..."`. If it does, read its state —
+   brief, cast, in-flight jobs, open Q/B/R, pending Checkpoints. The
+   manifest is the audit + replay trail you maintain as you sequence
+   jobs; the Principal reads it (via `engagement status`) when carrying
+   state back to the user. *(Phase 5 — see `skills/engagement/SKILL.md`.)*
+
 2. **Load the registry.** Read `studios.yml` at the studios root for the list of
    active studios and the external services you may deliver through. For each
    studio you intend to use, read its `<path>/studio.yaml` manifest for its
@@ -49,6 +57,17 @@ user (L2 sign-off / L3 authorisation, Bible §6).
    source Markdown and the user only gave a brief, **draft the content first**
    (using the relevant `resources/brand-voice/` voice), then hand it in. Let the
    studio's skills handle brand, format lock-in, render, and QA.
+
+   **Mirror state into `engagement.json`.** Each job you spawn becomes
+   `engagement job add --capability <id> --role <role>`; advance status
+   as work progresses (`engagement job set --id J-NNN --status …`).
+   When a cast role surfaces a Question, Blocker, or Risk, file it
+   (`engagement item add --kind question|blocker|risk …`) — first-class,
+   not buried in prose. When a job hits an L2 boundary (binding scope /
+   price / commitment) or an L3 boundary (outward delivery), open a
+   Checkpoint and tell the Principal (`engagement checkpoint open
+   --level L2|L3 …`). When a consequential decision is made, file a
+   pointer (`engagement decision add --title "…" --ref <path-or-url>`).
 
 5. **Chain.** Pass artifacts forward: a design output becomes a messaging
    studio's input, etc. Track the artifact paths each studio returns.

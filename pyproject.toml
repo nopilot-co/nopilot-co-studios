@@ -3,9 +3,9 @@ requires = ["setuptools>=68", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "studios-planner"
-version = "0.1.2"
-description = "Composite-document planning + assembly orchestrator for the studios root plugin"
+name = "studios-orchestrators"
+version = "0.2.0"
+description = "Root-level orchestrators for the studios plugin — the planner (composite-document planning + assembly) and the engagement manifest (engagement-level state)"
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [{ name = "Julian Tedstone", email = "ted@nopilot.co" }]
@@ -17,10 +17,12 @@ dependencies = [
 
 [project.scripts]
 planner = "planner.cli:main"
+engagement = "engagement.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["scripts"]
-include = ["planner*"]
+include = ["planner*", "engagement*"]
 
 [tool.setuptools.package-data]
 planner = ["schemas/*.json"]
+engagement = ["schemas/*.json"]

@@ -113,6 +113,14 @@ orchestrators:
     produces_for: { studio: design, capability: render-asset }
     status: active
 
+  - slug: engagement
+    skill: engagement
+    cli: engagement
+    summary: Maintain engagement.json — the engagement-level manifest with brief, cast, jobs, first-class Questions/Blockers/Risks (§8), Decisions (§7), L2/L3 Checkpoints (§6), and a deterministic status rollup. Producer-maintained; Principal-readable.
+    use_when: every engagement — the Producer maintains it as jobs run; the Principal reads it for status.
+    produces_for: { skill: producer, skill_alt: principal }
+    status: active
+
 # External services the Producer is the single point of contact for.
 # The Producer publishes/notifies through these; studios stay local and pure.
 # Each maps to an available MCP server; integrate only when authenticated.
