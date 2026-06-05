@@ -1,0 +1,47 @@
+# Analytics Studio — capability manifest (how the Producer calls it).
+# Produces a structured analysis from a supplied dataset. Caller-supplied
+# JSON materialiser pattern with deterministic insight rollups. No native
+# plotting; analytics produces structured viz specs that design (via the
+# planner) can render.
+studio: analytics
+name: Analytics Studio
+summary: >-
+  Produce a structured analysis from a supplied dataset — descriptive
+  statistics, identified patterns, named insights with severity +
+  confidence, and recommended follow-ups. Caller-supplied-JSON
+  materialiser; CLI validates the schema + derives rollups.
+plugin: analytics-studio
+
+entrypoints:
+  orchestrator: /analytics-studio
+  cli: analytics
+
+capabilities:
+  - id: analyse-data
+    description: >-
+      Given a supplied dataset (path or URL) + an analytical brief, produce
+      a structured analysis (descriptive stats, patterns, insights,
+      recommendations). Caller-supplied-JSON pattern.
+    consumes: [csv, json, parquet-metadata, brief]
+    produces: [_analysis.yml]
+    store_ref: ~/context/studios/analytics/<engagement>/
+
+inputs:
+  engagement: slug
+  dataset: path-or-url
+  analysis: json
+  brief: markdown
+
+outputs:
+  store: ~/context/studios/analytics/<engagement>/
+  artifacts:
+    analysis: _analysis.yml # structured analysis with rollups + provenance
+    viz_specs: viz/ # optional — structured viz specs for design to render
+
+resources:
+  analysis_schema: scripts/analytics/schemas/analysis.schema.json
+
+# Pairs with the Principal (grounds claims with evidence), audience
+# (informs reader-state research), and design (renders viz specs via the
+# planner over the docket).
+pairs_with: [principal, producer, audience, design]

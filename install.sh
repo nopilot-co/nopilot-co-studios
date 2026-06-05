@@ -13,7 +13,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGINS=("studios" "design-studio" "messaging-studio" "nitpicker-studio" "audience-studio" "commercial-studio" "delivery-studio" "architecture-studio" "context-studio")
+PLUGINS=("studios" "design-studio" "messaging-studio" "nitpicker-studio" "audience-studio" "commercial-studio" "delivery-studio" "architecture-studio" "context-studio" "analytics-studio")
 
 # ---------------------------------------------------------------- 1. marketplace
 register_marketplace() { # register_marketplace <host-cli>
@@ -145,6 +145,13 @@ if [ -f "$ROOT/context-studio/install.sh" ]; then
     echo "  → run 'context-studio/install.sh' for the context CLI (orchestrates the tools/ tier)"
   fi
 fi
+if [ -f "$ROOT/analytics/install.sh" ]; then
+  if [ -x "$ROOT/analytics/.venv/bin/analytics" ]; then
+    echo "  ✓ analytics CLI present (analytics/.venv/bin/analytics)"
+  else
+    echo "  → run 'analytics/install.sh'    for the analytics CLI"
+  fi
+fi
 
 # ---------------------------------------------------------------- 3. native deps
 echo
@@ -218,3 +225,4 @@ echo "    /commercial-studio <client>       (commercial studio directly)"
 echo "    /delivery-studio <engagement>     (delivery studio directly)"
 echo "    /architecture-studio <engagement> (architecture studio directly)"
 echo "    /context-studio <engagement>      (context studio directly)"
+echo "    /analytics-studio <engagement>    (analytics studio directly)"

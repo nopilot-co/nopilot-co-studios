@@ -108,6 +108,21 @@
       ]
     },
     {
+      "name": "analytics-studio",
+      "source": "./analytics",
+      "version": "0.1.0",
+      "description": "Analytics: produce a structured analysis from a supplied dataset — descriptive statistics, identified patterns, named insights (severity + confidence), recommendations. Caller-supplied-JSON materialiser with deterministic insight + pattern + recommendation rollups.",
+      "category": "analytics",
+      "tags": [
+        "analytics",
+        "data",
+        "patterns",
+        "insight",
+        "engagement",
+        "analysis"
+      ]
+    },
+    {
       "name": "notion-sources",
       "source": "./tools/notion-sources",
       "version": "0.1.0",
