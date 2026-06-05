@@ -126,6 +126,21 @@ message doctor     # MJML
 
 Set `MESSAGING_INSTALL_MJML=1 ./messaging/install.sh` to auto-install MJML.
 
+## Tools tier
+
+Alongside the studios, this repo hosts a **tool-bench** — a peer tier of small,
+dumb, deterministic CLIs that any caller (a studio, an agent, a cron job, a
+shell user) can discover and invoke from the same manifest contract. Tools are
+**not** studios: they own no judgment, no data root, no artefacts; they
+materialise structured input into structured output.
+
+A CI invariant (`scripts/check_tools_standalone.py`) ensures `tools/*` never
+imports a studio package, references `studios.yml`, or hardcodes a studio
+path. See [`tools/README.md`](tools/README.md) for the contract +
+[`docs/architecture/DECISIONS.md`](docs/architecture/DECISIONS.md) ADR-004 for
+the rationale. Status: **scaffold** (P1); the seven utilities listed in
+`context/briefs/02-consolidate.md` Appendix migrate in via P2.
+
 ## Repository structure
 
 ```
@@ -136,6 +151,9 @@ Set `MESSAGING_INSTALL_MJML=1 ./messaging/install.sh` to auto-install MJML.
 ├── skills/producer/             # the orchestrator skill (was creative-director)
 ├── commands/studio.md           # the /studio slash command
 ├── studios.yml                  # registry of active studios + external services
+├── tools.yml                    # tool-bench registry (ADR-004; scaffold)
+├── tools/                       # dumb deterministic CLIs (tool-bench tier)
+├── scripts/check_tools_standalone.py  # CI invariant: tools/ stays studio-free
 ├── install.sh                   # marketplace registration + dep report
 ├── design/                      # design-studio plugin
 │   ├── .claude-plugin/plugin.json
