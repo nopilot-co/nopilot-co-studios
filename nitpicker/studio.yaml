@@ -15,8 +15,9 @@ capabilities:
   - id: review-asset
     description: Review an asset (file or URL) against its brief, audience, brand voice, and the global standards, returning a scored verdict and findings.
     consumes: [pdf, pptx, html, revealjs, image, md, url]
-    dimensions: [visual-qa, brief-fulfilment, audience-fit, tone-of-voice]
-    tests_ref: ../configs/tests/ # the scored battery (so-what / yawn / sniff, extensible)
+    # Phase 4 added technical-quality, delivery-quality, brand-integrity.
+    dimensions: [visual-qa, brief-fulfilment, audience-fit, tone-of-voice, technical-quality, delivery-quality, brand-integrity]
+    tests_ref: ../configs/tests/ # extensible scored battery (impact / engagement / credibility / QA / brand-guardian)
     baselines_ref: ../configs/default/ # tone-of-voice, design-principles, review-policy
   - id: run-tests
     description: Run an asset's content through the configurable, extensible scored test battery and aggregate a weighted verdict.

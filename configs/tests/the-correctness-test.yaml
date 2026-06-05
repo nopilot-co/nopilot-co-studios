@@ -1,0 +1,38 @@
+# The Correctness Test — are the facts, numbers, references, and technical
+# claims accurate? A gate: an asset that fails this fails the verdict
+# regardless of polish, voice, or fit. Technical/QA dimension.
+test: the-correctness-test
+name: The Correctness Test
+question: Are every fact, number, reference, and technical claim accurate?
+description: >
+  Scores whether the asset is *correct*. A pretty deck full of wrong numbers
+  fails. Pulls together fact-checking, numerical integrity, citation
+  accuracy, and technical claims (architecture diagrams that don't lie about
+  data flow; rate cards that match policy; spec claims that match the
+  underlying systems).
+dimension: technical-quality
+applies_to: both
+
+scale:
+  min: 1
+  max: 5
+  labels:
+    1: Material errors — numbers, names, or claims that would mislead the reader.
+    2: Multiple smaller errors; the asset would embarrass on close review.
+    3: One or two minor inaccuracies; not load-bearing but noticeable.
+    4: Accurate; nothing material wrong; minor copy-edits at most.
+    5: Cite-strong — facts traceable, numbers reconciled, technical claims
+       supported by source.
+
+criteria:
+  - Every named number traces to a source or working
+  - Every citation actually says what the asset claims it says
+  - Technical claims (data flow, integration, rate) match the underlying
+    systems / policy / rate card
+  - No fabricated quotes, dates, names, or relationships
+  - Caveats present where confidence is genuinely low
+
+weight: 2.0
+threshold:
+  pass: 4
+  warn: 3

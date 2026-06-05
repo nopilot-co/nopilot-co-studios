@@ -1,0 +1,41 @@
+# The Voice-Fidelity Test — does the language sound like *this brand*, not
+# generic brand-voice? Brand integrity dimension.
+test: the-voice-fidelity-test
+name: The Voice-Fidelity Test
+question: Does the language sound like *this brand* — not just generic brand voice?
+description: >
+  Distinct from the standard tone-of-voice test. ToV catches voice principles
+  in the abstract ("be clear, be direct, avoid jargon"); voice-fidelity
+  catches whether the asset reads as this *specific* brand's voice when the
+  reader knows the brand. Forbidden phrases that sneak in; preferred phrases
+  that don't; cadence drift; register drift. Brand-specific overlay required
+  — without a brand the test scales to 5 by default (no fidelity check
+  possible).
+dimension: brand-integrity
+applies_to: text
+
+scale:
+  min: 1
+  max: 5
+  labels:
+    1: Reads as a different brand or a generic asset; forbidden phrases
+       present.
+    2: Voice slips repeatedly into generic register; preferred phrasing
+       absent.
+    3: Mostly on-voice; a couple of off-brand passages.
+    4: On-voice throughout; minor texture adjustments would tighten.
+    5: Unmistakably this brand — cadence, register, vocabulary, ToV
+       principles in lockstep with the brand spec.
+
+criteria:
+  - "Brand's forbidden phrases (from tone-of-voice.md) absent"
+  - Brand's preferred phrasing surface where it would naturally fit
+  - Register matches the brand (formal/conversational/dry/warm as declared)
+  - Cadence + rhythm match brand examples (if supplied)
+  - "No drift into generic patterns (\"In today's fast-paced world…\") that contradict the brand's voice"
+  - "Brand-agnostic baseline only (no brand bound): score 5; this test can't fire"
+
+weight: 1.0
+threshold:
+  pass: 4
+  warn: 3
