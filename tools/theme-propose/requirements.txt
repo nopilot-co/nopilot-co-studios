@@ -1,0 +1,2 @@
+# theme-propose PyYAML only (read source front matter for the digest).
+PyYAML>=6.0

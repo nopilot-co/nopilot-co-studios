@@ -1,0 +1,29 @@
+# YouTube Transcript — capability manifest (how a caller invokes this tool).
+# Dumb tool: no studio dependency. Discovered via the root tools.yml.
+tool: youtube-transcript
+name: YouTube Transcript
+summary: Extract a YouTube video's transcript to .txt/.md. Captions fast-path first; Whisper fallback when captions aren't available. Optional Markdown front matter, paragraph layout, timestamps, and chapters.
+plugin: youtube-transcript
+cli: yt-transcript                   # symlinked to ~/.local/bin by install.sh
+depends_on_studio: false
+
+actions:
+  - id: extract
+    description: Fetch transcripts (or transcribe via Whisper as fallback) for a YouTube video; write to --out as .txt or .md.
+    invoke: "yt-transcript <url-or-id> [--out <file>] [--lang <a,b>] [--paragraph] [--fallback] [--whisper-model <name>] [--keep-audio] [--front-matter] [--timestamps] [--chapters] [--chapter-interval <s>] [--chapters-json <path>] [--session-title <t>] [--speaker <s>]"
+    inputs:
+      source: "YouTube URL or 11-char video ID"
+      out: "output path (.txt or .md; default: transcript.txt)"
+      lang: "comma-separated language priority (default: en)"
+      fallback: "fall back to Whisper if no captions"
+      whisper_model: "Whisper model name (default: base)"
+    outputs:
+      transcript: "<out>: plain text or Markdown (+ optional YAML front matter, timestamps, chapters)"
+    exit_codes: { 0: ok, 2: bad-invocation, 3: error }
+    idempotent: true                 # same input → same output (modulo caption changes upstream)
+    side_effects: "writes only to --out (and a temp audio cache when --fallback or --keep-audio is set)"
+
+install:
+  script: tools/youtube-transcript/install.sh
+  cli: ~/.local/bin/yt-transcript
+  deps: [youtube-transcript-api, yt-dlp, openai-whisper]  # last is optional, only for --fallback

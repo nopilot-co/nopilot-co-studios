@@ -1,0 +1,44 @@
+# Theme Propose — capability manifest (how a caller invokes this tool).
+# Dumb tool: no studio dependency. Discovered via the root tools.yml.
+#
+# Two-step contract: (1) scan the batch into a context digest the model can
+# use to propose; (2) materialise the caller-supplied proposal, and on adopt
+# freeze it into theme-manifest.json.
+tool: theme-propose
+name: Theme Propose
+summary: Non-destructive theme-framework proposal for a summarised source batch. Step 1 produces a context digest; step 2 materialises the caller-supplied proposal; --adopt freezes an agreed proposal into theme-manifest.json.
+plugin: theme-propose
+cli: theme-propose
+depends_on_studio: false
+
+actions:
+  - id: propose
+    description: Scan the batch into a non-destructive context digest the caller (model/agent) can read to propose themes; or materialise a caller-supplied proposal JSON.
+    invoke: "theme-propose --batch <dir> [--manifest-name <file>] [--proposal-json <file>] [--quiet]"
+    inputs:
+      batch: "batch directory holding sources.json + summarised NNNN-*.md"
+      proposal_json: "model-produced JSON describing the proposed theme framework (schema in the SKILL docstring)"
+    outputs:
+      context_digest: "stdout summary of batch shape + counts; non-destructive"
+      proposal_materialised: "structured proposal written under <batch>/ when --proposal-json is supplied"
+    exit_codes: { 0: ok, 2: bad-invocation, 3: error }
+    idempotent: true
+    side_effects: "non-destructive without --proposal-json; otherwise writes proposal artefacts under --batch only"
+
+  - id: adopt
+    description: Freeze an agreed proposal/manifest JSON into <batch>/theme-manifest.json.
+    invoke: "theme-propose --batch <dir> --adopt <file> [--manifest <out>] [--quiet]"
+    inputs:
+      batch: "batch directory"
+      adopt: "agreed proposal/manifest JSON to freeze"
+      manifest: "output filename within --batch (default: theme-manifest.json)"
+    outputs:
+      theme_manifest: "<batch>/theme-manifest.json"
+    exit_codes: { 0: ok, 2: bad-invocation, 3: error }
+    idempotent: true                 # adopting the same JSON twice is a no-op
+    side_effects: "writes <batch>/theme-manifest.json only"
+
+install:
+  script: tools/theme-propose/install.sh
+  cli: ~/.local/bin/theme-propose
+  deps: [pyyaml]

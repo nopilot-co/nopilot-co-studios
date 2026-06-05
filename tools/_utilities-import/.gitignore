@@ -1,8 +1,0 @@
-__pycache__/
-*.pyc
-.venv/
-*.log
-.DS_Store
-transcript.txt
-*.mp3
-.dual-graph/

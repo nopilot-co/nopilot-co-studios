@@ -1,2 +1,0 @@
-# theme-cluster (STUB) — PyYAML only (optional front-matter tagging).
-PyYAML>=6.0
