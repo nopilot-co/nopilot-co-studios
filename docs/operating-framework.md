@@ -37,8 +37,8 @@ Every such deliverable carries the same three payloads:
 - **Why** — the evidence and reasoning that make it credible (decision-making input).
 - **How** — the method, plan, and investment to execute it (execution instruction).
 
-We call this assembled deliverable the **Engagement Response** (§3). The purpose of
-every Engagement Response is twofold: **win the work** (persuade) and **enable the
+We call this assembled deliverable the **Proposition** (§3). The purpose of
+every Proposition is twofold: **win the work** (persuade) and **enable the
 work** (instruct). It is simultaneously a sales artefact and a delivery artefact.
 
 ---
@@ -79,17 +79,17 @@ Use these words precisely; they are the shared language of the framework.
 | Entity | Definition |
 |---|---|
 | **Opportunity** | A potential piece of work, before it is shaped. Raw. |
-| **Brief** | A shaped opportunity: objectives, audience/client, constraints, success criteria. The Strategist's first output. |
+| **Brief** | A shaped opportunity: objectives, audience/client, constraints, success criteria. The Principal's first output. |
 | **Engagement** | One run of the studio against a brief, from intake to delivery. The top-level unit of work. |
 | **Cast** | The subset of roles chosen for an engagement's scope. Not every role is used every time. |
-| **Role** | A named function in the operating model (Strategist, Producer, Commercial Officer, Technical Architect, …). Realised as a studio, a skill, or an orchestration skill. |
+| **Role** | A named function in the operating model (Principal, Producer, Commercial Officer, Technical Architect, …). Realised as a studio, a skill, or an orchestration skill. |
 | **Capability** | A typed thing a studio can do (`render-asset`, `assess-audience-fit`, `check-commercials`, …), declared in its `studio.yaml` and indexed in `studios.yml`. Roles are routed by capability, not by name. |
 | **Studio** | A self-contained service offering: skills (judgment) + a deterministic CLI (mechanics) + a `studio.yaml` manifest + a data root. Owns a durable, reusable artefact type. |
 | **Skill** | One unit of LLM judgment (a `SKILL.md`). Studios are built from skills. |
-| **Orchestration skill** | A root-level skill that coordinates and holds no artefact of its own (Strategist, Producer, planner). |
+| **Orchestration skill** | A root-level skill that coordinates and holds no artefact of its own (Principal, Producer, planner). |
 | **Job** | One invocation of a capability within an engagement, with typed inputs and outputs. The unit of observation and status. |
 | **Artifact** | Any typed output (a deck, a commercial model, a delivery plan, a section, a reader model). Carries provenance. |
-| **Engagement Response** | The assembled, reader-facing deliverable for an engagement (§1) — the work-winning artefact built from the cast's artefacts. |
+| **Proposition** | The assembled, reader-facing deliverable for an engagement (§1) — the work-winning artefact built from the cast's artefacts. |
 | **Gate** | A review checkpoint that returns a verdict (nitpicker objective review, audience reader-fit, beancounter commercials check). |
 | **Decision** | A recorded consequential judgment: *what, why, alternatives, evidence, role, when* (§7). |
 | **Question / Blocker / Risk** | First-class open items needing resolution: a Question awaits an answer (user/client/role); a Blocker halts jobs; a Risk is a tracked threat (§8). |
@@ -104,15 +104,15 @@ Use these words precisely; they are the shared language of the framework.
 
 ### The two standing roles (front-of-house + orchestration)
 
-- **Strategist** *(Target — orchestration skill; the single point of contact).*
-  The user always talks to the Strategist. It owns the relationship and the
+- **Principal** *(Target — orchestration skill; the single point of contact).*
+  The user always talks to the Principal. It owns the relationship and the
   **what/why**: intake and objective clarification; client, audience, and market
   mapping; value-based scoping and pricing; **choosing the cast**; representing the
   work back to the user; and all L2 sign-offs. It uses the Commercial, Growth/BD,
   and Audience capabilities to do its mapping. It is accountable for the engagement.
 
 - **Producer** *(Target — orchestration skill; today's `creative-director`,
-  renamed and made domain-neutral).* Takes the Strategist's shaped engagement and
+  renamed and made domain-neutral).* Takes the Principal's shaped engagement and
   owns the **how**: assembles the cast, writes each role a focused sub-brief,
   sequences jobs, chains artefacts, runs the gates, and maintains the engagement
   manifest + ledger. It does **not** talk to the client. The current
@@ -122,7 +122,7 @@ Use these words precisely; they are the shared language of the framework.
 > **Why split?** "creative-director" conflated two unrelated jobs — owning the user
 > relationship and routing the work. As the cast spans tech/delivery/commercial/data,
 > the front door must lead with **strategy**, not creative; and the router should be
-> **domain-neutral**. The Strategist owns *what + who*; the Producer owns *how*.
+> **domain-neutral**. The Principal owns *what + who*; the Producer owns *how*.
 
 ### The cast (capability roles)
 
@@ -143,7 +143,7 @@ pitch might use most of them.
 | **Architecture** | Studio | `design-architecture` (systems, data flows, integrations) | **Target** |
 | **Context** | Studio (infrastructural) | `ingest-context`, `map-context`, `extend-context` | **Target** |
 | **Quality assurance** | *Extends Nitpicker* | new test batteries + dimensions for technical/delivery quality | **Target** |
-| **Brand stewardship** | *Shared resource + nitpicker dimension + Strategist remit* | not a maker studio (§ note) | **Today/Target** |
+| **Brand stewardship** | *Shared resource + nitpicker dimension + Principal remit* | not a maker studio (§ note) | **Today/Target** |
 
 **Classification rule** (how to decide studio vs skill vs review-class): a **studio**
 owns a durable, reusable artefact + a data root + deterministic mechanics worth a CLI
@@ -153,14 +153,14 @@ scoring. A **skill** is one judgment step inside a studio. An **orchestration sk
 coordinates and owns no artefact.
 
 > **Brand** is deliberately *not* a maker studio. It has three homes: strategic
-> ownership by the Strategist, a review dimension in the nitpicker (tone-of-voice +
+> ownership by the Principal, a review dimension in the nitpicker (tone-of-voice +
 > brand-spec checks, strengthened into a brand-guardian battery that runs on every
 > deliverable), and curation by the Context studio. This gives brand a strong voice
 > — client's and agency's — without a redundant studio.
 
 ### Decision rights (RACI, summarised)
 
-| | Strategist | Producer | Cast role | User / Client |
+| | Principal | Producer | Cast role | User / Client |
 |---|---|---|---|---|
 | Engagement outcome + relationship | **A** | C | I | C |
 | Objectives, scope, value/price | **A/R** | C | C | **Approves (L2)** |
@@ -173,10 +173,10 @@ coordinates and owns no artefact.
 
 ## 5. The Method (the Engagement lifecycle)
 
-1. **Intake & shape** *(Strategist).* Turn the opportunity into a **Brief**: clarify
+1. **Intake & shape** *(Principal).* Turn the opportunity into a **Brief**: clarify
    objectives, map the client/audience/market, and frame value-based scope. Open the
    docket and the engagement manifest. Raise initial **Questions**.
-2. **Select the cast** *(Strategist).* Choose the roles the scope needs; state why.
+2. **Select the cast** *(Principal).* Choose the roles the scope needs; state why.
    This is an L2 decision — confirm scope + indicative investment with the user.
 3. **Plan & brief** *(Producer).* Decompose the brief into **Jobs** mapped to
    capabilities; sequence them and note chaining; write each role a focused sub-brief;
@@ -187,10 +187,10 @@ coordinates and owns no artefact.
 5. **Gate** *(review-class roles).* Route artefacts through the relevant gates —
    nitpicker (objective + brand + QA), audience (reader-fit), beancounter (commercials).
    Loop findings back to the producing role until the gate passes.
-6. **Assemble the Engagement Response** *(Producer → Strategist).* Merge the cast's
+6. **Assemble the Proposition** *(Producer → Principal).* Merge the cast's
    artefacts into the work-winning format(s); ensure the what/why/how payloads are
    present and coherent.
-7. **Checkpoint & sign-off** *(Strategist ↔ user).* Walk the user through the response;
+7. **Checkpoint & sign-off** *(Principal ↔ user).* Walk the user through the response;
    resolve open Questions; get L2 sign-off on scope/price/commitments.
 8. **Deliver** *(hard-gated, L3).* Publish/send outward only on explicit authorisation.
 9. **Reflect & maintain.** Capture learnings; update the canon and shared context.
@@ -213,7 +213,7 @@ strategic decision and every outward/irreversible action.**
 |---|---|---|---|
 | **L0** | **Gather** | research, analyse, read, capture | Autonomous, always |
 | **L1** | **Draft** | produce internal reversible artefacts, render, validate, score | Autonomous; logged |
-| **L2** | **Decide** | objectives, scope, **value-based price**, cast selection, commercial model, delivery commitments | **Checkpointed** — role proposes, Strategist confirms with the user before it binds |
+| **L2** | **Decide** | objectives, scope, **value-based price**, cast selection, commercial model, delivery commitments | **Checkpointed** — role proposes, Principal confirms with the user before it binds |
 | **L3** | **Commit / Deliver** | send a proposal, email a client, publish, agree a price externally | **Hard-gated** — explicit human authorisation every time |
 
 - A job may run end-to-end at L0–L1 with no human in the loop.
@@ -275,7 +275,7 @@ question | blocker | risk:
 ```
 
 A deterministic **status rollup** (the analogue of `planner status`) lets the user — or
-the Strategist on their behalf — see at any moment: where each job is, what remains,
+the Principal on their behalf — see at any moment: where each job is, what remains,
 which Questions await them, and the next checkpoint.
 
 ### Systems of record: docket canonical, GitHub Projects projection
@@ -333,7 +333,7 @@ spine — and puts a portable, canonical layer underneath it.
   reader-driven composite-document play; per-engagement docket + manifests
   (`production-manifest.json`, `composition.json`, `version.json`); review gates
   (nitpicker, audience reader-fit) and their scorecards.
-- **Target (this framework builds toward):** the Strategist (front-of-house) and the
+- **Target (this framework builds toward):** the Principal (front-of-house) and the
   Producer rename; the Commercial, Growth/BD, Analytics, Delivery, Architecture, and
   Context studios; QA + brand-guardian batteries in the nitpicker; the engagement
   manifest (`engagement.json`) with first-class questions/blockers/risks; the
