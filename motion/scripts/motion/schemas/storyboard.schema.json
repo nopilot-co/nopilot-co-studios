@@ -59,7 +59,18 @@
         "role": { "type": "string", "enum": ["primary", "secondary", "accent", "surface"], "description": "which brand colour role to render with" },
         "enter": { "type": "string", "description": "enter motion (e.g. fade-up, wipe-left)" },
         "emphasis": { "type": "string" },
-        "exit": { "type": "string" }
+        "exit": { "type": "string" },
+        "chart": { "type": "string", "enum": ["bar", "kpi"], "description": "chart kind for a `chart` layer (S4)" },
+        "data": {
+          "description": "chart data: array of {label, value} for `bar`; a number/string for `kpi`",
+          "oneOf": [
+            { "type": "array", "items": {
+              "type": "object", "required": ["value"], "additionalProperties": false,
+              "properties": { "label": { "type": "string" }, "value": { "type": "number" } } } },
+            { "type": "number" },
+            { "type": "string" }
+          ]
+        }
       }
     }
   }
