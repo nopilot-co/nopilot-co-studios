@@ -78,6 +78,21 @@
       ]
     },
     {
+      "name": "architecture-studio",
+      "source": "./architecture",
+      "version": "0.1.0",
+      "description": "Architecture: produce a structured spec for an engagement — systems, data flows, integration points, and ADR-style decision records. Caller-supplied-JSON materialiser with deterministic referential-integrity invariants. Optional diagram render via the design studio.",
+      "category": "architecture",
+      "tags": [
+        "architecture",
+        "systems",
+        "data-flow",
+        "integration",
+        "adr",
+        "decision-record"
+      ]
+    },
+    {
       "name": "notion-sources",
       "source": "./tools/notion-sources",
       "version": "0.1.0",

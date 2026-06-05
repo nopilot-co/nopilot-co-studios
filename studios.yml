@@ -53,6 +53,13 @@ studios:
     capabilities: [plan-delivery]
     status: active
 
+  - slug: architecture
+    path: architecture
+    manifest: architecture/studio.yaml
+    summary: Produce a structured architecture spec for an engagement — systems, data flows, integration points, and ADR-style decision records. Caller-supplied-JSON materialiser with deterministic invariant checks (referential integrity across systems / flows / integrations). Optional diagram render via the design studio.
+    capabilities: [design-architecture]
+    status: active
+
 # Root orchestration skills — NOT maker studios (they make nothing on their own).
 # Three are first-class today: the Principal (front-of-house — the user always
 # talks here first), the Producer (domain-neutral orchestrator the Principal
