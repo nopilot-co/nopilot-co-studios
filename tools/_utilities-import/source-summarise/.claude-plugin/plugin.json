@@ -1,0 +1,8 @@
+{
+  "name": "source-summarise",
+  "version": "0.0.1",
+  "description": "STUB. Summarise each source in an enriched notion-sources batch — a neutral digest, the author's overall position, the core arguments made, and an assessment of the reaction in the comments section — writing them into each source's front matter + a `## Core summary` section. Mechanical CLI + model-supplied JSON (the model reads each enriched body/comments and returns the summary). Standalone CLI: source-summarise.",
+  "author": { "name": "Julian Tedstone", "email": "ted@nopilot.co" },
+  "homepage": "https://github.com/nopilot-co/nopilot-co-utilities/tree/main/source-summarise",
+  "keywords": ["summarise", "position", "arguments", "comments", "thought-leadership", "evidence-base", "stub"]
+}
