@@ -11,6 +11,7 @@ from __future__ import annotations
 
 from datetime import datetime, timezone
 
+from . import ledger
 from .manifest import ITEM_KINDS, ITEM_STATUSES, append_history, read, write
 
 KIND_PREFIX = {"question": "Q", "blocker": "B", "risk": "R"}
@@ -72,6 +73,14 @@ def add(
     items.append(item)
     append_history(data, f"{kind} + {item['id']}: {title}")
     write(root, data)
+    ledger.append(
+        root,
+        kind=f"item.add.{kind}",
+        subject=item["id"],
+        summary=f"+ {item['id']} {kind}: {title}",
+        actor=raised_by_role or "producer",
+        details={"kind": kind, "needs": needs, "blocking_jobs": blocking_jobs},
+    )
     return item
 
 
@@ -94,6 +103,14 @@ def resolve(
             it["resolution"] = resolution
             append_history(data, f"{kind} {item_id} → {status}")
             write(root, data)
+            ledger.append(
+                root,
+                kind=f"item.resolve.{kind}",
+                subject=item_id,
+                summary=f"{item_id} {kind} → {status}: {resolution}",
+                actor="producer",
+                details={"resolution": resolution, "status": status},
+            )
             return it
     raise KeyError(f"no {kind} '{item_id}'")
 

@@ -113,6 +113,56 @@ reads it (via `engagement status`) to walk state back to the user.
    engagement status --root <docket> --set closed
    ```
 
+## Observability — `ledger.jsonl` (Phase 7)
+
+Every mutation that goes through the engagement modules (job add /
+set_status, item add / resolve, checkpoint open / clear, decision add)
+appends one structured event to `ledger.jsonl` at the docket root —
+append-only, one JSON object per line. The manifest gives you *current*
+state; the ledger gives you *every transition*.
+
+```bash
+engagement ledger show --root <docket> [--kind job.set_status] [--subject J-001] [--limit 50]
+engagement ledger tail --root <docket> --limit 20      # JSONL on stdout
+```
+
+Events carry: `at`, `actor` (role or `system`), `kind`, `subject` (the
+id the event is about), `summary`, and a `details` payload (status
+transition, action class, decided_by, etc.). The ledger plus the
+manifest plus the per-artefact provenance (composition.provenance,
+audience model provenance, etc.) is the audit + replay backbone.
+
+## SoR bridge — GitHub Projects (Phase 7)
+
+The docket is canonical. The Producer maintains it; everything else
+is a *projection*. v0.1.0 ships the **GitHub Projects adapter** as a
+sync-plan builder:
+
+```bash
+engagement sync github --root <docket> --owner <gh-owner> [--project "Title"]
+# → JSON plan: project, upsert-issue per job/Q/B/R, status_move per job,
+#   check per checkpoint, comment per decision. Includes a
+#   conflict-rule note + respect_inbound_edit flags so live `gh` writes
+#   skip overwriting user edits.
+engagement sync github --root <docket> --owner <gh-owner> --apply
+# → v0.1.0 dry-runs even with --apply; live `gh` calls land in v0.1.1.
+```
+
+Mapping (Bible §8):
+
+| Docket entity | GitHub Projects |
+|---|---|
+| engagement | Project |
+| job (J-NNN) | Issue / card, status column = job.status |
+| question (Q-NNN) | Issue labelled `question` |
+| blocker (B-NNN) | Issue labelled `blocked` |
+| risk (R-NNN) | Issue labelled `risk` |
+| decision (D-NNN) | Comment + ADR pointer |
+| checkpoint (CP-NNN) | Check on the blocking job(s) |
+
+The adapter pattern is in `scripts/engagement/sor/` — adding Jira or
+Linear is one new class implementing `SoRAdapter.build_sync_plan`.
+
 ## Conventions
 
 - **The manifest is the source of truth.** Don't paraphrase its state in
