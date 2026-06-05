@@ -5,7 +5,7 @@
     "name": "Julian Tedstone",
     "email": "ted@nopilot.co"
   },
-  "description": "nopilot-co-studios marketplace — front-of-house Principal + Producer (was creative-director) orchestration and the studios (design, messaging, nitpicker, audience).",
+  "description": "nopilot-co-studios marketplace — front-of-house Principal + Producer (was creative-director) orchestration, the studios (design, messaging, nitpicker, audience), and a tool-bench (notion-sources, source-enrich, source-summarise, theme-propose, theme-cluster, theme-entity, youtube-transcript).",
   "plugins": [
     {
       "name": "studios",
@@ -46,6 +46,62 @@
       "description": "Model the reader — a structured psychographic profile + need-state — and critique work against a derived weighted rubric, returning a reader-fit verdict + strengthening areas. Reuses the nitpicker scoring engine.",
       "category": "quality",
       "tags": ["audience", "reader", "persona", "psychographics", "critique"]
+    },
+    {
+      "name": "notion-sources",
+      "source": "./tools/notion-sources",
+      "version": "0.1.0",
+      "description": "Extract a Notion database into a per-source Markdown batch + manifest. Schema-agnostic; incremental. Dumb tool — caller-driven.",
+      "category": "tools",
+      "tags": ["notion", "ingest", "sources", "batch", "manifest"]
+    },
+    {
+      "name": "source-enrich",
+      "source": "./tools/source-enrich",
+      "version": "0.1.4",
+      "description": "Enrich a notion-sources batch in place — fetch each source, populate front matter, extract body (HTML/PDF/text) + assets, tidy bylines.",
+      "category": "tools",
+      "tags": ["enrich", "fetch", "html", "pdf", "frontmatter"]
+    },
+    {
+      "name": "source-summarise",
+      "source": "./tools/source-summarise",
+      "version": "0.0.1",
+      "description": "Materialise caller-supplied per-source summaries (--summary-json) into front matter + a 'Core summary' section. Dumb tool — caller supplies the judgment.",
+      "category": "tools",
+      "tags": ["summarise", "frontmatter", "materialiser"]
+    },
+    {
+      "name": "theme-propose",
+      "source": "./tools/theme-propose",
+      "version": "0.0.2",
+      "description": "Non-destructive theme-framework proposal for a summarised source batch; materialise a caller-supplied proposal; on --adopt, freeze into theme-manifest.json.",
+      "category": "tools",
+      "tags": ["themes", "framework", "manifest", "non-destructive"]
+    },
+    {
+      "name": "theme-cluster",
+      "source": "./tools/theme-cluster",
+      "version": "0.0.2",
+      "description": "Materialise caller-supplied theme assignments (--assignments) into themes.json (+ optional source-tag updates). Dumb tool — caller supplies the assignments.",
+      "category": "tools",
+      "tags": ["themes", "cluster", "assignments", "materialiser"]
+    },
+    {
+      "name": "theme-entity",
+      "source": "./tools/theme-entity",
+      "version": "0.0.2",
+      "description": "Render theme-entity Markdown dossiers from themes.json + a caller-supplied per-theme synthesis (--spec); author backlinks + a timeline per theme.",
+      "category": "tools",
+      "tags": ["themes", "entity", "dossier", "backlinks"]
+    },
+    {
+      "name": "youtube-transcript",
+      "source": "./tools/youtube-transcript",
+      "version": "0.3.0",
+      "description": "Extract a YouTube video's transcript to .txt/.md. Captions fast-path with Whisper fallback. Optional Markdown front matter / paragraphs / timestamps / chapters.",
+      "category": "tools",
+      "tags": ["youtube", "transcript", "captions", "whisper"]
     }
   ]
 }
