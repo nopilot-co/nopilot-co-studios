@@ -63,6 +63,21 @@
       ]
     },
     {
+      "name": "delivery-studio",
+      "source": "./delivery",
+      "version": "0.1.0",
+      "description": "Delivery planning: turn a shaped engagement brief into a structured plan — swimlanes keyed to the cast, sequenced phases with entry/exit criteria, per-phase resourcing + contingency, and a first-class RAID register. Caller-supplied-JSON materialiser with deterministic rollups; optional cost via the commercial rate-card.",
+      "category": "delivery",
+      "tags": [
+        "delivery",
+        "planning",
+        "swimlanes",
+        "phasing",
+        "raid",
+        "resourcing"
+      ]
+    },
+    {
       "name": "notion-sources",
       "source": "./tools/notion-sources",
       "version": "0.1.0",

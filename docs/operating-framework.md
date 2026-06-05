@@ -142,7 +142,7 @@ pitch might use most of them.
 | **Commercial** | Studio | `check-commercials` (beancounter), `assess-commercial-value` (commercial officer) | **Today** |
 | **Growth / BD** | Studio | lead-gen, market research, market mapping | **Target** |
 | **Analytics** | Studio | `analyse-data` (patterns, web/engagement, insight) | **Target** |
-| **Delivery** | Studio | `plan-delivery` (swimlanes, phasing, resourcing, contingency, RAID) | **Target** |
+| **Delivery** | Studio | `plan-delivery` (swimlanes, phasing, resourcing, contingency, RAID) | **Today** |
 | **Architecture** | Studio | `design-architecture` (systems, data flows, integrations) | **Target** |
 | **Context** | Studio (infrastructural) | `ingest-context`, `map-context`, `extend-context` | **Target** |
 | **Quality assurance** | *Extends Nitpicker* | new test batteries + dimensions for technical/delivery quality | **Target** |
@@ -331,17 +331,20 @@ spine — and puts a portable, canonical layer underneath it.
 ### Appendix — Today vs Target at a glance
 
 - **Today (built & routable):** design, messaging, audience, nitpicker,
-  **commercial** studios; the document-planner orchestration skill; the
-  **Principal** (front-of-house) and the **Producer** (orchestrator, was
-  `creative-director`); the reader-driven composite-document play;
-  per-engagement docket + manifests (`production-manifest.json`,
-  `composition.json`, `version.json`); review gates (nitpicker, audience
-  reader-fit, **commercial check-commercials**) and their scorecards; a
-  studios-level tool-bench (`tools/` — `notion-sources`, `source-enrich`,
+  **commercial**, **delivery** studios; the document-planner orchestration
+  skill; the **Principal** (front-of-house) and the **Producer**
+  (orchestrator, was `creative-director`); the reader-driven
+  composite-document play; per-engagement docket + manifests
+  (`production-manifest.json`, `composition.json`, `version.json`); review
+  gates (nitpicker, audience reader-fit, commercial check-commercials) and
+  their scorecards; a first-class delivery plan (swimlanes / phases /
+  resourcing / contingency) + RAID register per engagement; a studios-level
+  tool-bench (`tools/` — `notion-sources`, `source-enrich`,
   `source-summarise`, `theme-propose`, `theme-cluster`, `theme-entity`,
   `youtube-transcript`) with a CI-enforced dumb-tool invariant.
 - **Target (this framework builds toward):** the Growth/BD, Analytics,
-  Delivery, Architecture, and Context studios; QA + brand-guardian batteries
-  in the nitpicker; the engagement manifest (`engagement.json`) with
-  first-class questions/blockers/risks; the supervised-autonomy ladder as an
+  Architecture, and Context studios; QA + brand-guardian batteries in the
+  nitpicker; the engagement manifest (`engagement.json`) with first-class
+  questions/blockers/risks (today the delivery studio's RAID register fills
+  this for delivery-side items); the supervised-autonomy ladder as an
   enforced contract; and the GitHub Projects bridge.
