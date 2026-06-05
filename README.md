@@ -13,6 +13,8 @@ across studios.
 | **design-studio** | Markdown → branded **PDF / PPTX / HTML / RevealJS** via **Quarto + Typst**, driven by one `_brand.yml` (Posit brand.yml standard). Versioned outputs + visual QA. |
 | **messaging-studio** | Brand communications — **email, outreach, announcements, multi-step sequences** — composed in a brand's voice. **HTML email via MJML.** |
 | **nitpicker-studio** | Rigorous asset review — **visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice**, plus a configurable scored test battery (so-what / yawn / sniff) — returning a weighted verdict. Reviews; never edits. |
+| **audience-studio** | Model the reader (psychographic profile + need-state) and critique work as them — reader-fit verdict + ranked strengthening areas. Reuses the nitpicker engine for scoring. |
+| **commercial-studio** | **check-commercials** (beancounter — review-class): deterministic deal validation vs rate cards, margin floor, and skill-set ratios — reuses the nitpicker engine. **assess-commercial-value** (commercial officer): value-based opportunity sizing from cited client financials, spend capacity, and addressable market. |
 
 ## Install
 
