@@ -1,0 +1,15 @@
+# rate-card-compliance — gate.
+# Every role rate in the deal must be ≥ the org rate-card floor for that role.
+# A breach (any role under floor) is a critical gate failure.
+id: rate-card-compliance
+gate: true
+weight: 1.0
+summary: All role rates meet or exceed the rate-card floor for that role.
+
+question: |
+  For each line in the deal, is the proposed rate at or above the org's
+  rate-card floor for that role?
+
+scale:
+  "1": Any role rate below floor (breach).
+  "5": Every role rate at or above floor (clean).

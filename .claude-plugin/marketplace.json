@@ -48,6 +48,21 @@
       "tags": ["audience", "reader", "persona", "psychographics", "critique"]
     },
     {
+      "name": "commercial-studio",
+      "source": "./commercial",
+      "version": "0.1.0",
+      "description": "Commercial validation + value-based opportunity sizing: deterministic deal validation against rate cards / margin floors / skill-set ratios (beancounter, review-class — reuses the nitpicker engine), and value-based opportunity sizing from client financial research, spend capacity, and addressable market (commercial officer).",
+      "category": "commercial",
+      "tags": [
+        "commercial",
+        "pricing",
+        "rate-card",
+        "margin",
+        "beancounter",
+        "value-based-pricing"
+      ]
+    },
+    {
       "name": "notion-sources",
       "source": "./tools/notion-sources",
       "version": "0.1.0",

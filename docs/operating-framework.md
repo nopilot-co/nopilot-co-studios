@@ -139,7 +139,7 @@ pitch might use most of them.
 | **Audience** | Studio | `model-audience`, `assess-audience-fit` | **Today** |
 | **Nitpicker** | Studio (review-class) | `review-asset`, `run-tests` | **Today** |
 | **Planner** | Orchestration skill | composite-document planning + assembly | **Today** |
-| **Commercial** | Studio | `check-commercials` (beancounter), `assess-commercial-value` (commercial officer) | **Target** |
+| **Commercial** | Studio | `check-commercials` (beancounter), `assess-commercial-value` (commercial officer) | **Today** |
 | **Growth / BD** | Studio | lead-gen, market research, market mapping | **Target** |
 | **Analytics** | Studio | `analyse-data` (patterns, web/engagement, insight) | **Target** |
 | **Delivery** | Studio | `plan-delivery` (swimlanes, phasing, resourcing, contingency, RAID) | **Target** |
@@ -330,14 +330,18 @@ spine — and puts a portable, canonical layer underneath it.
 
 ### Appendix — Today vs Target at a glance
 
-- **Today (built & routable):** design, messaging, audience, nitpicker studios;
-  the document-planner orchestration skill; the **Principal** (front-of-house)
-  and the **Producer** (orchestrator, was `creative-director`); the
-  reader-driven composite-document play; per-engagement docket + manifests
-  (`production-manifest.json`, `composition.json`, `version.json`); review gates
-  (nitpicker, audience reader-fit) and their scorecards.
-- **Target (this framework builds toward):** the Commercial, Growth/BD,
-  Analytics, Delivery, Architecture, and Context studios; QA + brand-guardian
-  batteries in the nitpicker; the engagement manifest (`engagement.json`) with
+- **Today (built & routable):** design, messaging, audience, nitpicker,
+  **commercial** studios; the document-planner orchestration skill; the
+  **Principal** (front-of-house) and the **Producer** (orchestrator, was
+  `creative-director`); the reader-driven composite-document play;
+  per-engagement docket + manifests (`production-manifest.json`,
+  `composition.json`, `version.json`); review gates (nitpicker, audience
+  reader-fit, **commercial check-commercials**) and their scorecards; a
+  studios-level tool-bench (`tools/` — `notion-sources`, `source-enrich`,
+  `source-summarise`, `theme-propose`, `theme-cluster`, `theme-entity`,
+  `youtube-transcript`) with a CI-enforced dumb-tool invariant.
+- **Target (this framework builds toward):** the Growth/BD, Analytics,
+  Delivery, Architecture, and Context studios; QA + brand-guardian batteries
+  in the nitpicker; the engagement manifest (`engagement.json`) with
   first-class questions/blockers/risks; the supervised-autonomy ladder as an
   enforced contract; and the GitHub Projects bridge.

@@ -43,17 +43,21 @@ sign-offs), §8 for first-class Questions / Blockers / Risks.
      user-validated before binding decisions.*
    - **Market** — competitive context, comparables, recent moves, where
      relevant. (Growth/BD studio will own `market research` once built — Bible
-     §4 Target. Today: do it in prose and flag the gap.)
+     §4 Target. Today: do it in prose and flag the gap. The commercial
+     studio's `assess-commercial-value` captures addressable-market sizing.)
 
 4. **Value-based scoping.** Frame scope as the **value the user gets** — the
    outcome and what success looks like — not the deliverables list. Indicate
    investment band (T-shirt or coarse %), not a quote. This is an **L2
    decision** (Bible §6) — surface it as a Checkpoint, present alternatives if
    there's a meaningful fork, and get the user's confirmation before binding.
-   *(The Commercial studio's `assess-commercial-value` and `check-commercials`
-   will own value sizing and rate-card validation once built — Bible §4 Target.
-   Today: propose in prose, mark `pending-commercial-check` if the studio is
-   missing.)*
+   Use the **commercial studio** for value sizing and rate-card validation:
+   `/commercial-studio` → `assess-commercial-value` (commercial officer)
+   produces a structured assessment from cited financial research + spend
+   capacity + addressable market; `check-commercials` (beancounter) gates
+   any proposed deal against the org's rate cards, margin floor, and
+   skill-set ratios. The beancounter's verdict is a critical gate for L2
+   sign-off — a `fail` on a rate-card or margin floor blocks commitment.
 
 5. **Choose the cast.** Pick the roles (Bible §4 cast table) the scope needs.
    Justify each in one line. Skip what isn't needed — not every engagement

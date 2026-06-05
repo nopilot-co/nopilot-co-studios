@@ -39,6 +39,13 @@ studios:
     capabilities: [visualise, present]
     status: planned          # scaffolded (S0); routable once S2 ships explainer-mp4
 
+  - slug: commercial
+    path: commercial
+    manifest: commercial/studio.yaml
+    summary: Validate a deal against rate cards / margin floors / skill-set ratios (beancounter, review-class — reuses the nitpicker engine); size the opportunity from client financials, spend capacity, and addressable market (commercial officer). The Principal uses this for value-based scoping.
+    capabilities: [check-commercials, assess-commercial-value]
+    status: active
+
 # Root orchestration skills — NOT maker studios (they make nothing on their own).
 # Three are first-class today: the Principal (front-of-house — the user always
 # talks here first), the Producer (domain-neutral orchestrator the Principal
