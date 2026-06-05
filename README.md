@@ -3,6 +3,10 @@
 A Claude Code plugin marketplace for branded creative work — one brief, routed
 across studios.
 
+> **Operating model:** how the studio wins and delivers work — its vision, roles,
+> method, autonomy, observability, and systems of record — is the canon in
+> [`docs/operating-framework.md`](docs/operating-framework.md) (the "Bible").
+
 | Plugin | What it does |
 |---|---|
 | **studios** | Creative-director. `/studio <brief>` plans a brief, routes each job to a studio, chains artifacts between studios, and is the one place that delivers to external services (Gamma, Canva, Slack, Gmail). |
