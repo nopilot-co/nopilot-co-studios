@@ -67,6 +67,13 @@ studios:
     capabilities: [ingest-context, map-context, extend-context]
     status: active
 
+  - slug: analytics
+    path: analytics
+    manifest: analytics/studio.yaml
+    summary: Produce a structured analysis from a supplied dataset — descriptive statistics, identified patterns, named insights (severity + confidence), recommendations. Caller-supplied-JSON materialiser with deterministic insight + pattern + recommendation rollups. Viz specs handed to design via the planner.
+    capabilities: [analyse-data]
+    status: active
+
 # Root orchestration skills — NOT maker studios (they make nothing on their own).
 # Three are first-class today: the Principal (front-of-house — the user always
 # talks here first), the Producer (domain-neutral orchestrator the Principal
