@@ -1,0 +1,157 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/schemas/engagement/engagement.json",
+  "title": "Engagement manifest",
+  "description": "The engagement-level analogue of composition.json. Producer maintained; Principal-readable. First-class brief, cast, jobs, questions/blockers/risks, decisions, checkpoints, and a derived rollup.",
+  "type": "object",
+  "required": ["schema_version", "engagement", "status", "created", "brief"],
+  "properties": {
+    "schema_version": { "type": "string" },
+    "engagement": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "scoping", "active", "delivered", "closed"]
+    },
+    "created": { "type": "string" },
+    "brief": {
+      "type": "object",
+      "required": ["objective"],
+      "properties": {
+        "objective": { "type": "string" },
+        "audience": { "type": "string" },
+        "client": { "type": "string" },
+        "constraints": { "type": "array", "items": { "type": "string" } },
+        "success_criteria": { "type": "array", "items": { "type": "string" } }
+      },
+      "additionalProperties": true
+    },
+    "cast": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["role"],
+        "properties": {
+          "role": { "type": "string", "minLength": 1 },
+          "justification": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "jobs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "capability", "status"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^J-\\d{3,}$" },
+          "slug": { "type": "string" },
+          "capability": { "type": "string", "minLength": 1 },
+          "role": { "type": "string" },
+          "title": { "type": "string" },
+          "status": {
+            "type": "string",
+            "enum": [
+              "planned",
+              "briefed",
+              "in-progress",
+              "blocked",
+              "gated",
+              "done"
+            ]
+          },
+          "inputs": { "type": "object" },
+          "outputs": {
+            "oneOf": [
+              { "type": "object" },
+              { "type": "array", "items": { "type": "string" } }
+            ]
+          },
+          "checkpoint": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "questions": { "$ref": "#/$defs/itemList" },
+    "blockers": { "$ref": "#/$defs/itemList" },
+    "risks": { "$ref": "#/$defs/itemList" },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "recorded_at"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^D-\\d{3,}$" },
+          "title": { "type": "string", "minLength": 1 },
+          "ref": { "type": "string" },
+          "role": { "type": "string" },
+          "summary": { "type": "string" },
+          "recorded_at": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "checkpoints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "level", "title", "status", "opened_at"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^CP-\\d{3,}$" },
+          "level": { "type": "string", "enum": ["L2", "L3"] },
+          "title": { "type": "string", "minLength": 1 },
+          "status": {
+            "type": "string",
+            "enum": ["pending", "cleared", "declined"]
+          },
+          "raised_by_role": { "type": "string" },
+          "blocking_jobs": { "type": "array", "items": { "type": "string" } },
+          "evidence": { "type": "string" },
+          "opened_at": { "type": "string" },
+          "resolved_at": { "type": "string" },
+          "outcome": { "type": "string" },
+          "decided_by": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "rollup": { "type": "object" },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["at", "note"],
+        "properties": {
+          "at": { "type": "string" },
+          "note": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "$defs": {
+    "itemList": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "title", "status", "raised_at"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[QBR]-\\d{3,}$" },
+          "kind": { "type": "string", "enum": ["question", "blocker", "risk"] },
+          "title": { "type": "string", "minLength": 1 },
+          "status": {
+            "type": "string",
+            "enum": ["open", "answered", "resolved"]
+          },
+          "raised_at": { "type": "string" },
+          "raised_by_role": { "type": "string" },
+          "needs": { "type": "string", "enum": ["user", "client", "role"] },
+          "blocking_jobs": { "type": "array", "items": { "type": "string" } },
+          "resolved_at": { "type": "string" },
+          "resolution": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

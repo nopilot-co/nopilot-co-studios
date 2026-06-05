@@ -331,26 +331,29 @@ spine — and puts a portable, canonical layer underneath it.
 ### Appendix — Today vs Target at a glance
 
 - **Today (built & routable):** design, messaging, audience, nitpicker,
-  **commercial**, **delivery**, **architecture**, **context** studios; the
-  document-planner orchestration skill; the **Principal** (front-of-house)
-  and the **Producer** (orchestrator, was `creative-director`); the
-  reader-driven composite-document play; per-engagement docket + manifests
-  (`production-manifest.json`, `composition.json`, `version.json`); review
-  gates (nitpicker, audience reader-fit, commercial check-commercials) and
-  their scorecards; a first-class delivery plan (swimlanes / phases /
-  resourcing / contingency) + RAID register per engagement; a structured
-  architecture spec (systems / data flows / integrations) with
+  **commercial**, **delivery**, **architecture**, **context**,
+  **analytics**, **growth** studios; the document-planner orchestration
+  skill; the **Principal** (front-of-house) and the **Producer**
+  (orchestrator, was `creative-director`); the **engagement** manifest
+  (`engagement.json`) with first-class brief / cast / jobs / Questions /
+  Blockers / Risks / Decisions / L2-L3 Checkpoints / deterministic
+  rollup; the reader-driven composite-document play; per-engagement
+  docket + manifests (`production-manifest.json`, `composition.json`,
+  `version.json`, `engagement.json`); review gates (nitpicker, audience
+  reader-fit, commercial check-commercials) and their scorecards, with
+  the Phase-4 nitpicker dimensions (`technical-quality`,
+  `delivery-quality`, `brand-integrity`) and the correctness +
+  brand-recognition gates; a first-class delivery plan (swimlanes /
+  phases / resourcing / contingency) + RAID register per engagement; a
+  structured architecture spec (systems / data flows / integrations) with
   referential-integrity invariants + ADR-style decision records; a
   per-engagement context store populated by the context studio
-  orchestrating the tools tier; a studios-level tool-bench (`tools/` —
-  `notion-sources`, `source-enrich`, `source-summarise`, `theme-propose`,
-  `theme-cluster`, `theme-entity`, `youtube-transcript`) with a
-  CI-enforced dumb-tool invariant.
-- **Target (this framework builds toward):** the Growth/BD and Analytics
-  studios; QA + brand-guardian batteries in the nitpicker; the engagement
-  manifest (`engagement.json`) with first-class questions/blockers/risks
-  (today the delivery studio's RAID register fills this for delivery-side
-  items, the architecture studio's ADRs satisfy the §7 decision-record
-  convention for technical choices, and the context studio's manifest
-  records the orchestration trail); the supervised-autonomy ladder as an
-  enforced contract; and the GitHub Projects bridge.
+  orchestrating the tools tier; structured analyses + lead lists +
+  market maps from the analytics and growth studios; a studios-level
+  tool-bench (`tools/` — `notion-sources`, `source-enrich`,
+  `source-summarise`, `theme-propose`, `theme-cluster`, `theme-entity`,
+  `youtube-transcript`) with a CI-enforced dumb-tool invariant.
+- **Target (this framework builds toward):** the supervised-autonomy
+  ladder as an enforced contract (Phase 6); the observability spine
+  (`ledger.jsonl`, uniform artifact provenance, append-only decision
+  records) and the docket → GitHub Projects bridge (Phase 7).
