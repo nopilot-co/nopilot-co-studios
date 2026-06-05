@@ -46,6 +46,13 @@ studios:
     capabilities: [check-commercials, assess-commercial-value]
     status: active
 
+  - slug: delivery
+    path: delivery
+    manifest: delivery/studio.yaml
+    summary: Turn a shaped engagement brief into a structured delivery plan — swimlanes keyed to the cast, sequenced phases with entry/exit criteria, per-phase resourcing + contingency, and a first-class RAID register. Caller-supplied-JSON materialiser; deterministic rollups; optional cost rollup via the commercial rate-card.
+    capabilities: [plan-delivery]
+    status: active
+
 # Root orchestration skills — NOT maker studios (they make nothing on their own).
 # Three are first-class today: the Principal (front-of-house — the user always
 # talks here first), the Producer (domain-neutral orchestrator the Principal

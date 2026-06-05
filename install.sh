@@ -13,7 +13,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGINS=("studios" "design-studio" "messaging-studio" "nitpicker-studio" "audience-studio" "commercial-studio")
+PLUGINS=("studios" "design-studio" "messaging-studio" "nitpicker-studio" "audience-studio" "commercial-studio" "delivery-studio")
 
 # ---------------------------------------------------------------- 1. marketplace
 register_marketplace() { # register_marketplace <host-cli>
@@ -124,6 +124,13 @@ if [ -f "$ROOT/commercial/install.sh" ]; then
     echo "  → run 'commercial/install.sh' for the commercial CLI (reuses 'nit' for scoring)"
   fi
 fi
+if [ -f "$ROOT/delivery/install.sh" ]; then
+  if [ -x "$ROOT/delivery/.venv/bin/delivery" ]; then
+    echo "  ✓ delivery CLI present (delivery/.venv/bin/delivery)"
+  else
+    echo "  → run 'delivery/install.sh'   for the delivery CLI (optional cost via commercial)"
+  fi
+fi
 
 # ---------------------------------------------------------------- 3. native deps
 echo
@@ -194,3 +201,4 @@ echo "    /messaging-studio                 (messaging studio directly)"
 echo "    /nitpicker-studio <asset>         (nitpicker studio directly)"
 echo "    /audience-studio <reader>         (audience studio directly)"
 echo "    /commercial-studio <client>       (commercial studio directly)"
+echo "    /delivery-studio <engagement>     (delivery studio directly)"
