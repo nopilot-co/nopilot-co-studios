@@ -138,6 +138,20 @@ check typst "brew install typst                (design — PDF engine; usually b
 check libreoffice "brew install --cask libreoffice  (design — PPTX→PDF for QA; binary may be 'soffice')" soffice
 check mjml "npm install -g mjml              (messaging — optional, HTML email only)"
 
+# ---------------------------------------------------------------- 4. tools tier
+echo
+echo "Tools tier (dumb deterministic CLIs — ADR-004):"
+if [ -f "$ROOT/tools.yml" ]; then
+  tool_count="$(grep -cE '^\s*-\s*slug:' "$ROOT/tools.yml" 2> /dev/null || echo 0)"
+  if [ "$tool_count" -gt 0 ]; then
+    echo "  ✓ $tool_count tool(s) registered in tools.yml"
+  else
+    echo "  • tools.yml present, no tools registered yet (scaffold-only; see tools/README.md)"
+  fi
+else
+  echo "  ✗ tools.yml missing — tools tier not scaffolded"
+fi
+
 echo
 echo "Done. Try:"
 echo "    /studio <your brief>             (Producer)"

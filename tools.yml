@@ -1,0 +1,20 @@
+# Tool-bench registry — the discoverable, standalone-usable, *dumb* tools
+# any caller (studio, agent, cron, shell user) can invoke from a manifest.
+#
+# Tools are NOT studios. The dumb-tool invariant is CI-enforced — see
+# tools/README.md and scripts/check_tools_standalone.py. A tool has no
+# operational, functional, or contextual reliance on any studio: no studio
+# imports, no studios.yml references, no studio/context path assumptions,
+# no director assumption. All input via flags/env/JSON, all output to a
+# caller-specified location.
+#
+# Each tool declares full capabilities (per-action invoke template, IO
+# shape, exit codes, idempotency, side-effects) in <path>/tool.yaml. This
+# file is the discovery index — add a tool here with a tool.yaml and it
+# becomes invokable immediately, no caller-side change required.
+#
+# Shape mirrors studios.yml on purpose: a caller's mental model is the
+# same for both tiers.
+#
+# Status: P1 scaffold — tools migrate in via P2 (see ADR-004).
+tools: []
