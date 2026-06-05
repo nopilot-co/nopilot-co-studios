@@ -74,6 +74,13 @@ studios:
     capabilities: [analyse-data]
     status: active
 
+  - slug: growth
+    path: growth
+    manifest: growth/studio.yaml
+    summary: Generate qualified leads (with fit scores from caller-supplied ICP + criteria) and map the market (segments + competitors + positioning from supplied research). Caller-supplied-JSON materialiser pattern; deterministic rollups (leads by fit / source / owner; segment + competitor counts; positioning quadrant distribution).
+    capabilities: [generate-leads, map-market]
+    status: active
+
 # Root orchestration skills — NOT maker studios (they make nothing on their own).
 # Three are first-class today: the Principal (front-of-house — the user always
 # talks here first), the Producer (domain-neutral orchestrator the Principal

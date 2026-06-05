@@ -1,0 +1,54 @@
+# Growth/BD Studio — capability manifest (how the Producer calls it).
+# Two capabilities: generate-leads (structured lead list with fit scores)
+# and map-market (segments + competitors + positioning). Caller-supplied
+# JSON pattern throughout.
+studio: growth
+name: Growth/BD Studio
+summary: >-
+  Generate qualified leads (with fit scores) and map the market (segments
+  + competitors + positioning) for an engagement. Caller-supplied-JSON
+  materialiser pattern; deterministic rollups (leads by fit / source;
+  market segment + competitor counts).
+plugin: growth-studio
+
+entrypoints:
+  orchestrator: /growth-studio
+  cli: growth
+
+capabilities:
+  - id: generate-leads
+    description: >-
+      Produce a structured lead list from a caller-supplied ICP (audience
+      slug or freetext) + criteria. Each lead has company, signals
+      (matched + missing), fit score, owner, source. Deterministic
+      rollups by fit + by source.
+    consumes: [icp, criteria]
+    produces: [_leads.yml]
+    store_ref: ~/context/studios/growth/<engagement>/
+  - id: map-market
+    description: >-
+      Produce a structured market map (segments + competitors +
+      positioning) from caller-supplied research. Deterministic rollups
+      (segment / competitor counts; positioning quadrant distribution).
+    consumes: [research]
+    produces: [_market.yml]
+
+inputs:
+  engagement: slug
+  icp: slug-or-freetext # from audience studio when present
+  leads: json # caller-supplied lead list payload
+  market: json # caller-supplied market map payload
+
+outputs:
+  store: ~/context/studios/growth/<engagement>/
+  artifacts:
+    leads: _leads.yml
+    market: _market.yml
+
+resources:
+  leads_schema: scripts/growth/schemas/leads.schema.json
+  market_schema: scripts/growth/schemas/market.schema.json
+
+# Pairs with the Principal (mapping + scoping) and audience (consume the
+# ICP slug for fit scoring).
+pairs_with: [principal, producer, audience]

@@ -123,6 +123,21 @@
       ]
     },
     {
+      "name": "growth-studio",
+      "source": "./growth",
+      "version": "0.1.0",
+      "description": "Growth/BD: generate-leads (structured lead list with fit scores from caller-supplied ICP + criteria) and map-market (segments + competitors + positioning from caller-supplied research). Caller-supplied-JSON materialiser pattern.",
+      "category": "growth",
+      "tags": [
+        "growth",
+        "business-development",
+        "lead-gen",
+        "market-research",
+        "market-mapping",
+        "icp"
+      ]
+    },
+    {
       "name": "notion-sources",
       "source": "./tools/notion-sources",
       "version": "0.1.0",

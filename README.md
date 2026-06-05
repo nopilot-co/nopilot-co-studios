@@ -19,6 +19,7 @@ across studios.
 | **architecture-studio** | **design-architecture**: produce a structured architecture spec for an engagement — systems, data flows, integration points, and ADR-style decision records. Caller-supplied JSON; deterministic referential-integrity invariants. Optional diagram render via the design studio. |
 | **context-studio** | **ingest-context** / **map-context** / **extend-context**: infrastructural — orchestrates the `tools/` tier (notion-sources / source-enrich / source-summarise / theme-propose / theme-cluster / theme-entity / yt-transcript) into a per-engagement context store. Other studios reference the context by slug. |
 | **analytics-studio** | **analyse-data**: produce a structured analysis from a supplied dataset — descriptive statistics, identified patterns, named insights (severity + confidence), recommendations. Caller-supplied JSON; deterministic rollups. |
+| **growth-studio** | **generate-leads** + **map-market**: structured lead list with fit scores from caller-supplied ICP + criteria; market map (segments + competitors + positioning) from caller-supplied research. Caller-supplied JSON; deterministic rollups. |
 
 ## Install
 

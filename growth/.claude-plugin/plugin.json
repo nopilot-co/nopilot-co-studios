@@ -1,0 +1,18 @@
+{
+  "name": "growth-studio",
+  "version": "0.1.0",
+  "description": "Growth/BD studio: generate-leads (structured lead list with fit scores from caller-supplied ICP + criteria) and map-market (segments + competitors + positioning from caller-supplied research). Caller-supplied-JSON materialiser pattern; deterministic rollups (lead count by fit / source; segment + competitor counts; positioning distribution).",
+  "author": {
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
+  },
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/growth",
+  "keywords": [
+    "growth",
+    "business-development",
+    "lead-gen",
+    "market-research",
+    "market-mapping",
+    "icp"
+  ]
+}
