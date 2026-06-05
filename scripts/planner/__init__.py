@@ -9,7 +9,7 @@ sections, ordering, research, briefs, synthesis) lives in
 manifest, validation, and the deterministic merge — no judgment here.
 
 The planner is **not** a maker studio: it never renders. It plans + assembles,
-then the creative-director chains the merged ``source.md`` to the design studio's
+then the Producer chains the merged ``source.md`` to the design studio's
 ``render-asset`` capability (``studio session init`` → ``studio render``).
 """
 

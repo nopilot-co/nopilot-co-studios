@@ -9,7 +9,7 @@ across studios.
 
 | Plugin | What it does |
 |---|---|
-| **studios** | Creative-director. `/studio <brief>` plans a brief, routes each job to a studio, chains artifacts between studios, and is the one place that delivers to external services (Gamma, Canva, Slack, Gmail). |
+| **studios** | Producer (was creative-director). `/studio <brief>` plans a brief, routes each job to a studio, chains artifacts between studios, and is the one place that delivers to external services (Gamma, Canva, Slack, Gmail). |
 | **design-studio** | Markdown → branded **PDF / PPTX / HTML / RevealJS** via **Quarto + Typst**, driven by one `_brand.yml` (Posit brand.yml standard). Versioned outputs + visual QA. |
 | **messaging-studio** | Brand communications — **email, outreach, announcements, multi-step sequences** — composed in a brand's voice. **HTML email via MJML.** |
 | **nitpicker-studio** | Rigorous asset review — **visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice**, plus a configurable scored test battery (so-what / yawn / sniff) — returning a weighted verdict. Reviews; never edits. |
@@ -39,14 +39,15 @@ native dependencies are present. Re-run it any time.
 
 ## Quickstart
 
-### Cross-studio (the creative-director)
+### Cross-studio (the Producer)
 
 ```
 /studio <your brief>
 ```
 
-The director reads `studios.yml`, plans the brief into jobs, dispatches each to
+The Producer reads `studios.yml`, plans the brief into jobs, dispatches each to
 a studio by capability, then asks before publishing to any external service.
+(Previously named `creative-director`; same orchestrator, domain-neutral.)
 
 ### Design studio
 
@@ -131,8 +132,8 @@ Set `MESSAGING_INSTALL_MJML=1 ./messaging/install.sh` to auto-install MJML.
 .
 ├── .claude-plugin/
 │   ├── marketplace.json         # marketplace manifest (this repo)
-│   └── plugin.json              # root creative-director plugin
-├── skills/creative-director/    # the orchestrator skill
+│   └── plugin.json              # root Producer plugin (was creative-director)
+├── skills/producer/             # the orchestrator skill (was creative-director)
 ├── commands/studio.md           # the /studio slash command
 ├── studios.yml                  # registry of active studios + external services
 ├── install.sh                   # marketplace registration + dep report
@@ -225,7 +226,7 @@ studio:
 - In `.claude-plugin/marketplace.json`, the marketplace-root plugin's source
   must be `"./"` — a bare `"."` is rejected as an unsupported source type.
 - Each studio ships its own `studio.yaml` capability manifest and is listed in
-  the root `studios.yml`; the creative-director isn't edited to add a studio.
+  the root `studios.yml`; the Producer isn't edited to add a studio.
 
 ## Licence
 

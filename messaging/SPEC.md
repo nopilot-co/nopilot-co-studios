@@ -17,11 +17,11 @@ channel.
 
 - **In scope:** composition, channel-fit, voice adherence, multi-step sequences,
   and deterministic linting against channel rules.
-- **Out of scope:** *sending* (the creative-director delivers via the Gmail/Slack
-  MCP, with confirmation); *visual design* (design studio); *contact/CRM data*.
+- **Out of scope:** *sending* (the Producer delivers via the Gmail/Slack MCP,
+  with confirmation); *visual design* (design studio); *contact/CRM data*.
 - **Relationship to design:** a parallel studio. Design makes the artifact;
-  messaging makes the words around it. They chain through the creative-director
-  and **share one brand voice**.
+  messaging makes the words around it. They chain through the Producer and
+  **share one brand voice**.
 
 The studios invariant holds: messaging's **skills are the single source of
 processing behavior**, identical across all three invocation modes.
@@ -73,7 +73,7 @@ counterpart of `exports/`:
 
 Channels may declare a `requires` block like design's exports, but messaging is
 text-first — most need no native tools. **Delivery tools (Gmail/Slack MCP) belong
-to the creative-director, not to a channel.**
+to the Producer, not to a channel.**
 
 ## 4. Skills (the pipeline)
 
@@ -151,11 +151,11 @@ target from it.
 - **Judgment (`message-qa`):** voice adherence, clarity, CTA strength,
   deliverability (spam triggers), required sections present. Mirrors `visual-qa`.
 
-## 10. Creative-director integration
+## 10. Producer integration
 
 - **Capabilities** (update `studio.yaml`): `compose-message` (purpose×channel),
   `sequence`, `announcement`.
-- The director routes briefs and **chains** design → messaging (e.g. a rendered
+- The Producer routes briefs and **chains** design → messaging (e.g. a rendered
   deck → an `outreach-email` that references it), then **delivers** externally
   (Gmail/Slack) with explicit confirmation. The studio stays local and pure.
 

@@ -140,7 +140,7 @@ check mjml "npm install -g mjml              (messaging — optional, HTML email
 
 echo
 echo "Done. Try:"
-echo "    /studio <your brief>             (creative-director)"
+echo "    /studio <your brief>             (Producer)"
 echo "    /design-studio <file.md>          (design studio directly)"
 echo "    /messaging-studio                 (messaging studio directly)"
 echo "    /nitpicker-studio <asset>         (nitpicker studio directly)"

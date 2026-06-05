@@ -1,7 +1,7 @@
-# Studio registry — what the creative-director can route a brief to.
+# Studio registry — what the Producer can route a brief to.
 # Each active studio declares full capabilities in <path>/studio.yaml; this file
 # is the discovery index. Add a studio here (with a manifest) and it becomes
-# routable immediately — no change to the director.
+# routable immediately — no change to the Producer.
 
 studios:
   - slug: design
@@ -39,9 +39,9 @@ studios:
     capabilities: [visualise, present]
     status: planned          # scaffolded (S0); routable once S2 ships explainer-mp4
 
-# Root orchestration skills the creative-director invokes directly — NOT maker
-# studios (they make nothing on their own). These sequence work before routing to
-# a studio's capability. The director reaches them by skill name; they are listed
+# Root orchestration skills the Producer invokes directly — NOT maker studios
+# (they make nothing on their own). These sequence work before routing to a
+# studio's capability. The Producer reaches them by skill name; they are listed
 # here for discovery, separate from the capability-routed `studios:` above.
 orchestrators:
   - slug: planner
@@ -53,8 +53,8 @@ orchestrators:
     produces_for: { studio: design, capability: render-asset }
     status: active
 
-# External services the creative-director is the single point of contact for.
-# The director publishes/notifies through these; studios stay local and pure.
+# External services the Producer is the single point of contact for.
+# The Producer publishes/notifies through these; studios stay local and pure.
 # Each maps to an available MCP server; integrate only when authenticated.
 external_services:
   publish:

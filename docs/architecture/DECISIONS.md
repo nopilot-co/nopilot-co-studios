@@ -33,7 +33,7 @@ hard-to-reverse decision. Link back from the issue that prompted it.
      motion tokens (easing/duration/transitions) come from a locked
      **motion-system**. Nothing is re-declared.
   4. **External renders are render-time, not delivery.** Avatar/TTS calls are part
-     of `produce`, distinct from the creative-director's delivery externals. Keys
+     of `produce`, distinct from the Producer's delivery externals. Keys
      come from the **environment**, never the docket. Results are **cached by
      `hash(twin + script + provider + params)`** and stored as versioned session
      inputs, so re-composites are reproducible and free.
