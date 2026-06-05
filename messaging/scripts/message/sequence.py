@@ -3,9 +3,9 @@
 A sequence is a folder holding a ``sequence.json`` manifest plus one child
 session per step (``step-01-<name>``, ``step-02-<name>`` …). Each step is a
 normal message session — its own format, lint, render, and status — while the
-manifest records order and links so the `sequence` skill and the
-creative-director can treat the steps as one campaign. Mechanics only; the
-copy/cadence judgment lives in the `sequence` skill.
+manifest records order and links so the `sequence` skill and the Producer can
+treat the steps as one campaign. Mechanics only; the copy/cadence judgment lives
+in the `sequence` skill.
 """
 
 from __future__ import annotations

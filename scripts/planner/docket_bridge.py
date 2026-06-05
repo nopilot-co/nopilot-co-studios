@@ -2,8 +2,8 @@
 
 The planner operates **in place** over a production docket. Rather than importing
 the ``design-studio`` package (a local editable plugin, not a PyPI dependency),
-we reuse it the same way the creative-director reuses any studio: by invoking its
-entry point. ``studio docket init`` builds (or tops up) the docket tree
+we reuse it the same way the Producer reuses any studio: by invoking its entry
+point. ``studio docket init`` builds (or tops up) the docket tree
 (``specs/`` ``assets/`` ``brand/`` + the production/session manifests); the
 planner then writes ``composition.json`` + ``sections/`` on top.
 

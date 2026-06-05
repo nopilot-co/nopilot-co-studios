@@ -1,4 +1,4 @@
-# Nitpicker Studio — capability manifest (how the creative-director calls it).
+# Nitpicker Studio — capability manifest (how the Producer calls it).
 # The studio's own skills do the work; this declares what it offers and how to
 # call it. The nitpicker reviews; it never edits the asset — fixes are the
 # producing studio's job.
@@ -38,6 +38,6 @@ configs:
   tests: ../configs/tests/ # extensible scored tests
 
 # The nitpicker pairs naturally downstream of the producing studios: it reviews
-# what design / messaging produce. The creative-director may route an artifact
-# here for sign-off before any outward delivery.
+# what design / messaging produce. The Producer may route an artifact here for
+# sign-off before any outward delivery.
 pairs_with: [design, messaging]

@@ -34,26 +34,27 @@ executes the skills* — never in what the skills do. Keep all judgment in skill
 and all mechanics in the deterministic package so this holds.
 
 > **Status:** mode 1 (local plugin) is implemented today — the `studios`
-> creative-director plugin and the `design-studio` plugin. Modes 2–3 are the
-> intended server surfaces and are not built yet; the invariant above is what
-> they must preserve (invoke the *same* skills, never reimplement the logic
-> server-side).
+> Producer plugin (formerly `creative-director`) and the `design-studio` plugin.
+> Modes 2–3 are the intended server surfaces and are not built yet; the
+> invariant above is what they must preserve (invoke the *same* skills, never
+> reimplement the logic server-side).
 
-## Orchestration — the creative-director
+## Orchestration — the Producer
 
-`/studio <brief>` is the **single point of contact** across studios. The
-`creative-director` skill (`skills/creative-director/`) is a *thin coordinator*:
-it reads the studio registry, plans the brief into jobs, routes each to a
-studio's own orchestrator **by capability**, chains artifacts between studios,
-and is the one place that delivers to external services (Gamma, Canva, Slack,
-Gmail). It holds no domain judgment — the studios' skills do the work, which is
-what keeps results identical across the three invocation modes.
+`/studio <brief>` is the **single point of contact** across studios (until the
+Principal front door ships — see `docs/operating-framework.md` §4). The
+`producer` skill (`skills/producer/`, formerly `creative-director`) is a *thin
+coordinator*: it reads the studio registry, plans the brief into jobs, routes
+each to a studio's own orchestrator **by capability**, chains artifacts between
+studios, and is the one place that delivers to external services (Gamma, Canva,
+Slack, Gmail). It holds no domain judgment — the studios' skills do the work,
+which is what keeps results identical across the three invocation modes.
 
 - **Registry:** `studios.yml` (root) lists active studios + the external services
-  the director may deliver through.
+  the Producer may deliver through.
 - **Per-studio contract:** each studio ships a `<studio>/studio.yaml` capability
   manifest (capabilities, entry points, inputs, outputs). A studio becomes
-  routable the moment it's in `studios.yml` with a manifest — the director isn't
+  routable the moment it's in `studios.yml` with a manifest — the Producer isn't
   edited to add one.
 - **Outward actions** (publish/post/email) require explicit user confirmation;
   local rendering does not.
@@ -89,13 +90,13 @@ standard) via **Quarto + Typst**. Full details in
   (`inputs/`, `outputs/`, `qa/`, `version.json`; the locked format is recorded
   in `version.json`).
 
-It exposes itself to the creative-director via `design/studio.yaml` (its
-capability manifest) and its entry in `studios.yml`.
+It exposes itself to the Producer via `design/studio.yaml` (its capability
+manifest) and its entry in `studios.yml`.
 
 New studios follow the same shape: a plugin manifest + skills as the contract, a
 deterministic CLI/package that mirrors them, a `studio.yaml` capability manifest
-(plus a `studios.yml` entry so the creative-director can route to it), and
-(optionally) a data root under `~/context/studios/<studio>/`.
+(plus a `studios.yml` entry so the Producer can route to it), and (optionally) a
+data root under `~/context/studios/<studio>/`.
 
 ---
 

@@ -111,13 +111,14 @@ Use these words precisely; they are the shared language of the framework.
   work back to the user; and all L2 sign-offs. It uses the Commercial, Growth/BD,
   and Audience capabilities to do its mapping. It is accountable for the engagement.
 
-- **Producer** *(Target — orchestration skill; today's `creative-director`,
-  renamed and made domain-neutral).* Takes the Principal's shaped engagement and
-  owns the **how**: assembles the cast, writes each role a focused sub-brief,
-  sequences jobs, chains artefacts, runs the gates, and maintains the engagement
-  manifest + ledger. It does **not** talk to the client. The current
-  `creative-director` skill is already "a thin coordinator, not a maker" — so this
-  is a rename that reveals its true nature, not new behaviour.
+- **Producer** *(Today — orchestration skill at `skills/producer/`; was
+  `creative-director`).* Takes the Principal's shaped engagement and owns the
+  **how**: assembles the cast, writes each role a focused sub-brief, sequences
+  jobs, chains artefacts, runs the gates, and maintains the engagement manifest +
+  ledger. It does **not** talk to the client (the Principal does). Until the
+  Principal front door ships, the Producer is also the user's entry point via
+  `/studio` for backwards-compatibility. The rename revealed its true nature —
+  the skill was already "a thin coordinator, not a maker" — no new behaviour.
 
 > **Why split?** "creative-director" conflated two unrelated jobs — owning the user
 > relationship and routing the work. As the cast spans tech/delivery/commercial/data,
@@ -197,8 +198,7 @@ coordinates and owns no artefact.
 
 The **document-planner**, **audience**, and **review** loop already implement steps
 3–6 for composite documents (see the reader-driven composite-document play in the
-creative-director/Producer skill). The lifecycle above generalises that play across
-all disciplines.
+Producer skill). The lifecycle above generalises that play across all disciplines.
 
 ---
 
@@ -329,12 +329,13 @@ spine — and puts a portable, canonical layer underneath it.
 ### Appendix — Today vs Target at a glance
 
 - **Today (built & routable):** design, messaging, audience, nitpicker studios; the
-  document-planner orchestration skill; the `creative-director` coordinator; the
-  reader-driven composite-document play; per-engagement docket + manifests
-  (`production-manifest.json`, `composition.json`, `version.json`); review gates
-  (nitpicker, audience reader-fit) and their scorecards.
-- **Target (this framework builds toward):** the Principal (front-of-house) and the
-  Producer rename; the Commercial, Growth/BD, Analytics, Delivery, Architecture, and
-  Context studios; QA + brand-guardian batteries in the nitpicker; the engagement
-  manifest (`engagement.json`) with first-class questions/blockers/risks; the
+  document-planner orchestration skill; the **Producer** coordinator (was
+  `creative-director`); the reader-driven composite-document play; per-engagement
+  docket + manifests (`production-manifest.json`, `composition.json`,
+  `version.json`); review gates (nitpicker, audience reader-fit) and their
+  scorecards.
+- **Target (this framework builds toward):** the Principal (front-of-house); the
+  Commercial, Growth/BD, Analytics, Delivery, Architecture, and Context studios;
+  QA + brand-guardian batteries in the nitpicker; the engagement manifest
+  (`engagement.json`) with first-class questions/blockers/risks; the
   supervised-autonomy ladder as an enforced contract; and the GitHub Projects bridge.
