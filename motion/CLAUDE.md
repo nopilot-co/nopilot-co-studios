@@ -64,7 +64,8 @@ A render is driven by one storyboard spec (validated against
 
 ```
 scenes[] { id, duration, layers[] (text|shape|image|icon|chart|presenter),
-           region, role, enter/emphasis/exit motions, transition }
+           region, role, enter/emphasis/exit motions, transition;
+           chart layers: chart (bar|kpi) + data ([{label,value}] | number) }
 global   { brand, title, aspect, fps, motion_system, captions, twin? }
 ```
 
@@ -158,8 +159,12 @@ the design studio.
   `--engine remotion`) + **Lottie** export (`--lottie`).
 - **S3.5** digital-twin presenter: D-ID adapter + ElevenLabs TTS + `twin` entity
   + consent gate + `presenter` layer + compositing → `pitch-mp4`.
-- **S4** animated infographic + chart animation (leans on the design chart
-  engine).
+- **S4** ✅ animated infographics: `chart` layers (`chart: bar` growing bars,
+  `chart: kpi` count-up) with inline `data`, token-coloured. Declarative path
+  (`animate.py`); Lottie/Remotion chart parity is a follow-up. (Deeper reuse of
+  the design chart engine — more chart types — also a follow-up.)
+- **S3.5** digital-twin presenter (D-ID + ElevenLabs) — backlogged in #61
+  (needs API keys + twin assets).
 - **S5** flow / timeline archetypes; captions; optional more TTS voices.
 - **S6** creative-director routing + chaining (embed an explainer in design-studio
   HTML; animate a deck section).

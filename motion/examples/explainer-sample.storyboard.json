@@ -26,8 +26,8 @@
       "transition": "slide",
       "layers": [
         { "type": "text", "content": "The criteria", "region": "top", "role": "primary", "enter": "fade" },
-        { "type": "icon", "content": "checklist", "region": "left", "role": "accent", "enter": "fade-up", "emphasis": "pulse" },
-        { "type": "text", "content": "Meaning · Register · Ownable · Travel · One category", "region": "right", "role": "secondary", "enter": "fade-up" }
+        { "type": "chart", "chart": "kpi", "data": 5, "region": "left", "role": "accent", "enter": "fade-up" },
+        { "type": "text", "content": "things a name must satisfy, in priority order", "region": "right", "role": "secondary", "enter": "fade-up" }
       ]
     },
     {
@@ -37,7 +37,13 @@
       "transition": "fade",
       "layers": [
         { "type": "text", "content": "The four categories", "region": "top", "role": "primary", "enter": "fade" },
-        { "type": "chart", "content": "categories:bar", "region": "center", "role": "accent", "enter": "fade-up", "emphasis": "count-up" }
+        { "type": "chart", "chart": "bar", "region": "center", "role": "accent", "enter": "fade-up",
+          "data": [
+            { "label": "Industrial", "value": 4 },
+            { "label": "Technical", "value": 6 },
+            { "label": "Allegorical", "value": 5 },
+            { "label": "Literal", "value": 3 }
+          ] }
       ]
     },
     {

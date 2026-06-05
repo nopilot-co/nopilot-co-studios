@@ -63,7 +63,12 @@ def _layer(layer: dict[str, Any], color: dict[str, str], scene_start: float) -> 
         return (
             f'<div class="layer shape" style="{pos}{anim}background:{paint};{h_css}"></div>'
         )
-    # image / icon / chart — labelled placeholder (real rendering lands S4/embed).
+    # chart (S4): real animated bar / KPI count-up.
+    if typ == "chart" and layer.get("chart"):
+        return _chart(layer, color, scene_start, pos, paint)
+
+    # image / icon / remaining chart refs — labelled placeholder (real rendering
+    # lands with the embed/figure slice).
     surface = color.get("surface", "#F1F3F6")
     sec = color.get("secondary", "#6B7280")
     return (
@@ -71,6 +76,44 @@ def _layer(layer: dict[str, Any], color: dict[str, str], scene_start: float) -> 
         f"background:{_rgba(surface, 0.9)};border:2px dashed {_rgba(sec, 0.6)};color:{sec};\">"
         f'<span class="phtype">{html.escape(str(typ).upper())}</span>{content}</div>'
     )
+
+
+def _chart(layer: dict[str, Any], color: dict[str, str], scene_start: float, pos: str, paint: str) -> str:
+    """Animated infographic layer: a growing bar chart or a counting-up KPI."""
+    sec = color.get("secondary", "#6B7280")
+    fg = color.get("foreground", "#1A2433")
+    base = scene_start + 0.3
+
+    if layer.get("chart") == "kpi":
+        target = layer.get("data", layer.get("content", 0))
+        try:
+            target_int = int(float(target))
+        except (TypeError, ValueError):
+            target_int = 0
+        anim = f"--target:{target_int};animation:kpiCount 1.1s {base:g}s both;"
+        return (
+            f'<div class="layer kpi" style="{pos}">'
+            f'<span class="num" style="color:{paint};{anim}"></span></div>'
+        )
+
+    # bar chart
+    data = layer.get("data") or []
+    vals = [float(d.get("value", 0)) for d in data] or [1.0]
+    maxv = max(vals) or 1.0
+    cols = []
+    for i, d in enumerate(data):
+        v = float(d.get("value", 0))
+        ht = max(2.0, v / maxv * 100.0)
+        delay = base + i * 0.12
+        cols.append(
+            f'<div class="col">'
+            f'<span class="val" style="color:{fg}">{v:g}</span>'
+            f'<div class="barwrap"><div class="bar" style="height:{ht:g}%;background:{paint};'
+            f"animation:barGrow .7s {delay:g}s both;\"></div></div>"
+            f'<span class="cat" style="color:{sec}">{html.escape(str(d.get("label", "")))}</span>'
+            f"</div>"
+        )
+    return f'<div class="layer chart-bar" style="{pos}">{"".join(cols)}</div>'
 
 
 def _scene(i: int, scene: dict[str, Any], start: float, color: dict[str, str]) -> str:
@@ -131,6 +174,20 @@ def render_html(spec: dict[str, Any], tokens: dict[str, Any]) -> str:
   @keyframes mFade {{ from{{opacity:0}} to{{opacity:1}} }}
   @keyframes mUp {{ from{{opacity:0;transform:translateY(28px)}} to{{opacity:1;transform:none}} }}
   @keyframes mWipe {{ from{{opacity:0;transform:translateX(-40px)}} to{{opacity:1;transform:none}} }}
+  /* Animated infographics (S4). */
+  .chart-bar {{ display:flex; align-items:flex-end; justify-content:center; gap:4%; }}
+  .chart-bar .col {{ display:flex; flex-direction:column; align-items:center;
+    justify-content:flex-end; height:100%; flex:1; max-width:20%; }}
+  .chart-bar .barwrap {{ flex:1; display:flex; align-items:flex-end; width:72%; }}
+  .chart-bar .bar {{ width:100%; border-radius:5px 5px 0 0; transform:scaleY(0);
+    transform-origin:bottom; }}
+  .chart-bar .val {{ font-size:1.4rem; font-weight:700; margin-bottom:8px; }}
+  .chart-bar .cat {{ font-size:1rem; font-weight:600; margin-top:10px; }}
+  @keyframes barGrow {{ from {{ transform:scaleY(0) }} to {{ transform:scaleY(1) }} }}
+  .kpi .num {{ font-size:8rem; font-weight:800; line-height:1; counter-reset: k var(--kpi-num,0); }}
+  .kpi .num::after {{ content: counter(k); }}
+  @property --kpi-num {{ syntax:"<integer>"; inherits:true; initial-value:0; }}
+  @keyframes kpiCount {{ from {{ --kpi-num: 0 }} to {{ --kpi-num: var(--target) }} }}
 </style></head>
 <body>
   <div class="stage" data-duration="{total:g}">
