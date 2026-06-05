@@ -84,6 +84,8 @@ def write(root: Path, data: dict) -> dict:
 
 def compute_rollup(data: dict) -> dict:
     """Derived status summary. Recomputed on every mutation; never hand-set."""
+    from . import autonomy as _autonomy
+
     jobs = data.get("jobs") or []
     questions = [
         i for i in (data.get("questions") or []) if i.get("status") != "resolved"
@@ -107,6 +109,7 @@ def compute_rollup(data: dict) -> dict:
         pct = round(100 * by_status.get("done", 0) / len(jobs), 1)
 
     next_checkpoint = checkpoints[0] if checkpoints else None
+    autonomy_counts = _autonomy.rollup_counts(data)
     return {
         "jobs_total": len(jobs),
         "jobs_by_status": by_status,
@@ -124,6 +127,10 @@ def compute_rollup(data: dict) -> dict:
             if next_checkpoint
             else None
         ),
+        # Phase 6 — autonomy ladder enforcement
+        "awaiting_l2": autonomy_counts["awaiting_l2"],
+        "awaiting_l3": autonomy_counts["awaiting_l3"],
+        "jobs_by_action_class": autonomy_counts["by_action_class"],
     }
 
 
