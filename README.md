@@ -17,6 +17,7 @@ across studios.
 | **commercial-studio** | **check-commercials** (beancounter — review-class): deterministic deal validation vs rate cards, margin floor, and skill-set ratios — reuses the nitpicker engine. **assess-commercial-value** (commercial officer): value-based opportunity sizing from cited client financials, spend capacity, and addressable market. |
 | **delivery-studio** | **plan-delivery**: turn a shaped engagement brief into a structured plan — swimlanes keyed to the cast, sequenced phases with entry/exit criteria, per-phase resourcing + contingency, and a first-class RAID register (Risks / Assumptions / Issues / Dependencies). Caller-supplied JSON; deterministic rollups; optional cost rollup via the commercial rate-card. |
 | **architecture-studio** | **design-architecture**: produce a structured architecture spec for an engagement — systems, data flows, integration points, and ADR-style decision records. Caller-supplied JSON; deterministic referential-integrity invariants. Optional diagram render via the design studio. |
+| **context-studio** | **ingest-context** / **map-context** / **extend-context**: infrastructural — orchestrates the `tools/` tier (notion-sources / source-enrich / source-summarise / theme-propose / theme-cluster / theme-entity / yt-transcript) into a per-engagement context store. Other studios reference the context by slug. |
 
 ## Install
 

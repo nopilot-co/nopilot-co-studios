@@ -93,6 +93,21 @@
       ]
     },
     {
+      "name": "context-studio",
+      "source": "./context-studio",
+      "version": "0.1.0",
+      "description": "Infrastructural context orchestrator — chains the tools/ tier (notion-sources / source-enrich / source-summarise / theme-propose / theme-cluster / theme-entity / yt-transcript) into a per-engagement context store. Other studios reference the context by slug.",
+      "category": "context",
+      "tags": [
+        "context",
+        "ingest",
+        "mapping",
+        "themes",
+        "infrastructural",
+        "orchestration"
+      ]
+    },
+    {
       "name": "notion-sources",
       "source": "./tools/notion-sources",
       "version": "0.1.0",
