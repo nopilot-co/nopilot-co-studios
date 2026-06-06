@@ -1,0 +1,79 @@
+# Purpose: showcase — the centralised intent shared by every showcase-* format.
+# An interactive, gated, multi-directional HTML document for a single named
+# reader: a vertically scrolling narrative of topics, each opening RIGHTWARD into
+# detail (master -> detail). Built to be explored and annotated in place, and
+# loaded by a gated viewer that supplies auth + commentary. Export overlays
+# (exports/<export>.yml) and per-slug overrides layer on top.
+purpose: showcase
+name: Showcase
+description: >-
+  A multi-directional ("master-detail") interactive showcase. The reader scrolls
+  DOWN through major topics (each a whole, zoomed-out overview) and RIGHT into
+  each topic's detail pages. Designed for a specific named reader to explore and
+  mark up; brand principles are applied uniformly from the active brand's
+  _brand.yml, never hardcoded.
+assets: [cover-slide, kpi-tile, flow-diagram, timeline, process, data-viz,
+         asset-embed, pullquote, stat-panel, callout-panel, data-table,
+         highlight-panel]
+
+style_guide:
+  voice: confident, candid, plain British English; no hype, no superlatives
+  density: >-
+    Master panels are zoom-out — one idea, large type, a single focal figure.
+    Detail panels carry the substance, still one focused idea per panel.
+  visual: >-
+    Light, warm canvas; rounded white cards on a paper background; a serif
+    display face for headings, a clean sans for body, a mono for labels and
+    figures; ink text, a primary accent, and a secondary/highlight accent — ALL
+    sourced from the active brand's _brand.yml. Generous whitespace; at most one
+    diagram or chart per panel.
+  navigation: >-
+    Two-axis / master-detail. Vertical = topics (the spine). Horizontal = detail
+    (the depth). Right-ward affordances are ALWAYS visible: a "scroll right for
+    detail" cue on each master, chevrons, panel dots, arrow keys, and native
+    swipe. Vertical movement uses normal page scroll so anchors and a top nav
+    keep working.
+  motion: reveal-on-scroll and a subtle right-ward nudge cue; never gratuitous
+  device: zoom-out then zoom-in — every topic opens on its big picture, then the
+    reader chooses how deep to go
+  do:
+    - Keep each topic's overview WHOLE on its master panel — never fragment one
+      idea across several horizontal panels
+    - Lead every topic with a single strong zoom-out line
+    - Use concrete numbers and one diagram over paragraphs
+    - Make the right-ward detail affordance obvious on every topic
+    - End on a single explicit call-to-action
+  dont:
+    - Stretch one topic's content thin across multiple horizontal panels
+    - Wall-of-text panels
+    - More than one call-to-action
+    - Hardcode colours, fonts, or logos — bind them from _brand.yml
+
+execution_brief:
+  objective: >-
+    Let a specific named reader explore a proposition or showcase at their own
+    depth and annotate it in place; persuade by showing, not telling.
+  audience: >-
+    A single named reader (modelled via the audience studio), typically a
+    sceptical executive, buyer, or partner who needs to SEE it to believe it.
+  narrative_arc: "hook -> topic index -> topics (each: zoom-out master -> detail) -> decisions -> close/CTA"
+  required_sections:
+    - hook
+    - topic-index
+    - topics
+    - decisions
+    - close
+
+ruleset:
+  required_sections: [hook, topics, close]
+  must_include_cta: true
+  tone: [confident, candid, plain]
+  # --- showcase-specific structural rules (enforced by visual-qa against the contract) ---
+  structure: master-detail            # vertical topics; horizontal detail
+  master_holds_whole_topic: true      # a topic's overview is one whole master panel
+  detail_pages_per_topic:             # horizontal depth per topic
+    target: 2
+    min: 1
+    max: 5
+  navigation_affordances: [scroll-cue, chevrons, panel-dots, arrow-keys, swipe]
+  brand_tokens_from: _brand.yml       # palette / fonts / logo bind from the brand spec
