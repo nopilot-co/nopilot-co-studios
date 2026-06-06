@@ -185,8 +185,8 @@ def _claude_md(name: str) -> str:
     return (
         f"# Production docket: {name}\n\n"
         "Self-contained, portable production tree built by the nopilot-co-studios\n"
-        "creative-director. Brand, specs, content, and outputs all live here — no\n"
-        "external filesystem dependency.\n\n"
+        "Producer (was creative-director). Brand, specs, content, and outputs all\n"
+        "live here — no external filesystem dependency.\n\n"
         "- `production-manifest.json` — what this folder is + the session list.\n"
         "- `brand/<slug>/` — the authoritative Brand Docket (render reads only this).\n"
         "- `specs/` — content-defaults + format overrides.\n"
@@ -206,7 +206,7 @@ def _plugin_md() -> str:
     return (
         "# nopilot-co-studios\n\n"
         "This docket is produced and consumed by the nopilot-co-studios plugin\n"
-        "(design + messaging studios, orchestrated by the creative-director).\n\n"
+        "(design + messaging studios, orchestrated by the Producer).\n\n"
         "The studio operates on this docket by running with `$STUDIOS_DOCKET_ROOT`\n"
         "set to this folder, so brand and session outputs stay self-contained.\n"
     )

@@ -104,20 +104,23 @@ Use these words precisely; they are the shared language of the framework.
 
 ### The two standing roles (front-of-house + orchestration)
 
-- **Principal** *(Target — orchestration skill; the single point of contact).*
-  The user always talks to the Principal. It owns the relationship and the
-  **what/why**: intake and objective clarification; client, audience, and market
-  mapping; value-based scoping and pricing; **choosing the cast**; representing the
-  work back to the user; and all L2 sign-offs. It uses the Commercial, Growth/BD,
-  and Audience capabilities to do its mapping. It is accountable for the engagement.
+- **Principal** *(Today — orchestration skill at `skills/principal/`; the single
+  point of contact).* The user always talks to the Principal. It owns the
+  relationship and the **what/why**: intake and objective clarification; client,
+  audience, and market mapping; value-based scoping and pricing; **choosing the
+  cast**; representing the work back to the user; and all L2 sign-offs. It uses
+  the Commercial, Growth/BD, and Audience capabilities to do its mapping (today
+  only Audience is routable; Commercial and Growth/BD degrade to prose with the
+  gap flagged until those studios ship). It is accountable for the engagement.
+  `/studio` enters here.
 
-- **Producer** *(Target — orchestration skill; today's `creative-director`,
-  renamed and made domain-neutral).* Takes the Principal's shaped engagement and
-  owns the **how**: assembles the cast, writes each role a focused sub-brief,
-  sequences jobs, chains artefacts, runs the gates, and maintains the engagement
-  manifest + ledger. It does **not** talk to the client. The current
-  `creative-director` skill is already "a thin coordinator, not a maker" — so this
-  is a rename that reveals its true nature, not new behaviour.
+- **Producer** *(Today — orchestration skill at `skills/producer/`; was
+  `creative-director`).* Takes the Principal's shaped engagement and owns the
+  **how**: assembles the cast, writes each role a focused sub-brief, sequences
+  jobs, chains artefacts, runs the gates, and maintains the engagement manifest +
+  ledger. It does **not** talk to the client (the Principal does). The rename
+  revealed its true nature — the skill was already "a thin coordinator, not a
+  maker" — no new behaviour.
 
 > **Why split?** "creative-director" conflated two unrelated jobs — owning the user
 > relationship and routing the work. As the cast spans tech/delivery/commercial/data,
@@ -136,12 +139,12 @@ pitch might use most of them.
 | **Audience** | Studio | `model-audience`, `assess-audience-fit` | **Today** |
 | **Nitpicker** | Studio (review-class) | `review-asset`, `run-tests` | **Today** |
 | **Planner** | Orchestration skill | composite-document planning + assembly | **Today** |
-| **Commercial** | Studio | `check-commercials` (beancounter), `assess-commercial-value` (commercial officer) | **Target** |
+| **Commercial** | Studio | `check-commercials` (beancounter), `assess-commercial-value` (commercial officer) | **Today** |
 | **Growth / BD** | Studio | lead-gen, market research, market mapping | **Target** |
 | **Analytics** | Studio | `analyse-data` (patterns, web/engagement, insight) | **Target** |
-| **Delivery** | Studio | `plan-delivery` (swimlanes, phasing, resourcing, contingency, RAID) | **Target** |
-| **Architecture** | Studio | `design-architecture` (systems, data flows, integrations) | **Target** |
-| **Context** | Studio (infrastructural) | `ingest-context`, `map-context`, `extend-context` | **Target** |
+| **Delivery** | Studio | `plan-delivery` (swimlanes, phasing, resourcing, contingency, RAID) | **Today** |
+| **Architecture** | Studio | `design-architecture` (systems, data flows, integrations) | **Today** |
+| **Context** | Studio (infrastructural) | `ingest-context`, `map-context`, `extend-context` | **Today** |
 | **Quality assurance** | *Extends Nitpicker* | new test batteries + dimensions for technical/delivery quality | **Target** |
 | **Brand stewardship** | *Shared resource + nitpicker dimension + Principal remit* | not a maker studio (§ note) | **Today/Target** |
 
@@ -197,8 +200,7 @@ coordinates and owns no artefact.
 
 The **document-planner**, **audience**, and **review** loop already implement steps
 3–6 for composite documents (see the reader-driven composite-document play in the
-creative-director/Producer skill). The lifecycle above generalises that play across
-all disciplines.
+Producer skill). The lifecycle above generalises that play across all disciplines.
 
 ---
 
@@ -328,13 +330,35 @@ spine — and puts a portable, canonical layer underneath it.
 
 ### Appendix — Today vs Target at a glance
 
-- **Today (built & routable):** design, messaging, audience, nitpicker studios; the
-  document-planner orchestration skill; the `creative-director` coordinator; the
-  reader-driven composite-document play; per-engagement docket + manifests
-  (`production-manifest.json`, `composition.json`, `version.json`); review gates
-  (nitpicker, audience reader-fit) and their scorecards.
-- **Target (this framework builds toward):** the Principal (front-of-house) and the
-  Producer rename; the Commercial, Growth/BD, Analytics, Delivery, Architecture, and
-  Context studios; QA + brand-guardian batteries in the nitpicker; the engagement
-  manifest (`engagement.json`) with first-class questions/blockers/risks; the
-  supervised-autonomy ladder as an enforced contract; and the GitHub Projects bridge.
+- **Today (built & routable):** design, messaging, audience, nitpicker,
+  **commercial**, **delivery**, **architecture**, **context**,
+  **analytics**, **growth** studios; the document-planner orchestration
+  skill; the **Principal** (front-of-house) and the **Producer**
+  (orchestrator, was `creative-director`); the **engagement** manifest
+  (`engagement.json`) with first-class brief / cast / jobs / Questions /
+  Blockers / Risks / Decisions / L2-L3 Checkpoints / deterministic
+  rollup; the **autonomy ladder as an enforced contract** (Phase 6) —
+  every job carries an `action_class` (L0 / L1 / L2 / L3) and the
+  `done` transition is contract-gated for L2 (requires a cleared
+  Checkpoint) and L3 (additionally requires `decided_by` for explicit
+  human authorisation); the reader-driven composite-document play; per-engagement
+  docket + manifests (`production-manifest.json`, `composition.json`,
+  `version.json`, `engagement.json`); review gates (nitpicker, audience
+  reader-fit, commercial check-commercials) and their scorecards, with
+  the Phase-4 nitpicker dimensions (`technical-quality`,
+  `delivery-quality`, `brand-integrity`) and the correctness +
+  brand-recognition gates; a first-class delivery plan (swimlanes /
+  phases / resourcing / contingency) + RAID register per engagement; a
+  structured architecture spec (systems / data flows / integrations) with
+  referential-integrity invariants + ADR-style decision records; a
+  per-engagement context store populated by the context studio
+  orchestrating the tools tier; structured analyses + lead lists +
+  market maps from the analytics and growth studios; a studios-level
+  tool-bench (`tools/` — `notion-sources`, `source-enrich`,
+  `source-summarise`, `theme-propose`, `theme-cluster`, `theme-entity`,
+  `youtube-transcript`) with a CI-enforced dumb-tool invariant.
+- **Target (this framework builds toward):** the framework now describes
+  everything that's built. The next layer of work is operational —
+  shipping real engagements through it, adding Jira / Linear adapters,
+  and exercising the per-capability action-class declarations across the
+  full cast.

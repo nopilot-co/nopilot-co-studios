@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/schemas/context/manifest.json",
+  "title": "Context — engagement manifest",
+  "description": "Studio-level manifest: which tools ran when with what args. Audit + replay trail for the orchestration over the tools tier.",
+  "type": "object",
+  "required": ["engagement", "created", "runs"],
+  "properties": {
+    "engagement": { "type": "string", "minLength": 1 },
+    "created": { "type": "string" },
+    "runs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["tool", "action", "at"],
+        "properties": {
+          "tool": { "type": "string", "minLength": 1 },
+          "action": { "type": "string", "minLength": 1 },
+          "at": { "type": "string" },
+          "args": { "type": "array", "items": { "type": "string" } },
+          "exit_code": { "type": "integer" },
+          "note": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    }
+  },
+  "additionalProperties": true
+}

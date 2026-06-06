@@ -13,7 +13,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PLUGINS=("studios" "design-studio" "messaging-studio" "nitpicker-studio" "audience-studio")
+PLUGINS=("studios" "design-studio" "messaging-studio" "nitpicker-studio" "audience-studio" "commercial-studio" "delivery-studio" "architecture-studio" "context-studio" "analytics-studio" "growth-studio")
 
 # ---------------------------------------------------------------- 1. marketplace
 register_marketplace() { # register_marketplace <host-cli>
@@ -117,6 +117,48 @@ if [ -f "$ROOT/audience/install.sh" ]; then
     echo "  → run 'audience/install.sh'   for the audience CLI (reuses 'nit' for scoring)"
   fi
 fi
+if [ -f "$ROOT/commercial/install.sh" ]; then
+  if [ -x "$ROOT/commercial/.venv/bin/commercial" ]; then
+    echo "  ✓ commercial CLI present (commercial/.venv/bin/commercial)"
+  else
+    echo "  → run 'commercial/install.sh' for the commercial CLI (reuses 'nit' for scoring)"
+  fi
+fi
+if [ -f "$ROOT/delivery/install.sh" ]; then
+  if [ -x "$ROOT/delivery/.venv/bin/delivery" ]; then
+    echo "  ✓ delivery CLI present (delivery/.venv/bin/delivery)"
+  else
+    echo "  → run 'delivery/install.sh'   for the delivery CLI (optional cost via commercial)"
+  fi
+fi
+if [ -f "$ROOT/architecture/install.sh" ]; then
+  if [ -x "$ROOT/architecture/.venv/bin/arch" ]; then
+    echo "  ✓ arch CLI present (architecture/.venv/bin/arch)"
+  else
+    echo "  → run 'architecture/install.sh' for the architecture CLI (optional diagram render via design)"
+  fi
+fi
+if [ -f "$ROOT/context-studio/install.sh" ]; then
+  if [ -x "$ROOT/context-studio/.venv/bin/context" ]; then
+    echo "  ✓ context CLI present (context-studio/.venv/bin/context)"
+  else
+    echo "  → run 'context-studio/install.sh' for the context CLI (orchestrates the tools/ tier)"
+  fi
+fi
+if [ -f "$ROOT/analytics/install.sh" ]; then
+  if [ -x "$ROOT/analytics/.venv/bin/analytics" ]; then
+    echo "  ✓ analytics CLI present (analytics/.venv/bin/analytics)"
+  else
+    echo "  → run 'analytics/install.sh'    for the analytics CLI"
+  fi
+fi
+if [ -f "$ROOT/growth/install.sh" ]; then
+  if [ -x "$ROOT/growth/.venv/bin/growth" ]; then
+    echo "  ✓ growth CLI present (growth/.venv/bin/growth)"
+  else
+    echo "  → run 'growth/install.sh'       for the growth CLI"
+  fi
+fi
 
 # ---------------------------------------------------------------- 3. native deps
 echo
@@ -138,10 +180,57 @@ check typst "brew install typst                (design — PDF engine; usually b
 check libreoffice "brew install --cask libreoffice  (design — PPTX→PDF for QA; binary may be 'soffice')" soffice
 check mjml "npm install -g mjml              (messaging — optional, HTML email only)"
 
+# ---------------------------------------------------------------- 4. tools tier
+echo
+echo "Tools tier (dumb deterministic CLIs — ADR-004):"
+if [ ! -f "$ROOT/tools.yml" ]; then
+  echo "  ✗ tools.yml missing — tools tier not scaffolded"
+else
+  tool_count="$(grep -cE '^\s*-\s*slug:' "$ROOT/tools.yml" 2> /dev/null || echo 0)"
+  if [ "$tool_count" -eq 0 ]; then
+    echo "  • tools.yml present, no tools registered yet (see tools/README.md)"
+  else
+    echo "  $tool_count tool(s) registered in tools.yml:"
+    # Parse slug + cli + status from tools.yml. POSIX char classes only —
+    # BSD awk on macOS doesn't grok \s.
+    awk '
+      /^[[:space:]]*-[[:space:]]*slug:/ { slug=$3; cli="" }
+      /^[[:space:]]*cli:/                { cli=$2 }
+      /^[[:space:]]*status:/             {
+        printf "    %-22s cli: %-22s status: %s\n", slug, (cli?cli:"-"), $2
+      }
+    ' "$ROOT/tools.yml" | head -50
+  fi
+
+  # Per-tool install.sh — opt-in (the studios install above is the default).
+  # Set STUDIOS_INSTALL_TOOLS=1 to chain through every tool's install.sh.
+  if [ "${STUDIOS_INSTALL_TOOLS:-}" = "1" ]; then
+    echo
+    echo "  Installing tool CLIs (STUDIOS_INSTALL_TOOLS=1):"
+    for tdir in "$ROOT"/tools/*/; do
+      [ -x "$tdir/install.sh" ] || continue
+      name="$(basename "$tdir")"
+      if "$tdir/install.sh" > /dev/null 2>&1; then
+        echo "    ✓ $name"
+      else
+        echo "    ✗ $name — re-run manually: $tdir/install.sh"
+      fi
+    done
+  else
+    echo "  → set STUDIOS_INSTALL_TOOLS=1 ./install.sh to also install tool CLIs"
+  fi
+fi
+
 echo
 echo "Done. Try:"
-echo "    /studio <your brief>             (creative-director)"
+echo "    /studio <your brief>             (Principal → Producer)"
 echo "    /design-studio <file.md>          (design studio directly)"
 echo "    /messaging-studio                 (messaging studio directly)"
 echo "    /nitpicker-studio <asset>         (nitpicker studio directly)"
 echo "    /audience-studio <reader>         (audience studio directly)"
+echo "    /commercial-studio <client>       (commercial studio directly)"
+echo "    /delivery-studio <engagement>     (delivery studio directly)"
+echo "    /architecture-studio <engagement> (architecture studio directly)"
+echo "    /context-studio <engagement>      (context studio directly)"
+echo "    /analytics-studio <engagement>    (analytics studio directly)"
+echo "    /growth-studio <engagement>       (growth studio directly)"

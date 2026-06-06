@@ -1,6 +1,6 @@
 # Motion Studio — capability manifest.
-# How the creative-director discovers and invokes this studio. The studio's own
-# skills do the work; this just declares what it offers and how to call it.
+# How the Producer discovers and invokes this studio. The studio's own skills do
+# the work; this just declares what it offers and how to call it.
 #
 # status: scaffold — S0 establishes the contract surface (see motion/CLAUDE.md
 # build sequence). Registered in studios.yml as `planned` until S2 ships the

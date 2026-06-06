@@ -166,7 +166,7 @@ the design studio.
 - **S3.5** digital-twin presenter (D-ID + ElevenLabs) — backlogged in #61
   (needs API keys + twin assets).
 - **S5** flow / timeline archetypes; captions; optional more TTS voices.
-- **S6** creative-director routing + chaining (embed an explainer in design-studio
+- **S6** Producer routing + chaining (embed an explainer in design-studio
   HTML; animate a deck section).
 - **Modes 2/3** the same skills run server-side; the Brewfile + provider env are
   the server-image contract.

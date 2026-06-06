@@ -105,8 +105,8 @@ rendering is the design studio's `render-asset`; you hand it a merged `source.md
    planner section set --root <root> --id <section-id> --status approved
    ```
    This per-section gate makes the document *built for* the reader; the audience
-   studio's `assess-audience-fit` on the rendered whole (the creative-director's
-   review gate) is the final verification.
+   studio's `assess-audience-fit` on the rendered whole (the Producer's review
+   gate) is the final verification.
 
 8. **Track completion.** Show the rollup (per-section status + reader-fit); resolve
    whatever is blocking before assembling:
@@ -122,14 +122,14 @@ rendering is the design studio's `render-asset`; you hand it a merged `source.md
    ```
    This writes the merged `<session>/inputs/source.md` and prints the design
    handoff line. Hand that `source.md` + the locked format to the design studio
-   (the creative-director chains `design · render-asset`). You do not render.
+   (the Producer chains `design · render-asset`). You do not render.
 
 ## Conventions
 
 - **Judgment here, mechanics in the `planner` CLI.** Identical behaviour across
   invocation modes. Don't reimplement merging or manifest logic in prose.
 - **Plan + assemble; never render.** Rendering is the design studio's
-  `render-asset`; outward delivery is the creative-director's.
+  `render-asset`; outward delivery is the Producer's.
 - **Operate in place** over the passed `--root` docket. Never write outside it.
   The `sections/<id>/` folders and `composition.json` are the working record.
 - **`source.md` is a pure build artifact** — produced by `assemble`, never
@@ -148,5 +148,5 @@ rendering is the design studio's `render-asset`; you hand it a merged `source.md
   critique (recorded via `planner section fit`); the *critique judgment* stays in
   the audience studio (`assess-audience-fit`), the planner only records + gates on
   it. So a composition reaches "ready to assemble" only when every section meets the
-  reader. The audience studio's critique of the *rendered* whole (creative-director
+  reader. The audience studio's critique of the *rendered* whole (Producer
   review gate) is the final verification on top.

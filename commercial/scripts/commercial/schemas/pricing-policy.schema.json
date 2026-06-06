@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/schemas/commercial/pricing-policy.json",
+  "title": "Commercial — pricing policy",
+  "description": "Org-wide commercial policy: margin floor + skill-mix ratios.",
+  "type": "object",
+  "required": ["margin_floor"],
+  "properties": {
+    "margin_floor": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Minimum gross margin (0-1)."
+    },
+    "max_ratios": {
+      "type": "object",
+      "description": "role → max share of total days (0-1)",
+      "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 }
+    },
+    "min_ratios": {
+      "type": "object",
+      "description": "role → min share of total days (0-1)",
+      "additionalProperties": { "type": "number", "minimum": 0, "maximum": 1 }
+    },
+    "notes": { "type": "string" }
+  },
+  "additionalProperties": true
+}

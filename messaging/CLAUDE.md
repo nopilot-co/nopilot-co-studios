@@ -101,4 +101,4 @@ Voice is **not** duplicated here — it's the shared `../design/resources/brand-
   two channels = two sessions.
 - Judgment in skills, mechanics in `scripts/message/`.
 - The studio **composes**; it never sends. External delivery (Gmail/Slack) is the
-  creative-director's job, with confirmation.
+  Producer's job, with confirmation.

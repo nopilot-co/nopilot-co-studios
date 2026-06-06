@@ -1,0 +1,18 @@
+{
+  "name": "analytics-studio",
+  "version": "0.1.0",
+  "description": "Analytics studio: produce a structured analysis from a supplied dataset (descriptive statistics, identified patterns, named insights with severity + confidence, recommended follow-ups). Caller-supplied-JSON materialiser; the CLI validates the schema, stamps provenance, and surfaces rollups (insights by severity, sample size, confidence distribution).",
+  "author": {
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
+  },
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/analytics",
+  "keywords": [
+    "analytics",
+    "data",
+    "patterns",
+    "insight",
+    "engagement",
+    "analysis"
+  ]
+}

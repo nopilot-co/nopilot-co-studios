@@ -3,8 +3,8 @@
 This is the handoff boundary: the planner merges the composed section markdown
 (in order) into ``<root>/<session>/inputs/source.md`` — exactly where the design
 studio's ``studio session init --source`` expects to read it — then bumps the
-composition version. The planner never renders; the creative-director chains the
-merged source to the design studio's ``render-asset`` capability.
+composition version. The planner never renders; the Producer chains the merged
+source to the design studio's ``render-asset`` capability.
 
 The *synthesis* judgment (de-duplication, connective prose, an intro) is a skill
 step that edits section ``content.md`` / adds a synthesis section **before**

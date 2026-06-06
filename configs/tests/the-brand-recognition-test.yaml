@@ -1,0 +1,37 @@
+# The Brand-Recognition Test — would a reader who knows the brand recognise
+# this as belonging to it? Gate. Brand integrity dimension.
+test: the-brand-recognition-test
+name: The Brand-Recognition Test
+question: Would a reader who knows the brand recognise this as theirs?
+description: >
+  The integrative brand test: visual + voice + promise. Strip the logo — does
+  the asset still read as belonging to this brand? Cover up the copy — do the
+  colour, type, and layout still tell the brand story? Strip both — does the
+  *what it stands for* still come through? An asset that needs the logo to
+  identify it has failed the brand. Gate: brand mismatches block delivery.
+dimension: brand-integrity
+applies_to: both
+
+scale:
+  min: 1
+  max: 5
+  labels:
+    1: Unrecognisable as the brand — could be from anyone; brand promise
+       absent.
+    2: Generic brand signals; visual + voice misaligned with the spec.
+    3: Recognisable with effort; one of voice / visual / promise drifts.
+    4: Recognisable — visual + voice on-spec; promise comes through.
+    5: Unmistakably this brand — strip the logo and the reader still knows.
+
+criteria:
+  - Visual tokens (colour, type, spacing) match the brand spec
+  - Voice on-spec (overlaps with voice-fidelity but coarser here)
+  - "The brand's promise / positioning is legible in the work, not just decorative"
+  - Recurring brand devices (named callouts, signature framings) used where the format supports them
+  - No competitor visual / voice / promise signals leak in
+  - "Brand-agnostic baseline only (no brand bound): score 5; this test can't fire"
+
+weight: 1.5
+threshold:
+  pass: 4
+  warn: 3

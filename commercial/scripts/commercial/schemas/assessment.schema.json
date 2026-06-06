@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/schemas/commercial/assessment.json",
+  "title": "Commercial — value-based opportunity assessment",
+  "description": "The commercial officer's structured assessment of value: financial profile + spend capacity + addressable market + value sizing. Caller-supplied via JSON.",
+  "type": "object",
+  "required": [
+    "financial_profile",
+    "spend_capacity",
+    "addressable_market",
+    "value_sizing"
+  ],
+  "properties": {
+    "client": { "type": "string" },
+    "financial_profile": {
+      "type": "object",
+      "properties": {
+        "revenue_band": { "type": "string" },
+        "growth_band": { "type": "string" },
+        "margin_band": { "type": "string" },
+        "cash_position": { "type": "string" },
+        "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+        "citations": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "spend_capacity": {
+      "type": "object",
+      "properties": {
+        "current_category_spend": { "type": "string" },
+        "addressable_share": { "type": "string" },
+        "evidence": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "addressable_market": {
+      "type": "object",
+      "properties": {
+        "tam": { "type": "string" },
+        "sam": { "type": "string" },
+        "som": { "type": "string" },
+        "citations": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "value_sizing": {
+      "type": "object",
+      "required": ["band_low", "band_high"],
+      "properties": {
+        "band_low": { "type": ["string", "number"] },
+        "band_high": { "type": ["string", "number"] },
+        "reasoning": { "type": "string" },
+        "comparables": { "type": "array", "items": { "type": "string" } },
+        "confidence": { "type": "string", "enum": ["low", "medium", "high"] }
+      }
+    },
+    "open_questions": { "type": "array", "items": { "type": "string" } },
+    "risks": { "type": "array", "items": { "type": "string" } },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "assessed": { "type": "string" },
+        "assessed_by": { "type": "string" }
+      }
+    }
+  },
+  "additionalProperties": true
+}

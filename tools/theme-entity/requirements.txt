@@ -1,0 +1,2 @@
+# theme-entity PyYAML only (render theme-doc front matter).
+PyYAML>=6.0

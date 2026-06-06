@@ -1,0 +1,57 @@
+# Commercial Studio — capability manifest (how the Producer calls it).
+# Two capabilities: a deterministic deal-validation gate (beancounter,
+# review-class — reuses the nitpicker engine, like audience's reader-fit), and a
+# research + judgment opportunity sizer (commercial officer). Shared studios-
+# level store for rate cards, pricing policy, and per-client financials.
+studio: commercial
+name: Commercial Studio
+summary: Validate a deal against rate cards / margin floors / skill-set ratios (beancounter, review-class); size the opportunity from client financials, spend capacity, and addressable market (commercial officer). The Principal uses this for value-based scoping (Bible §4 L2 decisions).
+plugin: commercial-studio
+
+entrypoints:
+  orchestrator: /commercial-studio # policy / client research → check-commercials and/or assess-commercial-value
+  cli: commercial # deterministic glue: policy / client / check / value / doctor
+
+capabilities:
+  - id: check-commercials
+    description: Deterministic validation of a deal against the org's rate cards, margin floor, and skill-set ratios. Review-class — reuses the nitpicker engine for the verdict + per-check findings. Failures gate L2 commercial decisions.
+    consumes: [deal.yml] # the deal: roles + rates + days + total
+    review_class: true
+    reuses: nitpicker score aggregation (nit aggregate, over the CLI boundary)
+    rubric_ref: configs/checks/ # extensible scored checks: rate-card, margin-floor, ratio-mix
+    entrypoint: commercial check score
+  - id: assess-commercial-value
+    description: >-
+      Synthesise a value-based opportunity sizing from client financial
+      research, declared spend capacity, and addressable market.
+      Caller-supplied JSON pattern (mirrors the tool-bench materialisers) —
+      the model produces the value analysis, the CLI materialises it into a
+      structured assessment + provenance.
+    consumes: [md, txt, pdf, url] # cited financial research, RFPs, earnings calls
+    produces: [assessment.yml]
+    store_ref: ~/context/studios/commercial/clients/<slug>/
+
+inputs:
+  client: slug # the client model (created by `commercial client new`)
+  deal: yml # roles + rates + days (the deal under review)
+  target: path-or-url # (assess-commercial-value) the document under analysis
+  policy: yml # the org's pricing policy (margin floor, skill ratios)
+
+outputs:
+  store: ~/context/studios/commercial/ # rate-card.yml + pricing-policy.yml (org-wide)
+  client_store: ~/context/studios/commercial/clients/<slug>/ # _client.yml + research/
+  sessions: ~/context/studios/commercial/sessions/<deal>/ # per-deal critique sessions
+  critique: review/v<ver>/{scores.yml, findings.md, scorecard.json, strengthening-areas.md}
+
+resources:
+  rate_card_schema: scripts/commercial/schemas/rate-card.schema.json
+  pricing_policy_schema: scripts/commercial/schemas/pricing-policy.schema.json
+  client_schema: scripts/commercial/schemas/client.schema.json
+  deal_schema: scripts/commercial/schemas/deal.schema.json
+  checks_ref: configs/checks/                          # rubric (rate-card-compliance, margin-floor, ratio-mix)
+  policy: ../configs/default/review-policy.yml         # SAME aggregation policy the nitpicker uses
+
+# Pairs with the Principal (which uses commercial for L2 value-based scoping
+# decisions) and with the Producer (which routes the check-commercials gate
+# before any external delivery).
+pairs_with: [principal, producer, nitpicker]

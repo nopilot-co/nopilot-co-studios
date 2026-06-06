@@ -1,0 +1,28 @@
+# Source Enrich — capability manifest (how a caller invokes this tool).
+# Dumb tool: no studio dependency. Discovered via the root tools.yml.
+tool: source-enrich
+name: Source Enrich
+summary: Enrich a notion-sources batch in place — fetch each source, fully populate YAML front matter (publisher, byline, dates, image), extract a readable body (HTML/PDF/plaintext) + assets (images/docs) → an Appendix, and tidy author bylines.
+plugin: source-enrich
+cli: source-enrich
+depends_on_studio: false
+
+actions:
+  - id: enrich
+    description: Walk a sources.json batch and enrich each NNNN-*.md in place (front matter + body + assets).
+    invoke: "source-enrich --batch <dir> [--manifest <file>] [--only <n|id|file> ...] [--limit <n>] [--reenrich] [--html-file <path> --only <one>] [--md-file <path> --only <one>] [--assets <kinds>] [--max-asset-mb <f>] [--max-assets <n>] [--delay <s>] [--timeout <s>] [--respect-robots] [--quiet]"
+    inputs:
+      batch: "batch directory holding sources.json + NNNN-*.md (created by notion-sources)"
+      only: "ids/slugs/row-numbers to enrich (repeatable)"
+      html_file: "pre-fetched HTML body to ingest (requires a single --only)"
+      md_file: "pre-fetched Markdown body to ingest (requires a single --only)"
+    outputs:
+      enriched_md: "NNNN-*.md updated in place with populated front matter + body + Appendix; assets/ subtree alongside"
+    exit_codes: { 0: ok, 2: bad-invocation, 3: error }
+    idempotent: true                 # skips already-enriched unless --reenrich
+    side_effects: "writes under --batch only (NNNN-*.md updated; assets/ subtree created)"
+
+install:
+  script: tools/source-enrich/install.sh
+  cli: ~/.local/bin/source-enrich
+  deps: [pyyaml, requests, beautifulsoup4, pdfminer.six]

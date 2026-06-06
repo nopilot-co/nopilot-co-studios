@@ -1,0 +1,68 @@
+# Context Studio — capability manifest (how the Producer calls it).
+# Infrastructural: orchestrates the tools/ tier to populate a per-engagement
+# context store. Other studios reference an engagement's context by slug.
+# Tools stay studio-free (ADR-004); this studio chains them over the CLI
+# boundary (same pattern as audience -> nit, commercial -> nit, architecture
+# -> studio).
+studio: context
+name: Context Studio
+summary: >-
+  Orchestrate the tools/ tier (notion-sources, source-enrich,
+  source-summarise, theme-propose, theme-cluster, theme-entity,
+  youtube-transcript) into a per-engagement context store. Three
+  capabilities — ingest, map, extend. Infrastructural: other studios
+  reference an engagement's context by slug.
+plugin: context-studio
+
+entrypoints:
+  orchestrator: /context-studio
+  cli: context # deterministic glue: doctor / engagement / ingest / map / extend / status
+
+capabilities:
+  - id: ingest-context
+    description: >-
+      Orchestrate notion-sources → source-enrich → source-summarise into
+      the per-engagement context store. Each step shells out to the
+      matching tool CLI over the boundary. Caller-supplied JSON at the
+      summariser materialiser step.
+    consumes: [notion-db-id, url, file]
+    produces: [sources/, sources.json]
+    store_ref: ~/context/studios/context/<engagement>/
+  - id: map-context
+    description: >-
+      Orchestrate theme-propose → theme-cluster → theme-entity into a
+      thematic map of the ingested sources. Same caller-supplied-JSON
+      pattern at the propose / cluster / entity materialiser steps.
+    consumes: [sources/, themes-json]
+    produces: [theme-manifest.json, themes.json, themes/]
+  - id: extend-context
+    description: >-
+      Append additional sources to an existing context store; re-runs
+      enrich + summarise (incrementally) and updates the thematic map.
+      Caller-supplied JSON for the materialiser steps.
+    consumes: [sources-to-add, themes-json]
+    produces: [updated sources.json + theme-manifest.json]
+
+inputs:
+  engagement: slug # engagement-scoped context store
+  notion_db: id # for ingest from a Notion database
+  source: path-or-url # for ingest of individual sources
+  summary_json: path # caller-supplied summaries (source-summarise contract)
+  proposal_json: path # caller-supplied theme proposal (theme-propose contract)
+  assignments: path # caller-supplied theme assignments (theme-cluster contract)
+  spec: path # caller-supplied per-theme synthesis (theme-entity contract)
+
+outputs:
+  store: ~/context/studios/context/<engagement>/
+  artifacts:
+    sources: sources/NNNN-<slug>.md + sources.json + index.md
+    themes: themes.json + theme-manifest.json + themes/<theme-id>.md
+
+resources:
+  manifest_schema: scripts/context/schemas/manifest.schema.json
+
+# Other studios pair with context to seed their work:
+#   - Principal uses ingested research for client/market mapping.
+#   - audience builds reader models from filed sources.
+#   - delivery references context for prior-art / dependencies.
+pairs_with: [principal, producer, audience, delivery, architecture]
