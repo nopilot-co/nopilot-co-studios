@@ -187,3 +187,118 @@ hard-to-reverse decision. Link back from the issue that prompted it.
     Rejected: discovery becomes tribal knowledge, MCP/tool-schema generation
     needs a structured contract anyway, and the consistency with `studio.yaml`
     is the whole point — one mental model for both tiers.
+
+---
+
+## ADR-005 — Format contracts: purpose × layout × format × brand, with sealed keys and governed forks
+
+- **Status:** accepted (2026-06-08)
+- **Issue:** #98 (format-contract architecture, epic); spine #99–#101;
+  gate #102; composer #103; ergonomics #104–#105
+- **Supersedes:** the implicit `<purpose>-<export>` two-layer model in
+  `design/scripts/studio/formats.py::resolve` (still valid as a special case:
+  `layout: linear` is the default).
+
+- **Context.** The studios exist to release a creator from the format
+  conversation — they bring the message; brand execution, navigation structure,
+  and header/footer usage should be **baked-in contracts that cannot be
+  abrogated**. In practice this was not holding. Building the 360 GTM proposition
+  (2026-06-06), the locked `showcase-html` format silently regressed from the
+  agreed two-axis "frame" navigation to a single-axis scroll, sections were
+  stubbed and passed off as a finished build, and the output differed run to run.
+  Three root causes, all verified in code:
+  1. **Layout was never a concept.** A slug resolves as `purposes/<purpose>.yml`
+     ← `exports/<export>.yml` ← slug `overrides` — i.e. `purpose × format`. The
+     navigation/structure governance lived *inside* one purpose
+     (`purposes/showcase.yml`), so "showcase" meant "the frame thing" and no
+     other purpose could reuse it and nothing stated the layout as a contract.
+  2. **`_deep_merge` lets any later layer clobber any key** — there is no notion
+     of a sealed/non-overridable governance term. Drift is *permitted by design*.
+  3. **Nothing fails closed.** `check_output()` validates counts only; the render
+     path never reads `engine`/`template`; a contract can say "frame" and the
+     output be anything, with no error. The declared `engine: showcase-template`
+     is dead — render routes everything to Quarto.
+
+- **Decision.**
+  1. **Four orthogonal layers, composed — content / structure / medium / skin.**
+     - `purposes/<purpose>.yml` — **WHAT**: messaging intent, `required_sections`,
+       narrative arc, tone brief, completeness definition. (Strip layout out.)
+     - `layouts/<layout>.yml` — **HOW it is navigated** (new tier): navigation
+       model, spine/detail structure, header/footer **slots + placement**, and the
+       **structural invariants** a render must exhibit (`must_contain`). Declared
+       once; reused by every purpose. Siblings: `linear`, `frame`, `carousel`, …
+     - `exports/<export>.yml` — **WHICH medium** + which engine implements the
+       layout for that medium (pdf/html/pptx/png/mp4/…).
+     - brand (`_brand.yml`) — **SKIN**: fills the slots; never defines them.
+     Resolve order: `defaults ← purpose ← layout ← export ← brand ← session`.
+  2. **The slug is a thin, optional binding — not a fat spec.**
+     `<purpose>-<layout>-<format>.yml` (e.g. `showcase-frame-html.yml`) references
+     the three layers and declares only genuine deltas. A session may also lock a
+     **triple directly** (`--purpose … --layout … --format …`) and resolve on the
+     fly; a binding file is *curation* (pinned overrides / catalogue
+     discoverability), written only when wanted. The matrix is sparse — invalid
+     combinations (`frame × csv`) are rejected at lock time, never enumerated as
+     files.
+  3. **Sealed keys make governance unabrogable.** A layer may declare `seals:` —
+     keys that no lower layer (export, slug, brand, session) may override.
+     `_deep_merge` honours seals and **hard-fails** on a sealed-key conflict. To
+     change a sealed term you must edit the *owning layer* — a global, reviewed
+     act. Forking is allowed on the open surface; the contract terms are not.
+  4. **Layout-keyed render engines + fail-closed validation.** Render engines are
+     keyed off `layout` (`frame-engine`, `linear-engine`, `carousel-engine`),
+     load the layout's `template`, and a post-render validator asserts the
+     layout's `must_contain` (e.g. for `frame`: `.track`, `data-page-key`,
+     `window.NP_ASSET`, `np:pagechange`). Missing structure → **non-zero exit**,
+     not a soft QA note. The fidelity/completeness gate consumes the same
+     `must_contain` + seals — one declaration, enforced at render *and* at the
+     gate.
+  5. **A deep-merge that changes the contract is a FORK, and a fork must declare
+     itself.** Identity + provenance, on the lockfile model — the global spec is
+     `package.json` (live, layered); a local resolved contract is
+     `package-lock.json` (exact, frozen, committed, travels with the asset). On
+     lock/render, compare `hash(resolve(slug))` with the effective contract; if
+     it materially diverges, **halt and force a conscious L2 *contract-fork
+     decision*** with three outcomes:
+     - **sealed-key conflict → rejected** (edit the owning layer instead);
+     - **open-key divergence, one-off → local fork**: materialise a
+       **fully-resolved, frozen** `<docket>/contract.lock.yml`
+       (`scope: local`, `derived_from: <slug>@<hash>`, `diverged_keys: […]`).
+       Frozen, not an overlay — so a later change to the global spec cannot
+       silently re-mutate the asset. `version.json` points the asset at it;
+       render + validator key off it identically to a catalogue spec;
+     - **open-key divergence, reusable → global fork**: write a new thin binding
+       `formats/<newslug>.yml` and surface it as *"a new contract is being
+       written into your production catalogue"* — committed via the normal
+       PR/review path, because changing the catalogue changes production.
+  6. **Provenance stamp on every output.** `version.json` records
+     `built_against: {id, hash, scope, derived_from}` so any future thread knows
+     exactly which contract is the truth, whether it is a fork, and its lineage.
+     There is structurally one version of the truth per asset.
+
+- **Consequences.**
+  - `purposes/showcase.yml` splits into `purposes/showcase.yml` (intent) +
+    `layouts/frame.yml` (master-detail nav, viewer contract, slots). Every
+    existing slug gains `layout: linear` for back-compat — nothing breaks.
+  - "Format" stops being a static catalogue and becomes a small
+    provenance/versioning system: contracts get identity (name + hash + scope +
+    lineage); assets cite the contract they were built against.
+  - The system may deep-merge freely, but it may **never diverge silently** —
+    every fork is named, scoped (local-frozen or global-new), recorded with
+    lineage, and cited by the asset it produced. This is the mechanism that
+    delivers the original aim: the creator owns the message; brand, navigation,
+    and header/footer are baked-in and provably present or the build fails.
+
+- **Alternatives considered.**
+  - *Just lengthen the slug to `<purpose>-<layout>-<format>` (the original
+    suggestion).* Adopted as the **handle**, rejected as the **fix** — the name
+    alone changes nothing; the cause is the absence of a layout layer, sealed
+    keys, and fail-closed validation. Naming is cosmetic; layering + sealing +
+    enforcement is the contract.
+  - *Forbid overrides entirely (contracts are immutable).* Rejected — legitimate
+    one-off divergence is necessary; the requirement is that it be conscious,
+    scoped, and recorded, not impossible.
+  - *Store a local fork as a thin overlay on the global spec.* Rejected —
+    reintroduces drift: a later global change silently re-mutates the asset. Local
+    forks must be frozen, resolved snapshots with a lineage pointer.
+  - *Treat header/footer as its own axis.* Rejected — it is a shared contract:
+    layout owns slot presence/placement (sealed); brand owns fill/style.
