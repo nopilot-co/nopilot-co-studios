@@ -102,16 +102,30 @@ def next_version(session_path: Path, kind: str) -> str:
 
 
 def record_render(
-    session_path: Path, version: str, formats: list[str], outputs: dict[str, Path]
+    session_path: Path,
+    version: str,
+    formats: list[str],
+    outputs: dict[str, Path],
+    built_against: dict | None = None,
 ) -> None:
+    """Append a render to history and stamp built_against on state + history.
+
+    ``built_against`` is the provenance dict from
+    ``formats.resolve_for_session()``. It identifies *which contract* the
+    artifact was rendered against — one version of the truth per asset (ADR-005,
+    #101). Persisted twice for convenience: at session root for the latest
+    render, and on the history entry for the per-version record.
+    """
     state = read_state(session_path)
     state["current"] = version
-    state["history"].append(
-        {
-            "version": version,
-            "rendered_at": datetime.now(timezone.utc).isoformat(),
-            "formats": formats,
-            "outputs": {fmt: str(p) for fmt, p in outputs.items()},
-        }
-    )
+    entry: dict = {
+        "version": version,
+        "rendered_at": datetime.now(timezone.utc).isoformat(),
+        "formats": formats,
+        "outputs": {fmt: str(p) for fmt, p in outputs.items()},
+    }
+    if built_against is not None:
+        entry["built_against"] = built_against
+        state["built_against"] = built_against
+    state["history"].append(entry)
     write_state(session_path, state)

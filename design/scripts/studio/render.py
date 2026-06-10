@@ -91,7 +91,17 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
             "session has no locked format. Re-create it with "
             "`studio session init --format <slug> ...` (see `studio formats list`)."
         )
-    resolved = formats_mod.resolve(fmt_slug)
+    # Fail-closed (#101): the contract the session will build against must be
+    # schema-valid before we touch any rendering pipeline. A local lock
+    # (session/contract.lock.yml) overrides the global resolve.
+    resolved, built_against = formats_mod.resolve_for_session(fmt_slug, session_path)
+    schema_errors = formats_mod.validate_resolved(resolved)
+    if schema_errors:
+        raise RuntimeError(
+            f"format '{fmt_slug}' resolved contract failed schema validation:\n  "
+            + "\n  ".join(schema_errors)
+            + "\n  (fix the slug / layer / local lock; render refuses fail-closed)"
+        )
     if not formats_mod.is_renderable(resolved):
         raise RuntimeError(
             f"format '{fmt_slug}' (export '{resolved.get('export')}') is not "
@@ -112,7 +122,9 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
     outputs = engine(session_path, resolved, state, new_version)
 
     sfmt = formats_mod.studio_format(resolved)
-    session_mod.record_render(session_path, new_version, [sfmt], outputs)
+    session_mod.record_render(
+        session_path, new_version, [sfmt], outputs, built_against=built_against
+    )
     return outputs
 
 
