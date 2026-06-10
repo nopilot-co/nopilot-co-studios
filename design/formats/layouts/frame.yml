@@ -1,0 +1,44 @@
+# Layout: frame — two-axis master-detail navigation. Reused by any "frame"
+# asset; not coupled to showcase. Vertical = topics (spine), horizontal =
+# detail per topic. The terms that regressed in the 2026-06-06 360 GTM
+# incident are sealed below: slugs cannot override them — fork the layout.
+layout: frame
+name: Frame (two-axis master-detail)
+description: >-
+  Two-axis interactive navigation: vertical topics (the spine), each opening
+  RIGHTWARD into detail pages (the depth). A topic's overview is one whole
+  master panel; detail pages add depth without fragmenting the overview.
+
+style_guide:
+  navigation: >-
+    Two-axis / master-detail. Vertical = topics. Horizontal = detail.
+    Right-ward affordances are ALWAYS visible: a "scroll right for detail"
+    cue on each master, chevrons, panel dots, arrow keys, and native swipe.
+    Vertical movement uses normal page scroll so anchors and a top nav keep
+    working.
+  motion: reveal-on-scroll and a subtle right-ward nudge cue; never gratuitous
+  device: >-
+    Zoom-out then zoom-in — every topic opens on its big picture, then the
+    reader chooses how deep to go.
+
+render:
+  engine: frame-engine    # wired by #99 (loads templates/showcase/showcase.html)
+
+ruleset:
+  structure: master-detail            # vertical topics; horizontal detail
+  master_holds_whole_topic: true      # a topic's overview is one whole master panel
+  detail_pages_per_topic:             # horizontal depth per topic
+    target: 2
+    min: 1
+    max: 5
+  navigation_affordances: [scroll-cue, chevrons, panel-dots, arrow-keys, swipe]
+
+# Sealed: the structural contract that regressed. A slug or session that
+# needs different structure must fork the layout (local-frozen or global PR),
+# not silently override these keys.
+seals:
+  - style_guide.navigation
+  - ruleset.structure
+  - ruleset.master_holds_whole_topic
+  - ruleset.detail_pages_per_topic
+  - ruleset.navigation_affordances

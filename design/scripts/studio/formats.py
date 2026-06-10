@@ -1,12 +1,23 @@
-"""Format contracts: purpose × export, resolved by layered merge.
+"""Format contracts: purpose × layout × export, resolved by layered merge.
 
 A format slug is ``<purpose>-<export>`` (e.g. ``pitch-pdf``). Its contract is the
-deep-merge of ``purposes/<purpose>.yml`` <- ``exports/<export>.yml`` <- the slug
-file's ``overrides`` block. The purpose centralises intent (style guide,
-execution brief, ruleset); the export layers on asset-type specifics.
+deep-merge of, in order:
 
-This module is deterministic glue only — no judgment. It resolves, validates, and
-applies the *count-based* ruleset (max_pages, max_slides). Subjective rules
+    purposes/<purpose>.yml
+        ← layouts/<layout>.yml      (defaults to ``linear`` if the slug omits it)
+        ← exports/<export>.yml
+        ← the slug file's ``overrides`` block
+
+The purpose centralises intent (style guide, execution brief, ruleset); the
+**layout** governs structural navigation (frame / linear / carousel — the third
+orthogonal tier added in ADR-005); the export layers on asset-type specifics.
+
+Any layer may declare ``seals:`` — a list of dotted paths that later layers may
+not override. A conflict raises ``SealedKeyConflict`` (fail-closed; no silent
+drift). The session is then expected to fork the contract (local-frozen or
+global PR) and record the fork in ``version.json::built_against``.
+
+This module is deterministic glue only — no judgment. Subjective rules
 (required sections, tone, CTA presence) are enforced by the ``visual-qa`` skill.
 """
 
@@ -15,16 +26,26 @@ from __future__ import annotations
 import copy
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 import yaml
 from jsonschema import Draft202012Validator
 
 from . import FORMATS, SCHEMAS
 
+DEFAULT_LAYOUT = "linear"
+
+
+class SealedKeyConflict(ValueError):
+    """A layer attempted to override a key sealed by an earlier layer."""
+
 
 def _purposes_dir() -> Path:
     return FORMATS / "purposes"
+
+
+def _layouts_dir() -> Path:
+    return FORMATS / "layouts"
 
 
 def _exports_dir() -> Path:
@@ -49,8 +70,19 @@ def list_formats() -> list[str]:
     return sorted(p.stem for p in FORMATS.glob("*.yml"))
 
 
+def list_layouts() -> list[str]:
+    """All defined layout slugs (the *.yml files at formats/layouts/)."""
+    d = _layouts_dir()
+    if not d.exists():
+        return []
+    return sorted(p.stem for p in d.glob("*.yml"))
+
+
 def _deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
-    """Recursively merge overlay onto base. Dicts merge; everything else replaces."""
+    """Recursively merge overlay onto base. Dicts merge; everything else replaces.
+
+    Pure dict merge — does NOT enforce seals. Use ``_merge_layers`` for that.
+    """
     out = copy.deepcopy(base)
     for key, val in (overlay or {}).items():
         if isinstance(val, dict) and isinstance(out.get(key), dict):
@@ -60,34 +92,88 @@ def _deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]
     return out
 
 
+def _walk_paths(d: Any, prefix: str = "") -> Iterable[str]:
+    """Yield dotted paths to every leaf and intermediate dict in ``d``.
+
+    Used to detect whether an overlay writes to a sealed path.
+    """
+    if isinstance(d, dict):
+        for k, v in d.items():
+            path = f"{prefix}.{k}" if prefix else k
+            yield path
+            if isinstance(v, dict):
+                yield from _walk_paths(v, path)
+
+
+def _merge_layers(layers: list[tuple[str, dict[str, Any]]]) -> dict[str, Any]:
+    """Merge layers in order, honouring ``seals:`` declared by earlier layers.
+
+    Each entry is ``(layer_name, layer_dict)``. A layer's own ``seals:`` list is
+    consumed (stripped from the merge) and registered so any LATER layer that
+    writes to a sealed path hard-fails with ``SealedKeyConflict``. Writes within
+    the same layer that declares the seal are permitted (the layer owns the
+    sealed value).
+    """
+    result: dict[str, Any] = {}
+    sealed_by: dict[str, str] = {}
+    for name, raw in layers:
+        layer = copy.deepcopy(raw or {})
+        my_seals = layer.pop("seals", []) if isinstance(layer, dict) else []
+        for path in _walk_paths(layer):
+            if path in sealed_by:
+                raise SealedKeyConflict(
+                    f"layer '{name}' attempts to override sealed key '{path}' "
+                    f"(sealed by layer '{sealed_by[path]}'). Fork the layout "
+                    f"(local-frozen contract or global PR) instead of overriding."
+                )
+        result = _deep_merge(result, layer)
+        for seal_path in my_seals:
+            sealed_by[seal_path] = name
+    return result
+
+
 def resolve(slug: str) -> dict[str, Any]:
     """Resolve a format slug into its merged contract.
 
-    Order: purposes/<extends> <- exports/<export> <- slug overrides.
-    Raises FileNotFoundError if the slug file or a referenced layer is missing.
+    Order: ``purposes/<extends>`` ← ``layouts/<layout|linear>`` ← ``exports/<export>``
+    ← slug overrides. Raises ``FileNotFoundError`` if a referenced layer is
+    missing, ``ValueError`` if the slug is mis-declared, and
+    ``SealedKeyConflict`` if a later layer would write to a sealed key.
     """
     spec = _load_yaml(slug_path(slug))
     purpose = spec.get("extends")
     export = spec.get("export")
     if not purpose or not export:
         raise ValueError(f"{slug}.yml must set both `extends` (purpose) and `export`")
+    layout = spec.get("layout", DEFAULT_LAYOUT)
 
-    base = _load_yaml(_purposes_dir() / f"{purpose}.yml")
-    overlay = _load_yaml(_exports_dir() / f"{export}.yml")
+    purpose_layer = _load_yaml(_purposes_dir() / f"{purpose}.yml")
+    layout_layer = _load_yaml(_layouts_dir() / f"{layout}.yml")
+    export_layer = _load_yaml(_exports_dir() / f"{export}.yml")
+    slug_overlay = spec.get("overrides", {}) or {}
 
-    # Both layers carry a top-level `name`; compose them instead of letting the
-    # export's name clobber the purpose's during the merge.
-    purpose_name = base.get("name", purpose)
-    export_name = overlay.get("name", export)
+    # Each carries a `name`; the merge would let later layers clobber the
+    # purpose's. Capture them up front so the final identity is composed.
+    purpose_name = purpose_layer.get("name", purpose)
+    layout_name = layout_layer.get("name", layout)
+    export_name = export_layer.get("name", export)
 
-    merged = _deep_merge(base, overlay)
-    merged = _deep_merge(merged, spec.get("overrides", {}))
+    merged = _merge_layers(
+        [
+            ("purpose", purpose_layer),
+            ("layout", layout_layer),
+            ("export", export_layer),
+            ("slug", slug_overlay),
+        ]
+    )
 
-    # Canonical identity always reflects the slug, not whatever the layers said.
+    # Canonical identity always reflects the slug, not whatever layers said.
     merged["slug"] = slug
     merged["purpose"] = purpose
+    merged["layout"] = layout
     merged["export"] = export
     merged["purpose_name"] = purpose_name
+    merged["layout_name"] = layout_name
     merged["export_name"] = export_name
     merged["name"] = f"{purpose_name} · {export_name}"
     return merged
