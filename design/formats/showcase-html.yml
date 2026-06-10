@@ -19,12 +19,11 @@ overrides:
     topics, each opening rightward into detail. Brand palette/fonts/logo bind
     from the active brand's _brand.yml; the design-studio skill fills the
     canonical template with the engagement's content.
+  # render.engine and template are sealed by layouts/frame.yml — the layout owns
+  # the dispatcher contract. Slug only sets per-asset render state.
   render:
-    engine: showcase-template        # design-studio skill fills templates/showcase/showcase.html
     studio_format: html
-    status: template                 # canonical template + brand-token fill; a deterministic
-                                     # render pipeline (DECK -> template) is a follow-on
-  template: templates/showcase/showcase.html
+    status: template                 # canonical template + brand-token fill (#99)
   requires:
     render: []                       # no native tool — produced by the design-studio skill, not Quarto
   style_guide:
