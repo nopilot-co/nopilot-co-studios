@@ -24,7 +24,9 @@ This module is deterministic glue only — no judgment. Subjective rules
 from __future__ import annotations
 
 import copy
+import hashlib
 import json
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -34,6 +36,11 @@ from jsonschema import Draft202012Validator
 from . import FORMATS, SCHEMAS
 
 DEFAULT_LAYOUT = "linear"
+
+# Fields stamped onto the resolved contract by ``resolve()`` for identity /
+# display — excluded from ``contract_hash`` because they're derived, not
+# governance terms. The hash governs the contract itself, not its label.
+_HASH_EXCLUDE = {"slug", "name", "purpose_name", "layout_name", "export_name"}
 
 
 class SealedKeyConflict(ValueError):
@@ -179,23 +186,33 @@ def resolve(slug: str) -> dict[str, Any]:
     return merged
 
 
-def validate(slug: str) -> list[str]:
-    """Return a list of validation errors for a slug (empty = valid)."""
-    errors: list[str] = []
-    try:
-        resolved = resolve(slug)
-    except (FileNotFoundError, ValueError) as e:
-        return [str(e)]
+def validate_resolved(resolved: dict[str, Any]) -> list[str]:
+    """Schema-validate an already-resolved contract (used at render time).
 
+    Returns a list of human-readable errors (empty = valid). Splitting this
+    from ``validate(slug)`` lets ``render.py`` fail-closed against the
+    *effective* contract (which may be a local lock), not just the slug's
+    global resolve.
+    """
     schema_path = SCHEMAS / "format.schema.json"
     if not schema_path.exists():
         return ["format.schema.json missing from plugin"]
     schema = json.loads(schema_path.read_text())
     validator = Draft202012Validator(schema)
+    errors: list[str] = []
     for e in validator.iter_errors(resolved):
         loc = ".".join(str(p) for p in e.absolute_path) or "<root>"
         errors.append(f"{loc}: {e.message}")
     return errors
+
+
+def validate(slug: str) -> list[str]:
+    """Return a list of validation errors for a slug (empty = valid)."""
+    try:
+        resolved = resolve(slug)
+    except (FileNotFoundError, ValueError) as e:
+        return [str(e)]
+    return validate_resolved(resolved)
 
 
 def validate_asset_refs(resolved: dict[str, Any]) -> list[str]:
@@ -228,6 +245,108 @@ def is_renderable(resolved: dict[str, Any]) -> bool:
 
 def show(slug: str) -> str:
     return yaml.safe_dump(resolve(slug), sort_keys=False, default_flow_style=False)
+
+
+# ----------------------------------------------------------------- provenance
+
+
+def contract_hash(resolved: dict[str, Any]) -> str:
+    """Stable SHA-256 hex of a resolved contract.
+
+    Excludes derived/identity fields so the hash governs the *contract* (the
+    enforceable terms), not its display label. Sorts keys so the hash is stable
+    across runs and Python versions.
+    """
+    governance = {k: v for k, v in resolved.items() if k not in _HASH_EXCLUDE}
+    canonical = json.dumps(governance, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def load_local_lock(session_path: Path) -> dict[str, Any] | None:
+    """Load ``<session>/contract.lock.yml`` if present.
+
+    A local lock is the **frozen** full contract a session committed to render
+    against — written when an override would conflict with a sealed key but the
+    user wants to fork locally. The lock shape:
+
+        scope: local
+        derived_from: <slug>
+        created: <iso8601>
+        contract: { ...full resolved dict... }
+
+    Returns the parsed dict or ``None``. The lock is authoritative — no further
+    merging is applied — so rendering against it bypasses ``resolve()``.
+    """
+    lock_path = session_path / "contract.lock.yml"
+    if not lock_path.exists():
+        return None
+    with lock_path.open() as f:
+        data = yaml.safe_load(f) or {}
+    if data.get("scope") != "local" or "contract" not in data:
+        raise ValueError(
+            f"{lock_path}: malformed local lock — needs `scope: local` and a "
+            "`contract:` block carrying the full resolved dict."
+        )
+    return data
+
+
+def resolve_for_session(
+    slug: str, session_path: Path
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Resolve the contract the session will actually render against.
+
+    Returns ``(resolved, built_against)``:
+
+    - If ``<session>/contract.lock.yml`` exists, the frozen lock IS the
+      contract (scope=local, derived_from=<lock.derived_from>).
+    - Otherwise, the global ``resolve(slug)`` is the contract
+      (scope=global, derived_from=null).
+
+    ``built_against`` is the provenance stamp persisted to ``version.json`` so
+    every rendered artifact carries one version of the truth.
+    """
+    lock = load_local_lock(session_path)
+    if lock is not None:
+        resolved = lock["contract"]
+        built_against = {
+            "id": resolved.get("slug", slug),
+            "hash": contract_hash(resolved),
+            "scope": "local",
+            "derived_from": lock.get("derived_from", slug),
+            "locked_at": lock.get("created"),
+        }
+        return resolved, built_against
+
+    resolved = resolve(slug)
+    built_against = {
+        "id": slug,
+        "hash": contract_hash(resolved),
+        "scope": "global",
+        "derived_from": None,
+        "locked_at": None,
+    }
+    return resolved, built_against
+
+
+def freeze_local_lock(
+    session_path: Path, resolved: dict[str, Any], derived_from: str
+) -> Path:
+    """Write a ``<session>/contract.lock.yml`` capturing the current contract.
+
+    Used when a session needs to diverge from the global contract on a
+    non-sealed key but the user wants the divergence recorded and frozen
+    rather than left as a per-render override. Returns the lock path.
+    """
+    lock_path = session_path / "contract.lock.yml"
+    payload = {
+        "scope": "local",
+        "derived_from": derived_from,
+        "created": datetime.now(timezone.utc).isoformat(),
+        "contract": resolved,
+    }
+    with lock_path.open("w") as f:
+        yaml.safe_dump(payload, f, sort_keys=False, default_flow_style=False)
+    return lock_path
 
 
 def check_output(resolved: dict[str, Any], outputs: dict[str, Path]) -> list[str]:
