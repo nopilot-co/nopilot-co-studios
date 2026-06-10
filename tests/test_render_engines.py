@@ -65,39 +65,55 @@ for slug in formats.list_formats():
 #    Builds outputs/<stem>.v<version>.html that contains the template's
 #    well-known TWO-AXIS NAV markup — i.e. it really copied templates/showcase/
 #    showcase.html, not a stub.
+import os
 import tempfile
 
 with tempfile.TemporaryDirectory() as td:
-    session = Path(td) / "session"
-    (session / "inputs").mkdir(parents=True)
-    (session / "outputs").mkdir(parents=True)
-    (session / "inputs" / "source.md").write_text("# placeholder\nnot used by frame-engine yet (#100).\n")
-    state = {
-        "brand": "nopilot",
-        "format": "showcase-html",
-        "source_filename": "source.md",
-        "title": "Test Showcase",
-        "description": "smoke test",
-    }
-    (session / "version.json").write_text(json.dumps({
-        "brand": "nopilot", "session": "test", "format": "showcase-html",
-        "source_filename": "source.md", "title": "Test Showcase",
-        "description": "smoke test",
-        "created": "2026-06-10", "current": "0.0.0", "history": [],
-    }))
+    docket = Path(td)
+    # Drive the studio at a fixture docket so the brand store lives in /tmp.
+    os.environ["STUDIOS_DOCKET_ROOT"] = str(docket)
+    try:
+        # Reload the studio package so brand_root_base() picks up the env.
+        # (We don't actually need to reload — the helpers re-resolve per call.)
+        brand_dir = docket / "brand" / "nopilot"
+        brand_dir.mkdir(parents=True)
+        (brand_dir / "_brand.yml").write_text(
+            "color:\n  primary: '#167C6B'\n  background: '#F7F5F0'\n"
+            "  foreground: '#0E1726'\n  accent: '#D99A4E'\n"
+            "typography:\n  base: {family: Inter}\n  headings: {family: Instrument Serif}\n"
+        )
+        session = docket / "session"
+        (session / "inputs").mkdir(parents=True)
+        (session / "outputs").mkdir(parents=True)
+        (session / "inputs" / "source.md").write_text(
+            '---\ntitle: "Test Showcase"\ndescription: "smoke test"\n---\n# x\n'
+        )
+        state = {
+            "brand": "nopilot",
+            "format": "showcase-html",
+            "source_filename": "source.md",
+        }
+        (session / "version.json").write_text(json.dumps({
+            "brand": "nopilot", "session": "test", "format": "showcase-html",
+            "source_filename": "source.md",
+            "created": "2026-06-10", "current": "0.0.0", "history": [],
+        }))
 
-    resolved = formats.resolve("showcase-html")
-    outputs = render._engine_frame(session, resolved, state, "1.0.0")
-    check("frame-engine returns html output", "html" in outputs)
-    out_path = outputs["html"]
-    check("frame-engine output file exists", out_path.exists())
-    if out_path.exists():
-        text = out_path.read_text(encoding="utf-8")
-        check("frame-engine output carries template's CANONICAL TEMPLATE banner",
-              "CANONICAL TEMPLATE" in text)
-        check("frame-engine substituted document title",
-              "Test Showcase" in text)
-        check("frame-engine output carries Tailwind cdn", "tailwindcss.com" in text)
+        resolved = formats.resolve("showcase-html")
+        outputs = render._engine_frame(session, resolved, state, "1.0.0")
+        check("frame-engine returns html output", "html" in outputs)
+        out_path = outputs["html"]
+        check("frame-engine output file exists", out_path.exists())
+        if out_path.exists():
+            text = out_path.read_text(encoding="utf-8")
+            check("frame-engine output carries template's CANONICAL TEMPLATE banner",
+                  "CANONICAL TEMPLATE" in text)
+            check("frame-engine substituted title from frontmatter",
+                  "Test Showcase" in text)
+            check("frame-engine output carries Tailwind cdn",
+                  "tailwindcss.com" in text)
+    finally:
+        os.environ.pop("STUDIOS_DOCKET_ROOT", None)
 
 # 5. Unknown engine -> registry returns None (render() then raises RuntimeError).
 check("unknown engine -> registry miss", render._ENGINES.get("made-up") is None)
