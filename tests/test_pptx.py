@@ -28,6 +28,7 @@ TOK = {
         "surface": "#21456b",
         "tertiary": "#B14B33",
         "on_primary": "#FFFFFF",
+        "on_surface": "#FFFFFF",  # surface is dark here → light body text (#27)
         "secondary": "#6B7280",
         "primary": "#2A3548",
     },

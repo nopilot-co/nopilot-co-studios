@@ -32,6 +32,10 @@ _DEFAULTS: dict[str, Any] = {
         "neutral": "#0F1626",
         "surface": "#F1F3F6",
         "on_primary": "#FFFFFF",
+        # `on_surface` is the readable body-text colour on a `surface` fill. It is
+        # derived from the *resolved* surface in `resolve()` (so it stays legible
+        # for any brand × design-system pairing); this default only seeds it.
+        "on_surface": "#1A2433",
         "foreground": "#1A2433",
         "background": "#FFFFFF",
     },
@@ -41,6 +45,50 @@ _DEFAULTS: dict[str, Any] = {
 
 # Pixel equivalents for CSS (Typst uses pt; CSS uses px/rem).
 _PX = {"8pt": "8px", "16pt": "16px", "32pt": "32px", "2pt": "2px", "4pt": "4px", "8pt_r": "8px"}
+
+
+def _relative_luminance(hex_color: str) -> float:
+    """WCAG relative luminance of a ``#rrggbb``/``#rgb`` colour (0=black, 1=white).
+
+    Returns 1.0 (treat-as-light) for anything unparseable so a bad value never
+    makes us pick light-on-light text.
+    """
+    h = str(hex_color).lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    try:
+        chans = [int(h[i : i + 2], 16) / 255 for i in (0, 2, 4)]
+    except (ValueError, IndexError):
+        return 1.0
+
+    def _lin(c: float) -> float:
+        return c / 12.92 if c <= 0.03928 else ((c + 0.055) / 1.055) ** 2.4
+
+    r, g, b = (_lin(c) for c in chans)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def _contrast_ratio(a: str, b: str) -> float:
+    """WCAG contrast ratio (1–21) between two colours."""
+    l1, l2 = sorted((_relative_luminance(a), _relative_luminance(b)), reverse=True)
+    return (l1 + 0.05) / (l2 + 0.05)
+
+
+def _readable_on(background: str, palette: dict[str, str]) -> str:
+    """Pick the token colour that reads best on ``background``.
+
+    Considers the resolved foreground/background inks first (so we honour the
+    brand's own palette when it works), then falls back to near-black / white so
+    a result is always legible — even when both brand inks clash with the
+    surface (e.g. a dark brand foreground on a dark design-system surface).
+    """
+    candidates = [
+        palette.get("foreground", "#1A2433"),
+        palette.get("background", "#FFFFFF"),
+        "#11181F",
+        "#FFFFFF",
+    ]
+    return max(candidates, key=lambda ink: _contrast_ratio(ink, background))
 
 
 def _brand_colors(slug: str) -> dict[str, str]:
@@ -114,9 +162,9 @@ def resolve(slug: str, design_system: str | None = None) -> dict[str, Any]:
     tokens = copy.deepcopy(_DEFAULTS)
 
     # Layer the design system over the defaults.
-    if design_system:
-        for group, vals in _design_system_tokens(design_system).items():
-            tokens.setdefault(group, {}).update(vals)
+    ds_tokens = _design_system_tokens(design_system) if design_system else {}
+    for group, vals in ds_tokens.items():
+        tokens.setdefault(group, {}).update(vals)
 
     # Brand colours win on top.
     bc = _brand_colors(slug)
@@ -133,4 +181,11 @@ def resolve(slug: str, design_system: str | None = None) -> dict[str, Any]:
     # Derive surface/neutral/on_primary if neither brand nor system spoke them.
     if "background" in bc:
         tokens["color"].setdefault("surface", bc["background"])
+    # Derive on_surface from the *resolved* surface so panel body text stays
+    # legible for any brand × design-system pairing. A design-system may pin it
+    # explicitly (then we honour that); otherwise pick a high-contrast ink.
+    if "on_surface" not in (ds_tokens.get("color") or {}):
+        tokens["color"]["on_surface"] = _readable_on(
+            tokens["color"]["surface"], tokens["color"]
+        )
     return tokens

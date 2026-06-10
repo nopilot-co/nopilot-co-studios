@@ -27,19 +27,28 @@
   above: ds.space.md, below: ds.space.md,
 )[
   #set par(leading: 0.4em)
-  #set text(fill: ds.color.tertiary)
+  // Body text reads on the surface; the figure itself keeps the tertiary accent
+  // (parity with .stat-panel / .stat-panel strong in components.css).
+  #set text(fill: ds.color.on_surface)
+  #show strong: set text(fill: ds.color.tertiary)
   #body
 ]
 
 #let c_highlight(body) = block(
   width: 100%, fill: ds.color.surface, inset: ds.space.md, radius: ds.radius.lg,
   above: ds.space.md, below: ds.space.md,
-)[#body]
+)[
+  #set text(fill: ds.color.on_surface)
+  #body
+]
 
 #let c_ds_callout(body) = block(
   width: 100%, fill: ds.color.surface, inset: ds.space.md, radius: ds.radius.sm,
   above: ds.space.md, below: ds.space.md, stroke: (left: _rule),
-)[#body]
+)[
+  #set text(fill: ds.color.on_surface)
+  #body
+]
 
 #let c_panel(body) = block(
   width: 100%, inset: ds.space.md, radius: ds.radius.md,
@@ -58,7 +67,7 @@
   width: 100%, fill: ds.color.surface, inset: ds.space.md, radius: ds.radius.md,
   above: ds.space.md, below: ds.space.md,
 )[
-  #set text(size: 0.9em)
+  #set text(size: 0.9em, fill: ds.color.on_surface)
   #body
 ]
 
@@ -98,7 +107,7 @@
   width: 100%, inset: ds.space.lg, fill: ds.color.surface, radius: ds.radius.md,
   above: ds.space.lg, below: ds.space.lg,
 )[
-  #set text(size: 1.5em, weight: "bold", fill: ds.color.primary)
+  #set text(size: 1.5em, weight: "bold", fill: ds.color.on_surface)
   #body
 ]
 
@@ -137,6 +146,6 @@
   width: 100%, fill: ds.color.surface, inset: ds.space.lg, radius: ds.radius.md,
   above: ds.space.lg, below: ds.space.lg,
 )[
-  #set text(size: 1.6em, weight: "bold", fill: ds.color.primary)
+  #set text(size: 1.6em, weight: "bold", fill: ds.color.on_surface)
   #body
 ]
