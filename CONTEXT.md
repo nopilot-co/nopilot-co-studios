@@ -1,19 +1,16 @@
 # Studio plugin — session context
 
-**Current Task:** Rendering program complete; remaining work is the server-modes epic + a contrast follow-up.
+**Current Task:** Epic #98 — format-contract architecture (ADR-005). Driving use case: complete the **360 proposition showcase** (regressed on 2026-06-06: `showcase-html` silently dropped two-axis frame → single-axis scroll; sections stubbed but passed gates; runs non-deterministic).
 
 ## Key Decisions
-- Rendering engine: one `::: ` block source → HTML/PDF (Quarto+Typst) AND native editable PPTX (python-pptx); design-systems layer under the brand (defaults → system → brand).
-- Verification bar is eyes-on-pixels (render → rasterize → look), not "it compiled".
-- #23 (server modes) is a separate project needing architecture decisions first — not started.
-
-## Done (merged to main, PRs #13–#29)
-Dockets/storage-root; slice 1 formats+asset library; slice 2 component engine
-(HTML+PDF parity); slice 3 figure/embed; 4a diagrams; data-viz (5 charts, unified
-SVG); 4b editable PPTX (native shapes, 4 tiers); design-system selection; visual-qa
-component rubric. ~9 standalone test suites green (`design/.venv/bin/python tests/test_*.py`).
+- Four orthogonal layers: **purpose ← layout ← export ← brand ← session**; `seals:` honoured by `_deep_merge`; diverging session must fork (rejected / local-frozen / global-PR), never silent.
+- ADR-005 merged (PR #106). Spine = #99 layouts, #100 data-driven render, #101 fail-closed validation. Dependents = #102 nitpicker gates, #103 long-form composer, #104 doctor preflight, #105 fast path.
+- Server modes (#23) and `on_surface` contrast (#27) deprioritised behind the contract fix.
 
 ## Next Steps
-- #23 — server modes 2–3 (headless provider-agnostic skill runner + gatekeeper). Needs spike→spec→plan + user decisions on transport/auth/runner fork.
-- #27 — panel-text contrast across brand×design-system (`on_surface` token).
-- Board: https://github.com/orgs/nopilot-co/projects/1
+1. **#99** — split `showcase` purpose into `showcase` (intent) + `frame` (layout); add `layouts/` tier; default existing slugs to `layout: linear`.
+2. **#101** — fail-closed validation at render (`built_against` stamp in `version.json`; halt on sealed-key conflict).
+3. **#100** — data-driven render (md/csv/yaml → template fill) so 360 sections can't be stubbed.
+4. Then: ingest 360 brand into `~/context/studios/design/360/` (none exists yet) → re-render showcase against the now-enforced contract → nitpicker (#102) before handoff to `nopilot-co-www` magic-link flow.
+
+Board: https://github.com/orgs/nopilot-co/projects/1

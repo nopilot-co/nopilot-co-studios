@@ -9,6 +9,7 @@
 # The asset is "dumb content + anchor hooks": NO embedded auth, NO comment store.
 # A gated viewer (e.g. <access-code>.nopilot.co) loads it and injects commentary.
 extends: showcase
+layout: frame
 export: html
 
 overrides:
@@ -27,7 +28,7 @@ overrides:
   requires:
     render: []                       # no native tool — produced by the design-studio skill, not Quarto
   style_guide:
-    layout: two-axis master-detail — vertical topics, horizontal detail (overrides html single-scroll)
+    # NOTE: navigation, motion, device, structural rules are sealed by layouts/frame.yml.
     self_contained: single HTML file; CDN for Tailwind + icon set + web fonts; no build step
     viewer_contract: >-
       Every commentable panel carries data-page-key="<topicId>:<panelIndex>";
