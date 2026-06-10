@@ -36,6 +36,7 @@ from . import charts as charts_mod
 from . import components as components_mod
 from . import diagrams as diagrams_mod
 from . import formats as formats_mod
+from . import frame_template as frame_template_mod
 from . import metacontent
 from . import pptx_render as pptx_mod
 from . import session as session_mod
@@ -265,12 +266,14 @@ def _engine_linear(
 def _engine_frame(
     session_path: Path, resolved: dict[str, Any], state: dict[str, Any], version: str
 ) -> dict[str, Path]:
-    """Fill the canonical two-axis showcase template.
+    """Fill the canonical two-axis showcase template against the brand.
 
-    This PR (#99) lands the dispatch: read the template path from the resolved
-    contract (sealed by ``layouts/frame.yml``), substitute the document-level
-    ``title``/``description`` via jinja, and write to ``outputs/``. Brand-token
-    substitution and source.md → topic content fill are the next slice (#100).
+    Reads the template path from the resolved contract (sealed by
+    ``layouts/frame.yml``), substitutes the BRAND TOKENS block + inline
+    hardcoded hexes from the brand's ``_brand.yml`` (#100), then jinja-renders
+    ``{{ title }}`` / ``{{ description }}``. CONTENT SLOT replacement
+    (source.md → topics) is a follow-up slice; the template's authored copy is
+    kept verbatim for now.
     """
     template_rel = resolved.get("template")
     if not template_rel:
@@ -282,11 +285,35 @@ def _engine_frame(
     if not template_path.exists():
         raise FileNotFoundError(f"frame-engine: template not found: {template_path}")
 
-    # Document title/description: prefer session state, then resolved contract.
-    title = state.get("title") or resolved.get("name") or "Showcase"
-    description = state.get("description") or resolved.get("description") or ""
+    slug = state["brand"]
+    brand_yml_path = brand_mod.brand_yml_path(slug)
+    if not brand_yml_path.exists():
+        raise FileNotFoundError(
+            f"frame-engine: brand spec missing: {brand_yml_path}. "
+            f"Run `studio ingest --brand {slug} --sources ...` first."
+        )
+    brand_yml = yaml.safe_load(brand_yml_path.read_text()) or {}
 
-    rendered = Template(template_path.read_text(encoding="utf-8")).render(
+    # Source frontmatter wins for document-level title/description; session
+    # state and the resolved contract are the fallbacks.
+    source_text = (session_path / "inputs" / "source.md").read_text(encoding="utf-8")
+    front, _ = frame_template_mod.parse_frontmatter(source_text)
+    title = (
+        front.get("title")
+        or state.get("title")
+        or resolved.get("name")
+        or "Showcase"
+    )
+    description = (
+        front.get("description")
+        or state.get("description")
+        or resolved.get("description")
+        or ""
+    )
+
+    rendered = frame_template_mod.fill_template(
+        template_path.read_text(encoding="utf-8"),
+        brand_yml,
         title=title,
         description=description,
     )
