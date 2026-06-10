@@ -22,7 +22,8 @@ style_guide:
     reader chooses how deep to go.
 
 render:
-  engine: frame-engine    # wired by #99 (loads templates/showcase/showcase.html)
+  engine: frame-engine          # the dispatch in render.py routes here (#99)
+template: templates/showcase/showcase.html  # canonical template the engine fills
 
 ruleset:
   structure: master-detail            # vertical topics; horizontal detail
@@ -37,6 +38,8 @@ ruleset:
 # needs different structure must fork the layout (local-frozen or global PR),
 # not silently override these keys.
 seals:
+  - render.engine                  # frame asset can't be rendered by another engine
+  - template                       # the canonical template path is the contract
   - style_guide.navigation
   - ruleset.structure
   - ruleset.master_holds_whole_topic
