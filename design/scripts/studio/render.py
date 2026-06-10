@@ -295,9 +295,10 @@ def _engine_frame(
     brand_yml = yaml.safe_load(brand_yml_path.read_text()) or {}
 
     # Source frontmatter wins for document-level title/description; session
-    # state and the resolved contract are the fallbacks.
+    # state and the resolved contract are the fallbacks. The body (post-
+    # frontmatter) feeds the CONTENT SLOT topic parser when it has H2 headings.
     source_text = (session_path / "inputs" / "source.md").read_text(encoding="utf-8")
-    front, _ = frame_template_mod.parse_frontmatter(source_text)
+    front, body = frame_template_mod.parse_frontmatter(source_text)
     title = (
         front.get("title")
         or state.get("title")
@@ -316,6 +317,7 @@ def _engine_frame(
         brand_yml,
         title=title,
         description=description,
+        source_body=body,
     )
 
     sfmt = formats_mod.studio_format(resolved)

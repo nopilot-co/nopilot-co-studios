@@ -20,10 +20,12 @@ from __future__ import annotations
 import re
 from typing import Any
 
+import markdown as md_lib
 import yaml
 from jinja2 import Template
 
 _FRONTMATTER_RE = re.compile(r"\A---\n(.*?)\n---\n", re.DOTALL)
+_SLUG_RE = re.compile(r"[^a-z0-9]+")
 
 
 def parse_frontmatter(source_text: str) -> tuple[dict[str, Any], str]:
@@ -222,6 +224,7 @@ def fill_template(
     brand_yml: dict[str, Any],
     title: str,
     description: str,
+    source_body: str | None = None,
 ) -> str:
     """Brand-substitute and jinja-render the showcase template.
 
@@ -229,11 +232,159 @@ def fill_template(
       1. Build token map from ``_brand.yml``.
       2. Replace the BRAND TOKENS block (the Tailwind config).
       3. Swap inline hardcoded hexes that bypass Tailwind.
-      4. Jinja-render ``{{ title }}`` / ``{{ description }}``.
+      4. If ``source_body`` carries H2 topics, fill the CONTENT SLOT with them.
+      5. Jinja-render ``{{ title }}`` / ``{{ description }}``.
+
+    If ``source_body`` is ``None`` or has no H2 topics, the template's authored
+    copy is left intact — useful for brands where the template already carries
+    the right content.
     """
     tok = resolve_tokens(brand_yml)
     block = build_brand_tokens_block(tok)
     html = _substitute_tokens_block(template_html, block)
     html = _substitute_inline_hexes(html, tok)
+
+    if source_body:
+        topics = parse_topics(source_body)
+        if topics:
+            topics_html = "\n".join(
+                render_topic_html(t, i) for i, t in enumerate(topics)
+            )
+            html = _substitute_content_slot(html, topics_html)
+
     html = Template(html).render(title=title, description=description)
     return html
+
+
+# ----------------------------------------------------------- topic parsing
+
+
+def _slugify(text: str) -> str:
+    s = _SLUG_RE.sub("-", text.strip().lower()).strip("-")
+    return s or "topic"
+
+
+# Match a leading H2 (## ...) or H3 (### ...) at the start of a line, capturing
+# the level and the heading text. Optional Quarto-style `{#explicit-id}` suffix.
+_HEADING_RE = re.compile(
+    r"^(##{1,2})\s+(.+?)(?:\s+\{#([a-z0-9-]+)\})?\s*$",
+    re.MULTILINE,
+)
+
+
+def parse_topics(body: str) -> list[dict[str, Any]]:
+    """Split a Markdown body into topics (H2) and detail panels (H3).
+
+    Returns a list of dicts:
+        ``{id, title, master_md, details: [{title, id, md}]}``
+
+    Content layout:
+      ``## Topic`` starts a new topic; the markdown until the next ``##`` is
+      the master panel. ``### Detail`` within a topic starts a detail panel;
+      its markdown runs until the next ``###`` or ``##``. The topic's master
+      panel is whatever comes before the first ``###`` (the "zoom-out" view).
+    """
+    matches = list(_HEADING_RE.finditer(body))
+    h2s = [m for m in matches if len(m.group(1)) == 2]
+    if not h2s:
+        return []
+
+    topics: list[dict[str, Any]] = []
+    for tidx, h2 in enumerate(h2s):
+        title = h2.group(2).strip()
+        topic_id = h2.group(3) or _slugify(title)
+        topic_end = h2s[tidx + 1].start() if tidx + 1 < len(h2s) else len(body)
+        within = [
+            m for m in matches
+            if h2.end() <= m.start() < topic_end and len(m.group(1)) == 3
+        ]
+        if within:
+            master_md = body[h2.end():within[0].start()].strip()
+        else:
+            master_md = body[h2.end():topic_end].strip()
+        details: list[dict[str, str]] = []
+        for didx, h3 in enumerate(within):
+            d_title = h3.group(2).strip()
+            d_id = h3.group(3) or _slugify(d_title)
+            d_end = within[didx + 1].start() if didx + 1 < len(within) else topic_end
+            d_md = body[h3.end():d_end].strip()
+            details.append({"title": d_title, "id": d_id, "md": d_md})
+        topics.append({
+            "id": topic_id,
+            "title": title,
+            "master_md": master_md,
+            "details": details,
+        })
+    return topics
+
+
+def _md_to_html(md: str) -> str:
+    """Markdown → HTML using the ``markdown`` library (with sane extensions)."""
+    if not md.strip():
+        return ""
+    return md_lib.markdown(
+        md,
+        extensions=["fenced_code", "tables", "sane_lists"],
+        output_format="html5",
+    )
+
+
+def render_topic_html(topic: dict[str, Any], index: int) -> str:
+    """Render one topic as a ``<section class="topic">`` block.
+
+    Adheres to the template's viewer contract: every commentable panel carries
+    ``data-page-key="<topicId>:<panelIndex>"`` (master=0, details start at 1).
+    """
+    tid = topic["id"]
+    title = topic["title"]
+    master_html = _md_to_html(topic["master_md"])
+    panels: list[str] = [
+        f"""\
+      <div class="panel master py-20" data-page-key="{tid}:0">
+        <div class="reveal max-w-4xl mx-auto">
+          <div class="text-xs font-mont font-semibold tracking-[0.2em] uppercase text-amber-d mb-4">Topic {index + 1:02d}</div>
+          <h2 class="text-4xl md:text-6xl tracking-tight leading-tight mb-8">{title}</h2>
+          {master_html}
+          <div class="mt-10 detailcue nudge"><span>scroll right for detail</span><iconify-icon icon="solar:arrow-right-linear" width="14"></iconify-icon></div>
+        </div>
+      </div>"""
+    ]
+    for di, d in enumerate(topic["details"], start=1):
+        d_html = _md_to_html(d["md"])
+        panels.append(f"""\
+      <div class="panel detail py-20" data-page-key="{tid}:{di}">
+        <div class="reveal max-w-3xl mx-auto">
+          <div class="text-xs font-mont font-semibold tracking-[0.2em] uppercase text-teal mb-4">{title} · {di:02d}</div>
+          <h3 class="text-3xl md:text-4xl tracking-tight leading-tight mb-6">{d["title"]}</h3>
+          {d_html}
+        </div>
+      </div>""")
+    panels_html = "\n".join(panels)
+    return f"""\
+  <section id="{tid}" class="topic">
+    <div class="track" data-topic="{tid}" data-title="{title}">
+{panels_html}
+    </div>
+  </section>"""
+
+
+_CONTENT_SLOT_RE = re.compile(
+    r"(<!-- ={5,} CONTENT SLOT ={5,}.*?-->)(.*?)(<!-- /CONTENT SLOT)",
+    re.DOTALL,
+)
+
+
+def _substitute_content_slot(html: str, topics_html: str) -> str:
+    """Replace the CONTENT SLOT region with rendered topics.
+
+    Preserves the opening + closing sentinel markers so a re-render finds the
+    same boundaries. Raises if the markers are absent — the contract.
+    """
+    if not _CONTENT_SLOT_RE.search(html):
+        raise RuntimeError(
+            "frame_template: CONTENT SLOT markers not found in template. "
+            "Expected `<!-- ===== CONTENT SLOT ===== ... -->` opener and "
+            "`<!-- /CONTENT SLOT` closer. Don't remove them."
+        )
+    replacement = f"\\1\n\n{topics_html}\n\n  \\3"
+    return _CONTENT_SLOT_RE.sub(replacement, html, count=1)
