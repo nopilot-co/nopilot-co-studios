@@ -3,7 +3,7 @@ export: revealjs
 name: RevealJS
 asset_type: webdeck
 render:
-  engine: quarto
+  # engine comes from the layout (linear-engine -> Quarto reveal.js).
   studio_format: revealjs   # emits HTML
 requires:
   render: [quarto]
