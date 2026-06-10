@@ -115,9 +115,99 @@ check("template's nopilot ink removed from output",
 check("BRAND TOKENS region still bounded",
       "/BRAND TOKENS =====" in filled)
 
+# 8. Topic parser: H2 = master, H3 = detail.
+sample_md = """\
+# Document title — ignored by parse_topics
+
+Hook paragraph (no topic yet).
+
+## The first thing
+
+This is the zoom-out idea — one strong line.
+
+A second paragraph.
+
+### A detail of the first
+
+Detail content here.
+
+### Another detail
+
+More detail.
+
+## The second thing {#second}
+
+Just a master, no details.
+"""
+
+topics = ft.parse_topics(sample_md)
+check("two topics parsed", len(topics) == 2, str(len(topics)))
+check("first topic id slugged from title",
+      topics[0]["id"] == "the-first-thing", topics[0]["id"])
+check("explicit {#id} respected", topics[1]["id"] == "second")
+check("first topic has 2 details", len(topics[0]["details"]) == 2)
+check("second topic has 0 details", len(topics[1]["details"]) == 0)
+check("master_md excludes detail headings",
+      "Detail content" not in topics[0]["master_md"])
+check("detail captured", topics[0]["details"][0]["title"] == "A detail of the first")
+check("no H2 → empty list", ft.parse_topics("plain prose, no headings") == [])
+check("only H1 → empty list", ft.parse_topics("# Just a title\nprose") == [])
+
+# 9. Topic HTML rendering carries the viewer contract data-page-key.
+topic_html = ft.render_topic_html(topics[0], 0)
+check("master gets data-page-key :0",
+      'data-page-key="the-first-thing:0"' in topic_html)
+check("detail 1 gets data-page-key :1",
+      'data-page-key="the-first-thing:1"' in topic_html)
+check("detail 2 gets data-page-key :2",
+      'data-page-key="the-first-thing:2"' in topic_html)
+check("topic id on section", 'id="the-first-thing"' in topic_html)
+check("track data attrs",
+      'data-topic="the-first-thing"' in topic_html
+      and 'data-title="The first thing"' in topic_html)
+check("master title becomes <h2>", "<h2" in topic_html)
+check("detail title becomes <h3>", "<h3" in topic_html)
+
+# 10. CONTENT SLOT substitution end-to-end (real template).
+filled_with_topics = ft.fill_template(
+    template_html, brand, title="t", description="d", source_body=sample_md,
+)
+check("CONTENT SLOT: section ID present in output",
+      'id="the-first-thing"' in filled_with_topics)
+check("CONTENT SLOT: viewer-contract data-page-key present",
+      'data-page-key="the-first-thing:0"' in filled_with_topics)
+check("CONTENT SLOT: end marker preserved",
+      "/CONTENT SLOT" in filled_with_topics)
+check("CONTENT SLOT: opener marker preserved",
+      "============================ CONTENT SLOT ============================"
+      in filled_with_topics)
+# Template's authored 360 copy should be gone now (replaced by our topics).
+check("CONTENT SLOT: authored hero copy removed when topics provided",
+      "EU AI ACT · HIGH-RISK OBLIGATIONS" not in filled_with_topics)
+
+# 11. No source body / no topics: template's authored copy stays.
+filled_no_body = ft.fill_template(template_html, brand, title="t", description="d")
+check("no source_body: authored copy retained",
+      "EU AI ACT · HIGH-RISK OBLIGATIONS" in filled_no_body)
+filled_empty_body = ft.fill_template(
+    template_html, brand, title="t", description="d",
+    source_body="just prose, no H2s here",
+)
+check("no H2 source: authored copy retained",
+      "EU AI ACT · HIGH-RISK OBLIGATIONS" in filled_empty_body)
+
+# 12. Missing CONTENT SLOT markers raise (the contract).
+broken = template_html.replace("CONTENT SLOT", "REMOVED-MARKER")
+try:
+    ft._substitute_content_slot(broken, "<section>x</section>")
+    failures.append("missing CONTENT SLOT markers should raise")
+except RuntimeError as e:
+    check("CONTENT SLOT markers-missing error explains",
+          "markers not found" in str(e))
+
 if failures:
     print(f"FAIL ({len(failures)}):")
     for f in failures:
         print(f"  - {f}")
     sys.exit(1)
-print("OK — frame_template token substitution + brand fill verified")
+print("OK — frame_template token substitution + content-slot fill verified")
