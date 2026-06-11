@@ -184,6 +184,52 @@ def build_brand_tokens_block(tok: dict[str, str]) -> str:
   /* ===== /BRAND TOKENS ===== */"""
 
 
+_FONT_LINK_RE = re.compile(r'href="https://fonts\.googleapis\.com/css2\?[^"]*"')
+
+
+def build_font_link(tok: dict[str, str]) -> str:
+    """Build a Google Fonts css2 href covering the brand's token families.
+
+    Text families load 300-700 weights; the mono family loads 400;500. Families
+    are deduplicated and space-encoded per the css2 URL contract.
+    """
+    text_families: list[str] = []
+    for key in ("serif", "sans", "mont"):
+        fam = tok[key]
+        if fam not in text_families:
+            text_families.append(fam)
+    parts = [
+        f"family={fam.replace(' ', '+')}:wght@300;400;500;600;700"
+        for fam in text_families
+    ]
+    parts.append(f"family={tok['mono'].replace(' ', '+')}:wght@400;500")
+    return f'href="https://fonts.googleapis.com/css2?{"&".join(parts)}&display=swap"'
+
+
+# The template's authored font families (nopilot defaults), keyed to the token
+# each maps to — the font equivalent of _HARDCODED_HEX_MAP.
+_HARDCODED_FONT_MAP = {
+    "Instrument Serif": "serif",
+    "Inter": "sans",
+    "Montserrat": "mont",
+    "JetBrains Mono": "mono",
+}
+
+
+def _substitute_fonts(html: str, tok: dict[str, str]) -> str:
+    """Bind the webfont loader and inline font-family rules to brand tokens.
+
+    The Tailwind config swap carries token families through class-based
+    styling; this pass fixes what bypasses it — the Google Fonts <link> and
+    the quoted family names in the template's <style> rules — so brand fonts
+    actually load and apply.
+    """
+    html = _FONT_LINK_RE.sub(build_font_link(tok), html, count=1)
+    for original, token_name in _HARDCODED_FONT_MAP.items():
+        html = html.replace(f"'{original}'", f"'{tok[token_name]}'")
+    return html
+
+
 _TOKENS_RE = re.compile(
     r"/\* ===== BRAND TOKENS.*?===== /BRAND TOKENS ===== \*/",
     re.DOTALL,
@@ -243,6 +289,7 @@ def fill_template(
     block = build_brand_tokens_block(tok)
     html = _substitute_tokens_block(template_html, block)
     html = _substitute_inline_hexes(html, tok)
+    html = _substitute_fonts(html, tok)
 
     if source_body:
         topics = parse_topics(source_body)
@@ -252,7 +299,10 @@ def fill_template(
             )
             html = _substitute_content_slot(html, topics_html)
 
-    html = Template(html).render(title=title, description=description)
+    brand_name = (brand_yml.get("meta") or {}).get("name") or title
+    html = Template(html).render(
+        title=title, description=description, brand_name=brand_name
+    )
     return html
 
 

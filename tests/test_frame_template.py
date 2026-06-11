@@ -188,13 +188,13 @@ check("CONTENT SLOT: authored hero copy removed when topics provided",
 # 11. No source body / no topics: template's authored copy stays.
 filled_no_body = ft.fill_template(template_html, brand, title="t", description="d")
 check("no source_body: authored copy retained",
-      "EU AI ACT · HIGH-RISK OBLIGATIONS" in filled_no_body)
+      "Vertical topics, horizontal depth" in filled_no_body)
 filled_empty_body = ft.fill_template(
     template_html, brand, title="t", description="d",
     source_body="just prose, no H2s here",
 )
 check("no H2 source: authored copy retained",
-      "EU AI ACT · HIGH-RISK OBLIGATIONS" in filled_empty_body)
+      "Vertical topics, horizontal depth" in filled_empty_body)
 
 # 12. Missing CONTENT SLOT markers raise (the contract).
 broken = template_html.replace("CONTENT SLOT", "REMOVED-MARKER")
