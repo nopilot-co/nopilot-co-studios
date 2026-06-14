@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/schemas/analytics/analysis.json",
+  "title": "Analytics — structured analysis",
+  "description": "Caller-supplied structured analysis: dataset summary + descriptive stats + named patterns + named insights + recommendations.",
+  "type": "object",
+  "required": ["engagement", "dataset", "insights"],
+  "properties": {
+    "engagement": { "type": "string", "minLength": 1 },
+    "objective": { "type": "string" },
+    "dataset": {
+      "type": "object",
+      "properties": {
+        "source": { "type": "string" },
+        "kind": { "type": "string" },
+        "sample_size": { "type": "integer", "minimum": 0 },
+        "fields": { "type": "array", "items": { "type": "string" } },
+        "freshness": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "descriptive_statistics": { "type": "object" },
+    "patterns": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "description"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "description": { "type": "string", "minLength": 1 },
+          "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+          "evidence": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "insights": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "statement", "severity"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "statement": { "type": "string", "minLength": 1 },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "confidence": { "type": "string", "enum": ["low", "medium", "high"] },
+          "supporting_patterns": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "recommendations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "title"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "title": { "type": "string", "minLength": 1 },
+          "owner": { "type": "string" },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          }
+        },
+        "additionalProperties": true
+      }
+    },
+    "rollups": { "type": "object" },
+    "provenance": { "type": "object" }
+  },
+  "additionalProperties": true
+}

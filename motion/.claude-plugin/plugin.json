@@ -1,0 +1,22 @@
+{
+  "name": "motion-studio",
+  "version": "0.1.0",
+  "description": "Animator/visualiser studio: storyboard → explainer videos, animated infographics, embeddable SVG/Lottie, and digital-twin presenters. Hybrid render (Remotion + declarative); brand-token driven; orchestrated in Python.",
+  "author": {
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
+  },
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/motion",
+  "keywords": [
+    "motion",
+    "animation",
+    "video",
+    "explainer",
+    "infographic",
+    "remotion",
+    "lottie",
+    "avatar",
+    "digital-twin",
+    "visualiser"
+  ]
+}

@@ -9,20 +9,49 @@ actionable messages at the point of use. This module never installs anything.
 from __future__ import annotations
 
 import shutil
+from pathlib import Path
 
 from . import formats as formats_mod
 
+# `html-raster` is a capability token, not a PATH binary: HTML/RevealJS QA needs
+# a headless browser to rasterize a page (see `have`). Satisfied by Playwright's
+# bundled Chromium or by wkhtmltoimage.
 INSTALL_HINTS = {
     "quarto": "brew install --cask quarto",
     "typst": "brew install typst",
     "libreoffice": "brew install --cask libreoffice",
+    "html-raster": "uv sync --extra playwright && playwright install chromium  (or: brew install wkhtmltopdf)",
 }
 
 
+def html_rasterizer() -> str | None:
+    """Which HTML rasterizer is available for QA capture, if any.
+
+    Returns ``"playwright"``, ``"wkhtmltoimage"``, or ``None``. Checked without
+    launching a browser — Playwright counts only if its Chromium is actually
+    installed (the package alone is not enough).
+    """
+    try:
+        from playwright.sync_api import sync_playwright
+
+        with sync_playwright() as p:
+            exe = p.chromium.executable_path
+        if exe and Path(exe).exists():
+            return "playwright"
+    except Exception:
+        pass
+    if shutil.which("wkhtmltoimage"):
+        return "wkhtmltoimage"
+    return None
+
+
 def have(tool: str) -> bool:
-    """Is the tool on PATH? (libreoffice ships as `soffice` on some systems.)"""
+    """Is the dependency available? (libreoffice ships as `soffice` on some
+    systems; `html-raster` is a capability satisfied by a headless browser.)"""
     if tool == "libreoffice":
         return bool(shutil.which("libreoffice") or shutil.which("soffice"))
+    if tool == "html-raster":
+        return html_rasterizer() is not None
     return bool(shutil.which(tool))
 
 

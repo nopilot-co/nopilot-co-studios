@@ -1,0 +1,12 @@
+# Layout: linear — the default. Single-axis top-to-bottom narrative.
+# Used by documents, articles, reports, slide decks — anything that reads as
+# one continuous flow. Permissive: nothing structural sealed at this layer.
+layout: linear
+name: Linear
+description: >-
+  Single-axis linear narrative (top to bottom). The default layout for
+  documents, articles, reports, and most slide decks — anything read as one
+  continuous flow. Slug overrides are free to refine.
+
+render:
+  engine: linear-engine   # the Quarto doc pipeline (#99 dispatcher routes here)

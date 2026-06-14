@@ -8,17 +8,23 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import docket_root, docket_session
+from . import config as config_mod
 from . import formats as formats_mod
 from . import resolve_context_root
 
 
 def session_root(slug: str, name: str) -> Path:
-    # Inside a docket with a named production-session, nest the render session
-    # under it (<root>/<session>/renders/<name>) rather than as a sibling
-    # <slug>/outputs/ directory. Otherwise the legacy per-brand layout.
+    # Precedence:
+    # 1. Inside a docket with a named production-session, nest the render session
+    #    under it (<root>/<session>/renders/<name>).
+    # 2. The slug's persistent working folder (studio.config) → <wf>/<name>.
+    # 3. Legacy per-brand layout (<slug>/outputs/<name>).
     droot, dsession = docket_root(), docket_session()
     if droot is not None and dsession:
         return droot / dsession / "renders" / name
+    wf = config_mod.working_folder(slug)
+    if wf is not None:
+        return wf / name
     return resolve_context_root() / slug / "outputs" / name
 
 
@@ -102,16 +108,30 @@ def next_version(session_path: Path, kind: str) -> str:
 
 
 def record_render(
-    session_path: Path, version: str, formats: list[str], outputs: dict[str, Path]
+    session_path: Path,
+    version: str,
+    formats: list[str],
+    outputs: dict[str, Path],
+    built_against: dict | None = None,
 ) -> None:
+    """Append a render to history and stamp built_against on state + history.
+
+    ``built_against`` is the provenance dict from
+    ``formats.resolve_for_session()``. It identifies *which contract* the
+    artifact was rendered against — one version of the truth per asset (ADR-005,
+    #101). Persisted twice for convenience: at session root for the latest
+    render, and on the history entry for the per-version record.
+    """
     state = read_state(session_path)
     state["current"] = version
-    state["history"].append(
-        {
-            "version": version,
-            "rendered_at": datetime.now(timezone.utc).isoformat(),
-            "formats": formats,
-            "outputs": {fmt: str(p) for fmt, p in outputs.items()},
-        }
-    )
+    entry: dict = {
+        "version": version,
+        "rendered_at": datetime.now(timezone.utc).isoformat(),
+        "formats": formats,
+        "outputs": {fmt: str(p) for fmt, p in outputs.items()},
+    }
+    if built_against is not None:
+        entry["built_against"] = built_against
+        state["built_against"] = built_against
+    state["history"].append(entry)
     write_state(session_path, state)

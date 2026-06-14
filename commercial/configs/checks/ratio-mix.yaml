@@ -1,0 +1,17 @@
+# ratio-mix — advisory (not a gate).
+# Each role's share of total days should sit within the band declared in
+# pricing-policy.yml (max_ratios / min_ratios). E.g. principal days ≤ 20% of
+# total. Advisory: surfaces skill-mix concerns without blocking the verdict.
+id: ratio-mix
+gate: false
+weight: 0.5
+summary: Role mix sits within the policy bands (max_ratios / min_ratios).
+
+question: |
+  For each role with a declared band in pricing-policy.yml, does the deal's
+  share of total days for that role fall within the band?
+
+scale:
+  "1": Multiple bands breached.
+  "3": One band breached.
+  "5": No bands breached.

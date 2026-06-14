@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/schemas/architecture/adr.json",
+  "title": "Architecture — ADR front matter",
+  "description": "ADR-style decision record (front matter only; body is prose).",
+  "type": "object",
+  "required": ["id", "title", "status", "date"],
+  "properties": {
+    "id": { "type": "string", "pattern": "^ADR-\\d{3,}$" },
+    "title": { "type": "string", "minLength": 1 },
+    "status": {
+      "type": "string",
+      "enum": ["proposed", "accepted", "deprecated", "superseded"]
+    },
+    "date": { "type": "string", "minLength": 1 },
+    "supersedes": { "type": "string" },
+    "superseded_by": { "type": "string" }
+  },
+  "additionalProperties": true
+}

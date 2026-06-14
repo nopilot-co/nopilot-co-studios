@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/schemas/commercial/client.json",
+  "title": "Commercial — client model",
+  "description": "Per-client commercial model. Reusable across deals; fed by the commercial-officer skill.",
+  "type": "object",
+  "required": ["client", "name", "status"],
+  "properties": {
+    "client": { "type": "string", "minLength": 1 },
+    "name": { "type": "string", "minLength": 1 },
+    "status": { "type": "string", "enum": ["draft", "active", "archived"] },
+    "segment": { "type": "string" },
+    "financial_profile": { "type": "object" },
+    "spend_capacity": { "type": "object" },
+    "addressable_market": { "type": "object" },
+    "provenance": {
+      "type": "object",
+      "properties": {
+        "created": { "type": "string" },
+        "sources": { "type": "array", "items": { "type": "object" } }
+      }
+    }
+  },
+  "additionalProperties": true
+}

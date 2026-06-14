@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/schemas/growth/market.json",
+  "title": "Growth — market map",
+  "type": "object",
+  "required": ["engagement", "segments"],
+  "properties": {
+    "engagement": { "type": "string", "minLength": 1 },
+    "segments": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "size": { "type": "string" },
+          "characteristics": { "type": "array", "items": { "type": "string" } }
+        },
+        "additionalProperties": true
+      }
+    },
+    "competitors": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "name": { "type": "string", "minLength": 1 },
+          "segment": { "type": "string" },
+          "positioning_quadrant": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "positioning": {
+      "type": "object",
+      "properties": {
+        "axes": { "type": "array", "items": { "type": "string" } },
+        "our_position": { "type": "array" }
+      },
+      "additionalProperties": true
+    },
+    "rollups": { "type": "object" },
+    "provenance": { "type": "object" }
+  },
+  "additionalProperties": true
+}

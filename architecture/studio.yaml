@@ -1,0 +1,48 @@
+# Architecture Studio — capability manifest (how the Producer calls it).
+# Produces a structured architecture spec (systems / data flows / integrations
+# + ADR-style decision records) for an engagement. Reuses the design studio
+# for diagrams over the CLI boundary (mirror of audience's nit_bridge.py).
+studio: architecture
+name: Architecture Studio
+summary: >-
+  Produce a structured architecture spec — systems, data flows, integration
+  points, and ADR-style decision records — for an engagement. Caller-supplied
+  JSON materialiser with deterministic invariant checks. Optional diagram
+  render via the design studio's render-asset.
+plugin: architecture-studio
+
+entrypoints:
+  orchestrator: /architecture-studio # design-architecture: ingest brief → propose spec → materialise → ADRs → optional render
+  cli: arch # deterministic glue: doctor / spec / adr / render / status
+
+capabilities:
+  - id: design-architecture
+    description: >-
+      Produce a structured architecture spec from a shaped engagement brief
+      and supplied system context. The CLI validates the schema, runs
+      invariant checks (every flow's endpoints exist as systems; every
+      integration references an existing flow; ADRs link to the spec),
+      stamps provenance, and writes _architecture.yml + adrs/.
+    consumes: [engagement-brief, system-context]
+    produces: [_architecture.yml, adrs/]
+    store_ref: ~/context/studios/architecture/<engagement>/
+
+inputs:
+  engagement: slug
+  spec: json # the model-produced structured architecture spec
+  brief: markdown # optional — the Principal's shaped engagement brief
+
+outputs:
+  store: ~/context/studios/architecture/<engagement>/
+  artifacts:
+    spec: _architecture.yml
+    adrs: adrs/NNN-<slug>.md
+  diagrams: render/v<ver>/ # produced via the design studio when --render is set
+
+resources:
+  spec_schema: scripts/architecture/schemas/architecture.schema.json
+  adr_schema: scripts/architecture/schemas/adr.schema.json
+
+# Pairs upstream of delivery (the architecture shapes phasing + dependencies
+# in the delivery plan) and chains into design for diagram render.
+pairs_with: [principal, producer, delivery, design]

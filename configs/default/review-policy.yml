@@ -21,11 +21,14 @@ verdict:
   # 'fail' verdict no matter how high the weighted average is.
   fail_floor_ratio: 0.4
 
-# Items that can unilaterally fail the asset. Credibility is non-negotiable: an
-# asset that fails the sniff test fails, however polished.
+# Items that can unilaterally fail the asset. Credibility, correctness, and
+# brand fit are non-negotiable: an asset that fails any of these fails,
+# however polished.
 gates:
   - the-sniff-test
   - brief-fulfilment
+  - the-correctness-test # Phase 4 — wrong numbers / fabricated claims block delivery
+  - the-brand-recognition-test # Phase 4 — off-brand assets block delivery
 
 # Weights for the weighted average. Per-test weights declared in a test's own
 # YAML win over `tests.default`; dimension weights come from here.
@@ -37,3 +40,6 @@ weights:
     brief-fulfilment: 1.5 # fulfilling the brief is the point of the asset
     audience-fit: 1.25
     tone-of-voice: 1.0
+    technical-quality: 1.5 # Phase 4 — correctness + completeness; high-leverage
+    delivery-quality: 1.0 # Phase 4 — polish + actionability
+    brand-integrity: 1.25 # Phase 4 — voice fidelity + brand recognition

@@ -1,0 +1,20 @@
+{
+  "name": "delivery-studio",
+  "version": "0.1.0",
+  "description": "Delivery studio: turn a shaped engagement brief into a structured delivery plan — swimlanes keyed to the cast, phased work with entry/exit criteria, per-phase resourcing and contingency, and a first-class RAID register (Risks / Assumptions / Issues / Dependencies, in the Bible §8 shape). Caller-supplied-JSON materialiser: the model produces the plan, the CLI materialises it with provenance + deterministic rollups.",
+  "author": {
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
+  },
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/delivery",
+  "keywords": [
+    "delivery",
+    "plan",
+    "swimlanes",
+    "phasing",
+    "resourcing",
+    "contingency",
+    "raid",
+    "risk-register"
+  ]
+}

@@ -1,0 +1,27 @@
+# Notion Sources — capability manifest (how a caller invokes this tool).
+# Dumb tool: no studio dependency. Discovered via the root tools.yml.
+tool: notion-sources
+name: Notion Sources
+summary: Extract a Notion database to a per-source .md batch (one file per row, YAML front matter) + a manifest (sources.json + index.md). Schema-agnostic; incremental (re-runs append new rows).
+plugin: notion-sources             # .claude-plugin/plugin.json name
+cli: notion-sources                # symlinked to ~/.local/bin by install.sh
+depends_on_studio: false           # INVARIANT — asserted in CI (ADR-004)
+
+actions:
+  - id: extract
+    description: Read a Notion database and write a per-source .md batch + sources.json + index.md.
+    invoke: "notion-sources [--database <id>] [--token <tok>] [--env-file <path>] [--out <dir>] [--status <s>] [--category <c>] [--favorite] [--include-archived] [--fresh] [--limit <n>] [--no-relations] [--quiet]"
+    inputs:
+      database: "id, or env NOPILOT_NOTION_SOURCE_DATABASE_ID / NOTION_DATABASE_ID"
+      token: "Notion integration token, or env NOPILOT_NOTION_API_KEY / NOTION_API_KEY / NOTION_TOKEN"
+      out: "output directory (default: sources/)"
+    outputs:
+      batch_dir: "sources.json + index.md + NNNN-<slug>.md per row"
+    exit_codes: { 0: ok, 2: auth-or-bad-invocation, 3: error }
+    idempotent: true                 # re-run appends only new rows; --fresh rebuilds
+    side_effects: "writes under --out only; never writes to a studio/context path"
+
+install:
+  script: tools/notion-sources/install.sh
+  cli: ~/.local/bin/notion-sources
+  deps: []                           # standard library only; no third-party packages

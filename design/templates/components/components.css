@@ -28,7 +28,7 @@
 }
 
 .ds-callout {
-  background: var(--ds-color-surface); color: var(--ds-color-on-surface);
+  background: var(--ds-color-accent-tint); color: var(--ds-color-on-surface);
   border-left: 3px solid var(--ds-color-tertiary);
   border-radius: var(--ds-radius-sm); padding: 1rem 1.25rem; margin: 1.5rem 0;
 }
@@ -109,3 +109,75 @@ th, td { border-bottom: 0.5px solid var(--ds-color-secondary); padding: 0.5rem 0
   font-size: 1.6rem; font-weight: 700;
 }
 @media print { .kpi, .cover-slide, .section-slide { break-inside: avoid; } }
+
+/* ===========================================================================
+ * Default document spend (issue #38) — applies to PLAIN markdown, no `:::` divs.
+ * A bare `#`/`##`/paragraph document should still look designed: the brand is
+ * spent at the element level (title rule, lead paragraph, section accents) and
+ * a logo header runs at the top. All tokenised, so it re-skins per brand.
+ * Scoped to `main` so the TOC sidebar is never touched. Parity: components.typ.
+ * ======================================================================== */
+
+/* Cover (#38): a light banner with a bold tertiary accent band — the "coloured
+ * block" — keeping logo + title legible regardless of logo ink. Mirrors the
+ * Typst cover page. Injected before the body when the doc has a leading H1. */
+.ds-cover {
+  border-top: 10px solid var(--ds-color-tertiary);
+  padding: 2rem 0 2.5rem; margin: 0 0 var(--ds-space-lg);
+  border-bottom: 0.5px solid var(--ds-color-secondary);
+}
+.ds-cover .ds-cover-logo { height: 44px; width: auto; display: block; margin-bottom: 2.5rem; }
+.ds-cover .ds-cover-title {
+  color: var(--ds-color-primary); font-size: 2.6rem; line-height: 1.12;
+  margin: 0; padding: 0; border: none; display: block; font-weight: 700;
+}
+.ds-cover .ds-cover-rule {
+  width: 3.5rem; height: 3px; background: var(--ds-color-tertiary);
+  margin: 1rem 0; border-radius: 2px;
+}
+.ds-cover .ds-cover-standfirst {
+  color: var(--ds-color-secondary); font-size: 1.2rem; line-height: 1.5;
+  margin: 0; max-width: 36em;
+}
+
+/* Running document header (logo + accent hairline), injected before the body. */
+.ds-doc-header {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: var(--ds-space-md);
+  margin: 0 0 var(--ds-space-lg);
+  padding-bottom: var(--ds-space-sm);
+  border-bottom: 2px solid var(--ds-color-tertiary);
+}
+.ds-doc-header img { height: 34px; width: auto; }
+.ds-doc-header .ds-doc-id {
+  font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ds-color-secondary);
+}
+
+/* Title zone: the first H1 carries a short tertiary rule beneath it. */
+main h1 { color: var(--ds-color-primary); }
+main h1:first-of-type {
+  padding-bottom: 0.3rem; margin-bottom: 0.6rem;
+  border-bottom: 3px solid var(--ds-color-tertiary);
+  display: inline-block;
+}
+/* Lead/dek: the paragraph immediately after the title reads as an intro. */
+main h1:first-of-type + p {
+  font-size: 1.2rem; line-height: 1.5; color: var(--ds-color-secondary);
+  margin-bottom: var(--ds-space-lg); max-width: 38em;
+}
+
+/* Section headers: a small tertiary accent tab above each H2 + generous lead-in. */
+main h2 {
+  color: var(--ds-color-primary);
+  margin-top: var(--ds-space-lg); position: relative; padding-top: 0.7rem;
+}
+main h2::before {
+  content: ""; position: absolute; top: 0; left: 0;
+  width: 2.2rem; height: 3px; background: var(--ds-color-tertiary);
+  border-radius: 2px;
+}
+main h3 { color: var(--ds-color-primary); }
+
+/* Links pick up the single accent (restrained — links + accents only). */
+main a { color: var(--ds-color-tertiary); }

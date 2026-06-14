@@ -3,10 +3,11 @@ export: revealjs
 name: RevealJS
 asset_type: webdeck
 render:
-  engine: quarto
+  # engine comes from the layout (linear-engine -> Quarto reveal.js).
   studio_format: revealjs   # emits HTML
 requires:
   render: [quarto]
+  qa: [html-raster]   # headless-browser rasterization for eyes-on-pixels QA
 style_guide:
   layout: 16:9 web slides; can be self-navigated without a presenter
   notes: more text than pptx is acceptable since there may be no speaker

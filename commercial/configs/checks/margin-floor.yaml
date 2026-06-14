@@ -1,0 +1,17 @@
+# margin-floor — gate.
+# The deal's projected gross margin (revenue − rate-card cost × days) must clear
+# the org's margin_floor in pricing-policy.yml.
+id: margin-floor
+gate: true
+weight: 1.0
+summary: The deal's projected gross margin meets or exceeds the org's margin floor.
+
+question: |
+  Does the deal's revenue minus rate-card cost (per role per day, summed) divided by
+  revenue meet or exceed the policy margin_floor?
+
+scale:
+  "1": Margin below floor by ≥ 5pp.
+  "2": Margin below floor by < 5pp.
+  "4": Margin at or just above floor (< 5pp headroom).
+  "5": Margin clears floor by ≥ 5pp.

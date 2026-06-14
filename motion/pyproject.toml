@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "motion-studio"
+version = "0.1.0"
+description = "Animated/narrated asset orchestrator for the motion-studio Claude Code plugin"
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Julian Tedstone", email = "ted@nopilot.co" }]
+dependencies = [
+  "pyyaml>=6.0",
+  "jsonschema>=4.21",
+  "click>=8.1",
+  "pillow>=10.3",
+]
+
+[project.optional-dependencies]
+capture = ["playwright>=1.45"]
+
+[project.scripts]
+motion = "motion.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["scripts"]
+include = ["motion*"]
+
+[tool.setuptools.package-data]
+motion = ["schemas/*.json"]

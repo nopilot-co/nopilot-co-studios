@@ -2,11 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://studios/design/format.schema.json",
   "title": "Resolved design-studio format contract",
-  "description": "A format slug (<purpose>-<export>) after merging purposes/<purpose>.yml, exports/<export>.yml, and the slug file's overrides.",
+  "description": "A format slug (<purpose>-<export>) after merging purposes/<purpose>.yml, layouts/<layout>.yml, exports/<export>.yml, and the slug file's overrides.",
   "type": "object",
   "required": [
     "slug",
     "purpose",
+    "layout",
     "export",
     "asset_type",
     "render",
@@ -17,7 +18,14 @@
   "properties": {
     "slug": { "type": "string", "pattern": "^[a-z0-9]+(-[a-z0-9]+)+$" },
     "purpose": { "type": "string" },
+    "layout": {
+      "description": "Structural navigation tier (frame / linear / carousel). Defaults to 'linear' when the slug omits it.",
+      "type": "string"
+    },
     "export": { "type": "string" },
+    "purpose_name": { "type": "string" },
+    "layout_name": { "type": "string" },
+    "export_name": { "type": "string" },
     "name": { "type": "string" },
     "description": { "type": "string" },
     "assets": {
@@ -66,7 +74,18 @@
         "max_slides": { "type": "integer", "minimum": 1 },
         "max_words_per_view": { "type": "integer", "minimum": 1 },
         "max_scroll_screens": { "type": "integer", "minimum": 1 },
-        "supported": { "type": "boolean" }
+        "supported": { "type": "boolean" },
+        "structure": { "type": "string" },
+        "master_holds_whole_topic": { "type": "boolean" },
+        "detail_pages_per_topic": {
+          "type": "object",
+          "properties": {
+            "target": { "type": "integer", "minimum": 1 },
+            "min": { "type": "integer", "minimum": 1 },
+            "max": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "navigation_affordances": { "type": "array", "items": { "type": "string" } }
       }
     }
   }
