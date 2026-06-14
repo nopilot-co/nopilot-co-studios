@@ -19,6 +19,12 @@ sign-offs), §8 for first-class Questions / Blockers / Risks.
 
 ## Steps
 
+0. **Preflight tooling.** Before shaping, run **`python3 scripts/studios_doctor.py`**
+   from the studios repo root (or `engagement doctor` for engagement-only checks).
+   Report which orchestrators and studio CLIs are installed. If a capability the
+   user needs maps to a missing CLI, say so with the install hint — do not pretend
+   the cast is routable.
+
 1. **Intake the opportunity.** Read the brief the user gives you. **Don't
    solution yet.** A request to "make a deck" is an opportunity, not a brief —
    the brief is what you produce by shaping it. Capture what the user actually
