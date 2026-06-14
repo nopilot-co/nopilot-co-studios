@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/studios/audience.schema.json",
+  "title": "Reader model (_audience.yml)",
+  "description": "A structured model of THE READER — the person a piece of work must satisfy. A reusable, studios-level resource (like a brand), referenced by slug. Single source of truth for the persona, psychographics, and need-state from which a weighted critique rubric is derived.",
+  "type": "object",
+  "required": ["audience", "name", "persona", "need_state"],
+  "properties": {
+    "audience": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Slug (kebab-case) — the handle other studios reference, like a brand slug."
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name of the reader/persona."
+    },
+    "status": {
+      "enum": ["draft", "inferred", "validated"],
+      "description": "draft (in progress) | inferred (model built but not user-confirmed) | validated (user-confirmed). Only a validated model should gate delivery."
+    },
+    "source": {
+      "enum": ["user-supplied", "inferred", "inferred-validated"],
+      "description": "How the persona originated."
+    },
+    "persona": {
+      "type": "object",
+      "required": ["role"],
+      "properties": {
+        "role": { "type": "string" },
+        "seniority": { "type": "string" },
+        "org_context": { "type": "string" },
+        "one_line": {
+          "type": "string",
+          "description": "One-sentence summary of who they are + what they own."
+        }
+      }
+    },
+    "segment": { "type": "string" },
+    "demographics": { "type": "object" },
+    "psychographics": {
+      "type": "object",
+      "description": "Values, attitudes, motivations, working approach.",
+      "properties": {
+        "values": { "type": "array", "items": { "type": "string" } },
+        "attitudes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["stance"],
+            "properties": {
+              "stance": { "type": "string" },
+              "strength": { "enum": ["low", "medium", "high"] }
+            }
+          }
+        },
+        "motivations": { "type": "array", "items": { "type": "string" } },
+        "approach": { "type": "string" }
+      }
+    },
+    "need_state": {
+      "type": "object",
+      "required": ["needs"],
+      "description": "What the reader needs, and the surrounding challenges/objectives/pains/objections that shape whether the work lands. The rubric is derived from `needs`.",
+      "properties": {
+        "stage": {
+          "enum": ["unaware", "aware", "considering", "evaluating", "deciding"],
+          "description": "Where the reader is in their journey."
+        },
+        "needs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["id", "statement", "priority"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+                "description": "Kebab-case id; becomes a rubric test slug."
+              },
+              "statement": {
+                "type": "string",
+                "description": "The need, in the reader's terms."
+              },
+              "priority": {
+                "enum": ["critical", "high", "medium", "low"],
+                "description": "Drives the derived rubric weight (critical 2.0 + gate, high 1.5, medium 1.0, low 0.5)."
+              },
+              "evidence": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Docket-relative references into research/ that support this need."
+              }
+            }
+          }
+        },
+        "challenges": { "type": "array", "items": { "type": "string" } },
+        "objectives": { "type": "array", "items": { "type": "string" } },
+        "pains": { "type": "array", "items": { "type": "string" } },
+        "objections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["objection"],
+            "properties": {
+              "objection": { "type": "string" },
+              "counter_needed": { "type": "string" }
+            }
+          }
+        },
+        "decision_factors": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "communication": {
+      "type": "object",
+      "description": "How to speak to this reader.",
+      "properties": {
+        "register": { "type": "string" },
+        "reading_level": { "type": "string" },
+        "preferred_evidence": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "avoid": { "type": "array", "items": { "type": "string" } },
+        "channels": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "description": "Where the model came from + when it was built.",
+      "properties": {
+        "sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "kind", "ref"],
+            "properties": {
+              "id": { "type": "string" },
+              "kind": {
+                "enum": [
+                  "transcript",
+                  "doc",
+                  "url",
+                  "interview",
+                  "web-research"
+                ]
+              },
+              "ref": {
+                "type": "string",
+                "description": "Docket-relative path into research/."
+              },
+              "captured": { "type": "string" }
+            }
+          }
+        },
+        "built": { "type": "string" },
+        "built_by": { "type": "string" }
+      }
+    }
+  }
+}

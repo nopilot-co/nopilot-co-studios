@@ -1,0 +1,19 @@
+{
+  "name": "theme-cluster",
+  "version": "0.0.2",
+  "description": "Group sources in a notion-sources batch into themes \u2014 'contributions to a consistent core discussion thread'. Materialises a themes.json (theme id/label/description + member sources) and optionally tags each source's front matter with its theme(s). Mechanical CLI + model-supplied assignment JSON (the model decides which sources share a discussion thread). Standalone CLI: theme-cluster.",
+  "author": {
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
+  },
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/tools/theme-cluster",
+  "keywords": [
+    "theme",
+    "cluster",
+    "grouping",
+    "discussion-thread",
+    "evidence-base",
+    "thought-leadership",
+    "stub"
+  ]
+}

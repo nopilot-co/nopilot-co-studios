@@ -1,0 +1,283 @@
+<!--
+  ============================================================================
+  CANONICAL TEMPLATE · format slug: showcase-html  (design studio)
+  ----------------------------------------------------------------------------
+  The two-axis "master-detail" interactive showcase. The design-studio skill
+  reproduces this format by:
+    1. BRAND  — overwriting the BRAND TOKENS block below from the active brand's
+                _brand.yml (color.* -> tokens; typography.fonts -> font families;
+                logo -> the brandmark). Nothing brand-specific is hardcoded
+                elsewhere; every colour/font in the body uses these tokens.
+    2. CONTENT — replacing the topic <section class="topic"> blocks (the
+                CONTENT SLOT) with the engagement's topics. Each topic's whole
+                overview is ONE .panel.master; the script auto-provisions the
+                horizontal stub detail panels (STUBS, below).
+    3. The rest (nav, two-axis CSS, navigation mechanics, viewer contract) is
+       format machinery — keep as-is.
+
+  Token map (this template's defaults = the nopilot brand tokens):
+    --ink  = color.foreground   --paper = color.background   --teal = color.primary
+    --amber = color.accent      headings = Instrument Serif (typography.headings)
+    body = Inter (typography.base)   labels = Montserrat   mono = JetBrains Mono
+    logo = the .brandmark dot (replace with logo.* when a brand supplies one)
+
+  VIEWER CONTRACT (do not remove): every commentable panel carries
+    data-page-key="<topicId>:<panelIndex>"; the page emits an 'np:pagechange'
+    CustomEvent and maintains window.NP_ASSET. NO auth, NO comment store — the
+    gated viewer supplies those.
+  ============================================================================
+-->
+<!DOCTYPE html>
+<html lang="en-GB" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ title }}</title>
+<meta name="description" content="{{ description }}">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  /* ===== BRAND TOKENS — bind these from the active brand's _brand.yml ===== */
+  tailwind.config = { theme: { extend: {
+    colors: {
+      ink:'#0E1726',          /* _brand.color.foreground  — body / display text   */
+      ink2:'#1B2738',         /* darker ink for emphasis                          */
+      paper:'#F7F5F0',        /* _brand.color.background   — page canvas          */
+      paper2:'#EFEBE2',       /* secondary surface                               */
+      line:'#E2DCCF',         /* hairlines / borders                             */
+      muted:'#5C6678',        /* secondary text                                  */
+      teal:{DEFAULT:'#167C6B', d:'#0F5A4D'},   /* _brand.color.primary  — accent/CTA */
+      amber:{DEFAULT:'#D99A4E', d:'#B97C30'}   /* _brand.color.accent   — highlight  */
+    },
+    fontFamily: {
+      serif:['Instrument Serif','Georgia','serif'],   /* _brand.typography.headings  */
+      sans:['Inter','system-ui','sans-serif'],        /* _brand.typography.base      */
+      mont:['Montserrat','sans-serif'],               /* labels / eyebrows           */
+      mono:['JetBrains Mono','monospace']             /* _brand.typography.monospace */
+    }
+  }}}
+  /* ===== /BRAND TOKENS ===== */
+</script>
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  body{font-family:'Inter',sans-serif}
+  h1,h2,h3,.serif{font-family:'Instrument Serif',serif;font-weight:400}
+  .font-mont{font-family:'Montserrat',sans-serif!important}.font-mono{font-family:'JetBrains Mono',monospace!important}
+  ::selection{background:#0E1726;color:#fff}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+  @keyframes infscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+  .reveal{opacity:0}.reveal.in{animation:fadeUp .8s cubic-bezier(.16,1,.3,1) forwards}
+  .d1{animation-delay:.08s}.d2{animation-delay:.16s}.d3{animation-delay:.26s}.d4{animation-delay:.4s}
+  .animate-marquee{animation:infscroll 38s linear infinite}.nudge{animation:nudge 1.5s ease-in-out infinite}
+  .glass{background:rgba(247,245,240,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  .grid-bg{background-image:linear-gradient(to right,#0e17260a 1px,transparent 1px),linear-gradient(to bottom,#0e17260a 1px,transparent 1px);background-size:42px 42px;-webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 0%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 60% 55% at 50% 0%,#000 60%,transparent 100%)}
+  .marquee-mask{-webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent)}
+  .brandmark{width:38px;height:38px;border-radius:9999px;border:2px solid #D99A4E;position:relative;flex:none}
+  .brandmark::after{content:"";position:absolute;inset:8px;border-radius:9999px;background:#167C6B}
+  .brandmark.sm{width:26px;height:26px}.brandmark.sm::after{inset:5px}
+  details.drill>summary{list-style:none;cursor:pointer;display:inline-flex;align-items:center;gap:9px;font-family:'Montserrat';font-size:12px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#0F5A4D;border:1px solid #167C6B;border-radius:9999px;padding:9px 16px}
+  details.drill>summary::-webkit-details-marker{display:none}details.drill>summary::after{content:"↓"}details.drill[open]>summary::after{content:"↑"}
+  .ondark details.drill>summary{color:#D99A4E;border-color:#D99A4E}
+  table.mini{width:100%;border-collapse:collapse;font-size:14px}table.mini th,table.mini td{padding:8px 10px;border-bottom:1px solid #E2DCCF;text-align:right}table.mini th:first-child,table.mini td:first-child{text-align:left;color:#5C6678}table.mini th{font-weight:700;color:#167C6B;font-size:12px}
+
+  /* ---- the horizontal track: master (full original content) + stub detail pages ---- */
+  .topic{position:relative}
+  .track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;align-items:stretch}
+  .track::-webkit-scrollbar{display:none}.track{scrollbar-width:none}
+  .panel{flex:0 0 100%;min-width:100%;scroll-snap-align:start}
+  .panel.stub{display:flex;align-items:center;justify-content:center;padding:64px 24px}
+  .chev{position:absolute;top:50%;transform:translateY(-50%);z-index:20;width:44px;height:44px;border-radius:9999px;border:1px solid #E2DCCF;background:rgba(255,255,255,.85);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#0F5A4D;transition:all .2s}
+  .chev:hover{background:#167C6B;color:#fff;border-color:#167C6B}.chev.l{left:14px}.chev.r{right:14px}
+  .chev.hide{opacity:0;pointer-events:none}
+  .ondark .chev{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}
+  .pdots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:20}
+  .pdots i{width:7px;height:7px;border-radius:9999px;background:#D8D2C6;display:block;transition:all .25s;cursor:pointer}
+  .pdots i.on{background:#D99A4E;width:20px}
+  .detailcue{display:inline-flex;align-items:center;gap:7px;font-family:'Montserrat';font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#B97C30}
+</style>
+</head>
+<body class="bg-paper text-ink antialiased">
+
+<!-- NAV -->
+<div class="fixed top-5 left-0 right-0 z-50 flex justify-center px-4 reveal in">
+  <nav class="glass border border-line rounded-full pl-4 pr-2 py-2 flex items-center gap-5 shadow-[0_8px_30px_rgb(14,23,38,0.06)]">
+    <a href="#top" class="flex items-center gap-2.5"><span class="brandmark sm"></span><span class="font-serif text-xl leading-none">{{ brand_name }}</span></a>
+    <span class="h-4 w-px bg-line hidden md:block"></span>
+    <div id="topnav" class="hidden md:flex items-center gap-5 text-[13px] font-mont font-medium text-muted"></div>
+    <span class="h-4 w-px bg-line hidden md:block"></span>
+    <a id="navcta" href="#close" class="bg-ink text-paper text-xs font-mont font-medium px-4 py-2.5 rounded-full hover:bg-ink2 transition-all flex items-center gap-2">Start the conversation</a>
+  </nav>
+</div>
+
+<main id="top" class="max-w-7xl mx-auto pt-28 px-4 sm:px-6 pb-20">
+  <!-- ============================ CONTENT SLOT ============================
+       Replace everything between here and "/CONTENT SLOT" with the engagement's
+       content. Pattern per topic:
+         <section id="<topicId>" class="topic">
+           <div class="track" data-topic="<topicId>" data-title="<Topic title>">
+             <div class="panel master ..."> ...the WHOLE topic overview... </div>
+           </div>
+         </section>
+       The script auto-provisions the horizontal stub detail panels + nav.
+       Hero / marquee / concern-index / close are optional structural sections.
+  ===================================================================== -->
+
+  <!-- Neutral demo content. This is NOT engagement copy: it exists so the raw
+       template previews sensibly and exercises both panel paths (authored
+       details, and stub auto-provisioning). The frame-engine replaces all of
+       it with parsed source.md topics on every render. -->
+  <section id="demo-overview" class="topic">
+    <div class="track" data-topic="demo-overview" data-title="How this showcase works">
+      <div class="panel master py-20" data-page-key="demo-overview:0">
+        <div class="reveal max-w-4xl mx-auto">
+          <div class="text-xs font-mont font-semibold tracking-[0.2em] uppercase text-amber-d mb-4">Topic 01</div>
+          <h2 class="text-4xl md:text-6xl tracking-tight leading-tight mb-8">Vertical topics, horizontal depth</h2>
+          <p>Each topic opens on its whole overview. Detail panels extend to the right; vertical scroll moves between topics. Brand colours, fonts and the brandmark bind from the active brand's <code>_brand.yml</code> at render time.</p>
+          <div class="mt-10 detailcue nudge"><span>scroll right for detail</span><iconify-icon icon="solar:arrow-right-linear" width="14"></iconify-icon></div>
+        </div>
+      </div>
+      <div class="panel detail py-20" data-page-key="demo-overview:1">
+        <div class="reveal max-w-3xl mx-auto">
+          <div class="text-xs font-mont font-semibold tracking-[0.2em] uppercase text-teal mb-4">How this showcase works &middot; 01</div>
+          <h3 class="text-3xl md:text-4xl tracking-tight leading-tight mb-6">An authored detail panel</h3>
+          <p>Detail panels come from H3 headings in the engagement's source markdown. When a topic has none, the script provisions placeholder stubs instead.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="demo-stub" class="topic">
+    <div class="track" data-topic="demo-stub" data-title="Stub provisioning">
+      <div class="panel master py-20" data-page-key="demo-stub:0">
+        <div class="reveal max-w-4xl mx-auto">
+          <div class="text-xs font-mont font-semibold tracking-[0.2em] uppercase text-amber-d mb-4">Topic 02</div>
+          <h2 class="text-4xl md:text-6xl tracking-tight leading-tight mb-8">A topic with no authored details</h2>
+          <p>This topic carries only its master panel, so the script auto-provisions stub detail pages to demonstrate the rightward affordance.</p>
+          <div class="mt-10 detailcue nudge"><span>scroll right for detail</span><iconify-icon icon="solar:arrow-right-linear" width="14"></iconify-icon></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- /CONTENT SLOT — frame-engine swaps everything between the CONTENT SLOT
+       opener and this marker with parsed source.md topics. The template's
+       authored copy (above) survives only when the source has no H2 topics. -->
+
+</main>
+
+<script>
+/* ============ stub detail pages + horizontal navigation + viewer contract ============ */
+(function(){
+
+  // --- provision STUB horizontal detail pages on each .track (2 per topic) ---
+  // Only when the content slot supplied no real detail panels: filled content
+  // (H3 details from source.md) arrives with .panel.detail + data-page-key
+  // already set, so stubs would duplicate keys and trail the real pages.
+  var STUBS = 2;
+  document.querySelectorAll('.track').forEach(function(track){
+    var topic=track.dataset.topic, title=track.dataset.title;
+    var master=track.querySelector('.panel.master');
+    master.setAttribute('data-page-key', topic+':0');
+    var realDetails=track.querySelectorAll('.panel.detail').length;
+    var stubs=realDetails>0?0:STUBS;
+    for(var i=1;i<=stubs;i++){
+      var s=document.createElement('div');
+      s.className='panel stub'; s.setAttribute('data-page-key', topic+':'+i);
+      s.innerHTML='<div class="text-center max-w-md">'
+        +'<div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl border border-dashed border-line bg-white mb-6"><iconify-icon icon="solar:layers-minimalistic-linear" width="28" class="text-muted"></iconify-icon></div>'
+        +'<div class="font-mont text-[11px] font-semibold tracking-[0.2em] uppercase text-amber-d mb-3">'+title+' · detail '+i+' of '+STUBS+'</div>'
+        +'<h3 class="text-3xl md:text-4xl mb-4">Deeper detail goes here</h3>'
+        +'<p class="font-mont text-sm text-muted leading-relaxed mb-7">Stub panel — this is where the horizontal deep-dive for <b class="text-ink2">'+title+'</b> will live. The overview on the left stays whole; detail pages like this extend to the right. Use ← / →, the chevrons, or the dots to move.</p>'
+        +'<button class="np-back inline-flex items-center gap-2 text-sm font-mont font-semibold text-teal-d hover:text-teal"><iconify-icon icon="solar:alt-arrow-left-linear" width="16"></iconify-icon> Back to the overview</button>'
+        +'</div>';
+      track.appendChild(s);
+    }
+    // chevrons + dots — count the actual panels (real details or stubs)
+    var sec=track.closest('.topic'); var n=track.querySelectorAll('.panel').length;
+    var ctrl=document.createElement('div');
+    ctrl.innerHTML='<button class="chev l hide" data-dir="-1" aria-label="Previous"><iconify-icon icon="solar:alt-arrow-left-linear" width="22"></iconify-icon></button>'
+      +'<button class="chev r" data-dir="1" aria-label="More detail"><iconify-icon icon="solar:alt-arrow-right-linear" width="22"></iconify-icon></button>'
+      +'<div class="pdots">'+Array.from({length:n},function(_,i){return '<i data-pi="'+i+'" class="'+(i===0?'on':'')+'"></i>';}).join('')+'</div>';
+    while(ctrl.firstChild) sec.appendChild(ctrl.firstChild);
+  });
+
+  // --- horizontal nav mechanics ---
+  function activePI(track){ return Math.round(track.scrollLeft / track.clientWidth); }
+  function goPI(track, pi){ var max=track.children.length-1; pi=Math.max(0,Math.min(max,pi)); track.scrollTo({left:pi*track.clientWidth, behavior:'smooth'}); }
+  function syncControls(sec){
+    var track=sec.querySelector('.track'); var pi=activePI(track); var max=track.children.length-1;
+    sec.querySelectorAll('.pdots i').forEach(function(d,i){ d.classList.toggle('on', i===pi); });
+    var l=sec.querySelector('.chev.l'), r=sec.querySelector('.chev.r');
+    if(l) l.classList.toggle('hide', pi===0); if(r) r.classList.toggle('hide', pi===max);
+  }
+  document.querySelectorAll('.topic').forEach(function(sec){
+    var track=sec.querySelector('.track');
+    track.addEventListener('scroll', function(){ syncControls(sec); markActivePanel(); }, {passive:true});
+  });
+  document.addEventListener('click', function(e){
+    var c=e.target.closest('.chev'); if(c){ var sec=c.closest('.topic'); var track=sec.querySelector('.track'); goPI(track, activePI(track)+(+c.dataset.dir)); return; }
+    var d=e.target.closest('.pdots i'); if(d){ var sec2=d.closest('.topic'); goPI(sec2.querySelector('.track'), +d.dataset.pi); return; }
+    var b=e.target.closest('.np-back'); if(b){ goPI(b.closest('.track'), 0); return; }
+  });
+
+  // which topic is in view (for arrow keys)
+  var inView=null;
+  var secObs=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting && e.intersectionRatio>0.5) inView=e.target; }); },{threshold:[0.5]});
+  document.querySelectorAll('.topic').forEach(function(s){ secObs.observe(s); });
+  document.addEventListener('keydown', function(e){
+    if(['INPUT','TEXTAREA'].includes(document.activeElement.tagName)) return;
+    if((e.key==='ArrowRight'||e.key==='ArrowLeft') && inView){ e.preventDefault(); var t=inView.querySelector('.track'); goPI(t, activePI(t)+(e.key==='ArrowRight'?1:-1)); }
+  });
+
+  // reveal on scroll
+  var io=new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.reveal').forEach(function(n){ io.observe(n); });
+
+  /* ---- VIEWER CONTRACT: data-page-key per panel, np:pagechange, window.NP_ASSET (no auth/comments) ---- */
+  var panels=Array.prototype.slice.call(document.querySelectorAll('[data-page-key]'));
+  window.NP_ASSET={ docId:'gtm-proposition', currentPageKey:panels[0]?panels[0].getAttribute('data-page-key'):null,
+    pages:panels.map(function(p){ var h=p.querySelector('h1,h2,h3'); return {pageKey:p.getAttribute('data-page-key'), title:h?h.textContent.trim():p.getAttribute('data-page-key')}; }),
+    setCommentCounts:function(map){ panels.forEach(function(p){ var k=p.getAttribute('data-page-key'); var n=(map&&map[k])||0; var b=p.querySelector('[data-np-count]');
+      if(n>0){ if(!b){b=document.createElement('span');b.setAttribute('data-np-count','');b.className='absolute top-3 right-3 bg-amber text-ink text-xs font-mont font-bold rounded-full px-2 py-0.5';if(getComputedStyle(p).position==='static')p.style.position='relative';p.appendChild(b);} b.textContent=n; } else if(b){b.remove();} }); } };
+  function markActivePanel(){
+    // the panel whose centre is nearest viewport centre
+    var cx=window.innerWidth/2, cy=window.innerHeight/2, best=null, bd=1e9;
+    panels.forEach(function(p){ var r=p.getBoundingClientRect(); if(r.bottom<0||r.top>window.innerHeight) return; var d=Math.abs((r.left+r.right)/2-cx)+Math.abs((r.top+r.bottom)/2-cy); if(d<bd){bd=d;best=p;} });
+    if(best){ var k=best.getAttribute('data-page-key'); if(k && k!==window.NP_ASSET.currentPageKey){ window.NP_ASSET.currentPageKey=k; document.dispatchEvent(new CustomEvent('np:pagechange',{detail:{pageKey:k}})); } }
+  }
+  window.addEventListener('scroll', markActivePanel, {passive:true}); markActivePanel();
+})();
+</script>
+<script>
+// Top nav is built from the rendered topics so it always matches the content
+// slot (hardcoded links regressed when the engine filled new content).
+(function(){
+  var nav = document.getElementById('topnav');
+  if(!nav) return;
+  var tracks = document.querySelectorAll('section.topic .track[data-title]');
+  tracks.forEach(function(t){
+    var sec = t.closest('section.topic');
+    if(!sec || !sec.id) return;
+    var label = t.getAttribute('data-title') || sec.id;
+    label = label.split(/[:,]/)[0].trim();
+    if(label.length > 26){
+      var cut = label.slice(0, 26);
+      var sp = cut.lastIndexOf(' ');
+      label = (sp > 12 ? cut.slice(0, sp) : cut).trim();
+    }
+    var a = document.createElement('a');
+    a.href = '#' + sec.id;
+    a.textContent = label;
+    a.className = 'hover:text-ink transition-colors';
+    nav.appendChild(a);
+  });
+  var cta = document.getElementById('navcta');
+  if(cta && !document.getElementById('close')){
+    var secs = document.querySelectorAll('section.topic');
+    var last = secs[secs.length - 1];
+    if(last && last.id) cta.setAttribute('href', '#' + last.id);
+  }
+})();
+</script>
+</body>
+</html>

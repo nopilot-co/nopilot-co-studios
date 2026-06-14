@@ -1,19 +1,25 @@
 # Studio plugin — session context
 
-**Current Task:** Rendering program complete; remaining work is the server-modes epic + a contrast follow-up.
+**Current Task:** Epic #98 — format-contract architecture (ADR-005). Three PRs open and stacked deliver the full epic acceptance; #100 + nitpicker gate (#102) remain before the 360 showcase ships visually.
 
 ## Key Decisions
-- Rendering engine: one `::: ` block source → HTML/PDF (Quarto+Typst) AND native editable PPTX (python-pptx); design-systems layer under the brand (defaults → system → brand).
-- Verification bar is eyes-on-pixels (render → rasterize → look), not "it compiled".
-- #23 (server modes) is a separate project needing architecture decisions first — not started.
+- Four orthogonal layers: **purpose ← layout ← export ← brand ← session**; `seals:` honoured by `_merge_layers`; diverging session must fork (rejected / local-frozen / global-PR), never silent.
+- Engine selection is layout-keyed (`_ENGINES` registry in `render.py`); PPTX overrides layout because a native deck has its own engine.
+- Provenance: every render stamps `built_against: {id, hash, scope, derived_from}` on `version.json`; render is fail-closed against the resolved contract.
 
-## Done (merged to main, PRs #13–#29)
-Dockets/storage-root; slice 1 formats+asset library; slice 2 component engine
-(HTML+PDF parity); slice 3 figure/embed; 4a diagrams; data-viz (5 charts, unified
-SVG); 4b editable PPTX (native shapes, 4 tiers); design-system selection; visual-qa
-component rubric. ~9 standalone test suites green (`design/.venv/bin/python tests/test_*.py`).
+## Open PRs (stacked, satisfy #98 in full)
+- **#107** — `feat/format-contract-layouts-tier` — layouts/ tier + sealed-key merge
+- **#108** — `feat/render-engine-dispatch` — engine registry + dispatch (#99)
+- **#109** — `feat/contract-provenance-stamp` — `built_against` + fail-closed (#101)
+
+## Verified 2026-06-10 (smoke render)
+- 360 brand ingested deterministically from `Coherence360_Business_Plan_20260424.pptx` → `~/context/studios/brand/360/`.
+- `studio render` of `showcase-html` against `360` produced a real 58KB HTML stamped with provenance — proves engine dispatch + fail-closed + `built_against` work end-to-end on a real brand. The HTML still uses the template's hardcoded nopilot tokens (BRAND TOKENS substitution = #100).
 
 ## Next Steps
-- #23 — server modes 2–3 (headless provider-agnostic skill runner + gatekeeper). Needs spike→spec→plan + user decisions on transport/auth/runner fork.
-- #27 — panel-text contrast across brand×design-system (`on_surface` token).
-- Board: https://github.com/orgs/nopilot-co/projects/1
+1. **Merge PR stack** (#107 → #108 → #109) once reviewed.
+2. **#100** — data-driven render: substitute the template's BRAND TOKENS block from `_brand.yml`, parse `source.md` into topics (H2) + detail panels (H3), fill the CONTENT SLOT. Needs design call on the source.md schema.
+3. **360 source content** — author the showcase `source.md` from coh.360 proposition materials (`~/context/.smart-env/multi/context-message-360_*` ajson files); refine the 360 `_brand.yml` via the brand-ingest skill (logo + accent confirmation).
+4. **Re-render + nitpicker (#102)** before handoff to the `nopilot-co-www` magic-link flow.
+
+Board: https://github.com/orgs/nopilot-co/projects/1

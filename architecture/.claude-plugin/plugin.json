@@ -1,0 +1,18 @@
+{
+  "name": "architecture-studio",
+  "version": "0.1.0",
+  "description": "Architecture studio: produce a structured architecture spec — systems, data flows, integrations, and ADR-style decision records — for an engagement. Caller-supplied-JSON materialiser with deterministic invariant checks (every flow references existing systems; every integration references an existing flow). Optional diagram render via the design studio's render-asset capability.",
+  "author": {
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
+  },
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/architecture",
+  "keywords": [
+    "architecture",
+    "systems",
+    "data-flow",
+    "integration",
+    "adr",
+    "decision-record"
+  ]
+}

@@ -1,0 +1,53 @@
+# Delivery Studio — capability manifest (how the Producer calls it).
+# Produces a structured delivery plan (swimlanes + phases + resourcing +
+# contingency + RAID) from a shaped engagement brief. Caller-supplied-JSON
+# materialiser pattern: the model produces the plan, the CLI materialises
+# it with provenance + deterministic rollups. The Principal uses the plan
+# (especially the RAID + commitment dates) for L2 sign-off.
+studio: delivery
+name: Delivery Studio
+summary: >-
+  Turn a shaped engagement brief into a structured delivery plan —
+  swimlanes keyed to the cast, sequenced phases with entry/exit criteria,
+  per-phase resourcing + contingency, and a first-class RAID register
+  (Risks / Assumptions / Issues / Dependencies, Bible §8 shape).
+plugin: delivery-studio
+
+entrypoints:
+  orchestrator: /delivery-studio # plan-delivery: ingest brief → propose plan → materialise → maintain RAID
+  cli: delivery # deterministic glue: doctor / plan / raid / status
+
+capabilities:
+  - id: plan-delivery
+    description: >-
+      Produce a structured delivery plan from a shaped engagement brief
+      (objective, cast, scope, dates, constraints). Caller-supplied-JSON
+      materialiser: the model produces the plan; the CLI validates the
+      schema, stamps provenance, and derives rollups (total days, phase
+      durations, contingency %, by-role totals, RAID counts).
+    consumes: [engagement-brief]
+    produces: [_plan.yml, raid.yml]
+    store_ref: ~/context/studios/delivery/<engagement>/
+
+inputs:
+  engagement: slug # an engagement slug — one delivery plan per engagement
+  brief: markdown # optional — the Principal's shaped engagement brief
+  plan: json # the model-produced structured plan (schema in the SKILL)
+  raid: json # optional — initial RAID register payload
+
+outputs:
+  store: ~/context/studios/delivery/<engagement>/
+  artifacts:
+    plan: _plan.yml # swimlanes + phases + resourcing + contingency (with rollups)
+    raid: raid.yml # the live RAID register
+  sessions: ~/context/studios/delivery/<engagement>/sessions/<deliverable>/ # per-deliverable carve-outs
+
+resources:
+  plan_schema: scripts/delivery/schemas/plan.schema.json
+  raid_schema: scripts/delivery/schemas/raid.schema.json
+
+# Pairs with the Principal (which uses the plan for L2 commitment sign-off)
+# and the Producer (which sequences jobs against the swimlanes / phases).
+# Light cross-fetch from the commercial rate-card is supported via `delivery
+# plan cost --engagement <slug>` once the commercial studio is installed.
+pairs_with: [principal, producer, commercial]

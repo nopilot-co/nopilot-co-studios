@@ -88,13 +88,17 @@ def formats_list() -> None:
         try:
             r = formats_mod.resolve(slug)
             sfmt = formats_mod.studio_format(r) or "—"
+            layout = r.get("layout", "—")
             if not formats_mod.is_renderable(r):
                 note = "  (not renderable yet)"
             else:
                 missing = deps_mod.missing_for(r, "render")
                 note = f"  (needs: {', '.join(missing)})" if missing else ""
-            click.echo(f"{slug:<18}  {r.get('asset_type', '—'):<10}  -> {sfmt}{note}")
-        except (FileNotFoundError, ValueError) as e:
+            click.echo(
+                f"{slug:<18}  {r.get('asset_type', '—'):<10}  "
+                f"[{layout:<7}] -> {sfmt}{note}"
+            )
+        except (FileNotFoundError, ValueError, formats_mod.SealedKeyConflict) as e:
             click.echo(f"{slug:<18}  ✗ {e}", err=True)
 
 

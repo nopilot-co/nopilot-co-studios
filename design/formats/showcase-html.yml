@@ -1,0 +1,44 @@
+# Format: showcase-html — the interactive, two-axis "master-detail" showcase as a
+# single self-contained web page. Composes purposes/showcase.yml + exports/html.yml,
+# then overrides the render to a brand-token template fill (not the Quarto doc
+# pipeline) and pins the showcase structural ruleset.
+#
+#   studio formats show --format showcase-html      # the resolved contract
+#   studio session init --format showcase-html
+#
+# The asset is "dumb content + anchor hooks": NO embedded auth, NO comment store.
+# A gated viewer (e.g. <access-code>.nopilot.co) loads it and injects commentary.
+extends: showcase
+layout: frame
+export: html
+
+overrides:
+  asset_type: webpage
+  description: >-
+    Two-axis interactive showcase as one self-contained HTML file: vertical
+    topics, each opening rightward into detail. Brand palette/fonts/logo bind
+    from the active brand's _brand.yml; the design-studio skill fills the
+    canonical template with the engagement's content.
+  # render.engine and template are sealed by layouts/frame.yml — the layout owns
+  # the dispatcher contract. Slug only sets per-asset render state.
+  render:
+    studio_format: html
+    status: template                 # canonical template + brand-token fill (#99)
+  requires:
+    render: []                       # no native tool — produced by the design-studio skill, not Quarto
+  style_guide:
+    # NOTE: navigation, motion, device, structural rules are sealed by layouts/frame.yml.
+    self_contained: single HTML file; CDN for Tailwind + icon set + web fonts; no build step
+    viewer_contract: >-
+      Every commentable panel carries data-page-key="<topicId>:<panelIndex>";
+      the page emits an 'np:pagechange' CustomEvent and maintains window.NP_ASSET
+      ({docId, pages[], currentPageKey, setCommentCounts(map)}) for the gated
+      viewer to inject commentary against.
+  ruleset:
+    responsive: true
+    supported: true
+    self_contained_html: true
+    no_embedded_auth: true           # the viewer owns authentication
+    no_embedded_comment_store: true  # the viewer owns commentary
+    must_expose_viewer_contract: true  # data-page-key + np:pagechange + window.NP_ASSET
+    max_scroll_screens: 16           # advisory — QA enforces, not deterministic

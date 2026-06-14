@@ -2,13 +2,13 @@
 
 A studio for **brand communications** — emails, announcements, outreach, and
 one-pager messaging, written in a brand's voice. Paired with `design/`, it shows
-the creative-director chaining studios.
+the Producer chaining studios.
 
 - **Skills** (`skills/<name>/SKILL.md`): `message-intake` → `compose` →
   `message-qa`, plus `sequence` for multi-step campaigns.
 - **`message` CLI** (`scripts/message/`): `formats`, `new`, `lint`, `render`,
   `status` — deterministic glue. Install with `./install.sh`.
-- **Capability manifest** — `studio.yaml` (how the creative-director calls it).
+- **Capability manifest** — `studio.yaml` (how the Producer calls it).
 - **Shares resources** — reuses the design studio's `resources/brand-voice/` so
   voice stays consistent across the deck and the words around it.
 

@@ -1,0 +1,14 @@
+# Native runtime dependencies for the motion studio.
+# These are binaries / runtimes, not Python packages — they can't be vendored.
+# Install all at once:  brew bundle --file=motion/Brewfile
+# Check status:         motion doctor
+#
+# For server invocation modes, bake these into the server image; this file is the
+# contract for what that image must contain.
+
+brew "node"     # Remotion (React) video render via `npx remotion`
+brew "ffmpeg"   # encode MP4 / WebM / GIF + extract QA keyframes
+
+# External render providers (D-ID avatar, ElevenLabs TTS) are cloud services, not
+# brew packages — configure their API keys in the environment (see `motion doctor`).
+# The declarative SVG/HTML + Lottie path needs neither node nor a provider.

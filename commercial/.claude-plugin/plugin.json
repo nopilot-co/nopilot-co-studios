@@ -1,0 +1,20 @@
+{
+  "name": "commercial-studio",
+  "version": "0.1.0",
+  "description": "Commercial studio: deterministic deal validation against rate cards / margin floors / skill-set ratios (beancounter, review-class — reuses the nitpicker engine), and value-based opportunity sizing from client financial research, spend capacity, and addressable market (commercial officer).",
+  "author": {
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
+  },
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/commercial",
+  "keywords": [
+    "commercial",
+    "pricing",
+    "rate-card",
+    "margin",
+    "beancounter",
+    "value-based-pricing",
+    "scope",
+    "opportunity-sizing"
+  ]
+}
