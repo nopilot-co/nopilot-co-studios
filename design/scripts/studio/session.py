@@ -8,17 +8,23 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from . import docket_root, docket_session
+from . import config as config_mod
 from . import formats as formats_mod
 from . import resolve_context_root
 
 
 def session_root(slug: str, name: str) -> Path:
-    # Inside a docket with a named production-session, nest the render session
-    # under it (<root>/<session>/renders/<name>) rather than as a sibling
-    # <slug>/outputs/ directory. Otherwise the legacy per-brand layout.
+    # Precedence:
+    # 1. Inside a docket with a named production-session, nest the render session
+    #    under it (<root>/<session>/renders/<name>).
+    # 2. The slug's persistent working folder (studio.config) → <wf>/<name>.
+    # 3. Legacy per-brand layout (<slug>/outputs/<name>).
     droot, dsession = docket_root(), docket_session()
     if droot is not None and dsession:
         return droot / dsession / "renders" / name
+    wf = config_mod.working_folder(slug)
+    if wf is not None:
+        return wf / name
     return resolve_context_root() / slug / "outputs" / name
 
 
