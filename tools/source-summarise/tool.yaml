@@ -1,0 +1,31 @@
+# Source Summarise — capability manifest (how a caller invokes this tool).
+# Dumb tool: no studio dependency. Discovered via the root tools.yml.
+#
+# Caller-supplied-JSON pattern: the model (or any other source of judgment)
+# produces summaries as JSON; this tool deterministically materialises them
+# into each source's front matter + a "## Core summary" section.
+tool: source-summarise
+name: Source Summarise
+summary: Materialise caller-supplied per-source summaries (a JSON spec) into each NNNN-*.md's YAML front matter + a "## Core summary" section. The tool is deterministic; the caller (model, human, agent) supplies the judgment.
+plugin: source-summarise
+cli: source-summarise
+depends_on_studio: false
+
+actions:
+  - id: summarise
+    description: Apply caller-supplied summaries (--summary-json) into a notion-sources batch; without --summary-json, prints the JSON contract + counts.
+    invoke: "source-summarise --batch <dir> [--manifest <file>] [--only <id|file|n> ...] [--limit <n>] --summary-json <file> [--quiet]"
+    inputs:
+      batch: "batch directory holding sources.json + NNNN-*.md (typically post-enrich)"
+      summary_json: "model-produced JSON keyed by id|file|n with { summary, precis, position, core_arguments[], comment_reaction }"
+      only: "ids/files/numbers to apply (repeatable)"
+    outputs:
+      summarised_md: "NNNN-*.md updated in place with front-matter fields + a fresh '## Core summary' section"
+    exit_codes: { 0: ok, 2: missing-batch-or-manifest, 3: error }
+    idempotent: true                 # re-running with the same JSON replaces the section + fields
+    side_effects: "writes under --batch only; never writes to a studio/context path"
+
+install:
+  script: tools/source-summarise/install.sh
+  cli: ~/.local/bin/source-summarise
+  deps: [pyyaml]

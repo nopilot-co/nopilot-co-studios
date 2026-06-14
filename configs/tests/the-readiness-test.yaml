@@ -1,0 +1,39 @@
+# The Readiness Test — could this ship as-is? Polish, formatting, citations,
+# accessibility. Delivery dimension.
+test: the-readiness-test
+name: The Readiness Test
+question: Could this ship to its audience as-is?
+description: >
+  Scores ship-readiness: not whether the *substance* is right (that's the
+  so-what / sniff / correctness tests) but whether the *presentation* is. Typos,
+  formatting inconsistency, broken links, alt-text gaps, headers without
+  navigation, contrast failures, citations that don't render. A correct asset
+  can still flunk readiness.
+dimension: delivery-quality
+applies_to: both
+
+scale:
+  min: 1
+  max: 5
+  labels:
+    1: Multiple visible defects (typos, broken layout, missing images,
+       inconsistent voice) — would need a substantial pass before sending.
+    2: Several defects; one polish pass needed.
+    3: A handful of polish items; usable but rough at the edges.
+    4: Ship-ready with a final eye-pass; only cosmetic touch-ups.
+    5: Production-ready — typo-free, consistent, accessible, citations
+       render, links resolve.
+
+criteria:
+  - Free of typos, broken markup, layout shifts
+  - Consistent voice + style across sections
+  - Images have alt-text; tables and charts have captions
+  - Contrast, type sizes, and spacing meet the brand / design baseline
+  - Citations, footnotes, and links render correctly
+  - For deliverables — version, date, audience, status visible where the
+    reader expects them
+
+weight: 1.0
+threshold:
+  pass: 4
+  warn: 3

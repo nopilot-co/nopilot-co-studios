@@ -15,7 +15,8 @@ from typing import Any
 import yaml
 from jsonschema import Draft202012Validator
 
-from . import SCHEMAS, brand_root_base, resolve_context_root
+from . import SCHEMAS, brand_root_base, docket_root, resolve_context_root
+from . import config as config_mod
 
 
 def _legacy_brand_root(slug: str) -> Path:
@@ -25,10 +26,18 @@ def _legacy_brand_root(slug: str) -> Path:
 def brand_root(slug: str) -> Path:
     """Resolve a brand's canonical folder.
 
-    Prefers the shared studios-level store; falls back to the legacy design-owned
-    location only when that's the one that exists. New brands are written to the
-    shared store.
+    Precedence: an explicit docket env is authoritative (``<docket>/brand/<slug>``,
+    server modes / self-contained docket); then the slug's persistent working
+    folder (``<wf>/brand/<slug>``, see studio.config) — the canonical brand home
+    inside the slug's own folder structure; then the shared studios-level store,
+    falling back to the legacy design-owned location only when that's the one that
+    exists. New brands are written to the shared store.
     """
+    if docket_root() is not None:
+        return brand_root_base() / slug
+    wf = config_mod.working_folder(slug)
+    if wf is not None:
+        return wf / "brand" / slug
     shared = brand_root_base() / slug
     if shared.exists():
         return shared
@@ -67,6 +76,11 @@ def list_brands() -> list[dict[str, str]]:
         for child in sorted(context_root.iterdir()):
             if child.is_dir() and (child / "brand" / "_brand.yml").exists():
                 brand_dirs.setdefault(child.name, child / "brand")
+    # Brands living under a slug's persistent working folder (<wf>/brand/<slug>).
+    for cfg_slug in sorted(config_mod.load().get("slugs") or {}):
+        bdir = brand_root(cfg_slug)
+        if (bdir / "_brand.yml").exists():
+            brand_dirs.setdefault(cfg_slug, bdir)
 
     rows: list[dict[str, str]] = []
     for slug, brand_dir in sorted(brand_dirs.items()):

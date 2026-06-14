@@ -21,12 +21,25 @@ target (a rendered file or a live URL) plus the brief it should fulfil, it judge
    playwright / chrome-devtools for live or HTML targets.
 2. **Brief fulfilment** — does the asset actually deliver what the brief asked?
 3. **Audience / ICP fit** — does it land for the target audience
-   (linguistically, in content, in the solution/offering it presents)?
+   (linguistically, in content, in the solution/offering it presents)? Pass
+   `nit new --audience <slug>` to project the audience studio's structured reader
+   model into `inputs/icp.md`, so this review and the audience studio share one
+   reader model (else a freetext `--icp` / stub).
 4. **Tone of voice** — rigorous application of the standardised ToV principles in
    `../configs/default/tone-of-voice.yml`, overlaid by the brand's voice if any.
-5. **The scored test battery** — runs the asset through the configurable,
-   extensible tests in `../configs/tests/` (so-what / yawn / sniff, …) and
-   aggregates a weighted verdict.
+5. **Technical quality** *(Phase 4)* — correctness (facts, numbers, references,
+   technical claims) and completeness (required parts present, caveats and
+   edge cases addressed). Correctness is a gate.
+6. **Delivery quality** *(Phase 4)* — readiness (could it ship as-is — polish,
+   formatting, citations, accessibility?) and actionability (can the reader act
+   without coming back with structural questions?).
+7. **Brand integrity** *(Phase 4)* — voice-fidelity (does it sound like *this*
+   brand, not generic brand voice?) and brand-recognition (would a reader who
+   knows the brand recognise this as theirs?). Brand-recognition is a gate.
+8. **The scored test battery** — runs the asset through the configurable,
+   extensible tests in `../configs/tests/` (so-what / yawn / sniff / correctness
+   / completeness / readiness / actionability / voice-fidelity /
+   brand-recognition) and aggregates a weighted verdict.
 
 Judgment lives in the skills; the `nit` CLI does only mechanics (capture, config
 loading/validation, score aggregation).
@@ -71,7 +84,7 @@ nitpicker's.
 ```
 nit tests list | show --test SLUG | validate --test SLUG
 nit config show [--brand SLUG]
-nit new --name NAME --target PATH_OR_URL [--brief PATH] [--brand SLUG] [--icp PATH]
+nit new --name NAME --target PATH_OR_URL [--brief PATH] [--brand SLUG] [--icp PATH | --audience SLUG]
 nit capture --session PATH [--bump patch|minor|major]
 nit score --session PATH [--version X.Y.Z]
 nit status --session PATH [--set draft|reviewing|reviewed|signed-off|rejected]

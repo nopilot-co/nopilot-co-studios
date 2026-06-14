@@ -1,4 +1,4 @@
-# Nitpicker Studio — capability manifest (how the creative-director calls it).
+# Nitpicker Studio — capability manifest (how the Producer calls it).
 # The studio's own skills do the work; this declares what it offers and how to
 # call it. The nitpicker reviews; it never edits the asset — fixes are the
 # producing studio's job.
@@ -15,8 +15,9 @@ capabilities:
   - id: review-asset
     description: Review an asset (file or URL) against its brief, audience, brand voice, and the global standards, returning a scored verdict and findings.
     consumes: [pdf, pptx, html, revealjs, image, md, url]
-    dimensions: [visual-qa, brief-fulfilment, audience-fit, tone-of-voice]
-    tests_ref: ../configs/tests/ # the scored battery (so-what / yawn / sniff, extensible)
+    # Phase 4 added technical-quality, delivery-quality, brand-integrity.
+    dimensions: [visual-qa, brief-fulfilment, audience-fit, tone-of-voice, technical-quality, delivery-quality, brand-integrity]
+    tests_ref: ../configs/tests/ # extensible scored battery (impact / engagement / credibility / QA / brand-guardian)
     baselines_ref: ../configs/default/ # tone-of-voice, design-principles, review-policy
   - id: run-tests
     description: Run an asset's content through the configurable, extensible scored test battery and aggregate a weighted verdict.
@@ -38,6 +39,6 @@ configs:
   tests: ../configs/tests/ # extensible scored tests
 
 # The nitpicker pairs naturally downstream of the producing studios: it reviews
-# what design / messaging produce. The creative-director may route an artifact
-# here for sign-off before any outward delivery.
+# what design / messaging produce. The Producer may route an artifact here for
+# sign-off before any outward delivery.
 pairs_with: [design, messaging]

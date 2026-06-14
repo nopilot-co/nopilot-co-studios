@@ -1,0 +1,18 @@
+{
+  "name": "context-studio",
+  "version": "0.1.0",
+  "description": "Context studio (infrastructural): orchestrates the tools/ tier (notion-sources / source-enrich / source-summarise / theme-propose / theme-cluster / theme-entity / youtube-transcript) to populate a per-engagement context store. Other studios reference an engagement's context by slug for mapping (Principal), routing (Producer), reader modelling (audience), and so on. The tools tier stays studio-free (dumb-tool invariant, ADR-004); this studio calls them over the CLI boundary.",
+  "author": {
+    "name": "Julian Tedstone",
+    "email": "ted@nopilot.co"
+  },
+  "homepage": "https://github.com/nopilot-co/nopilot-co-studios/tree/main/context-studio",
+  "keywords": [
+    "context",
+    "ingest",
+    "mapping",
+    "themes",
+    "infrastructural",
+    "orchestration"
+  ]
+}

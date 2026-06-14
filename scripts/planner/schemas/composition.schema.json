@@ -1,0 +1,205 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/studios/composition.schema.json",
+  "title": "composition",
+  "description": "A composite document: an ordered set of separately-composed sections, assembled into one source.md for the design studio to render. Written and maintained by the planner CLI.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "kind",
+    "objective",
+    "brand",
+    "format",
+    "session",
+    "created",
+    "current",
+    "sections",
+    "rollup",
+    "history"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "kind": { "const": "composition" },
+    "objective": {
+      "type": "string",
+      "description": "The high-level document objective, e.g. 'A proposition document for a new B2B analytics startup'."
+    },
+    "brand": {
+      "type": "string",
+      "description": "Brand slug (kebab-case). Render reads the docket-local brand of this slug."
+    },
+    "format": {
+      "type": "string",
+      "description": "Design format slug (<purpose>-<export>, e.g. proposal-pdf) the assembled source is rendered as."
+    },
+    "audience": {
+      "type": ["string", "null"],
+      "description": "Optional reader-model slug (audience studio). When set, sections/briefs/viz are aligned to that reader's need-state, not only brand voice. Null = brand-only alignment (default)."
+    },
+    "session": {
+      "type": "string",
+      "description": "The docket production-session that holds inputs/source.md (the assembled doc)."
+    },
+    "created": { "type": "string" },
+    "current": {
+      "type": "string",
+      "description": "Semver of the composition itself (bumped on assemble). Starts at 0.0.0.",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "sections": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/section" }
+    },
+    "rollup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "total",
+        "todo",
+        "briefed",
+        "drafted",
+        "approved",
+        "percent_approved",
+        "ready_to_assemble"
+      ],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "todo": { "type": "integer", "minimum": 0 },
+        "briefed": { "type": "integer", "minimum": 0 },
+        "drafted": { "type": "integer", "minimum": 0 },
+        "approved": { "type": "integer", "minimum": 0 },
+        "percent_approved": { "type": "integer", "minimum": 0, "maximum": 100 },
+        "ready_to_assemble": { "type": "boolean" }
+      }
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["at", "event"],
+        "properties": {
+          "at": { "type": "string" },
+          "event": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "section": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "title",
+        "order",
+        "status",
+        "brief",
+        "content",
+        "data_sources",
+        "viz",
+        "source"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+          "description": "Stable kebab-case section id; also the section folder name under sections/."
+        },
+        "title": { "type": "string" },
+        "order": { "type": "integer", "minimum": 1 },
+        "status": {
+          "enum": ["todo", "briefed", "drafted", "approved"],
+          "description": "todo (placeholder) → briefed (has a brief) → drafted (has content) → approved (ready to assemble)."
+        },
+        "brief": {
+          "type": "string",
+          "description": "Docket-relative path to the section brief, e.g. sections/<id>/brief.md."
+        },
+        "content": {
+          "type": "string",
+          "description": "Docket-relative path to the composed section markdown, e.g. sections/<id>/content.md."
+        },
+        "data_sources": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "kind"],
+            "properties": {
+              "path": {
+                "type": "string",
+                "description": "Docket-relative path to the data source (e.g. assets/tam-2026.csv)."
+              },
+              "kind": { "enum": ["md", "csv", "image"] }
+            }
+          }
+        },
+        "viz": {
+          "description": "Optional chart spec. A suggestion contract only — the design studio's data-viz engine renders it.",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["type", "source", "rendered_by"],
+              "properties": {
+                "type": {
+                  "type": "string",
+                  "description": "Chart type, e.g. bar, line, area, scatter, pie."
+                },
+                "x": { "type": "string" },
+                "y": { "type": "string" },
+                "source": {
+                  "type": "string",
+                  "description": "Docket-relative path to the data source (usually a csv)."
+                },
+                "caption": { "type": "string" },
+                "rendered_by": { "const": "design" }
+              }
+            }
+          ]
+        },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["origin", "provenance"],
+          "properties": {
+            "origin": {
+              "enum": ["drafted", "provided", "imported"],
+              "description": "drafted (written for this doc), provided (user-supplied file), imported (existing composable element)."
+            },
+            "provenance": {
+              "type": "string",
+              "description": "Free-text note: reference insight, data lineage, or where a provided/imported element came from."
+            }
+          }
+        },
+        "reader_fit": {
+          "description": "Per-section reader-fit result recorded by `planner section fit` from the audience studio's critique. Approval is gated on this when a reader is bound. Null until critiqued.",
+          "oneOf": [
+            { "type": "null" },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["verdict"],
+              "properties": {
+                "verdict": { "enum": ["pass", "revise", "fail"] },
+                "overall": { "type": ["number", "null"] },
+                "gates_failed": {
+                  "type": "array",
+                  "items": { "type": "string" }
+                },
+                "at": { "type": "string" },
+                "source": {
+                  "type": "string",
+                  "description": "Where the result came from (audience scorecard path, or 'manual')."
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

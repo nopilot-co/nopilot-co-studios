@@ -5,15 +5,15 @@
     "name": "Julian Tedstone",
     "email": "ted@nopilot.co"
   },
-  "description": "nopilot-co-studios marketplace — the studios-root creative-director and its studios (design, messaging, nitpicker).",
+  "description": "nopilot-co-studios marketplace — front-of-house Principal + Producer (was creative-director) orchestration, the studios (design, messaging, nitpicker, audience), and a tool-bench (notion-sources, source-enrich, source-summarise, theme-propose, theme-cluster, theme-entity, youtube-transcript).",
   "plugins": [
     {
       "name": "studios",
       "source": "./",
       "version": "0.1.2",
-      "description": "Cross-studio creative-director: /studio <brief> routes work across studios and delivers to external services (Gamma, Canva, Slack, Gmail).",
+      "description": "Cross-studio front-of-house — /studio <brief> enters at the Principal, who shapes the engagement, then hands to the Producer (was creative-director) for routing and delivery (Gamma, Canva, Slack, Gmail).",
       "category": "orchestration",
-      "tags": ["creative-director", "studios", "orchestration"]
+      "tags": ["principal", "producer", "studios", "orchestration"]
     },
     {
       "name": "design-studio",
@@ -34,10 +34,164 @@
     {
       "name": "nitpicker-studio",
       "source": "./nitpicker",
-      "version": "0.1.1",
+      "version": "0.1.3",
       "description": "Rigorous asset review: visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice, and a configurable scored test battery (so-what / yawn / sniff), producing a weighted verdict.",
       "category": "quality",
       "tags": ["review", "qa", "critique", "tone-of-voice", "visual-qa"]
+    },
+    {
+      "name": "audience-studio",
+      "source": "./audience",
+      "version": "0.1.0",
+      "description": "Model the reader — a structured psychographic profile + need-state — and critique work against a derived weighted rubric, returning a reader-fit verdict + strengthening areas. Reuses the nitpicker scoring engine.",
+      "category": "quality",
+      "tags": ["audience", "reader", "persona", "psychographics", "critique"]
+    },
+    {
+      "name": "commercial-studio",
+      "source": "./commercial",
+      "version": "0.1.0",
+      "description": "Commercial validation + value-based opportunity sizing: deterministic deal validation against rate cards / margin floors / skill-set ratios (beancounter, review-class — reuses the nitpicker engine), and value-based opportunity sizing from client financial research, spend capacity, and addressable market (commercial officer).",
+      "category": "commercial",
+      "tags": [
+        "commercial",
+        "pricing",
+        "rate-card",
+        "margin",
+        "beancounter",
+        "value-based-pricing"
+      ]
+    },
+    {
+      "name": "delivery-studio",
+      "source": "./delivery",
+      "version": "0.1.0",
+      "description": "Delivery planning: turn a shaped engagement brief into a structured plan — swimlanes keyed to the cast, sequenced phases with entry/exit criteria, per-phase resourcing + contingency, and a first-class RAID register. Caller-supplied-JSON materialiser with deterministic rollups; optional cost via the commercial rate-card.",
+      "category": "delivery",
+      "tags": [
+        "delivery",
+        "planning",
+        "swimlanes",
+        "phasing",
+        "raid",
+        "resourcing"
+      ]
+    },
+    {
+      "name": "architecture-studio",
+      "source": "./architecture",
+      "version": "0.1.0",
+      "description": "Architecture: produce a structured spec for an engagement — systems, data flows, integration points, and ADR-style decision records. Caller-supplied-JSON materialiser with deterministic referential-integrity invariants. Optional diagram render via the design studio.",
+      "category": "architecture",
+      "tags": [
+        "architecture",
+        "systems",
+        "data-flow",
+        "integration",
+        "adr",
+        "decision-record"
+      ]
+    },
+    {
+      "name": "context-studio",
+      "source": "./context-studio",
+      "version": "0.1.0",
+      "description": "Infrastructural context orchestrator — chains the tools/ tier (notion-sources / source-enrich / source-summarise / theme-propose / theme-cluster / theme-entity / yt-transcript) into a per-engagement context store. Other studios reference the context by slug.",
+      "category": "context",
+      "tags": [
+        "context",
+        "ingest",
+        "mapping",
+        "themes",
+        "infrastructural",
+        "orchestration"
+      ]
+    },
+    {
+      "name": "analytics-studio",
+      "source": "./analytics",
+      "version": "0.1.0",
+      "description": "Analytics: produce a structured analysis from a supplied dataset — descriptive statistics, identified patterns, named insights (severity + confidence), recommendations. Caller-supplied-JSON materialiser with deterministic insight + pattern + recommendation rollups.",
+      "category": "analytics",
+      "tags": [
+        "analytics",
+        "data",
+        "patterns",
+        "insight",
+        "engagement",
+        "analysis"
+      ]
+    },
+    {
+      "name": "growth-studio",
+      "source": "./growth",
+      "version": "0.1.0",
+      "description": "Growth/BD: generate-leads (structured lead list with fit scores from caller-supplied ICP + criteria) and map-market (segments + competitors + positioning from caller-supplied research). Caller-supplied-JSON materialiser pattern.",
+      "category": "growth",
+      "tags": [
+        "growth",
+        "business-development",
+        "lead-gen",
+        "market-research",
+        "market-mapping",
+        "icp"
+      ]
+    },
+    {
+      "name": "notion-sources",
+      "source": "./tools/notion-sources",
+      "version": "0.1.0",
+      "description": "Extract a Notion database into a per-source Markdown batch + manifest. Schema-agnostic; incremental. Dumb tool — caller-driven.",
+      "category": "tools",
+      "tags": ["notion", "ingest", "sources", "batch", "manifest"]
+    },
+    {
+      "name": "source-enrich",
+      "source": "./tools/source-enrich",
+      "version": "0.1.4",
+      "description": "Enrich a notion-sources batch in place — fetch each source, populate front matter, extract body (HTML/PDF/text) + assets, tidy bylines.",
+      "category": "tools",
+      "tags": ["enrich", "fetch", "html", "pdf", "frontmatter"]
+    },
+    {
+      "name": "source-summarise",
+      "source": "./tools/source-summarise",
+      "version": "0.0.1",
+      "description": "Materialise caller-supplied per-source summaries (--summary-json) into front matter + a 'Core summary' section. Dumb tool — caller supplies the judgment.",
+      "category": "tools",
+      "tags": ["summarise", "frontmatter", "materialiser"]
+    },
+    {
+      "name": "theme-propose",
+      "source": "./tools/theme-propose",
+      "version": "0.0.2",
+      "description": "Non-destructive theme-framework proposal for a summarised source batch; materialise a caller-supplied proposal; on --adopt, freeze into theme-manifest.json.",
+      "category": "tools",
+      "tags": ["themes", "framework", "manifest", "non-destructive"]
+    },
+    {
+      "name": "theme-cluster",
+      "source": "./tools/theme-cluster",
+      "version": "0.0.2",
+      "description": "Materialise caller-supplied theme assignments (--assignments) into themes.json (+ optional source-tag updates). Dumb tool — caller supplies the assignments.",
+      "category": "tools",
+      "tags": ["themes", "cluster", "assignments", "materialiser"]
+    },
+    {
+      "name": "theme-entity",
+      "source": "./tools/theme-entity",
+      "version": "0.0.2",
+      "description": "Render theme-entity Markdown dossiers from themes.json + a caller-supplied per-theme synthesis (--spec); author backlinks + a timeline per theme.",
+      "category": "tools",
+      "tags": ["themes", "entity", "dossier", "backlinks"]
+    },
+    {
+      "name": "youtube-transcript",
+      "source": "./tools/youtube-transcript",
+      "version": "0.3.0",
+      "description": "Extract a YouTube video's transcript to .txt/.md. Captions fast-path with Whisper fallback. Optional Markdown front matter / paragraphs / timestamps / chapters.",
+      "category": "tools",
+      "tags": ["youtube", "transcript", "captions", "whisper"]
     }
   ]
 }

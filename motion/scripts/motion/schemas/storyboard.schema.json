@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Motion Studio storyboard",
+  "description": "The single source of truth for a motion render (issue #42, S1).",
+  "type": "object",
+  "required": ["version", "global", "scenes"],
+  "additionalProperties": false,
+  "properties": {
+    "version": { "type": "string" },
+    "global": {
+      "type": "object",
+      "required": ["brand"],
+      "additionalProperties": false,
+      "properties": {
+        "brand": { "type": "string", "description": "brand slug (shared studios-level)" },
+        "title": { "type": "string" },
+        "aspect": { "type": "string", "enum": ["16:9", "9:16", "1:1", "4:5"], "default": "16:9" },
+        "fps": { "type": "integer", "minimum": 1, "maximum": 120, "default": 30 },
+        "motion_system": { "type": "string", "description": "motion-system slug (optional)" },
+        "captions": { "type": "boolean", "default": false },
+        "twin": { "type": "string", "description": "digital-twin slug (presenter archetype)" }
+      }
+    },
+    "scenes": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/definitions/scene" }
+    }
+  },
+  "definitions": {
+    "scene": {
+      "type": "object",
+      "required": ["id", "duration", "layers"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "duration": { "type": "number", "exclusiveMinimum": 0, "description": "seconds" },
+        "narration": { "type": "string" },
+        "transition": { "type": "string", "enum": ["cut", "fade", "slide", "wipe"], "default": "cut" },
+        "layers": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/layer" }
+        }
+      }
+    },
+    "layer": {
+      "type": "object",
+      "required": ["type"],
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "enum": ["text", "shape", "image", "icon", "chart", "presenter"] },
+        "content": { "type": "string", "description": "text, asset ref, or chart/data ref" },
+        "region": {
+          "type": "string",
+          "enum": ["full", "center", "top", "bottom", "left", "right", "upper-third", "lower-third"],
+          "default": "center"
+        },
+        "role": { "type": "string", "enum": ["primary", "secondary", "accent", "surface"], "description": "which brand colour role to render with" },
+        "enter": { "type": "string", "description": "enter motion (e.g. fade-up, wipe-left)" },
+        "emphasis": { "type": "string" },
+        "exit": { "type": "string" },
+        "chart": { "type": "string", "enum": ["bar", "kpi"], "description": "chart kind for a `chart` layer (S4)" },
+        "data": {
+          "description": "chart data: array of {label, value} for `bar`; a number/string for `kpi`",
+          "oneOf": [
+            { "type": "array", "items": {
+              "type": "object", "required": ["value"], "additionalProperties": false,
+              "properties": { "label": { "type": "string" }, "value": { "type": "number" } } } },
+            { "type": "number" },
+            { "type": "string" }
+          ]
+        }
+      }
+    }
+  }
+}

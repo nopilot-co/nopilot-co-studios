@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nopilot.co/studios/audience-rubric.schema.json",
+  "title": "Reader-fit rubric (rubric.yml)",
+  "description": "A weighted scoring rubric DERIVED from a reader model's need-state. Each test is byte-compatible with a nitpicker scored-test definition, so the audience studio scores against the nitpicker engine (nit aggregate) with no duplicate scoring math. Critical needs become gates.",
+  "type": "object",
+  "required": ["rubric", "tests"],
+  "properties": {
+    "rubric": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "Matches the audience slug it scores for."
+    },
+    "derived_from": {
+      "type": "string",
+      "description": "Provenance — the model file this rubric was derived from (regenerate when it changes)."
+    },
+    "scale": {
+      "type": "object",
+      "required": ["min", "max"],
+      "properties": {
+        "min": { "type": "integer" },
+        "max": { "type": "integer" }
+      }
+    },
+    "gates": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Test slugs (critical needs) that can unilaterally fail the work, per the review policy's fail_floor_ratio."
+    },
+    "tests": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Each test scores one need. Same shape as a nitpicker scored-test (configs/tests/*.yaml).",
+      "items": {
+        "type": "object",
+        "required": ["test", "name", "question", "scale", "criteria"],
+        "properties": {
+          "test": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "description": "Test slug — usually the need id it scores."
+          },
+          "name": { "type": "string" },
+          "question": { "type": "string" },
+          "description": { "type": "string" },
+          "dimension": {
+            "type": "string",
+            "description": "Use `reader-fit` so the whole rubric rolls into one comparable dimension."
+          },
+          "scale": {
+            "type": "object",
+            "required": ["min", "max"],
+            "properties": {
+              "min": { "type": "integer" },
+              "max": { "type": "integer" },
+              "labels": { "type": "object" }
+            }
+          },
+          "criteria": {
+            "type": "array",
+            "items": { "type": "string" },
+            "minItems": 1
+          },
+          "weight": { "type": "number", "minimum": 0 },
+          "threshold": {
+            "type": "object",
+            "properties": {
+              "pass": { "type": "number" },
+              "warn": { "type": "number" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

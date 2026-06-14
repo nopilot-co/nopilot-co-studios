@@ -19,6 +19,7 @@ from pathlib import Path
 import click
 
 from . import brand as brand_mod
+from . import config as config_mod
 from . import content as content_mod
 from . import deps as deps_mod
 from . import docket as docket_mod
@@ -72,6 +73,46 @@ def brand_show(slug: str) -> None:
     click.echo(brand_mod.show(slug))
 
 
+# ---------------------------------------------------------------- config
+@main.group()
+def config() -> None:
+    """Per-slug persistent settings (working folder)."""
+
+
+@config.command("set-folder")
+@click.option("--slug", required=True, help="Slug to configure (kebab-case)")
+@click.option(
+    "--path",
+    "path",
+    required=True,
+    type=click.Path(path_type=Path),
+    help="Working-folder base. sessions → <path>/<session>; brand → <path>/brand/<slug>",
+)
+def config_set_folder(slug: str, path: Path) -> None:
+    resolved = config_mod.set_working_folder(slug, path)
+    click.echo(f"✓ {slug} working folder: {resolved}")
+    click.echo(f"  sessions → {resolved}/<session-name>")
+    click.echo(f"  brand    → {resolved / 'brand' / slug}")
+
+
+@config.command("show")
+@click.option("--slug", default=None, help="Show one slug (default: all configured)")
+def config_show(slug: str | None) -> None:
+    click.echo(f"config: {config_mod.config_path()}")
+    if slug:
+        wf = config_mod.working_folder(slug)
+        click.echo(f"{slug}: {wf or '(unset)'}")
+        return
+    slugs = config_mod.load().get("slugs") or {}
+    if not slugs:
+        click.echo(
+            "(no slugs configured — run: studio config set-folder --slug <slug> --path <dir>)"
+        )
+        return
+    for s in sorted(slugs):
+        click.echo(f"{s}: {config_mod.working_folder(s)}")
+
+
 # ---------------------------------------------------------------- formats
 @main.group()
 def formats() -> None:
@@ -88,13 +129,17 @@ def formats_list() -> None:
         try:
             r = formats_mod.resolve(slug)
             sfmt = formats_mod.studio_format(r) or "—"
+            layout = r.get("layout", "—")
             if not formats_mod.is_renderable(r):
                 note = "  (not renderable yet)"
             else:
                 missing = deps_mod.missing_for(r, "render")
                 note = f"  (needs: {', '.join(missing)})" if missing else ""
-            click.echo(f"{slug:<18}  {r.get('asset_type', '—'):<10}  -> {sfmt}{note}")
-        except (FileNotFoundError, ValueError) as e:
+            click.echo(
+                f"{slug:<18}  {r.get('asset_type', '—'):<10}  "
+                f"[{layout:<7}] -> {sfmt}{note}"
+            )
+        except (FileNotFoundError, ValueError, formats_mod.SealedKeyConflict) as e:
             click.echo(f"{slug:<18}  ✗ {e}", err=True)
 
 
@@ -392,9 +437,12 @@ def qa() -> None:
 )
 def qa_capture(session_path: Path, version: str | None) -> None:
     images = qa_mod.capture(session_path, version)
-    click.echo(
-        f"✓ captured {len(images)} images to {images[0].parent if images else '(none)'}"
-    )
+    if not images:
+        raise click.ClickException(
+            "captured 0 images — nothing was rasterized. The session's outputs "
+            "may be missing, or a rasterizer is unavailable (run `studio doctor`)."
+        )
+    click.echo(f"✓ captured {len(images)} images to {images[0].parent}")
 
 
 if __name__ == "__main__":

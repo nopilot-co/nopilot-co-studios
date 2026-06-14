@@ -38,13 +38,31 @@ produce. A session is one brand × one format slug × one source document.
    ```
    This:
    - **Validates the format slug** against the contracts and refuses an invalid one.
-   - Creates `~/context/studios/design/<brand>/outputs/<session-name>/{inputs,outputs,qa}/`
+   - Creates the session under the resolved root (see below), as
+     `<root>/{inputs,outputs,qa}/`
    - Copies the source Markdown to `inputs/source.md`
    - Writes `version.json` with `{ "brand", "session", "format", "source_filename", "created", "current": "0.0.0", "history": [] }`
    - Prints the session path
 
 4. Pass the session path to subsequent skills as `--session <path>`. They read
    the locked format from `version.json` — never re-pick it.
+
+## Where the session lives (root resolution)
+
+The session root resolves by this precedence (no env vars needed for the common
+case):
+
+1. **Explicit docket env** (`$STUDIOS_DOCKET_ROOT` + `$STUDIOS_DOCKET_SESSION`) —
+   server modes / self-contained dockets.
+2. **The slug's persistent working folder** — if set via
+   `studio config set-folder --slug <slug> --path <dir>`, the session is created
+   at `<dir>/<session-name>` and the brand resolves to `<dir>/brand/<slug>` (the
+   canonical brand home inside the slug's own folder structure). Inspect with
+   `studio config show [--slug <slug>]`.
+3. **Legacy global** — `~/context/studios/design/<brand>/outputs/<session-name>/`.
+
+Set a slug's working folder once and every later session/brand for that slug
+honours it — no per-invocation env vars.
 
 ## Conventions
 

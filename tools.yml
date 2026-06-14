@@ -1,0 +1,80 @@
+# Tool-bench registry — the discoverable, standalone-usable, *dumb* tools
+# any caller (studio, agent, cron, shell user) can invoke from a manifest.
+#
+# Tools are NOT studios. The dumb-tool invariant is CI-enforced — see
+# tools/README.md and scripts/check_tools_standalone.py. A tool has no
+# operational, functional, or contextual reliance on any studio: no studio
+# imports, no studios.yml references, no studio/context path assumptions,
+# no director assumption. All input via flags/env/JSON, all output to a
+# caller-specified location.
+#
+# Each tool declares full capabilities (per-action invoke template, IO
+# shape, exit codes, idempotency, side-effects) in <path>/tool.yaml. This
+# file is the discovery index — add a tool here with a tool.yaml and it
+# becomes invokable immediately, no caller-side change required.
+#
+# Shape mirrors studios.yml on purpose: a caller's mental model is the
+# same for both tiers.
+tools:
+  - slug: notion-sources
+    path: tools/notion-sources
+    manifest: tools/notion-sources/tool.yaml
+    summary: Extract a Notion database to a per-source .md batch + manifest (sources.json + index.md). Schema-agnostic; incremental.
+    cli: notion-sources
+    actions: [extract]
+    standalone: true
+    status: active
+
+  - slug: source-enrich
+    path: tools/source-enrich
+    manifest: tools/source-enrich/tool.yaml
+    summary: Enrich a notion-sources batch in place — fetch each source, populate front matter, extract body (HTML/PDF/text) + assets, tidy bylines.
+    cli: source-enrich
+    actions: [enrich]
+    standalone: true
+    status: active
+
+  - slug: source-summarise
+    path: tools/source-summarise
+    manifest: tools/source-summarise/tool.yaml
+    summary: Materialise caller-supplied per-source summaries (--summary-json) into each source's front matter + a "Core summary" section.
+    cli: source-summarise
+    actions: [summarise]
+    standalone: true
+    status: active
+
+  - slug: theme-propose
+    path: tools/theme-propose
+    manifest: tools/theme-propose/tool.yaml
+    summary: Non-destructive theme-framework proposal for a summarised source batch; materialise a caller-supplied proposal; on --adopt, freeze into theme-manifest.json.
+    cli: theme-propose
+    actions: [propose, adopt]
+    standalone: true
+    status: active
+
+  - slug: theme-cluster
+    path: tools/theme-cluster
+    manifest: tools/theme-cluster/tool.yaml
+    summary: Materialise caller-supplied theme assignments (--assignments) into <batch>/themes.json (+ optional source-tag updates).
+    cli: theme-cluster
+    actions: [cluster]
+    standalone: true
+    status: active
+
+  - slug: theme-entity
+    path: tools/theme-entity
+    manifest: tools/theme-entity/tool.yaml
+    summary: Render theme-entity .md dossiers from themes.json + a caller-supplied per-theme synthesis (--spec); author backlinks + a timeline per theme.
+    cli: theme-entity
+    actions: [build]
+    standalone: true
+    status: active
+
+  - slug: youtube-transcript
+    path: tools/youtube-transcript
+    manifest: tools/youtube-transcript/tool.yaml
+    summary: Extract a YouTube video's transcript to .txt/.md. Captions fast-path with Whisper fallback. Optional Markdown front matter / paragraphs / timestamps / chapters.
+    cli: yt-transcript
+    actions: [extract]
+    standalone: true
+    status: active

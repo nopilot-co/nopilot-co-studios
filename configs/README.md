@@ -38,10 +38,26 @@ it automatically (`nit tests list`).
 
 Shipped tests:
 
-- `the-so-what-test.yaml` — is it relevant, exciting, impactful? Will it change
-  the reader's mind?
-- `the-yawn-test.yaml` — is it interesting, readable, engaging?
-- `the-sniff-test.yaml` — does it sound credible, authoritative, believable?
+| Test | Dimension | Gate? | Question |
+|---|---|---|---|
+| `the-so-what-test` | `impact` | | Will this change the reader's mind? |
+| `the-yawn-test` | `engagement` | | Is it interesting, readable, engaging? |
+| `the-sniff-test` | `credibility` | ✓ | Does it sound credible, authoritative, believable? |
+| `the-correctness-test` | `technical-quality` | ✓ | Are the facts, numbers, references, and technical claims accurate? |
+| `the-completeness-test` | `technical-quality` | | Are all required parts present, and are caveats and edge cases addressed? |
+| `the-readiness-test` | `delivery-quality` | | Could this ship to its audience as-is? |
+| `the-actionability-test` | `delivery-quality` | | Can the reader act on this without coming back with structural questions? |
+| `the-voice-fidelity-test` | `brand-integrity` | | Does the language sound like *this brand*, not generic brand voice? |
+| `the-brand-recognition-test` | `brand-integrity` | ✓ | Would a reader who knows the brand recognise this as theirs? |
+
+Phase 4 added the **technical-quality**, **delivery-quality**, and
+**brand-integrity** dimensions (and 6 corresponding tests) so the nitpicker
+reviews — and every studio that reuses the engine (audience reader-fit,
+commercial check-commercials, etc.) — score on technical correctness,
+delivery readiness, and brand fit on top of the original relevance /
+readability / credibility battery. The new gates are `the-correctness-test`
+(wrong numbers / fabricated claims) and `the-brand-recognition-test`
+(off-brand assets).
 
 Validated against `nitpicker/scripts/nit/schemas/test.schema.json`
 (`nit tests validate --test <slug>`).

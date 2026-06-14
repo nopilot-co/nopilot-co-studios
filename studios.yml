@@ -1,7 +1,7 @@
-# Studio registry — what the creative-director can route a brief to.
+# Studio registry — what the Producer can route a brief to.
 # Each active studio declares full capabilities in <path>/studio.yaml; this file
 # is the discovery index. Add a studio here (with a manifest) and it becomes
-# routable immediately — no change to the director.
+# routable immediately — no change to the Producer.
 
 studios:
   - slug: design
@@ -25,8 +25,104 @@ studios:
     capabilities: [review-asset, run-tests]
     status: active
 
-# External services the creative-director is the single point of contact for.
-# The director publishes/notifies through these; studios stay local and pure.
+  - slug: audience
+    path: audience
+    manifest: audience/studio.yaml
+    summary: Model the reader (structured psychographic profile + need-state) and critique work against a derived weighted rubric — a reader-subjective review lens and a produce-time reader-model provider. Reuses the nitpicker scoring engine.
+    capabilities: [model-audience, assess-audience-fit]
+    status: active
+
+  - slug: motion
+    path: motion
+    manifest: motion/studio.yaml
+    summary: Animated/narrated assets — explainer videos, animated (Remotion-style) infographics, embeddable SVG/Lottie, and photorealistic digital-twin presenters.
+    capabilities: [visualise, present]
+    status: planned          # scaffolded (S0); routable once S2 ships explainer-mp4
+
+  - slug: commercial
+    path: commercial
+    manifest: commercial/studio.yaml
+    summary: Validate a deal against rate cards / margin floors / skill-set ratios (beancounter, review-class — reuses the nitpicker engine); size the opportunity from client financials, spend capacity, and addressable market (commercial officer). The Principal uses this for value-based scoping.
+    capabilities: [check-commercials, assess-commercial-value]
+    status: active
+
+  - slug: delivery
+    path: delivery
+    manifest: delivery/studio.yaml
+    summary: Turn a shaped engagement brief into a structured delivery plan — swimlanes keyed to the cast, sequenced phases with entry/exit criteria, per-phase resourcing + contingency, and a first-class RAID register. Caller-supplied-JSON materialiser; deterministic rollups; optional cost rollup via the commercial rate-card.
+    capabilities: [plan-delivery]
+    status: active
+
+  - slug: architecture
+    path: architecture
+    manifest: architecture/studio.yaml
+    summary: Produce a structured architecture spec for an engagement — systems, data flows, integration points, and ADR-style decision records. Caller-supplied-JSON materialiser with deterministic invariant checks (referential integrity across systems / flows / integrations). Optional diagram render via the design studio.
+    capabilities: [design-architecture]
+    status: active
+
+  - slug: context
+    path: context-studio
+    manifest: context-studio/studio.yaml
+    summary: Infrastructural — orchestrates the tools/ tier (notion-sources / source-enrich / source-summarise / theme-propose / theme-cluster / theme-entity / yt-transcript) into a per-engagement context store. Other studios reference an engagement's context by slug (Principal mapping, audience reader models, delivery prior art). Source dir is `context-studio/` because the top-level `context/` directory holds operating-model briefs.
+    capabilities: [ingest-context, map-context, extend-context]
+    status: active
+
+  - slug: analytics
+    path: analytics
+    manifest: analytics/studio.yaml
+    summary: Produce a structured analysis from a supplied dataset — descriptive statistics, identified patterns, named insights (severity + confidence), recommendations. Caller-supplied-JSON materialiser with deterministic insight + pattern + recommendation rollups. Viz specs handed to design via the planner.
+    capabilities: [analyse-data]
+    status: active
+
+  - slug: growth
+    path: growth
+    manifest: growth/studio.yaml
+    summary: Generate qualified leads (with fit scores from caller-supplied ICP + criteria) and map the market (segments + competitors + positioning from supplied research). Caller-supplied-JSON materialiser pattern; deterministic rollups (leads by fit / source / owner; segment + competitor counts; positioning quadrant distribution).
+    capabilities: [generate-leads, map-market]
+    status: active
+
+# Root orchestration skills — NOT maker studios (they make nothing on their own).
+# Three are first-class today: the Principal (front-of-house — the user always
+# talks here first), the Producer (domain-neutral orchestrator the Principal
+# hands a shaped engagement to), and the planner (composite-document helper the
+# Producer chains into design). They are reached by skill name; the registry
+# below is for discovery, separate from the capability-routed `studios:` above.
+orchestrators:
+  - slug: principal
+    skill: principal
+    summary: Front-of-house. Shapes an opportunity into an engagement (objective, audience map, value-based scope, cast selection) and hands a focused brief to the Producer. Owns the user relationship + L2 sign-offs + L3 authorisation.
+    use_when: any new engagement / opportunity — `/studio` enters here.
+    consumes: { audience: optional, commercial: optional, growth-bd: optional } # used for mapping when routable; degrades cleanly when not
+    produces_for: { skill: producer }
+    status: active
+
+  - slug: producer
+    skill: producer
+    summary: Domain-neutral orchestrator. Takes the Principal's shaped engagement, assembles the cast, writes each role a focused sub-brief, sequences jobs, chains artefacts, runs the gates. Does not talk to the user directly — the Principal does. (Was `creative-director`.)
+    use_when: after the Principal has shaped the engagement; or directly for a single-studio job that doesn't need shaping.
+    consumes: { engagement-brief: required }
+    produces_for: { studios: "*" } # capability-routed across the registered studios above
+    status: active
+
+  - slug: planner
+    skill: planner
+    cli: planner
+    summary: Plan + assemble a composite document from several separately-composed sections (proposition, prospectus, proposal, report); hands a merged source.md to design render-asset.
+    use_when: a brief asks for a multi-section document rather than a single asset.
+    consumes: { audience: optional } # bind a reader model with --audience <slug> to align sections/briefs/viz
+    produces_for: { studio: design, capability: render-asset }
+    status: active
+
+  - slug: engagement
+    skill: engagement
+    cli: engagement
+    summary: Maintain engagement.json — the engagement-level manifest with brief, cast, jobs, first-class Questions/Blockers/Risks (§8), Decisions (§7), L2/L3 Checkpoints (§6), and a deterministic status rollup. Producer-maintained; Principal-readable.
+    use_when: every engagement — the Producer maintains it as jobs run; the Principal reads it for status.
+    produces_for: { skill: producer, skill_alt: principal }
+    status: active
+
+# External services the Producer is the single point of contact for.
+# The Producer publishes/notifies through these; studios stay local and pure.
 # Each maps to an available MCP server; integrate only when authenticated.
 external_services:
   publish:
@@ -47,6 +143,7 @@ external_services:
       mcp: claude_ai_Gmail
       use: email deliverables to clients / stakeholders
 
-# Rule the director must honor for everything under external_services:
+# Rule the Producer must honor for everything under external_services:
 # outward-facing actions (publishing, posting, emailing) require explicit
-# user confirmation before sending. Local rendering does not.
+# user confirmation before sending (the Principal carries it back, per Bible
+# §6 L3). Local rendering does not.

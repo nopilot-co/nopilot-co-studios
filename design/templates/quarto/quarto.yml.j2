@@ -43,6 +43,10 @@ format:
 {%- if css_override %}
       - css/overrides.css
 {%- endif %}
+{%- if html_header %}
+    include-before-body:
+      - {{ html_header }}
+{%- endif %}
 {%- elif fmt == "revealjs" %}
   revealjs:
     theme: default

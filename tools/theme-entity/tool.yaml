@@ -1,0 +1,34 @@
+# Theme Entity — capability manifest (how a caller invokes this tool).
+# Dumb tool: no studio dependency. Discovered via the root tools.yml.
+#
+# Caller-supplied-JSON pattern: the model synthesises per-theme dossiers
+# (positions / evidence / counter-arguments); this tool deterministically
+# renders one theme entity .md per theme with backlinks + a timeline,
+# from themes.json + the caller-supplied spec.
+tool: theme-entity
+name: Theme Entity
+summary: Render theme-entity .md dossiers from <batch>/themes.json (output of theme-cluster) plus a caller-supplied per-theme synthesis (--spec). Backlinks every cited source by author + timeline. Caller supplies the synthesis; this tool materialises it.
+plugin: theme-entity
+cli: theme-entity
+depends_on_studio: false
+
+actions:
+  - id: build
+    description: Materialise caller-supplied per-theme synthesis into theme dossiers, one .md per theme, with author backlinks + a timeline.
+    invoke: "theme-entity --batch <dir> [--themes <file>] --spec <file> [--only <theme-id> ...] [--out <dir>] [--quiet]"
+    inputs:
+      batch: "batch directory"
+      themes: "themes.json within --batch (default: themes.json; produced by theme-cluster)"
+      spec: "model-produced JSON keyed by theme id with the per-theme synthesis (schema in the SKILL docstring)"
+      only: "theme ids to render (repeatable)"
+      out: "output dir within --batch (default: themes/)"
+    outputs:
+      theme_docs: "<batch>/<out>/<theme-id>.md per theme — synthesis + cited sources + author backlinks + timeline"
+    exit_codes: { 0: ok, 2: bad-invocation, 3: error }
+    idempotent: true
+    side_effects: "writes under --batch only"
+
+install:
+  script: tools/theme-entity/install.sh
+  cli: ~/.local/bin/theme-entity
+  deps: [pyyaml]

@@ -3,7 +3,7 @@ export: pdf
 name: PDF
 asset_type: document
 render:
-  engine: quarto
+  # engine comes from the layout (linear/frame); pdf is layout-agnostic.
   studio_format: pdf      # studio render maps pdf -> Typst engine
 requires:
   render: [quarto]      # Quarto bundles typst; no separate typst install needed

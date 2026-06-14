@@ -1,0 +1,48 @@
+# Audience Studio — capability manifest (how the Producer calls it).
+# Models THE READER (the person a piece must satisfy) and critiques work against
+# that reader. Builds a reusable, studios-level reader model + a derived weighted
+# rubric, then assesses an artifact's fit to that reader — a reader-SUBJECTIVE
+# review lens, complementary to the nitpicker's objective one. Scoring reuses the
+# nitpicker engine (same review policy) so verdicts read identically.
+studio: audience
+name: Audience Studio
+summary: Model the reader — a structured psychographic profile + need-state — and critique work against it, returning a weighted reader-fit verdict + target strengthening areas.
+plugin: audience-studio
+
+entrypoints:
+  orchestrator: /audience-studio # persona-intake -> audience-research -> psychographic-profile -> scoring-rubric -> audience-critique
+  cli: audience # deterministic glue: persona / research / profile / rubric / review / doctor
+
+capabilities:
+  - id: model-audience
+    description: Build (or validate a user-supplied/inferred) reader persona, review supplied context + research, synthesize a structured psychographic profile + need-state, and derive a weighted scoring rubric — written to the shared studios-level reader-model store, reusable across studios and referenced by slug.
+    consumes: [md, txt, pdf, docx, url, transcript]
+    produces: [_audience.yml, rubric.yml]
+    store_ref: ~/context/studios/audience/<slug>/
+  - id: assess-audience-fit
+    description: Critique an artifact (file or URL) against a reader model — are the reader's needs, challenges, and objectives met? Returns a weighted reader-fit verdict and a ranked list of target strengthening areas.
+    consumes: [pdf, pptx, html, revealjs, image, md, url]
+    entrypoint: audience review score
+    reuses: nitpicker score aggregation (nit aggregate, over the CLI boundary)
+
+inputs:
+  audience: slug # the reader model to build/use (like a brand slug)
+  persona: markdown # optional — a user-supplied persona to validate, else inferred
+  context: path-or-url # optional, repeatable — transcripts / docs / sources to review
+  target: path-or-url # (assess-audience-fit) the artifact under critique
+  brief: markdown # optional — what the artifact was meant to do
+
+outputs:
+  store: ~/context/studios/audience/<slug>/ # the reusable reader model (parallel to ~/context/studios/brand/<slug>/)
+  artifacts: _audience.yml (profile + need-state) + rubric.yml (derived weighted tests) + research/ (reviews + sources)
+  sessions: ~/context/studios/audience/<slug>/sessions/<name>/ # per-critique review sessions
+  critique: review/v<ver>/{scores.yml, findings.md, scorecard.json, strengthening-areas.md}
+
+resources:
+  audience_schema: scripts/audience/schemas/audience.schema.json
+  rubric_schema: scripts/audience/schemas/rubric.schema.json
+  policy: ../configs/default/review-policy.yml # SAME aggregation policy the nitpicker uses
+
+# Pairs downstream of producing studios as a reader-subjective sign-off lens; and
+# upstream as a produce-time input provider (the reader model informs composition).
+pairs_with: [design, messaging, nitpicker]

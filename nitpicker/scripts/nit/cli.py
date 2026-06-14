@@ -3,9 +3,10 @@
 Subcommands mirror the skills:
   nit tests list | show --test SLUG | validate --test SLUG
   nit config show [--brand SLUG]
-  nit new --name NAME --target PATH_OR_URL [--brief PATH] [--brand SLUG] [--icp PATH]
+  nit new --name NAME --target PATH_OR_URL [--brief PATH] [--brand SLUG] [--icp PATH | --audience SLUG]
   nit capture --session PATH [--bump patch|minor|major]
   nit score --session PATH [--version X.Y.Z]
+  nit aggregate --scores PATH [--tests-from RUBRIC] [--policy PATH]
   nit status --session PATH [--set draft|reviewing|reviewed|signed-off|rejected]
   nit doctor
 """
@@ -108,9 +109,26 @@ def config_show(brand: str | None) -> None:
     type=click.Path(exists=True, path_type=Path),
     help="Markdown ICP / target-audience profile (optional; a stub is scaffolded otherwise)",
 )
+@click.option(
+    "--audience",
+    default=None,
+    help="Reader-model slug from the audience studio. Its structured _audience.yml "
+    "is projected into inputs/icp.md (takes precedence over --icp).",
+)
 def new_cmd(
-    name: str, target: str, brief: Path | None, brand: str | None, icp: Path | None
+    name: str,
+    target: str,
+    brief: Path | None,
+    brand: str | None,
+    icp: Path | None,
+    audience: str | None,
 ) -> None:
+    if audience and icp:
+        click.echo(
+            "  ⚠ both --audience and --icp given; --audience (structured reader "
+            "model) takes precedence — ignoring --icp",
+            err=True,
+        )
     try:
         path = session_mod.new(
             name,
@@ -118,6 +136,7 @@ def new_cmd(
             brief=str(brief) if brief else None,
             brand=brand,
             icp=str(icp) if icp else None,
+            audience=audience,
         )
     except ValueError as e:
         raise click.ClickException(str(e)) from e
@@ -125,7 +144,8 @@ def new_cmd(
     click.echo(str(path))
     click.echo(f"  target: {state['target']}  ({state['target_kind']})")
     click.echo(f"  brief : {path}/inputs/brief.md")
-    click.echo(f"  icp   : {path}/inputs/icp.md")
+    icp_note = f"  (from reader model '{audience}')" if audience else ""
+    click.echo(f"  icp   : {path}/inputs/icp.md{icp_note}")
     click.echo("  next  : nit capture --session <path>, then run the review skills")
 
 
@@ -194,6 +214,54 @@ def score_cmd(session_path: Path, version: str | None) -> None:
             f"  [{i['status']:>4}] {i['key']:<22} {i['score']:>4}/{i['max']:<3}{flag}"
         )
     click.echo(f"\nscorecard: {card_path}")
+
+
+# ---------------------------------------------------------------- aggregate
+@main.command("aggregate")
+@click.option(
+    "--scores",
+    "scores_path",
+    required=True,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="A scores.yml payload ({tests: {...}, dimensions: {...}}).",
+)
+@click.option(
+    "--tests-from",
+    "tests_from",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="A rubric file supplying test definitions for slugs not in configs/tests/ "
+    "(e.g. the audience studio's per-reader rubric.yml). Its `gates:` are honored.",
+)
+@click.option(
+    "--policy",
+    "policy_path",
+    default=None,
+    type=click.Path(exists=True, dir_okay=False, path_type=Path),
+    help="Override the review policy (defaults to configs/default/review-policy.yml).",
+)
+def aggregate_cmd(
+    scores_path: Path, tests_from: Path | None, policy_path: Path | None
+) -> None:
+    """Aggregate a supplied scores.yml against supplied test specs → scorecard JSON.
+
+    The single-sourced scoring engine, callable with an external rubric so other
+    studios score against the same math + policy. Prints the scorecard JSON to
+    stdout (machine-readable); writes nothing.
+    """
+    scores = yaml.safe_load(scores_path.read_text()) or {}
+    specs: dict[str, dict] = {}
+    gates: list[str] = []
+    if tests_from:
+        rubric = yaml.safe_load(tests_from.read_text()) or {}
+        for spec in rubric.get("tests") or []:
+            slug = spec.get("test")
+            if slug:
+                specs[slug] = spec
+        gates = list(rubric.get("gates") or [])
+    policy = yaml.safe_load(policy_path.read_text()) if policy_path else None
+    card = tests_mod.aggregate(scores, specs=specs, gates=gates, policy=policy)
+    click.echo(json.dumps(card, indent=2))
 
 
 # ---------------------------------------------------------------- status

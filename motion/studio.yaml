@@ -1,0 +1,61 @@
+# Motion Studio — capability manifest.
+# How the Producer discovers and invokes this studio. The studio's own skills do
+# the work; this just declares what it offers and how to call it.
+#
+# status: scaffold — S0 establishes the contract surface (see motion/CLAUDE.md
+# build sequence). Registered in studios.yml as `planned` until S2 ships the
+# first renderable format, so the director won't route real work here yet.
+studio: motion
+name: Motion Studio
+summary: >-
+  Animated, narrated assets that tell the story — explainer videos, animated
+  (Remotion-style) infographics, embeddable SVG/Lottie, and photorealistic
+  digital-twin face-to-camera presenters.
+plugin: motion-studio              # .claude-plugin/plugin.json name
+
+entrypoints:
+  orchestrator: /motion-studio     # slash command — runs the pipeline end to end
+  cli: motion                      # `motion <command>` — deterministic glue
+
+capabilities:
+  - id: visualise
+    description: >-
+      Review content/data → ideate → storyboard → script → produce an animated
+      or narrated asset (explainer video, animated infographic, flow, timeline).
+    produces: [mp4, webm, gif, svg, html, lottie, png]
+    archetypes: [explainer, infographic, flow, timeline]   # see resources/archetypes/
+    status: planned                # first export (explainer-mp4) lands in S2
+  - id: present
+    description: >-
+      Photorealistic digital-twin presenter — face-to-camera explainer or
+      elevator pitch from a consenting person's likeness + voice.
+    produces: [mp4, webm]
+    requires: [twin]               # a consent-recorded twin (see inputs.twin)
+    status: planned                # lands in S3.5
+
+inputs:
+  brief: free-text                 # the director may draft a storyboard from this
+  source: markdown | data          # existing content/data to visualise
+  brand: slug                      # existing brand (shared studios-level entity)
+  twin: slug                       # consenting person's likeness + voice (present)
+  format: slug                     # <purpose>-<export>, e.g. explainer-mp4
+
+outputs:
+  location: ~/context/studios/motion/<brand>/outputs/<session>/
+  artifacts: versioned files (outputs/) + visual-qa keyframes/findings (qa/)
+
+engine:                            # see docs/architecture/DECISIONS.md ADR-002
+  video: remotion                  # React/Node programmatic video + animated infographics
+  embed: declarative-svg-css       # self-contained animated SVG/HTML + lottie
+  capture_fallback: playwright     # HTML → frames when Remotion is overkill
+  encode: ffmpeg                   # mp4/webm/gif + keyframe extraction
+  providers:                       # external render services (render-time, keyed via env)
+    avatar: d-id                   # swappable adapter; local low-fi fallback optional
+    tts: elevenlabs                # cloned twin voice
+
+resources:                         # canonical choices this studio draws on (by slug)
+  motion_systems: resources/motion-systems/   # easing / duration / transition tokens
+  design_systems: resources/design-systems/   # shared colour/type tokens (reused, not copied)
+  iconography: resources/iconography/
+  brand_voice: resources/brand-voice/
+  archetypes: resources/archetypes/

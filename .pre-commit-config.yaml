@@ -68,3 +68,18 @@ repos:
       - id: prettier
         # JSON only — YAML is handled by yamllint, Markdown left to authors.
         types_or: [json]
+
+  - repo: local
+    hooks:
+      # Brief 02 / ADR-004 — tools/ must stay studio-free. Runs on every
+      # change anywhere in tools/ + the check script itself; the script
+      # bails cleanly when tools/ is empty (scaffold-only state). Uses
+      # language: python + additional_dependencies so it brings its own
+      # PyYAML instead of trusting whatever the dev's system python has.
+      - id: tools-standalone-invariant
+        name: tools standalone invariant (ADR-004)
+        entry: python scripts/check_tools_standalone.py
+        language: python
+        additional_dependencies: [PyYAML>=6.0]
+        pass_filenames: false
+        files: ^(tools/|scripts/check_tools_standalone\.py$|tests/test_tools_standalone\.py$)

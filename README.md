@@ -3,12 +3,23 @@
 A Claude Code plugin marketplace for branded creative work — one brief, routed
 across studios.
 
+> **Operating model:** how the studio wins and delivers work — its vision, roles,
+> method, autonomy, observability, and systems of record — is the canon in
+> [`docs/operating-framework.md`](docs/operating-framework.md) (the "Bible").
+
 | Plugin | What it does |
 |---|---|
-| **studios** | Creative-director. `/studio <brief>` plans a brief, routes each job to a studio, chains artifacts between studios, and is the one place that delivers to external services (Gamma, Canva, Slack, Gmail). |
+| **studios** | Principal (front-of-house) + Producer (orchestrator, was creative-director). `/studio <brief>` enters at the Principal — who shapes the engagement (objective, audience, scope, cast) and gets L2 sign-off — then hands a focused brief to the Producer, who routes each job to a studio, chains artifacts, and delivers to external services (Gamma, Canva, Slack, Gmail) on L3 authorisation. |
 | **design-studio** | Markdown → branded **PDF / PPTX / HTML / RevealJS** via **Quarto + Typst**, driven by one `_brand.yml` (Posit brand.yml standard). Versioned outputs + visual QA. |
 | **messaging-studio** | Brand communications — **email, outreach, announcements, multi-step sequences** — composed in a brand's voice. **HTML email via MJML.** |
 | **nitpicker-studio** | Rigorous asset review — **visual/format QA, brief fulfilment, audience/ICP fit, standardised tone-of-voice**, plus a configurable scored test battery (so-what / yawn / sniff) — returning a weighted verdict. Reviews; never edits. |
+| **audience-studio** | Model the reader (psychographic profile + need-state) and critique work as them — reader-fit verdict + ranked strengthening areas. Reuses the nitpicker engine for scoring. |
+| **commercial-studio** | **check-commercials** (beancounter — review-class): deterministic deal validation vs rate cards, margin floor, and skill-set ratios — reuses the nitpicker engine. **assess-commercial-value** (commercial officer): value-based opportunity sizing from cited client financials, spend capacity, and addressable market. |
+| **delivery-studio** | **plan-delivery**: turn a shaped engagement brief into a structured plan — swimlanes keyed to the cast, sequenced phases with entry/exit criteria, per-phase resourcing + contingency, and a first-class RAID register (Risks / Assumptions / Issues / Dependencies). Caller-supplied JSON; deterministic rollups; optional cost rollup via the commercial rate-card. |
+| **architecture-studio** | **design-architecture**: produce a structured architecture spec for an engagement — systems, data flows, integration points, and ADR-style decision records. Caller-supplied JSON; deterministic referential-integrity invariants. Optional diagram render via the design studio. |
+| **context-studio** | **ingest-context** / **map-context** / **extend-context**: infrastructural — orchestrates the `tools/` tier (notion-sources / source-enrich / source-summarise / theme-propose / theme-cluster / theme-entity / yt-transcript) into a per-engagement context store. Other studios reference the context by slug. |
+| **analytics-studio** | **analyse-data**: produce a structured analysis from a supplied dataset — descriptive statistics, identified patterns, named insights (severity + confidence), recommendations. Caller-supplied JSON; deterministic rollups. |
+| **growth-studio** | **generate-leads** + **map-market**: structured lead list with fit scores from caller-supplied ICP + criteria; market map (segments + competitors + positioning) from caller-supplied research. Caller-supplied JSON; deterministic rollups. |
 
 ## Install
 
@@ -35,14 +46,20 @@ native dependencies are present. Re-run it any time.
 
 ## Quickstart
 
-### Cross-studio (the creative-director)
+### Cross-studio (Principal + Producer)
 
 ```
 /studio <your brief>
 ```
 
-The director reads `studios.yml`, plans the brief into jobs, dispatches each to
-a studio by capability, then asks before publishing to any external service.
+Enters at the **Principal**, the front-of-house skill: it shapes the
+opportunity into an engagement (objective, audience, value-based scope, cast),
+confirms scope with you (L2), and hands a focused brief to the **Producer**.
+The Producer reads `studios.yml`, plans the brief into jobs, dispatches each
+to a studio by capability, then asks before publishing to any external
+service (L3 — the Principal carries it back). See
+[`docs/operating-framework.md`](docs/operating-framework.md) §4 for the role
+split.
 
 ### Design studio
 
@@ -121,16 +138,58 @@ message doctor     # MJML
 
 Set `MESSAGING_INSTALL_MJML=1 ./messaging/install.sh` to auto-install MJML.
 
+## Tools tier
+
+Alongside the studios, this repo hosts a **tool-bench** — a peer tier of small,
+dumb, deterministic CLIs that any caller (a studio, an agent, a cron job, a
+shell user) can discover and invoke from the same manifest contract. Tools are
+**not** studios: they own no judgment, no data root, no artefacts; they
+materialise structured input into structured output.
+
+A CI invariant (`scripts/check_tools_standalone.py`) ensures `tools/*` never
+imports a studio package, references `studios.yml`, or hardcodes a studio
+path. See [`tools/README.md`](tools/README.md) for the contract +
+[`docs/architecture/DECISIONS.md`](docs/architecture/DECISIONS.md) ADR-004 for
+the rationale.
+
+| Tool | CLI | What it does |
+|---|---|---|
+| [`notion-sources`](tools/notion-sources) | `notion-sources` | Extract a Notion database → per-source `.md` batch + manifest. Schema-agnostic, incremental. |
+| [`source-enrich`](tools/source-enrich) | `source-enrich` | Enrich a sources batch in place — fetch each source, populate front matter, extract body (HTML/PDF/text) + assets, tidy bylines. |
+| [`source-summarise`](tools/source-summarise) | `source-summarise` | Materialise caller-supplied summaries (`--summary-json`) into front matter + a "Core summary" section. |
+| [`theme-propose`](tools/theme-propose) | `theme-propose` | Non-destructive theme-framework proposal; materialise a caller-supplied proposal; `--adopt` freezes into `theme-manifest.json`. |
+| [`theme-cluster`](tools/theme-cluster) | `theme-cluster` | Materialise caller-supplied theme `--assignments` → `themes.json` + optional source-tag updates. |
+| [`theme-entity`](tools/theme-entity) | `theme-entity` | Render per-theme dossiers from `themes.json` + caller-supplied `--spec`; author backlinks + a timeline per theme. |
+| [`youtube-transcript`](tools/youtube-transcript) | `yt-transcript` | YouTube URL → transcript `.txt`/`.md`. Captions fast-path with Whisper fallback. Optional front matter / paragraphs / timestamps / chapters. |
+
+Each tool is a **standalone installable plugin**:
+
+```bash
+# install one
+claude plugin install notion-sources@nopilot-co-studios
+# or get all tool CLIs on PATH at once
+STUDIOS_INSTALL_TOOLS=1 ./install.sh
+```
+
+Tools are registered in [`tools.yml`](tools.yml) (the discovery index, shape
+mirrors `studios.yml`) and each ships a `tool.yaml` capability manifest with
+`actions[]`, `invoke` templates, IO shape, exit codes, idempotency, and
+side-effects — the function-schema agents need.
+
 ## Repository structure
 
 ```
 .
 ├── .claude-plugin/
 │   ├── marketplace.json         # marketplace manifest (this repo)
-│   └── plugin.json              # root creative-director plugin
-├── skills/creative-director/    # the orchestrator skill
+│   └── plugin.json              # root orchestration plugin
+├── skills/principal/            # front-of-house skill (/studio enters here)
+├── skills/producer/             # orchestrator skill (was creative-director)
 ├── commands/studio.md           # the /studio slash command
 ├── studios.yml                  # registry of active studios + external services
+├── tools.yml                    # tool-bench registry (ADR-004; scaffold)
+├── tools/                       # dumb deterministic CLIs (tool-bench tier)
+├── scripts/check_tools_standalone.py  # CI invariant: tools/ stays studio-free
 ├── install.sh                   # marketplace registration + dep report
 ├── design/                      # design-studio plugin
 │   ├── .claude-plugin/plugin.json
@@ -221,7 +280,7 @@ studio:
 - In `.claude-plugin/marketplace.json`, the marketplace-root plugin's source
   must be `"./"` — a bare `"."` is rejected as an unsupported source type.
 - Each studio ships its own `studio.yaml` capability manifest and is listed in
-  the root `studios.yml`; the creative-director isn't edited to add a studio.
+  the root `studios.yml`; the Producer isn't edited to add a studio.
 
 ## Licence
 

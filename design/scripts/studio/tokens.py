@@ -43,6 +43,59 @@ _DEFAULTS: dict[str, Any] = {
 _PX = {"8pt": "8px", "16pt": "16px", "32pt": "32px", "2pt": "2px", "4pt": "4px", "8pt_r": "8px"}
 
 
+def _hex_to_rgb(value: str) -> tuple[int, int, int] | None:
+    """Parse ``#rgb`` / ``#rrggbb`` to an (r, g, b) tuple; None if not hex."""
+    h = value.strip().lstrip("#")
+    if len(h) == 3:
+        h = "".join(c * 2 for c in h)
+    if len(h) != 6:
+        return None
+    try:
+        return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+    except ValueError:
+        return None
+
+
+def _relative_luminance(value: str) -> float:
+    """Perceived luminance in [0, 1] (sRGB weighting). Unparseable → 1.0, so an
+    unknown surface is treated as light (and gets dark text)."""
+    rgb = _hex_to_rgb(value)
+    if rgb is None:
+        return 1.0
+    r, g, b = (c / 255 for c in rgb)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def _contrast(a: str, b: str) -> float:
+    """WCAG contrast ratio between two colours (1.0 = identical, 21 = max)."""
+    la, lb = _relative_luminance(a), _relative_luminance(b)
+    hi, lo = max(la, lb), min(la, lb)
+    return (hi + 0.05) / (lo + 0.05)
+
+
+def _best_on(surface: str, candidates: list[str]) -> str:
+    """Pick the candidate colour with the highest contrast against ``surface``.
+
+    Choosing by contrast (not by surface luminance alone) keeps text legible
+    even on systems whose ``on_primary`` is dark because their accent is light
+    (e.g. a cyan-accent dark theme) — see #27/#38.
+    """
+    usable = [c for c in candidates if c and _hex_to_rgb(c) is not None]
+    if not usable:
+        return "#FFFFFF"
+    return max(usable, key=lambda c: _contrast(surface, c))
+
+
+def _blend(fg: str, bg: str, alpha: float) -> str:
+    """``fg`` over ``bg`` at opacity ``alpha`` → an opaque hex colour.
+    Falls back to ``bg`` if either side isn't hex."""
+    f, b = _hex_to_rgb(fg), _hex_to_rgb(bg)
+    if f is None or b is None:
+        return bg
+    mixed = tuple(round(fc * alpha + bc * (1 - alpha)) for fc, bc in zip(f, b))
+    return "#%02X%02X%02X" % mixed
+
+
 def _brand_colors(slug: str) -> dict[str, str]:
     """Pull whatever colour roles a brand's _brand.yml declares (best-effort)."""
     try:
@@ -133,4 +186,28 @@ def resolve(slug: str, design_system: str | None = None) -> dict[str, Any]:
     # Derive surface/neutral/on_primary if neither brand nor system spoke them.
     if "background" in bc:
         tokens["color"].setdefault("surface", bc["background"])
+
+    color = tokens["color"]
+    surface = color.get("surface", "#FFFFFF")
+    # on_surface (#27): text colour that stays legible on `surface` across any
+    # brand × design-system. Respect an explicit value; otherwise pick the brand
+    # pole (foreground / background / on_primary) with the highest contrast
+    # against the surface, with black/white as a guaranteed fallback.
+    if "on_surface" not in color:
+        color["on_surface"] = _best_on(
+            surface,
+            [
+                color.get("foreground"),
+                color.get("background"),
+                color.get("on_primary"),
+                "#111111",
+                "#FFFFFF",
+            ],
+        )
+    # accent_tint: a subtle wash of the accent over the surface, for callout
+    # fills that read as branded without becoming a slab of full tertiary.
+    # Always derived from the final tertiary + surface (never authored).
+    if color.get("tertiary"):
+        color["accent_tint"] = _blend(color["tertiary"], surface, 0.14)
+
     return tokens

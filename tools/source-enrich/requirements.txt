@@ -1,0 +1,23 @@
+# source-enrich dependencies (installed by install.sh, also pip-installable).
+#
+# trafilatura — fetch + readable article extraction to Markdown, with metadata
+#               (title, author, date, sitename, description, lead image).
+trafilatura>=1.8
+
+# lxml_html_clean — required by trafilatura on lxml >= 5 (the lxml.html.clean
+# module was split into this separate package).
+lxml_html_clean>=0.1
+
+# PyYAML — safe round-trip of the per-source .md YAML front matter.
+PyYAML>=6.0
+
+# pypdf — full-text extraction for PDF sources (the not-HTML documents that the
+# article engine can't read, e.g. whitepapers / reports linked directly).
+pypdf>=4.0
+
+# Asset downloads use only the standard library (urllib, hashlib, html.parser).
+# TLS verification falls back to truststore -> certifi -> stdlib default; if you
+# hit CERTIFICATE_VERIFY_FAILED, `pip install certifi` (or truststore).
+#
+# YouTube sources are enriched by reusing the sibling `youtube-transcript`
+# utility's CLI if it is installed on PATH (yt-transcript) — optional.

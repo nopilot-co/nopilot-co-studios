@@ -23,6 +23,8 @@ colors:
   neutral: "#0B2440"             # page foundation
   surface: "#142F54"             # cards, panels
   on-primary: "#F7F0DE"          # text on accent fills
+  on-surface: "#F7F0DE"          # text on `surface` panels (optional — auto-derived
+                                 #   by surface luminance if omitted; see below)
 typography:
   display: { fontFamily: Playfair Display, fontSize: 4.5rem, fontWeight: 600, letterSpacing: "-0.01em" }
   h1:      { fontFamily: Playfair Display, fontSize: 2.3rem, fontWeight: 600 }
@@ -42,6 +44,16 @@ components:                       # component styles reference tokens via {dot.p
 
 Token references like `{colors.tertiary}` resolve against the front-matter, so a
 component never hard-codes a value.
+
+**Derived roles (you don't author these).** `studio.tokens.resolve` fills two
+extra colour roles after layering defaults → system → brand:
+
+- `on-surface` — legible text on `surface`. If a system/brand omits it, it's
+  chosen by `surface` luminance (light surface → `foreground`, dark surface →
+  `on-primary`). Set it explicitly only to override that choice.
+- `accent-tint` — a subtle wash of `tertiary` over `surface` (~14%), used as the
+  default callout fill so accents read as branded, not as a solid block. Always
+  derived; never authored.
 
 ## Available systems (in this folder)
 

@@ -1,0 +1,7 @@
+# Fast path (existing captions)
+youtube-transcript-api>=1.0
+
+# Fallback path (--fallback): audio download + local transcription
+# Install only if you need the no-captions fallback.
+yt-dlp>=2024.0
+faster-whisper>=1.0
