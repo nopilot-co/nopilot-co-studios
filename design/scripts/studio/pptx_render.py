@@ -187,7 +187,7 @@ def _render_section(s, slide, tokens, prs) -> None:
         title.text_frame,
         slide.get("title") or "",
         size=36,
-        color=c["primary"],
+        color=c["on_surface"],
         bold=True,
     )
 
@@ -306,7 +306,10 @@ def _place_block(s, block, tokens, top: float) -> float:
             from pptx.dml.color import RGBColor
 
             shp.line.color.rgb = RGBColor.from_string(_hex(c["secondary"]))
-        _set_text(shp.text_frame, block["body"], size=18, color=c["primary"])
+        # Surface-filled panels need on_surface for contrast; transparent panels
+        # (panel/pullquote) sit on the slide background, so keep primary.
+        text_color = c["on_surface"] if fill else c["primary"]
+        _set_text(shp.text_frame, block["body"], size=18, color=text_color)
         return top + h + 0.3
     # default: text
     tb = s.shapes.add_textbox(Inches(0.6), Inches(top), Inches(12), Inches(1.2))
@@ -334,7 +337,8 @@ def _place_table(s, rows, tokens, top: float) -> float:
                 for run in para.runs:
                     run.font.size = Pt(14)
                     run.font.color.rgb = RGBColor.from_string(
-                        _hex(c["on_primary"] if ri == 0 else c["primary"])
+                        # Header row sits on a surface fill → on_surface for contrast.
+                        _hex(c["on_surface"] if ri == 0 else c["primary"])
                     )
             if ri == 0:
                 cell.fill.solid()

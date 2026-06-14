@@ -32,6 +32,10 @@ _DEFAULTS: dict[str, Any] = {
         "neutral": "#0F1626",
         "surface": "#F1F3F6",
         "on_primary": "#FFFFFF",
+        # `on_surface` is the readable body-text colour on a `surface` fill. It is
+        # derived from the *resolved* surface in `resolve()` (so it stays legible
+        # for any brand × design-system pairing); this default only seeds it.
+        "on_surface": "#1A2433",
         "foreground": "#1A2433",
         "background": "#FFFFFF",
     },
@@ -167,9 +171,9 @@ def resolve(slug: str, design_system: str | None = None) -> dict[str, Any]:
     tokens = copy.deepcopy(_DEFAULTS)
 
     # Layer the design system over the defaults.
-    if design_system:
-        for group, vals in _design_system_tokens(design_system).items():
-            tokens.setdefault(group, {}).update(vals)
+    ds_tokens = _design_system_tokens(design_system) if design_system else {}
+    for group, vals in ds_tokens.items():
+        tokens.setdefault(group, {}).update(vals)
 
     # Brand colours win on top.
     bc = _brand_colors(slug)
