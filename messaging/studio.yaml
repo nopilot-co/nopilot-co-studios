@@ -15,6 +15,11 @@ capabilities:
     purposes: [outreach, followup, announcement, nurture]   # see formats/purposes
     channels: [email, linkedin-post, slack-post, sms]        # see formats/channels
     formats_ref: formats/
+  - id: compose-document
+    description: Author multi-section long-form documents (propositions, whitepapers, reports) from planner section briefs into per-section Markdown in a production docket, in brand voice with citation tracking.
+    skill: document-compose
+    produces: [md]
+    pairs_with: [planner, design]
   - id: sequence
     description: Compose a multi-step communication sequence (e.g. outreach -> follow-up -> break-up) as ordered, linked sessions.
     entrypoint: message sequence new

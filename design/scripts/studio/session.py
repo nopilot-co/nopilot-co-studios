@@ -11,6 +11,7 @@ from . import docket_root, docket_session
 from . import config as config_mod
 from . import formats as formats_mod
 from . import resolve_context_root
+from .uuid_util import mint_production_uuid
 
 
 def session_root(slug: str, name: str) -> Path:
@@ -69,6 +70,7 @@ def init(
                     "format": fmt,
                     "design_system": design_system,
                     "source_filename": source.name,
+                    "production_uuid": mint_production_uuid(),
                     "created": datetime.now(timezone.utc).isoformat(),
                     "current": "0.0.0",
                     "history": [],
@@ -76,6 +78,12 @@ def init(
                 indent=2,
             )
         )
+    else:
+        # Idempotent re-init: ensure ADR-0001 production_uuid without clobbering.
+        state = read_state(root)
+        if not state.get("production_uuid"):
+            state["production_uuid"] = mint_production_uuid()
+            write_state(root, state)
     return root
 
 

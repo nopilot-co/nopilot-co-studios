@@ -41,6 +41,7 @@ from . import frame_template as frame_template_mod
 from . import metacontent
 from . import pptx_render as pptx_mod
 from . import session as session_mod
+from . import sync as sync_mod
 from . import tokens as tokens_mod
 
 # Quarto format names by our short names
@@ -77,12 +78,22 @@ def _out_stem(state: dict[str, Any]) -> str:
 Engine = Callable[[Path, dict[str, Any], dict[str, Any], str], dict[str, Path]]
 
 
-def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
+def render(
+    session_path: Path,
+    bump_kind: str,
+    *,
+    no_sync_guard: bool = False,
+    sync_server: str | None = None,
+) -> dict[str, Path]:
     """Render the session's locked format. Dispatches by resolved engine name.
 
     Raises ``RuntimeError`` if the session has no locked format, the format is
     not renderable, or the resolved engine is unknown.
     """
+    sync_mod.check_render_guard(
+        session_path, sync_server, no_sync_guard=no_sync_guard
+    )
+    production_uuid = sync_mod.ensure_production_uuid(session_path)
     state = session_mod.read_state(session_path)
 
     # The session locks exactly one format slug; the export it produces is fixed
@@ -124,9 +135,13 @@ def render(session_path: Path, bump_kind: str) -> dict[str, Path]:
     outputs = engine(session_path, resolved, state, new_version)
 
     sfmt = formats_mod.studio_format(resolved)
+    for fmt, out_path in outputs.items():
+        if fmt in ("html", "revealjs"):
+            sync_mod.stamp_html_production_uuid(out_path, production_uuid)
     session_mod.record_render(
         session_path, new_version, [sfmt], outputs, built_against=built_against
     )
+    sync_mod.prune_rendered_html(session_path)
     return outputs
 
 

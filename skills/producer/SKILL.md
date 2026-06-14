@@ -30,6 +30,17 @@ user (L2 sign-off / L3 authorisation, Bible §6).
    single-studio job), the brief comes from the caller and step 1 is just
    reading it.
 
+   **Fast path (`--fast`).** When the caller invokes `/studio --fast <studio-slug>
+   <brief>` (or passes an equivalent flag), skip Principal shaping and the
+   non-essential confirmation gates in steps 3 and 6 for **draft/internal** work.
+   Still run the studio's format contract and deterministic lint/render checks;
+   still hard-gate **L3 outward delivery** (step 7). Route directly to the named
+   studio's orchestrator with the brief — one job, minimal round-trips.
+
+   At session start, run **`python3 scripts/studios_doctor.py`** (or
+   `engagement doctor` / each studio's `doctor`) and report which studios are
+   routable; do not route to a studio whose CLI is missing.
+
    **Open / pick up the engagement manifest** (`engagement.json` at the
    docket root). If it doesn't exist, run `engagement new --root <docket>
    --engagement <slug> --objective "..."`. If it does, read its state —
@@ -47,7 +58,8 @@ user (L2 sign-off / L3 authorisation, Bible §6).
    studio **capability** (e.g. "investor pitch as a deck" → `design` /
    `render-asset` / format `pitch-pptx`). Note cross-studio chaining (one job's
    output feeds the next) and any external delivery. **Show the plan and get
-   confirmation before executing.** A job line should read like:
+   confirmation before executing** — except in **fast mode** for draft/internal
+   single-studio jobs (skip this gate). A job line should read like:
    `design · render-asset · brand=acme · format=pitch-pptx · → deck`.
 
 4. **Execute each job via its studio's own entry point.** Invoke the studio's
@@ -86,6 +98,8 @@ user (L2 sign-off / L3 authorisation, Bible §6).
    a non-gate reader-fit `fail` is advisory — surface it and let the user decide.
    Don't deliver a hard-failing artifact: iterate to a pass, or surface the verdict.
    Skip a lens only if the user opts out, or no active studio offers that capability.
+   In **fast mode** for draft/internal work, skip the full review gate unless the
+   user explicitly asked for review or the job is outward-facing.
 
 7. **Deliver (single point of contact).** Per `studios.yml → external_services`,
    publish and notify through the external MCP services — e.g. push a deck to
@@ -101,7 +115,8 @@ user (L2 sign-off / L3 authorisation, Bible §6).
 
 - Match jobs to studios by **capability id**, not by name — that's what keeps new
   studios pluggable. A studio is routable the moment it appears in `studios.yml`
-  with a manifest; nothing here hard-codes the studio list.
+  with a manifest **and** its CLI is reported ready by `studios doctor`; nothing
+  here hard-codes the studio list.
 - **Composite (multi-section) documents** — when a brief asks for a document made
   of several parts that are composed separately (a proposition, prospectus,
   proposal, or report), don't draft it inline. Invoke the **`planner`**
@@ -143,10 +158,11 @@ then **verified** against the same model.
    research → psychographic profile + need-state → derived rubric. Result: a
    reusable **reader slug** (e.g. `vp-eng-scaleup`). Reuse an existing slug if one
    already fits. An *inferred* persona must be user-validated before you lean on it.
-2. **Plan + build for the reader.** Run the `planner` skill, binding the reader:
-   `planner plan new --root <docket> --brand <slug> --objective "<text>" --format
-   <design-format> --audience <reader-slug>`. The planner proposes sections, briefs,
-   and viz from the need-state; you draft each `sections/<id>/content.md`.
+2. **Plan + author sections for the reader.** Run the `planner` skill, binding the
+   reader: `planner plan new --root <docket> --brand <slug> --objective "<text>"
+   --format <design-format> --audience <reader-slug>`. The planner proposes sections
+   and briefs; invoke **`messaging` → `document-compose`** to write each
+   `sections/<id>/content.md` (brand voice + citations + varied structure).
 3. **Gate each section on reader-fit.** For each drafted section, critique its
    content **as the reader** with the audience studio (`audience review … --target
    <docket>/sections/<id>/content.md` → `assess-audience-fit`), record it

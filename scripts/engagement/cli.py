@@ -16,6 +16,7 @@ from . import __version__
 from . import autonomy as autonomy_mod
 from . import checkpoints as cp_mod
 from . import decisions as dec_mod
+from . import deps as deps_mod
 from . import items as items_mod
 from . import jobs as jobs_mod
 from . import manifest as man
@@ -510,6 +511,26 @@ def checkpoint_show(root: str, status: str | None) -> None:
             f"{cp['id']}  {cp['level']}  {cp['status']:<9}  "
             f"{cp.get('raised_by_role','-'):<14}  {cp['title']}"
         )
+
+
+# ---------------------------------------------------------------- doctor
+@main.command("doctor")
+def doctor_cmd() -> None:
+    """Report whether engagement manifest tooling is installed and reachable."""
+    rep = deps_mod.doctor()
+    click.echo(f"engagement {rep['version']}")
+    if rep["engagement_cli"]:
+        click.echo(f"  ✓ engagement CLI  ({rep['engagement_cli']})")
+    else:
+        click.echo("  ✗ engagement CLI  →  pip install -e scripts/engagement")
+    if rep["planner_cli"]:
+        click.echo(f"  ✓ planner CLI  ({rep['planner_cli']})")
+    else:
+        click.echo("  ✗ planner CLI  →  pip install -e scripts/planner")
+    if rep["studio_cli"]:
+        click.echo(f"  ✓ design studio CLI  ({rep['studio_cli']})")
+    else:
+        click.echo("  ✗ design studio CLI  →  cd design && ./install.sh")
 
 
 if __name__ == "__main__":

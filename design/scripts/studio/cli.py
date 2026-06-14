@@ -7,6 +7,8 @@ Subcommands match the skills:
   studio ingest synthesize-pptx --brand SLUG
   studio session init --brand SLUG --name NAME --format SLUG --source PATH
   studio render --session PATH --bump patch|minor|major
+  studio sync push --session PATH [--server-url URL]
+  studio sync pull --session PATH [--accept-server-wins] [--server-url URL]
   studio qa capture --session PATH [--version X.Y.Z]
   studio doctor
 """
@@ -28,6 +30,7 @@ from . import ingest as ingest_mod
 from . import qa as qa_mod
 from . import render as render_mod
 from . import session as session_mod
+from . import sync as sync_mod
 from . import tokens as tokens_mod
 
 
@@ -364,10 +367,29 @@ def content_bump(
     type=click.Path(exists=True, path_type=Path),
 )
 @click.option("--bump", default="patch", type=click.Choice(["patch", "minor", "major"]))
-def render_cmd(session_path: Path, bump: str) -> None:
+@click.option(
+    "--no-sync-guard",
+    is_flag=True,
+    help="Skip the ADR-0001 sync guard (offline work).",
+)
+@click.option(
+    "--server-url",
+    default=None,
+    help="Override STUDIO_SERVER_URL for the sync guard check.",
+)
+def render_cmd(
+    session_path: Path, bump: str, no_sync_guard: bool, server_url: str | None
+) -> None:
     """Render the session's locked format. The export is fixed by the format slug."""
     try:
-        outputs = render_mod.render(session_path, bump)
+        outputs = render_mod.render(
+            session_path,
+            bump,
+            no_sync_guard=no_sync_guard,
+            sync_server=server_url,
+        )
+    except sync_mod.SyncGuardError as e:
+        raise click.ClickException(str(e)) from e
     except (RuntimeError, FileNotFoundError, ValueError) as e:
         raise click.ClickException(str(e)) from e
     for fmt, out_path in outputs.items():
@@ -382,6 +404,59 @@ def render_cmd(session_path: Path, bump: str) -> None:
         for v in violations:
             click.echo(f"  - {v}", err=True)
         sys.exit(1)
+
+
+# ---------------------------------------------------------------- sync
+@main.group()
+def sync() -> None:
+    """Push/pull session content with the docket server (ADR-0001)."""
+
+
+@sync.command("push")
+@click.option(
+    "--session",
+    "session_path",
+    required=True,
+    type=click.Path(exists=True, path_type=Path),
+)
+@click.option("--server-url", default=None, help="Override STUDIO_SERVER_URL.")
+def sync_push(session_path: Path, server_url: str | None) -> None:
+    """POST source, brand, and rendered entry to the server."""
+    try:
+        result = sync_mod.push(session_path, server_url)
+    except sync_mod.SyncError as e:
+        raise click.ClickException(str(e)) from e
+    click.echo(
+        f"✓ {result['status']}  uuid={result['production_uuid']}  hash={result['hash']}"
+    )
+
+
+@sync.command("pull")
+@click.option(
+    "--session",
+    "session_path",
+    required=True,
+    type=click.Path(exists=True, path_type=Path),
+)
+@click.option("--server-url", default=None, help="Override STUDIO_SERVER_URL.")
+@click.option(
+    "--accept-server-wins",
+    is_flag=True,
+    help="Overwrite local edits when the server has moved (ADR-0001).",
+)
+def sync_pull(
+    session_path: Path, server_url: str | None, accept_server_wins: bool
+) -> None:
+    """GET server-side source edits into the local session."""
+    try:
+        result = sync_mod.pull(
+            session_path, server_url, accept_server_wins=accept_server_wins
+        )
+    except sync_mod.SyncConflictError as e:
+        raise click.ClickException(str(e)) from e
+    except sync_mod.SyncError as e:
+        raise click.ClickException(str(e)) from e
+    click.echo(f"✓ {result['status']}  hash={result['hash']}")
 
 
 # ---------------------------------------------------------------- doctor
