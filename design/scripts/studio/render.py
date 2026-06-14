@@ -24,6 +24,7 @@ import re
 import shutil
 import subprocess
 import sys
+from html import escape as _html_escape
 from pathlib import Path
 from typing import Any, Callable
 
@@ -183,6 +184,10 @@ def _engine_linear(
     body = diagrams_mod.expand(body, sfmt, tok)
     # Charts write a brand-styled SVG into the render dir and reference it (#20).
     body = charts_mod.expand(body, sfmt, tok, tmp)
+    # Lift the leading title block onto a cover (#38): the first H1 becomes the
+    # cover title and an immediately-following precis/lead becomes the standfirst,
+    # both removed from the body so they aren't repeated.
+    cover_title, cover_standfirst, body = _extract_cover(body)
     (tmp / "source.md").write_text(body, encoding="utf-8")
     shutil.copy2(brand_yml, tmp / "_brand.yml")
 
@@ -208,20 +213,51 @@ def _engine_linear(
     shutil.copy2(comp_dir / "components.lua", tmp / "components.lua")
 
     # Typst preamble: the token dict (#let ds) + component functions (#let c_*),
-    # plus the capped header logo (issue #2). It MUST be injected via the template's
-    # include-before-body TEXT so the bindings land in the body's top-level scope —
-    # a file include / include-in-header gets wrapped in a #block that scopes the
-    # #let definitions away, so the Lua-injected `#c_<class>[ ... ]` calls can't see
-    # them (found via spike). HTML/PPTX ignore the typst-only template branch.
+    # then the document-chrome wrapper (issue #38). It MUST be injected via the
+    # template's include-before-body TEXT so the bindings land in the body's
+    # top-level scope — a file include / include-in-header gets wrapped in a
+    # #block that scopes the #let definitions away, so the Lua-injected
+    # `#c_<class>[ ... ]` calls can't see them (found via spike). `#show:
+    # doc_chrome` then wraps the whole body for running header/footer, measure,
+    # and brand-spent headings. HTML/PPTX ignore the typst-only template branch.
     header_logo = _brand_logo_path(brand_yml)
     typst_preamble = (
         components_mod.typ_tokens(tok) + (comp_dir / "components.typ").read_text()
     )
-    if header_logo:
-        typst_preamble += (
-            "#set page(background: align(left + top, "
-            f'box(inset: 0.4in, image("/{header_logo}", height: 0.4in))))\n'
+    logo_arg = f'"/{header_logo}"' if header_logo else "none"
+    chrome_args = [f"logo: {logo_arg}"]
+    if cover_title:
+        chrome_args.append(f"title: {_typst_str(cover_title)}")
+    if cover_standfirst:
+        chrome_args.append(f"standfirst: {_typst_str(cover_standfirst)}")
+    typst_preamble += f"#show: doc_chrome.with({', '.join(chrome_args)})\n"
+
+    # HTML gets the same identity before the body (issue #38 — the logo
+    # previously appeared on PDF only). A leading H1 becomes a full cover banner;
+    # otherwise just the logo header. embed-resources inlines the referenced
+    # asset at render, so the deliverable stays self-contained.
+    html_header = None
+    if cover_title:
+        parts = ['<section class="ds-cover">']
+        if header_logo:
+            parts.append(f'<img class="ds-cover-logo" src="{header_logo}" alt="">')
+        parts.append(f'<h1 class="ds-cover-title">{_html_escape(cover_title)}</h1>')
+        parts.append('<div class="ds-cover-rule"></div>')
+        if cover_standfirst:
+            parts.append(
+                f'<p class="ds-cover-standfirst">{_html_escape(cover_standfirst)}</p>'
+            )
+        parts.append("</section>\n")
+        (tmp / "_cover.html").write_text("".join(parts), encoding="utf-8")
+        html_header = "_cover.html"
+    elif header_logo:
+        (tmp / "_doc_header.html").write_text(
+            '<header class="ds-doc-header">'
+            f'<img src="{header_logo}" alt="">'
+            "</header>\n",
+            encoding="utf-8",
         )
+        html_header = "_doc_header.html"
 
     quarto_tpl = (TEMPLATES / "quarto" / "quarto.yml.j2").read_text()
     quarto_yml = Template(quarto_tpl).render(
@@ -230,6 +266,7 @@ def _engine_linear(
         has_pptx_reference=pptx_ref.exists(),
         css_override=(brand_root / "css" / "overrides.css").exists(),
         typst_preamble=typst_preamble,
+        html_header=html_header,
     )
     (tmp / "_quarto.yml").write_text(quarto_yml)
 
