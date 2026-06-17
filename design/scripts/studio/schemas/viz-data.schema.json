@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Render data manifest — version.json data[] (normalised CSV sidecars)",
+  "description": "One entry per visualisation in the rendered source. Written by viz_data.scan_session and persisted by session.record_render at the session root (latest) and per history entry.",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": ["viz_id", "type", "family", "files", "engine", "rendered"],
+    "additionalProperties": true,
+    "properties": {
+      "viz_id": {
+        "type": "string",
+        "description": "Stable document-order id, e.g. '01-bar' / '02-flow'."
+      },
+      "type": {
+        "type": "string",
+        "description": "Specific viz type — chart type for charts, else the fenced-div class."
+      },
+      "family": {
+        "enum": ["charts", "tables", "process-flow", "hierarchy", "frameworks", "heatmap"]
+      },
+      "files": {
+        "type": "array",
+        "items": { "type": "string" },
+        "description": "Session-relative CSV paths (one, or nodes.csv + edges.csv for diagrams)."
+      },
+      "rows": { "type": "integer", "minimum": 0 },
+      "page_key": {
+        "type": ["string", "null"],
+        "description": "Showcase panel key (data-page-key) when known; null otherwise."
+      },
+      "engine": { "enum": ["charts", "diagrams", "table", "pptx-native", "none"] },
+      "rendered": {
+        "type": "boolean",
+        "description": "false = data shipped but no renderer yet (NEW viz types)."
+      }
+    }
+  }
+}

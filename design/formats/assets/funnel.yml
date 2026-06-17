@@ -1,0 +1,24 @@
+asset: funnel
+name: Funnel
+description: Ordered stages narrowing top-to-bottom (pipeline / conversion), each with a value.
+buckets: [documents, decks]
+exports: [html, pdf, pptx]
+exports_data: csv
+style:
+  stage: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: funnel
+    stages:
+      - {stage: Visitors, value: 10000}
+      - {stage: Signups, value: 1200}
+      - {stage: Paid, value: 240}
+    :::
+  notes: Ordered top-to-bottom; `value` drives the band width when rendered. A bare list of stage names also works.
+render_notes:
+  status: pending          # NOT-YET-BUILT — renderer is Phase 2; CSV ships today regardless
+  html: "pending — visible fallback panel until the funnel engine lands"
+  pdf: "pending"
+data_csv:
+  files: ["<viz-id>.csv"]
+  columns: [viz_id, type, stage, order, value]

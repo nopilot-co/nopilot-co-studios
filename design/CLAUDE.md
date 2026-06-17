@@ -56,6 +56,14 @@ one format = one asset; the same content in two exports is two sessions.
 Resolution, validation, and checks live in `scripts/studio/formats.py`, validated
 against `scripts/studio/schemas/format.schema.json`.
 
+**Visualisation catalogue + data export.** Each canonical visualisation (charts,
+tables, flow/process/timeline/swimlane/decision-tree, hierarchy/org,
+bullseye/matrix/funnel, heatmap) has a how-to skill in `skills/viz-<family>/`,
+and `studio render` ships every viz's underlying data as a **normalised CSV** in
+the docket (`outputs/<session>/data/`, manifested in `version.json` `data[]`) for
+data editors like nopilot.co. See [`formats/README.md`](formats/README.md) →
+*Visualisation catalogue* / *Data export*, and `scripts/studio/viz_data.py`.
+
 ## Resources (canonical design assets)
 
 `resources/` is the **canonical location for template assets used to create

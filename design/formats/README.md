@@ -163,6 +163,37 @@ x: [Q1, Q2, Q3, Q4]
 embed it inline; PDF exports place it via Typst `#image()`. Both sides produce
 identical output — no per-export branching.
 
+### Visualisation catalogue
+
+Every canonical visualisation has a how-to skill in `../skills/viz-<family>/` —
+when to use each type, the exact `::: ` syntax, the engine, and the CSV it ships:
+
+| Family | Types | Skill | Engine today |
+|--------|-------|-------|--------------|
+| Charts | bar, line, pie, scatter, area | `viz-charts` | live (matplotlib · native PPTX) |
+| Tables | data table | `viz-tables` | live (Quarto · native PPTX) |
+| Process-flow | flow, process, timeline, swimlane\*, decision-tree\* | `viz-process-flow` | flow/process/timeline live; \* Phase 2 |
+| Hierarchy | hierarchy, org | `viz-hierarchy` | live |
+| Frameworks | bullseye\*, matrix\*, funnel\* | `viz-frameworks` | \* Phase 2 |
+| Heatmap | heatmap / RAG\* | `viz-heatmap` | \* Phase 2 |
+
+`*` = authoring + CSV ship today; the renderer is Phase 2 (a visible fallback
+panel renders until then). Each asset's machine contract lives in
+`assets/<type>.yml`.
+
+### Data export (normalised CSV)
+
+Whatever the studio draws, `studio render` also writes the **underlying data as a
+normalised (tidy / long-form) CSV** into the docket —
+`outputs/<session>/data/<viz-id>.csv` (diagrams: `<viz-id>.nodes.csv` +
+`.edges.csv`) — and records a manifest in `version.json`'s `data[]`
+(`{viz_id, type, family, files, rows, page_key, engine, rendered}`). This lets a
+downstream **data editor (nopilot.co)** pick up and edit the numbers behind any
+visualisation. The CSV is emitted from the authored YAML on **every export**
+(html / pdf / pptx / revealjs) and even for the Phase-2 types that don't render
+yet (`rendered: false`). The pass never fails a render. Source:
+`scripts/studio/viz_data.py`; schema: `scripts/studio/schemas/viz-data.schema.json`.
+
 ### PPTX (native editable decks)
 
 `pptx` exports do **not** go through Quarto. `studio.pptx_render` builds the deck

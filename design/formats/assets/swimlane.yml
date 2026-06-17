@@ -1,0 +1,28 @@
+asset: swimlane
+name: Swimlane diagram
+description: A cross-functional process flow whose steps are grouped into lanes (roles / teams).
+buckets: [documents, decks]
+exports: [html, pdf, pptx]
+exports_data: csv          # underlying nodes/edges always shipped as normalised CSV in the docket
+style:
+  node: "{colors.neutral}"
+  lane: "{colors.surface}"
+  edge: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: swimlane
+    lanes:
+      - {lane: Customer, nodes: [Request, Approve]}
+      - {lane: Ops, nodes: [Fulfil, Ship]}
+    edges:                 # optional; default = sequential across the flattened order
+      - {from: Request, to: Fulfil, label: handoff}
+    :::
+  notes: Structured YAML fenced div. One lane per role; nodes flow left-to-right within and across lanes.
+render_notes:
+  status: pending          # NOT-YET-BUILT — renderer is Phase 2; CSV ships today regardless
+  html: "pending — visible fallback panel until the swimlane engine lands"
+  pdf: "pending"
+data_csv:
+  files: ["<viz-id>.nodes.csv", "<viz-id>.edges.csv"]
+  nodes: [viz_id, node_id, label, order, lane]
+  edges: [viz_id, source, target, label]

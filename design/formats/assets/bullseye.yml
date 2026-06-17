@@ -1,0 +1,25 @@
+asset: bullseye
+name: Bullseye (concentric priorities)
+description: Concentric rings ranking items by priority / proximity — core at the centre, outer rings further out.
+buckets: [documents, decks]
+exports: [html, pdf, pptx]
+exports_data: csv
+style:
+  ring: "{colors.surface}"
+  item: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: bullseye
+    rings:
+      - {ring: core, items: [Beachhead segment, Primary persona]}
+      - {ring: adjacent, items: [Secondary segment]}
+      - {ring: future, items: [Exploratory]}
+    :::
+  notes: "`ring` is the band label (centre → out); `items` are the entries in it. A flat `items:[{label, ring}]` also works."
+render_notes:
+  status: pending          # NOT-YET-BUILT — renderer is Phase 2; CSV ships today regardless
+  html: "pending — visible fallback panel until the bullseye engine lands"
+  pdf: "pending"
+data_csv:
+  files: ["<viz-id>.csv"]
+  columns: [viz_id, type, item, ring, value]

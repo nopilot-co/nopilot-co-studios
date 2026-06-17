@@ -1,0 +1,26 @@
+asset: heatmap
+name: Heatmap / RAG grid
+description: 'A grid of cells coloured by magnitude (heatmap) or by red/amber/green status (RAG, with `rag: true`).'
+buckets: [documents, decks]
+exports: [html, pdf, pptx]
+exports_data: csv
+style:
+  scale: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: heatmap
+    rag: true            # optional — cells are red/amber/green status instead of magnitude
+    rows: [Team A, Team B]
+    cols: [Q1, Q2]
+    cells:
+      - [green, red]
+      - [amber, green]
+    :::
+  notes: 'Either a rows×cols `cells` matrix (row-major), or a `data:` list of {row, col, value, rag}. `rag: true` maps cells to status colours.'
+render_notes:
+  status: pending          # NOT-YET-BUILT — renderer is Phase 2; CSV ships today regardless
+  html: "pending — visible fallback panel until the heatmap engine lands"
+  pdf: "pending"
+data_csv:
+  files: ["<viz-id>.csv"]
+  columns: [viz_id, type, row, col, value, rag]

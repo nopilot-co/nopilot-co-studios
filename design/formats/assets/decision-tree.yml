@@ -1,0 +1,29 @@
+asset: decision-tree
+name: Decision tree
+description: A branching tree of decisions and outcomes; each edge is labelled with the condition taken.
+buckets: [documents, decks]
+exports: [html, pdf, pptx]
+exports_data: csv
+style:
+  node: "{colors.neutral}"
+  edge: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: decision-tree
+    root: Lead qualified?
+    children:
+      - {condition: "yes", root: Send proposal}
+      - condition: "no"
+        root: Nurture
+        children:
+          - {condition: re-engages, root: Re-qualify}
+    :::
+  notes: Nested {root, children} tree; each child names the `condition` on the edge into it. Leaves are outcomes.
+render_notes:
+  status: pending          # NOT-YET-BUILT — renderer is Phase 2; CSV ships today regardless
+  html: "pending — visible fallback panel until the decision-tree engine lands"
+  pdf: "pending"
+data_csv:
+  files: ["<viz-id>.nodes.csv", "<viz-id>.edges.csv"]
+  nodes: [viz_id, node_id, label, depth, kind]   # kind = decision | outcome
+  edges: [viz_id, source, target, condition]
