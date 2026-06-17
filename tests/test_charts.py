@@ -72,6 +72,18 @@ ms = charts.render_svg(
 )
 check("multi-series legend", "Plan" in ms and "Actual" in ms)
 
+# multi-series authored with the documented `label:` key (formats/README.md) —
+# `label` aliases `name`, so the legend name must still render.
+ms_label = charts.render_svg(
+    {
+        "type": "bar",
+        "x": ["Q1", "Q2"],
+        "series": [{"label": "Product", "y": [10, 14]}, {"label": "Service", "y": [12, 18]}],
+    },
+    TOK,
+)
+check("multi-series label legend", "Product" in ms_label and "Service" in ms_label)
+
 # bad type -> render_svg raises (so expand can catch it).
 raised = False
 try:

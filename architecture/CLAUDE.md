@@ -107,3 +107,7 @@ arch status            --engagement SLUG [--set draft|reviewing|approved|impleme
 - The studio **specifies and surfaces**; it never deploys. Implementation
   is the cast's job, downstream.
 - Diagrams render from the spec; never hand-edited.
+- Data flows and system hierarchies render via the design studio's visualisation
+  catalogue (`design/skills/viz-process-flow`, `viz-hierarchy`), which also ships
+  their underlying data as a **normalised CSV** in the docket for editors like
+  nopilot.co (see design `formats/README.md` → *Data export*).

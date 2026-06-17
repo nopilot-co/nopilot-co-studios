@@ -1,0 +1,30 @@
+asset: decision-tree
+name: Decision tree
+description: A branching tree of decisions and outcomes; each edge is labelled with the condition taken.
+buckets: [documents, decks]
+exports: [html, pdf, pptx]
+exports_data: csv
+style:
+  node: "{colors.neutral}"
+  edge: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: decision-tree
+    root: Lead qualified?
+    children:
+      - {condition: "yes", root: Send proposal}
+      - condition: "no"
+        root: Nurture
+        children:
+          - {condition: re-engages, root: Re-qualify}
+    :::
+  notes: Nested {root, children} tree; each child names the `condition` on the edge into it. Leaves are outcomes.
+render_notes:
+  status: live             # studio.frameworks (SVG) for html/pdf; studio.pptx_render (native) for pptx
+  html: "Inline matplotlib SVG (studio.frameworks): decision/outcome boxes, condition-labelled edges"
+  pdf: "Same SVG placed via Typst #image()"
+  pptx: "Native editable decision/outcome boxes + connectors (studio.pptx_render)"
+data_csv:
+  files: ["<viz-id>.nodes.csv", "<viz-id>.edges.csv"]
+  nodes: [viz_id, node_id, label, depth, kind]   # kind = decision | outcome
+  edges: [viz_id, source, target, condition]

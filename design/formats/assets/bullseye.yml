@@ -1,0 +1,26 @@
+asset: bullseye
+name: Bullseye (concentric priorities)
+description: Concentric rings ranking items by priority / proximity — core at the centre, outer rings further out.
+buckets: [documents, decks]
+exports: [html, pdf, pptx]
+exports_data: csv
+style:
+  ring: "{colors.surface}"
+  item: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: bullseye
+    rings:
+      - {ring: core, items: [Beachhead segment, Primary persona]}
+      - {ring: adjacent, items: [Secondary segment]}
+      - {ring: future, items: [Exploratory]}
+    :::
+  notes: "`ring` is the band label (centre → out); `items` are the entries in it. A flat `items:[{label, ring}]` also works."
+render_notes:
+  status: live             # studio.frameworks (SVG) for html/pdf; studio.pptx_render (native) for pptx
+  html: "Inline matplotlib SVG (studio.frameworks): concentric rings, items per band"
+  pdf: "Same SVG placed via Typst #image()"
+  pptx: "Native editable concentric ovals + item legend (studio.pptx_render)"
+data_csv:
+  files: ["<viz-id>.csv"]
+  columns: [viz_id, type, item, ring, value]

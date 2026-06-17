@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Studios plugin-improvement learning (frontmatter)",
+  "type": "object",
+  "required": ["id", "date", "studio", "category", "severity", "title", "status"],
+  "additionalProperties": true,
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "date": { "type": "string", "format": "date" },
+    "studio": { "type": "string", "minLength": 1 },
+    "engagement": { "type": "string" },
+    "category": {
+      "enum": ["skill", "cli", "format", "asset", "orchestration", "docs", "none"]
+    },
+    "severity": { "enum": ["low", "medium", "high"] },
+    "title": { "type": "string", "minLength": 1 },
+    "proposed-change": { "type": "string" },
+    "status": { "enum": ["open", "triaged", "promoted", "wontfix", "fixed"] },
+    "ref": { "type": "string" }
+  }
+}

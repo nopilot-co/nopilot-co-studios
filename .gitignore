@@ -18,6 +18,9 @@ dist/
 # Dual-graph local memory/cache (per-user)
 .dual-graph/
 
+# Studios per-session markers for the reflection gate (per-machine; learnings/ stays tracked)
+.studios/
+
 # Node (in case anything ever ends up here, e.g. mjml dev installs)
 node_modules/
 

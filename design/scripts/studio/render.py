@@ -37,12 +37,14 @@ from . import charts as charts_mod
 from . import components as components_mod
 from . import diagrams as diagrams_mod
 from . import formats as formats_mod
+from . import frameworks as frameworks_mod
 from . import frame_template as frame_template_mod
 from . import metacontent
 from . import pptx_render as pptx_mod
 from . import session as session_mod
 from . import sync as sync_mod
 from . import tokens as tokens_mod
+from . import viz_data as viz_data_mod
 
 # Quarto format names by our short names
 _FORMAT_MAP = {
@@ -134,12 +136,27 @@ def render(
     new_version = session_mod.next_version(session_path, bump_kind)
     outputs = engine(session_path, resolved, state, new_version)
 
+    # Emit normalised CSV sidecars for every viz block in the source — for ALL
+    # exports (independent of the engine), and even for viz types without a
+    # renderer yet. Never crashes the render; the manifest is persisted into
+    # version.json so a data editor (nopilot.co) can find the data behind a viz.
+    try:
+        data_manifest = viz_data_mod.scan_session(session_path, state)
+    except Exception as e:  # noqa: BLE001 — sidecars must never fail a render
+        print(f"⚠ viz_data: CSV sidecar pass failed ({e})", file=sys.stderr)
+        data_manifest = []
+
     sfmt = formats_mod.studio_format(resolved)
     for fmt, out_path in outputs.items():
         if fmt in ("html", "revealjs"):
             sync_mod.stamp_html_production_uuid(out_path, production_uuid)
     session_mod.record_render(
-        session_path, new_version, [sfmt], outputs, built_against=built_against
+        session_path,
+        new_version,
+        [sfmt],
+        outputs,
+        built_against=built_against,
+        data=data_manifest,
     )
     sync_mod.prune_rendered_html(session_path)
     return outputs
@@ -199,6 +216,9 @@ def _engine_linear(
     body = diagrams_mod.expand(body, sfmt, tok)
     # Charts write a brand-styled SVG into the render dir and reference it (#20).
     body = charts_mod.expand(body, sfmt, tok, tmp)
+    # Frameworks (bullseye/matrix/funnel/heatmap/swimlane/decision-tree) — same
+    # SVG-into-render-dir pattern, expanded after charts (Phase 2 / #121).
+    body = frameworks_mod.expand(body, sfmt, tok, tmp)
     # Lift the leading title block onto a cover (#38): the first H1 becomes the
     # cover title and an immediately-following precis/lead becomes the standfirst,
     # both removed from the body so they aren't repeated.

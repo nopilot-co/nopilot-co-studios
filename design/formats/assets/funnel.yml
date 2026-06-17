@@ -1,0 +1,25 @@
+asset: funnel
+name: Funnel
+description: Ordered stages narrowing top-to-bottom (pipeline / conversion), each with a value.
+buckets: [documents, decks]
+exports: [html, pdf, pptx]
+exports_data: csv
+style:
+  stage: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: funnel
+    stages:
+      - {stage: Visitors, value: 10000}
+      - {stage: Signups, value: 1200}
+      - {stage: Paid, value: 240}
+    :::
+  notes: Ordered top-to-bottom; `value` drives the band width when rendered. A bare list of stage names also works.
+render_notes:
+  status: live             # studio.frameworks (SVG) for html/pdf; studio.pptx_render (native) for pptx
+  html: "Inline matplotlib SVG (studio.frameworks): centred bars narrowing by value"
+  pdf: "Same SVG placed via Typst #image()"
+  pptx: "Native editable centred bars (studio.pptx_render)"
+data_csv:
+  files: ["<viz-id>.csv"]
+  columns: [viz_id, type, stage, order, value]

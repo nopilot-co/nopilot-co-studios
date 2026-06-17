@@ -1,0 +1,29 @@
+asset: swimlane
+name: Swimlane diagram
+description: A cross-functional process flow whose steps are grouped into lanes (roles / teams).
+buckets: [documents, decks]
+exports: [html, pdf, pptx]
+exports_data: csv          # underlying nodes/edges always shipped as normalised CSV in the docket
+style:
+  node: "{colors.neutral}"
+  lane: "{colors.surface}"
+  edge: "{colors.tertiary}"
+authoring:
+  syntax: |
+    ::: swimlane
+    lanes:
+      - {lane: Customer, nodes: [Request, Approve]}
+      - {lane: Ops, nodes: [Fulfil, Ship]}
+    edges:                 # optional; default = sequential across the flattened order
+      - {from: Request, to: Fulfil, label: handoff}
+    :::
+  notes: Structured YAML fenced div. One lane per role; nodes flow left-to-right within and across lanes.
+render_notes:
+  status: live             # studio.frameworks (SVG) for html/pdf; studio.pptx_render (native) for pptx
+  html: "Inline matplotlib SVG (studio.frameworks): lanes as bands, nodes as boxes, sequential arrows"
+  pdf: "Same SVG placed via Typst #image()"
+  pptx: "Native editable boxes + connectors in role lanes (studio.pptx_render)"
+data_csv:
+  files: ["<viz-id>.nodes.csv", "<viz-id>.edges.csv"]
+  nodes: [viz_id, node_id, label, order, lane]
+  edges: [viz_id, source, target, label]

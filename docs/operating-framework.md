@@ -197,6 +197,11 @@ coordinates and owns no artefact.
    resolve open Questions; get L2 sign-off on scope/price/commitments.
 8. **Deliver** *(hard-gated, L3).* Publish/send outward only on explicit authorisation.
 9. **Reflect & maintain.** Capture learnings; update the canon and shared context.
+   Two destinations, kept separate: engagement *decisions* → ADRs
+   (`docs/architecture/DECISIONS.md`); *plugin-improvement* learnings — how the
+   studios themselves could work better — → the append-only `learnings/` store
+   via the `reflect` skill (`learnings add` / `learnings none`). A soft Stop hook
+   (`hooks/reflect-gate.sh`) nudges once if a run logs neither.
 
 The **document-planner**, **audience**, and **review** loop already implement steps
 3–6 for composite documents (see the reader-driven composite-document play in the
@@ -325,6 +330,12 @@ spine — and puts a portable, canonical layer underneath it.
 - **Change discipline.** Prefer extending the registry (a new capability) over editing
   the orchestrators. Keep judgment in skills and mechanics in CLIs. Mark new
   capabilities **Today** here only once they are built and routable.
+- **Self-improvement loop.** Plugin-improvement learnings are captured append-only in
+  `learnings/` (a sibling of the docket's `ledger.jsonl` / decision-records concept),
+  one dated markdown file per learning, via the `reflect` skill + `learnings` CLI.
+  High-signal items are *promoted* to a GitHub issue or an ADR — `learnings/` is the
+  cheap capture net, the issue/ADR the deliberate follow-up. This is the studio
+  applying its own "capture → review → promote" method to itself.
 
 ---
 

@@ -121,6 +121,7 @@ def record_render(
     formats: list[str],
     outputs: dict[str, Path],
     built_against: dict | None = None,
+    data: list | None = None,
 ) -> None:
     """Append a render to history and stamp built_against on state + history.
 
@@ -129,6 +130,12 @@ def record_render(
     artifact was rendered against — one version of the truth per asset (ADR-005,
     #101). Persisted twice for convenience: at session root for the latest
     render, and on the history entry for the per-version record.
+
+    ``data`` is the normalised-CSV sidecar manifest from ``viz_data.scan_session``
+    — one entry per visualisation in the source ({viz_id, type, family, files[],
+    rows, page_key, engine, rendered}). Persisted the same way (latest at root,
+    per-version in history) so a downstream data editor can find the CSV behind
+    each viz. Empty/None when the source has no visualisations.
     """
     state = read_state(session_path)
     state["current"] = version
@@ -141,5 +148,8 @@ def record_render(
     if built_against is not None:
         entry["built_against"] = built_against
         state["built_against"] = built_against
+    if data:
+        entry["data"] = data
+        state["data"] = data
     state["history"].append(entry)
     write_state(session_path, state)

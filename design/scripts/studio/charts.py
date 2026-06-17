@@ -37,13 +37,20 @@ def _series(spec: dict) -> list[dict]:
         for s in spec["series"]:
             out.append(
                 {
-                    "name": str(s.get("name", "")),
+                    # Accept either `name:` or the documented `label:` (see
+                    # formats/README.md / skills/viz-charts) — prefer `name`.
+                    "name": str(s.get("name") or s.get("label") or ""),
                     "y": [float(v) for v in s.get("y", [])],
                 }
             )
         return out
     if spec.get("y") is not None:
-        return [{"name": str(spec.get("name", "")), "y": [float(v) for v in spec["y"]]}]
+        return [
+            {
+                "name": str(spec.get("name") or spec.get("label") or ""),
+                "y": [float(v) for v in spec["y"]],
+            }
+        ]
     return []
 
 

@@ -120,3 +120,7 @@ delivery status            --engagement SLUG [--set draft|approved|active|delive
   package — judgment lives in the `plan-delivery` skill.
 - One plan per engagement (v1). Per-deliverable carve-outs are sessions
   under the engagement.
+- Swimlanes, phasing, and RAID render via the design studio's visualisation
+  catalogue (`design/skills/viz-process-flow`, `viz-heatmap`); design ships their
+  underlying data as a **normalised CSV** in the docket for editors like
+  nopilot.co (see design `formats/README.md` → *Data export*).

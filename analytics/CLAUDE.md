@@ -73,4 +73,8 @@ analytics status                --engagement SLUG [--set draft|drafting|reviewin
 - Confidence is per-item, not aggregated. The rollup surfaces the
   distribution.
 - Viz specs, not pixels — hand structured intent (chart type + fields
-  + caption) to design via the planner.
+  + caption) to design via the planner. Design renders them via its
+  visualisation catalogue (`design/skills/viz-*`) and ships the underlying
+  data as a **normalised CSV** in the docket (see design
+  `formats/README.md` → *Data export*), so editors like nopilot.co can edit
+  the numbers behind each viz.

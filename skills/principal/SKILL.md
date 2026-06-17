@@ -104,8 +104,11 @@ sign-offs), §8 for first-class Questions / Blockers / Risks.
 8. **Close.** When the engagement delivers, resolve open Questions, capture
    learnings (decisions worth keeping live in ADRs under
    `docs/architecture/DECISIONS.md`; engagement-specific learnings update the
-   shared context). Close the engagement only when its open items are resolved
-   or explicitly deferred.
+   shared context). **Plugin-improvement learnings** — how the studios
+   *themselves* could work better — go to `learnings/` via the **`reflect`**
+   skill (`learnings add` / `learnings none`), kept separate from engagement
+   decisions. Close the engagement only when its open items are resolved or
+   explicitly deferred.
 
 ## Conventions
 
