@@ -2,7 +2,7 @@ asset: heatmap
 name: Heatmap / RAG grid
 description: 'A grid of cells coloured by magnitude (heatmap) or by red/amber/green status (RAG, with `rag: true`).'
 buckets: [documents, decks]
-exports: [html, pdf]
+exports: [html, pdf, pptx]
 exports_data: csv
 style:
   scale: "{colors.tertiary}"
@@ -18,9 +18,10 @@ authoring:
     :::
   notes: 'Either a rows×cols `cells` matrix (row-major), or a `data:` list of {row, col, value, rag}. `rag: true` maps cells to status colours.'
 render_notes:
-  status: live             # renders via studio.frameworks (matplotlib SVG); CSV also ships
+  status: live             # studio.frameworks (SVG) for html/pdf; studio.pptx_render (native) for pptx
   html: "Inline matplotlib SVG (studio.frameworks): coloured cell grid (RAG status or magnitude tint)"
   pdf: "Same SVG placed via Typst #image()"
+  pptx: "Native editable table with RAG-filled cells (studio.pptx_render)"
 data_csv:
   files: ["<viz-id>.csv"]
   columns: [viz_id, type, row, col, value, rag]

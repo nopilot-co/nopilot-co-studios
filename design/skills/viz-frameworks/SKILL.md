@@ -6,7 +6,8 @@ description: How to execute strategic framework visualisations in the design stu
 # viz-frameworks — bullseye · matrix · funnel
 
 Strategy / marketing frameworks. All three render via `studio.frameworks`
-(matplotlib SVG, HTML + PDF) and **also ship their data as CSV** in the docket.
+(matplotlib SVG for HTML/PDF) and native shapes in PPTX, and **also ship their
+data as CSV** in the docket.
 
 ## When to use which
 - **bullseye** — rank items by priority / proximity in concentric rings (core →
@@ -38,8 +39,10 @@ stages:
 ## Engine & tool
 `studio.frameworks` (matplotlib) → one brand-styled SVG, identical in HTML and
 PDF (`#image()`): bullseye = concentric rings, matrix = points on two axes split
-into quadrants, funnel = centred bars narrowing by value. **Live.** PPTX-native
-shapes are a follow-up; the CSV sidecar ships on every export regardless.
+into quadrants, funnel = centred bars narrowing by value. For PPTX,
+`studio.pptx_render` builds the equivalent native editable shapes (ovals,
+positioned labels, bars). **Live across HTML, PDF, and PPTX.** The CSV sidecar
+ships on every export regardless.
 
 ## Normalised CSV (shipped to the docket)
 One `<viz-id>.csv` each, long form, in `version.json`'s `data[]`:
@@ -58,10 +61,10 @@ exists.
 matrix / bullseye), **principal** (scoping priorities → bullseye).
 
 ## Gotchas
-- HTML + PDF render today; PPTX-native shapes are a follow-up.
+- Renders across HTML, PDF, and native PPTX (SVG for HTML/PDF, native shapes for PPTX).
 - `bullseye` accepts `rings: [{ring, items}]` or a flat `items: [{label, ring}]`
   (first ring = centre); `matrix` accepts `items: [...]` or
   `quadrants: [{quadrant, items}]`; matrix x/y take `low`/`med`/`high` or a 0–1 number.
 
 ## Status
-Live (HTML + PDF). CSV sidecar: always.
+Live (HTML, PDF, PPTX). CSV sidecar: always.

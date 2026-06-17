@@ -83,8 +83,32 @@ with tempfile.TemporaryDirectory() as td:
     check("expand bad -> fallback", "could not render" in bad and "::: panel" in bad, bad[:80])
     other = "::: pullquote\nhi\n:::\n"
     check("expand passthrough", frameworks.expand(other, "html", TOK, out) == other)
-    # pptx/other exports: no-op passthrough
+    # pptx/other exports: no-op passthrough (PPTX is built natively by pptx_render, not here)
     check("expand non-linear passthrough", frameworks.expand(doc, "pptx", TOK, out) == doc)
+
+# native PPTX shapes for all 6 types (pptx_render reuses frameworks parse helpers).
+import tempfile as _tf  # noqa: E402
+
+from studio import pptx_render  # noqa: E402
+
+TOK_P = {"color": dict(TOK["color"], on_surface="#FFFFFF")}
+PPTX_MD = (
+    "# F\n\n::: funnel\nstages:\n  - {stage: A, value: 10}\n  - {stage: B, value: 4}\n:::\n\n"
+    "## B\n\n::: bullseye\nrings:\n  - {ring: core, items: [X]}\n:::\n\n"
+    "## M\n\n::: matrix\nitems:\n  - {label: I, x: low, y: high}\n:::\n\n"
+    "## S\n\n::: swimlane\nlanes:\n  - {lane: L1, nodes: [A, B]}\n:::\n\n"
+    "## D\n\n::: decision-tree\nroot: Q\nchildren:\n  - {condition: yes, root: P}\n:::\n\n"
+    "## H\n\n::: heatmap\nrag: true\nrows: [r1]\ncols: [c1, c2]\ncells:\n  - [green, red]\n:::\n"
+)
+with _tf.TemporaryDirectory() as td2:
+    out2 = Path(td2) / "d.pptx"
+    pptx_render.build_pptx(PPTX_MD, TOK_P, out2)
+    from pptx import Presentation  # noqa: E402
+
+    sl = list(Presentation(str(out2)).slides)
+    check("pptx 6 slides", len(sl) == 6, str(len(sl)))
+    check("pptx slides have shapes", all(len(x.shapes) >= 2 for x in sl),
+          str([len(x.shapes) for x in sl]))
 
 if failures:
     print(f"FAIL ({len(failures)})")

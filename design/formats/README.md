@@ -174,13 +174,14 @@ when to use each type, the exact `::: ` syntax, the engine, and the CSV it ships
 | Tables | data table | `viz-tables` | live (Quarto · native PPTX) |
 | Process-flow | flow, process, timeline, swimlane, decision-tree | `viz-process-flow` | live (diagrams + frameworks) |
 | Hierarchy | hierarchy, org | `viz-hierarchy` | live |
-| Frameworks | bullseye, matrix, funnel | `viz-frameworks` | live (frameworks, HTML + PDF) |
-| Heatmap | heatmap / RAG | `viz-heatmap` | live (frameworks, HTML + PDF) |
+| Frameworks | bullseye, matrix, funnel | `viz-frameworks` | live (SVG + native PPTX) |
+| Heatmap | heatmap / RAG | `viz-heatmap` | live (SVG + native PPTX) |
 
-Each asset's machine contract lives in `assets/<type>.yml`. Charts/diagrams
-render across HTML/PDF/PPTX; the framework, swimlane, decision-tree, and heatmap
-renderers (`scripts/studio/frameworks.py`) emit brand-styled SVG for HTML + PDF —
-PPTX-native shapes for them are a follow-up.
+Each asset's machine contract lives in `assets/<type>.yml`. All families render
+across HTML/PDF/PPTX: the framework, swimlane, decision-tree, and heatmap
+renderers (`scripts/studio/frameworks.py`) emit brand-styled SVG for HTML + PDF,
+and `scripts/studio/pptx_render.py` builds the equivalent native editable shapes
+for PPTX.
 
 ### Data export (normalised CSV)
 

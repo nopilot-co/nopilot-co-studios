@@ -6,8 +6,8 @@ description: How to execute heatmap / RAG-grid visualisations in the design stud
 # viz-heatmap — heatmap · RAG grid
 
 A grid of cells coloured by magnitude (heatmap) or by red/amber/green status
-(RAG). Renders via `studio.frameworks` (matplotlib SVG, HTML + PDF) and **also
-ships its data as CSV** in the docket.
+(RAG). Renders via `studio.frameworks` (matplotlib SVG for HTML/PDF) and a native
+RAG-filled table in PPTX, and **also ships its data as CSV** in the docket.
 
 ## When to use
 - **heatmap** — magnitude across two categorical axes (intensity).
@@ -37,9 +37,10 @@ A `data:` list of `{row, col, value, rag}` also works.
 
 ## Engine & tool
 `studio.frameworks` (matplotlib) → a coloured cell grid as one brand-styled SVG,
-identical in HTML and PDF (`#image()`). Magnitude cells are tinted by value;
-`rag: true` maps cells to discrete red/amber/green. **Live** (HTML + PDF;
-PPTX-native is a follow-up).
+identical in HTML and PDF (`#image()`); for PPTX, `studio.pptx_render` builds a
+native editable table with the same cell fills. Magnitude cells are tinted by
+value; `rag: true` maps cells to discrete red/amber/green. **Live across HTML,
+PDF, and PPTX.**
 
 ## Normalised CSV (shipped to the docket)
 One `<viz-id>.csv`, one row per cell, in `version.json`'s `data[]`:
@@ -59,4 +60,4 @@ heatmap), **analytics** (correlation / intensity grids).
 - `rag: true` switches cell semantics from magnitude to status colour.
 
 ## Status
-Live (HTML + PDF). CSV sidecar: always.
+Live (HTML, PDF, PPTX). CSV sidecar: always.
