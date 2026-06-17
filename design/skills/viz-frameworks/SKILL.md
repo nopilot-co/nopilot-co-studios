@@ -5,9 +5,8 @@ description: How to execute strategic framework visualisations in the design stu
 
 # viz-frameworks — bullseye · matrix · funnel
 
-Strategy / marketing frameworks. **All three renderers are NOT-YET-BUILT**
-(Phase 2): they show a visible fallback panel today, but **ship their data as
-CSV now** — so author them and the numbers are captured and editable downstream.
+Strategy / marketing frameworks. All three render via `studio.frameworks`
+(matplotlib SVG, HTML + PDF) and **also ship their data as CSV** in the docket.
 
 ## When to use which
 - **bullseye** — rank items by priority / proximity in concentric rings (core →
@@ -37,9 +36,10 @@ stages:
 ```
 
 ## Engine & tool
-**NOT-YET-BUILT** — Phase 2 will add `frameworks.py` (bullseye rings, 2×2
-scatter-on-quadrants, stacked funnel → SVG / native PPTX). Until then each
-renders a visible fallback panel; the CSV sidecar ships regardless.
+`studio.frameworks` (matplotlib) → one brand-styled SVG, identical in HTML and
+PDF (`#image()`): bullseye = concentric rings, matrix = points on two axes split
+into quadrants, funnel = centred bars narrowing by value. **Live.** PPTX-native
+shapes are a follow-up; the CSV sidecar ships on every export regardless.
 
 ## Normalised CSV (shipped to the docket)
 One `<viz-id>.csv` each, long form, in `version.json`'s `data[]`:
@@ -58,9 +58,10 @@ exists.
 matrix / bullseye), **principal** (scoping priorities → bullseye).
 
 ## Gotchas
-- These do not render yet — set expectations; the CSV is the deliverable today.
-- `bullseye` accepts `rings: [{ring, items}]` or a flat `items: [{label, ring}]`;
-  `matrix` accepts `items: [...]` or `quadrants: [{quadrant, items}]`.
+- HTML + PDF render today; PPTX-native shapes are a follow-up.
+- `bullseye` accepts `rings: [{ring, items}]` or a flat `items: [{label, ring}]`
+  (first ring = centre); `matrix` accepts `items: [...]` or
+  `quadrants: [{quadrant, items}]`; matrix x/y take `low`/`med`/`high` or a 0–1 number.
 
 ## Status
-CSV-only (renderer Phase 2).
+Live (HTML + PDF). CSV sidecar: always.

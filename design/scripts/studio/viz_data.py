@@ -9,9 +9,9 @@ over the meta-stripped source body, mints a stable document-order viz-id per
 block, and writes CSV(s) from the *authored* YAML — reusing the engines' own
 normalisers (``charts._series``, ``diagrams._flatten_tree``) so the CSV matches
 the picture. Because it reads the authored intent, it ships data for every
-export (html / pdf / pptx / revealjs) AND for visualisation types that don't
-have a renderer yet (swimlane, bullseye, decision-tree, matrix, funnel,
-heatmap) — those emit ``rendered: false`` in the manifest but the CSV is real.
+export (html / pdf / pptx / revealjs) AND for any future/unknown visualisation
+type that has no renderer yet — those emit ``rendered: false`` in the manifest
+but the CSV is still real.
 
 Never crashes a render: every emit is wrapped; a bad block is skipped with a
 stderr warning (mirrors the fallback-panel discipline in charts/diagrams).
@@ -50,7 +50,8 @@ _FRAMEWORKS = {"bullseye", "matrix", "funnel"}
 _GRID = {"heatmap"}
 _ALL_DIV_CLASSES = _CHART | _FLOWLIKE | _TREELIKE | _FRAMEWORKS | _GRID
 
-# Which families have a live renderer today (the rest ship CSV-only).
+# Flow-family types rendered by the diagrams engine; swimlane/decision-tree
+# render via the frameworks engine (Phase 2).
 _RENDERED_FLOW = {"flow", "process", "timeline"}
 
 _SEP_RE = re.compile(r"^\s*\|?\s*:?-{1,}:?\s*(\|\s*:?-{1,}:?\s*)*\|?\s*$")
@@ -401,8 +402,9 @@ def scan(body: str, data_dir: Path, *, rel_to: Path | None = None) -> list[dict]
             elif name in _FLOWLIKE:
                 viz_id = f"{n:02d}-{name}"
                 files, rows = _emit_flowlike(name, payload, viz_id, data_dir)
-                rendered = name in _RENDERED_FLOW
-                engine, type_, family = ("diagrams" if rendered else "none"), name, "process-flow"
+                # flow/process/timeline → diagrams engine; swimlane/decision-tree → frameworks engine
+                engine = "diagrams" if name in _RENDERED_FLOW else "frameworks"
+                type_, family, rendered = name, "process-flow", True
             elif name in _TREELIKE:
                 viz_id = f"{n:02d}-{name}"
                 files, rows = _emit_treelike(name, payload, viz_id, data_dir)
@@ -410,11 +412,11 @@ def scan(body: str, data_dir: Path, *, rel_to: Path | None = None) -> list[dict]
             elif name in _FRAMEWORKS:
                 viz_id = f"{n:02d}-{name}"
                 files, rows = _emit_framework(name, payload, viz_id, data_dir)
-                engine, type_, family, rendered = "none", name, "frameworks", False
+                engine, type_, family, rendered = "frameworks", name, "frameworks", True
             elif name in _GRID:
                 viz_id = f"{n:02d}-heatmap"
                 files, rows = _emit_heatmap(payload, viz_id, data_dir)
-                engine, type_, family, rendered = "none", "heatmap", "heatmap", False
+                engine, type_, family, rendered = "frameworks", "heatmap", "heatmap", True
             else:  # pragma: no cover — _collect already filters
                 n -= 1
                 continue

@@ -2,7 +2,7 @@ asset: funnel
 name: Funnel
 description: Ordered stages narrowing top-to-bottom (pipeline / conversion), each with a value.
 buckets: [documents, decks]
-exports: [html, pdf, pptx]
+exports: [html, pdf]
 exports_data: csv
 style:
   stage: "{colors.tertiary}"
@@ -16,9 +16,9 @@ authoring:
     :::
   notes: Ordered top-to-bottom; `value` drives the band width when rendered. A bare list of stage names also works.
 render_notes:
-  status: pending          # NOT-YET-BUILT — renderer is Phase 2; CSV ships today regardless
-  html: "pending — visible fallback panel until the funnel engine lands"
-  pdf: "pending"
+  status: live             # renders via studio.frameworks (matplotlib SVG); CSV also ships
+  html: "Inline matplotlib SVG (studio.frameworks): centred bars narrowing by value"
+  pdf: "Same SVG placed via Typst #image()"
 data_csv:
   files: ["<viz-id>.csv"]
   columns: [viz_id, type, stage, order, value]

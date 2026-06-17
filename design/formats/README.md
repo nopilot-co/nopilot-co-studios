@@ -172,14 +172,15 @@ when to use each type, the exact `::: ` syntax, the engine, and the CSV it ships
 |--------|-------|-------|--------------|
 | Charts | bar, line, pie, scatter, area | `viz-charts` | live (matplotlib · native PPTX) |
 | Tables | data table | `viz-tables` | live (Quarto · native PPTX) |
-| Process-flow | flow, process, timeline, swimlane\*, decision-tree\* | `viz-process-flow` | flow/process/timeline live; \* Phase 2 |
+| Process-flow | flow, process, timeline, swimlane, decision-tree | `viz-process-flow` | live (diagrams + frameworks) |
 | Hierarchy | hierarchy, org | `viz-hierarchy` | live |
-| Frameworks | bullseye\*, matrix\*, funnel\* | `viz-frameworks` | \* Phase 2 |
-| Heatmap | heatmap / RAG\* | `viz-heatmap` | \* Phase 2 |
+| Frameworks | bullseye, matrix, funnel | `viz-frameworks` | live (frameworks, HTML + PDF) |
+| Heatmap | heatmap / RAG | `viz-heatmap` | live (frameworks, HTML + PDF) |
 
-`*` = authoring + CSV ship today; the renderer is Phase 2 (a visible fallback
-panel renders until then). Each asset's machine contract lives in
-`assets/<type>.yml`.
+Each asset's machine contract lives in `assets/<type>.yml`. Charts/diagrams
+render across HTML/PDF/PPTX; the framework, swimlane, decision-tree, and heatmap
+renderers (`scripts/studio/frameworks.py`) emit brand-styled SVG for HTML + PDF —
+PPTX-native shapes for them are a follow-up.
 
 ### Data export (normalised CSV)
 
@@ -190,8 +191,8 @@ normalised (tidy / long-form) CSV** into the docket —
 (`{viz_id, type, family, files, rows, page_key, engine, rendered}`). This lets a
 downstream **data editor (nopilot.co)** pick up and edit the numbers behind any
 visualisation. The CSV is emitted from the authored YAML on **every export**
-(html / pdf / pptx / revealjs) and even for the Phase-2 types that don't render
-yet (`rendered: false`). The pass never fails a render. Source:
+(html / pdf / pptx / revealjs) and even for any future viz type that has no
+renderer yet (`rendered: false`). The pass never fails a render. Source:
 `scripts/studio/viz_data.py`; schema: `scripts/studio/schemas/viz-data.schema.json`.
 
 ### PPTX (native editable decks)

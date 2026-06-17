@@ -2,7 +2,7 @@ asset: bullseye
 name: Bullseye (concentric priorities)
 description: Concentric rings ranking items by priority / proximity — core at the centre, outer rings further out.
 buckets: [documents, decks]
-exports: [html, pdf, pptx]
+exports: [html, pdf]
 exports_data: csv
 style:
   ring: "{colors.surface}"
@@ -17,9 +17,9 @@ authoring:
     :::
   notes: "`ring` is the band label (centre → out); `items` are the entries in it. A flat `items:[{label, ring}]` also works."
 render_notes:
-  status: pending          # NOT-YET-BUILT — renderer is Phase 2; CSV ships today regardless
-  html: "pending — visible fallback panel until the bullseye engine lands"
-  pdf: "pending"
+  status: live             # renders via studio.frameworks (matplotlib SVG); CSV also ships
+  html: "Inline matplotlib SVG (studio.frameworks): concentric rings, items per band"
+  pdf: "Same SVG placed via Typst #image()"
 data_csv:
   files: ["<viz-id>.csv"]
   columns: [viz_id, type, item, ring, value]

@@ -2,7 +2,7 @@ asset: swimlane
 name: Swimlane diagram
 description: A cross-functional process flow whose steps are grouped into lanes (roles / teams).
 buckets: [documents, decks]
-exports: [html, pdf, pptx]
+exports: [html, pdf]
 exports_data: csv          # underlying nodes/edges always shipped as normalised CSV in the docket
 style:
   node: "{colors.neutral}"
@@ -19,9 +19,9 @@ authoring:
     :::
   notes: Structured YAML fenced div. One lane per role; nodes flow left-to-right within and across lanes.
 render_notes:
-  status: pending          # NOT-YET-BUILT — renderer is Phase 2; CSV ships today regardless
-  html: "pending — visible fallback panel until the swimlane engine lands"
-  pdf: "pending"
+  status: live             # renders via studio.frameworks (matplotlib SVG); CSV also ships
+  html: "Inline matplotlib SVG (studio.frameworks): lanes as bands, nodes as boxes, sequential arrows"
+  pdf: "Same SVG placed via Typst #image()"
 data_csv:
   files: ["<viz-id>.nodes.csv", "<viz-id>.edges.csv"]
   nodes: [viz_id, node_id, label, order, lane]

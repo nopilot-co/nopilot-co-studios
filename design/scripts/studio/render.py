@@ -37,6 +37,7 @@ from . import charts as charts_mod
 from . import components as components_mod
 from . import diagrams as diagrams_mod
 from . import formats as formats_mod
+from . import frameworks as frameworks_mod
 from . import frame_template as frame_template_mod
 from . import metacontent
 from . import pptx_render as pptx_mod
@@ -215,6 +216,9 @@ def _engine_linear(
     body = diagrams_mod.expand(body, sfmt, tok)
     # Charts write a brand-styled SVG into the render dir and reference it (#20).
     body = charts_mod.expand(body, sfmt, tok, tmp)
+    # Frameworks (bullseye/matrix/funnel/heatmap/swimlane/decision-tree) — same
+    # SVG-into-render-dir pattern, expanded after charts (Phase 2 / #121).
+    body = frameworks_mod.expand(body, sfmt, tok, tmp)
     # Lift the leading title block onto a cover (#38): the first H1 becomes the
     # cover title and an immediately-following precis/lead becomes the standfirst,
     # both removed from the body so they aren't repeated.

@@ -46,10 +46,10 @@ children:
 ## Engine & tool
 - **flow / process / timeline** — `studio.diagrams` → Mermaid (HTML) / Typst
   `fletcher` (PDF), brand-tokenised; PPTX native shapes. **Live.**
-- **swimlane / decision-tree** — **NOT-YET-BUILT** (Phase 2). They render a
-  visible fallback panel today. **Author them now anyway** — the normalised CSV
-  ships regardless, so the data is captured and editable before the picture
-  exists.
+- **swimlane / decision-tree** — `studio.frameworks` → brand-styled matplotlib
+  SVG (HTML inline / PDF via Typst `#image()`): swimlane draws lanes as bands
+  with sequential arrows; decision-tree draws decision/outcome boxes with
+  condition-labelled edges. **Live (HTML + PDF; PPTX-native is a follow-up).**
 
 ## Normalised CSV (shipped to the docket)
 Each diagram writes two files — `<viz-id>.nodes.csv` + `<viz-id>.edges.csv` —
@@ -70,11 +70,11 @@ The **delivery** studio plans swimlanes (cast-keyed phases); **architecture**
 uses flows for data flows. Author them here so the data round-trips as CSV.
 
 ## Gotchas
-- `swimlane` / `decision-tree` show a fallback panel until Phase 2 — the CSV is
-  the deliverable until then.
+- `swimlane` / `decision-tree` render via the **frameworks** engine (matplotlib),
+  not Mermaid/fletcher — HTML + PDF today (no PPTX-native shapes yet).
 - `decision-tree` is a `{root, children}` tree; each child's `condition` labels
   the edge into it. Leaves are `kind: outcome`, internal nodes `kind: decision`.
 
 ## Status
-flow / process / timeline: live. swimlane / decision-tree: CSV-only (renderer
-Phase 2).
+flow / process / timeline: live (diagrams engine). swimlane / decision-tree:
+live (frameworks engine, HTML + PDF). CSV sidecar: always.

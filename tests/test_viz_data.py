@@ -152,13 +152,13 @@ with tempfile.TemporaryDirectory() as td:
     check("hierarchy parent col", hn[0][-1] == "parent", str(hn[0]))
     check("hierarchy child has parent", any(r[-1].startswith("n") for r in hn[1:]), str(hn))
 
-    # --- NEW types: CSV ships, rendered=false, engine=none ---
+    # --- the 6 newer types now render (Phase 2) AND still ship CSV ---
     for new_type in ("swimlane", "decision-tree", "bullseye", "matrix", "funnel", "heatmap"):
         e = next((m for m in man if m["type"] == new_type), None)
         check(f"{new_type} present", e is not None, str(ids))
         if e:
-            check(f"{new_type} rendered=false", e["rendered"] is False)
-            check(f"{new_type} engine=none", e["engine"] == "none")
+            check(f"{new_type} rendered=true", e["rendered"] is True)
+            check(f"{new_type} engine=frameworks", e["engine"] == "frameworks")
             for rel in e["files"]:
                 check(f"{new_type} csv exists", (Path(td) / rel).exists() if not Path(rel).is_absolute() else Path(rel).exists(), rel)
 
@@ -179,6 +179,18 @@ with tempfile.TemporaryDirectory() as td:
     hm = rows_of(dd / f"{hm_id}.csv")
     check("heatmap cols", hm[0] == ["viz_id", "type", "row", "col", "value", "rag"], str(hm[0]))
     check("heatmap rag value", any(r[5] == "green" for r in hm[1:]), str(hm))
+
+# --- chart series authored with `label:` populates the CSV `series` column ---
+with tempfile.TemporaryDirectory() as td_lbl:
+    dd = Path(td_lbl) / "data"
+    doc = (
+        "::: chart\ntype: bar\nx: [Q1, Q2]\n"
+        "series:\n  - {label: Product, y: [10, 14]}\n  - {label: Service, y: [12, 18]}\n:::\n"
+    )
+    viz_data.scan(doc, dd)
+    bar = rows_of(dd / "01-bar.csv")
+    series_col = {r[2] for r in bar[1:]}
+    check("csv series from label", {"Product", "Service"} <= series_col, str(bar))
 
 # --- id stability across two scans ---
 with tempfile.TemporaryDirectory() as td2:
