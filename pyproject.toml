@@ -18,11 +18,13 @@ dependencies = [
 [project.scripts]
 planner = "planner.cli:main"
 engagement = "engagement.cli:main"
+learnings = "learnings.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["scripts"]
-include = ["planner*", "engagement*", "engagement.sor*"]
+include = ["planner*", "engagement*", "engagement.sor*", "learnings*"]
 
 [tool.setuptools.package-data]
 planner = ["schemas/*.json"]
 engagement = ["schemas/*.json"]
+learnings = ["schemas/*.json"]

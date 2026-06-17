@@ -121,6 +121,14 @@ orchestrators:
     produces_for: { skill: producer, skill_alt: principal }
     status: active
 
+  - slug: reflect
+    skill: reflect
+    cli: learnings
+    summary: At the close of a run, reflect on how the plugin/studio ITSELF could be improved (skills, CLIs, formats, assets, orchestration, docs) and capture it as an append-only learning in learnings/. Distinct from deliverable critique; high-signal items are promoted to issues/ADRs. A soft Stop hook (hooks/reflect-gate.sh) nudges once if a run logs nothing.
+    use_when: every engagement close — invoked by the Producer/Principal, or when the reflection gate fires at session end.
+    produces_for: { skill: producer, skill_alt: principal }
+    status: active
+
 # External services the Producer is the single point of contact for.
 # The Producer publishes/notifies through these; studios stay local and pure.
 # Each maps to an available MCP server; integrate only when authenticated.

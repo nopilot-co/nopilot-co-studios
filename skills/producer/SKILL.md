@@ -41,6 +41,9 @@ user (L2 sign-off / L3 authorisation, Bible §6).
    `engagement doctor` / each studio's `doctor`) and report which studios are
    routable; do not route to a studio whose CLI is missing.
 
+   **Mark the run** so the reflection gate (step 9) knows a studio run happened
+   this session: `mkdir -p .studios && touch .studios/last-studio-run`.
+
    **Open / pick up the engagement manifest** (`engagement.json` at the
    docket root). If it doesn't exist, run `engagement new --root <docket>
    --engagement <slug> --objective "..."`. If it does, read its state —
@@ -110,6 +113,13 @@ user (L2 sign-off / L3 authorisation, Bible §6).
 8. **Report.** Summarise: the plan as executed, what each studio produced (with
    paths), the review verdict(s), and the status of every external delivery (with
    links). Offer the obvious next iteration.
+
+9. **Reflect (improve the *tooling*).** Before wrapping up, run the **`reflect`**
+   skill: capture how the studio/plugin itself could work better — one
+   `learnings add …` per concrete improvement (skill / CLI / format / asset /
+   orchestration / docs), or `learnings none …` if there's genuinely nothing.
+   This is about the *tools*, not the deliverable (that was step 6), and it
+   satisfies the soft reflection gate at session close.
 
 ## Routing rules
 

@@ -1,0 +1,41 @@
+{
+  "description": "Studios: soft reflection gate — nudge once at session close if a studio run happened this session but no plugin-improvement learning was logged. Satisfied by `learnings add` or `learnings none`. Never blocks.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/reflect-gate.sh\" --session-start",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/reflect-gate.sh\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"${CLAUDE_PLUGIN_ROOT}/hooks/reflect-gate.sh\" --subagent",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}
