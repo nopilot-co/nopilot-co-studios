@@ -32,10 +32,11 @@ _DEFAULTS: dict[str, Any] = {
         "neutral": "#0F1626",
         "surface": "#F1F3F6",
         "on_primary": "#FFFFFF",
-        # `on_surface` is the readable body-text colour on a `surface` fill. It is
-        # derived from the *resolved* surface in `resolve()` (so it stays legible
-        # for any brand × design-system pairing); this default only seeds it.
-        "on_surface": "#1A2433",
+        # `on_surface` (readable body text on a `surface` fill) is deliberately NOT
+        # seeded here: resolve() always derives it from the *resolved* surface so it
+        # stays legible for any brand × design-system pairing. A fixed default would
+        # satisfy the `"on_surface" not in color` guard and mask dark-surface systems
+        # (e.g. design-zed / -yacht-club), defeating the derivation. See #27.
         "foreground": "#1A2433",
         "background": "#FFFFFF",
     },
