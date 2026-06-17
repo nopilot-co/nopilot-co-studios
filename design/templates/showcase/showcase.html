@@ -66,10 +66,11 @@
   ::selection{background:#0E1726;color:#fff}
   @keyframes fadeUp{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
   @keyframes infscroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-  @keyframes nudge{0%,100%{transform:translateX(0)}50%{transform:translateX(5px)}}
+  @keyframes chev-pulse{0%,100%{transform:translateY(-50%) scale(1);box-shadow:0 0 0 0 rgba(22,124,107,0)}50%{transform:translateY(-50%) scale(1.07);box-shadow:0 0 0 7px rgba(22,124,107,.10)}}
+  @keyframes chev-pulse-d{0%,100%{transform:translateY(-50%) scale(1);box-shadow:0 0 0 0 rgba(255,255,255,0)}50%{transform:translateY(-50%) scale(1.07);box-shadow:0 0 0 7px rgba(255,255,255,.12)}}
   .reveal{opacity:0}.reveal.in{animation:fadeUp .8s cubic-bezier(.16,1,.3,1) forwards}
   .d1{animation-delay:.08s}.d2{animation-delay:.16s}.d3{animation-delay:.26s}.d4{animation-delay:.4s}
-  .animate-marquee{animation:infscroll 38s linear infinite}.nudge{animation:nudge 1.5s ease-in-out infinite}
+  .animate-marquee{animation:infscroll 38s linear infinite}
   .glass{background:rgba(247,245,240,.82);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
   .grid-bg{background-image:linear-gradient(to right,#0e17260a 1px,transparent 1px),linear-gradient(to bottom,#0e17260a 1px,transparent 1px);background-size:42px 42px;-webkit-mask-image:radial-gradient(ellipse 60% 55% at 50% 0%,#000 60%,transparent 100%);mask-image:radial-gradient(ellipse 60% 55% at 50% 0%,#000 60%,transparent 100%)}
   .marquee-mask{-webkit-mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(to right,transparent,#000 8%,#000 92%,transparent)}
@@ -91,10 +92,30 @@
   .chev:hover{background:#167C6B;color:#fff;border-color:#167C6B}.chev.l{left:14px}.chev.r{right:14px}
   .chev.hide{opacity:0;pointer-events:none}
   .ondark .chev{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff}
+  /* arrows advertise themselves with a subtle pulse; pause on interaction / reduced-motion */
+  .chev:not(.hide){animation:chev-pulse 2.6s ease-in-out infinite}
+  .ondark .chev:not(.hide){animation:chev-pulse-d 2.6s ease-in-out infinite}
+  .chev:hover,.chev:focus-visible{animation:none}
+  @media (prefers-reduced-motion:reduce){.chev:not(.hide){animation:none}}
   .pdots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:7px;z-index:20}
   .pdots i{width:7px;height:7px;border-radius:9999px;background:#D8D2C6;display:block;transition:all .25s;cursor:pointer}
   .pdots i.on{background:#D99A4E;width:20px}
-  .detailcue{display:inline-flex;align-items:center;gap:7px;font-family:'Montserrat';font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#B97C30}
+  /* page-title legend — a floating stack attached to the nav arrows that signposts
+     the panels in sequence (replaces the old "scroll right for detail" cue). */
+  .pagelegend{position:absolute;top:50%;right:70px;z-index:25;display:flex;flex-direction:column;gap:6px;
+    max-width:248px;opacity:0;pointer-events:none;transform:translateY(-50%) translateX(8px);
+    transition:opacity .22s ease,transform .22s ease}
+  .pagelegend.show{opacity:1;pointer-events:auto;transform:translateY(-50%) translateX(0)}
+  .pagelegend .leg{display:flex;align-items:center;gap:9px;width:100%;text-align:left;cursor:pointer;
+    padding:7px 12px;border-radius:10px;border:1px solid #E2DCCF;background:rgba(255,255,255,.92);
+    backdrop-filter:blur(6px);font-family:'Montserrat';font-size:12px;font-weight:600;line-height:1.25;
+    color:#5C6678;box-shadow:0 6px 20px rgba(14,23,38,.07);transition:all .15s}
+  .pagelegend .leg:hover{border-color:#167C6B;color:#0F5A4D}
+  .pagelegend .leg.on{border-color:#D99A4E;color:#B97C30;background:#fff}
+  .pagelegend .leg .dot{width:6px;height:6px;border-radius:9999px;background:#D8D2C6;flex:none}
+  .pagelegend .leg.on .dot{background:#D99A4E}
+  .ondark .pagelegend .leg{background:rgba(28,24,20,.86);border-color:rgba(244,238,226,.18);color:rgba(244,238,226,.72)}
+  .ondark .pagelegend .leg.on{background:rgba(28,24,20,.96);border-color:#D99A4E;color:#E9B978}
 
   /* ===== print / PDF export — high-impact linear document =====
      Screen build is a horizontal scroll-snap carousel with reveal-on-scroll.
@@ -107,7 +128,7 @@
     html{ scroll-behavior:auto !important; }
     /* drop fixed nav + interactive-only carousel chrome */
     body > .fixed{ display:none !important; }
-    .chev,.pdots,.np-back,.nav-status,.detailcue{ display:none !important; }
+    .chev,.pdots,.np-back,.nav-status,.pagelegend{ display:none !important; }
     main#top{ padding-top:0 !important; max-width:none !important; }
     /* reveal-on-scroll: force visible in case the observer hasn't run */
     .reveal{ opacity:1 !important; transform:none !important; animation:none !important; }
@@ -168,9 +189,7 @@
         <div class="reveal max-w-4xl mx-auto">
           <div class="text-xs font-mont font-semibold tracking-[0.2em] uppercase text-amber-d mb-4">Topic 01</div>
           <h2 class="text-4xl md:text-6xl tracking-tight leading-tight mb-8">Vertical topics, horizontal depth</h2>
-          <p>Each topic opens on its whole overview. Detail panels extend to the right; vertical scroll moves between topics. Brand colours, fonts and the brandmark bind from the active brand's <code>_brand.yml</code> at render time.</p>
-          <div class="mt-10 detailcue nudge"><span>scroll right for detail</span><iconify-icon icon="solar:arrow-right-linear" width="14"></iconify-icon></div>
-        </div>
+          <p>Each topic opens on its whole overview. Detail panels extend to the right; vertical scroll moves between topics. Brand colours, fonts and the brandmark bind from the active brand's <code>_brand.yml</code> at render time.</p>        </div>
       </div>
       <div class="panel detail py-20" data-page-key="demo-overview:1">
         <div class="reveal max-w-3xl mx-auto">
@@ -187,9 +206,7 @@
         <div class="reveal max-w-4xl mx-auto">
           <div class="text-xs font-mont font-semibold tracking-[0.2em] uppercase text-amber-d mb-4">Topic 02</div>
           <h2 class="text-4xl md:text-6xl tracking-tight leading-tight mb-8">A topic with no authored details</h2>
-          <p>This topic carries only its master panel, so the script auto-provisions stub detail pages to demonstrate the rightward affordance.</p>
-          <div class="mt-10 detailcue nudge"><span>scroll right for detail</span><iconify-icon icon="solar:arrow-right-linear" width="14"></iconify-icon></div>
-        </div>
+          <p>This topic carries only its master panel, so the script auto-provisions stub detail pages to demonstrate the rightward affordance.</p>        </div>
       </div>
     </div>
   </section>
@@ -234,6 +251,31 @@
       +'<button class="chev r" data-dir="1" aria-label="More detail"><iconify-icon icon="solar:alt-arrow-right-linear" width="22"></iconify-icon></button>'
       +'<div class="pdots">'+Array.from({length:n},function(_,i){return '<i data-pi="'+i+'" class="'+(i===0?'on':'')+'"></i>';}).join('')+'</div>';
     while(ctrl.firstChild) sec.appendChild(ctrl.firstChild);
+
+    // page-title legend — a floating stack attached to the arrows that signposts
+    // every panel in sequence, so the reader sees what is to the right (or left).
+    if(n>1){
+      var titles=Array.prototype.map.call(track.querySelectorAll('.panel'),function(p,i){
+        var h=p.querySelector('h1,h2,h3');
+        var t=h?h.textContent.trim().replace(/\s+/g,' '):(i===0?'Overview':'Detail '+i);
+        return t.length>42?t.slice(0,40)+'…':t;
+      });
+      var legend=document.createElement('div'); legend.className='pagelegend';
+      legend.innerHTML=titles.map(function(t,i){
+        return '<button type="button" class="leg'+(i===0?' on':'')+'" data-pi="'+i+'">'
+          +'<span class="dot"></span><span>'+t+'</span></button>';
+      }).join('');
+      sec.appendChild(legend);
+      // reveal on hover/focus of either chevron or the legend itself (small close
+      // delay so moving from the arrow to the stack doesn't flicker it shut).
+      var hideT; var show=function(){clearTimeout(hideT);legend.classList.add('show');};
+      var hide=function(){hideT=setTimeout(function(){legend.classList.remove('show');},140);};
+      [sec.querySelector('.chev.r'),sec.querySelector('.chev.l'),legend].forEach(function(el){
+        if(!el) return;
+        el.addEventListener('mouseenter',show); el.addEventListener('mouseleave',hide);
+        el.addEventListener('focusin',show); el.addEventListener('focusout',hide);
+      });
+    }
   });
 
   // --- horizontal nav mechanics ---
@@ -242,6 +284,7 @@
   function syncControls(sec){
     var track=sec.querySelector('.track'); var pi=activePI(track); var max=track.children.length-1;
     sec.querySelectorAll('.pdots i').forEach(function(d,i){ d.classList.toggle('on', i===pi); });
+    sec.querySelectorAll('.pagelegend .leg').forEach(function(b,i){ b.classList.toggle('on', i===pi); });
     var l=sec.querySelector('.chev.l'), r=sec.querySelector('.chev.r');
     if(l) l.classList.toggle('hide', pi===0); if(r) r.classList.toggle('hide', pi===max);
   }
@@ -252,6 +295,7 @@
   document.addEventListener('click', function(e){
     var c=e.target.closest('.chev'); if(c){ var sec=c.closest('.topic'); var track=sec.querySelector('.track'); goPI(track, activePI(track)+(+c.dataset.dir)); return; }
     var d=e.target.closest('.pdots i'); if(d){ var sec2=d.closest('.topic'); goPI(sec2.querySelector('.track'), +d.dataset.pi); return; }
+    var lg=e.target.closest('.pagelegend .leg'); if(lg){ var sec4=lg.closest('.topic'); goPI(sec4.querySelector('.track'), +lg.dataset.pi); return; }
     var b=e.target.closest('.np-back'); if(b){ goPI(b.closest('.track'), 0); return; }
   });
 
