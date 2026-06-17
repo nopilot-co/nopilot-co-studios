@@ -96,15 +96,13 @@
   .pdots i.on{background:#D99A4E;width:20px}
   .detailcue{display:inline-flex;align-items:center;gap:7px;font-family:'Montserrat';font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#B97C30}
 
-  /* ===== print / PDF export =====
-     The showcase is a horizontal scroll-snap carousel with reveal-on-scroll
-     animations. On paper that clips every panel past the first and prints blank
-     reveal blocks. For PDF (Chromium page.pdf) re-flow to a LINEAR document:
-     each topic a chapter, each carousel row stacked vertically, all panels shown,
-     keeping brand colour, type, SVG charts and panels verbatim. */
-  @page{ size:A4 portrait; margin:14mm; }
+  /* ===== print / PDF export — high-impact linear document =====
+     Screen build is a horizontal scroll-snap carousel with reveal-on-scroll.
+     For PDF (Chromium page.pdf) reflow to a branded paginated document: one
+     panel (or prose section) per page, the card filling the page and content
+     vertically centred — never split. Brand colour, type and SVG verbatim. */
+  @page{ size:A4 portrait; margin:12mm; }
   @media print{
-    /* honour brand fills/backgrounds (Chromium strips them otherwise) */
     *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
     html{ scroll-behavior:auto !important; }
     /* drop fixed nav + interactive-only carousel chrome */
@@ -113,14 +111,22 @@
     main#top{ padding-top:0 !important; max-width:none !important; }
     /* reveal-on-scroll: force visible in case the observer hasn't run */
     .reveal{ opacity:1 !important; transform:none !important; animation:none !important; }
-    /* horizontal scroll-snap track -> vertical stack so EVERY panel prints */
-    .track{ display:block !important; overflow:visible !important; scroll-snap-type:none !important; }
-    .track > .panel{ flex:none !important; min-width:0 !important; width:100% !important;
-      margin:0 0 1.25rem !important; break-inside:avoid; page-break-inside:avoid; }
-    /* one topic (chapter) per page; never split a panel/figure/table */
-    main#top > section{ break-before:page; page-break-before:always; }
-    main#top > section:first-of-type{ break-before:auto; page-break-before:auto; }
-    figure,svg,table,.panel{ break-inside:avoid; page-break-inside:avoid; }
+    /* every top-level section starts a new page */
+    main#top > section{ break-before:page !important; page-break-before:always !important; }
+    main#top > section:first-child{ break-before:auto !important; page-break-before:auto !important; }
+    /* prose sections (cover/intro/contents/dividers): fill the page, centre */
+    main#top > section:not(.topic){ min-height:100vh; box-sizing:border-box;
+      display:flex; flex-direction:column; justify-content:center; }
+    /* carousel -> each panel its own full page, centred, never split */
+    .topic .track{ display:block !important; overflow:visible !important; scroll-snap-type:none !important; }
+    .topic .track > .panel{
+      break-before:page !important; page-break-before:always !important;
+      break-inside:avoid; page-break-inside:avoid;
+      min-height:100vh; box-sizing:border-box;
+      display:flex !important; flex-direction:column; justify-content:center;
+      margin:0 !important; width:100% !important; min-width:0 !important; flex:none !important;
+      padding-left:3.5rem !important; padding-right:3.5rem !important; }
+    .topic .track > .panel:first-child{ break-before:auto !important; page-break-before:auto !important; }
     /* hover-only popovers never apply on paper */
     .cite-pop,.tl-tip-fo{ display:none !important; }
   }
