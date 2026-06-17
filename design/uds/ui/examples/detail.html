@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Northwind renewal · nopilot</title>
+  <meta name="uds-built-against" content="../themes/uds-ui.lock.json">
+  <meta name="uds-archetypes" content="shelf · navigation · central-body · detail · graphic · stat · callout · card · button">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link id="uds-theme" rel="stylesheet" href="../themes/theme-nopilot.css">
+  <link rel="stylesheet" href="../base.css">
+</head>
+<body class="uds-root">
+
+  <div class="uds-shell">
+    <!-- LEFT SHELF -->
+    <aside class="uds-shelf" id="shelf-left" data-side="left" data-collapsed="false">
+      <div class="uds-shelf__header">
+        <span class="uds-brand"><span class="uds-brand__glyph">n</span><span class="uds-brand__word">nopilot</span></span>
+        <span class="uds-spacer"></span>
+        <button class="uds-button uds-button--ghost uds-button--icon uds-shelf__toggle" data-uds-toggle="shelf-left" aria-label="Collapse sidebar" aria-expanded="true"><svg class="uds-icon"><use href="../icons.svg#i-panel-left"/></svg></button>
+      </div>
+      <button class="uds-button uds-button--secondary uds-shelf__search"><svg class="uds-icon uds-icon--sm"><use href="../icons.svg#i-search"/></svg><span class="uds-shelf__search-label">Search</span></button>
+      <nav class="uds-shelf__body uds-navigation" aria-label="Primary">
+        <a class="uds-navigation__item" href="dashboard.html" title="Dashboard"><svg class="uds-icon"><use href="../icons.svg#i-grid"/></svg><span class="uds-navigation__label">Dashboard</span></a>
+        <a class="uds-navigation__item" href="#" title="Leads"><svg class="uds-icon"><use href="../icons.svg#i-users"/></svg><span class="uds-navigation__label">Leads</span><span class="uds-badge">24</span></a>
+        <div class="uds-navigation__group" data-collapsed="false">
+          <button class="uds-navigation__item uds-navigation__trigger" aria-expanded="true" title="Pipeline"><svg class="uds-icon"><use href="../icons.svg#i-branch"/></svg><span class="uds-navigation__label">Pipeline</span><span class="uds-badge uds-badge--attention">6</span><svg class="uds-icon uds-icon--sm uds-navigation__chevron"><use href="../icons.svg#i-chevron"/></svg></button>
+          <div class="uds-navigation__sub">
+            <a class="uds-navigation__item uds-navigation__item--sub" href="board.html"><span class="uds-navigation__label">Inbound</span><span class="uds-badge">3</span></a>
+            <a class="uds-navigation__item uds-navigation__item--sub" href="board.html"><span class="uds-navigation__label">Qualifying</span></a>
+            <a class="uds-navigation__item uds-navigation__item--sub is-current" href="board.html"><span class="uds-navigation__label">Negotiation</span><span class="uds-badge uds-badge--attention">2</span></a>
+            <a class="uds-navigation__item uds-navigation__item--sub" href="board.html"><span class="uds-navigation__label">Closing</span></a>
+          </div>
+        </div>
+        <a class="uds-navigation__item" href="#" title="Accounts"><svg class="uds-icon"><use href="../icons.svg#i-building"/></svg><span class="uds-navigation__label">Accounts</span></a>
+        <a class="uds-navigation__item" href="#" title="Tasks"><svg class="uds-icon"><use href="../icons.svg#i-check"/></svg><span class="uds-navigation__label">Tasks</span><span class="uds-badge">12</span></a>
+        <a class="uds-navigation__item" href="#" title="Reports"><svg class="uds-icon"><use href="../icons.svg#i-chart"/></svg><span class="uds-navigation__label">Reports</span></a>
+      </nav>
+      <div class="uds-shelf__footer">
+        <span class="uds-avatar" title="Jordan Pierce">JP</span>
+        <span class="uds-shelf__who"><b>Jordan Pierce</b><small>connected</small></span>
+        <span class="uds-spacer"></span>
+        <button class="uds-button uds-button--ghost uds-button--icon" aria-label="Notifications"><svg class="uds-icon"><use href="../icons.svg#i-bell"/></svg></button>
+        <button class="uds-button uds-button--ghost uds-button--icon" aria-label="Settings"><svg class="uds-icon"><use href="../icons.svg#i-cog"/></svg></button>
+      </div>
+    </aside>
+
+    <!-- CENTRAL BODY → detail (normalised content hierarchy) -->
+    <div class="uds-shell__main">
+      <main class="uds-central-body uds-central-body--full">
+        <div class="uds-central-body__titlebar" style="border:0; margin-bottom:var(--uds-space-md); padding-bottom:0">
+          <a class="uds-button uds-button--ghost uds-button--sm uds-central-body__heading" href="board.html" style="flex:0"><svg class="uds-icon uds-icon--sm"><use href="../icons.svg#i-back"/></svg> Pipeline</a>
+          <div class="uds-central-body__toolbar">
+            <button class="uds-button uds-button--secondary">Edit</button>
+            <button class="uds-button uds-button--primary">Log activity</button>
+          </div>
+        </div>
+
+        <article class="uds-detail uds-detail--with-aside">
+          <div>
+            <header class="uds-detail__header">
+              <p class="uds-eyebrow">Deal · Q3 Enterprise</p>
+              <h1 class="uds-detail__title">Northwind renewal</h1>
+              <div class="uds-detail__byline">
+                <span>Owner · Jordan Pierce</span><span>£128,000</span><span>Closes Aug 30</span><span class="uds-badge uds-badge--attention">Negotiation</span>
+              </div>
+              <p class="uds-detail__lede">A multi-year platform renewal in late-stage legal review. The champion is confirmed and procurement is engaged; the open question is the security addendum.</p>
+            </header>
+
+            <div class="uds-detail__body">
+              <h2>Overview</h2>
+              <p>Northwind has run on the platform for three years across two business units. This renewal expands seat count by 40% and adds the analytics module. Legal is reviewing the security addendum; everything else is agreed.</p>
+
+              <figure class="uds-graphic">
+                <figcaption class="uds-graphic__title">Engagement — touches per week</figcaption>
+                <div class="uds-graphic__canvas" role="img" aria-label="Engagement rising over eight weeks">
+                  <div class="uds-graphic__bar" style="--v:28%"></div>
+                  <div class="uds-graphic__bar" style="--v:40%"></div>
+                  <div class="uds-graphic__bar" style="--v:34%"></div>
+                  <div class="uds-graphic__bar" style="--v:55%"></div>
+                  <div class="uds-graphic__bar" style="--v:62%"></div>
+                  <div class="uds-graphic__bar" style="--v:74%"></div>
+                  <div class="uds-graphic__bar" style="--v:68%"></div>
+                  <div class="uds-graphic__bar" style="--v:92%"></div>
+                </div>
+                <p class="uds-graphic__source">Source · TwentyCRM activity log · 8 weeks to today</p>
+              </figure>
+
+              <h2>Next steps</h2>
+              <p>Close the security addendum with Northwind's legal team, confirm the analytics rollout date, and countersign by month-end.</p>
+            </div>
+          </div>
+
+          <aside class="uds-detail__aside">
+            <div class="uds-stat"><span class="uds-stat__label">Probability</span><span class="uds-stat__value">78%</span><span class="uds-stat__delta">▲ 12%</span></div>
+            <div class="uds-callout uds-callout--attention">
+              <p class="uds-eyebrow">Risk</p>
+              <span>Security addendum is the only blocker — 6 days to close date.</span>
+            </div>
+            <div class="uds-card">
+              <div class="uds-card__body">
+                <p class="uds-eyebrow">Key contacts</p>
+                <div class="uds-cluster"><span class="uds-avatar" style="font-size:var(--uds-size-eyebrow)">MR</span><span>Maria Rossi · Champion</span></div>
+                <div class="uds-cluster"><span class="uds-avatar" style="font-size:var(--uds-size-eyebrow)">DL</span><span>David Lin · Procurement</span></div>
+              </div>
+            </div>
+          </aside>
+
+          <section class="uds-detail__related" style="grid-column:1/-1">
+            <p class="uds-eyebrow" style="margin-bottom:var(--uds-space-md)">Related deals</p>
+            <div class="uds-grid" data-cols="3">
+              <a class="uds-card" href="#detail"><div class="uds-card__body"><p class="uds-eyebrow">Q3 · Enterprise</p><h3 class="uds-card__title">Vertex expansion</h3><div class="uds-card__meta"><span class="uds-badge">Active</span> £96k</div></div></a>
+              <a class="uds-card" href="#detail"><div class="uds-card__body"><p class="uds-eyebrow">Q3 · Mid-market</p><h3 class="uds-card__title">Helios onboarding</h3><div class="uds-card__meta"><span class="uds-badge">Active</span> £54k</div></div></a>
+              <a class="uds-card" href="#detail"><div class="uds-card__body"><p class="uds-eyebrow">Partners</p><h3 class="uds-card__title">Meridian co-sell</h3><div class="uds-card__meta"><span class="uds-badge">Active</span> £71k</div></div></a>
+            </div>
+          </section>
+        </article>
+      </main>
+    </div>
+  </div>
+
+  <script src="../app.js"></script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+# Data patterns — the relationship + wayfinding grammar (ADR-006).
+#
+# UPSTREAM of rendering. Where the contract register (archetypes.yml) and the
+# aspect classes govern how a construct LOOKS across formats, data patterns
+# govern how content is STRUCTURED and TRAVERSED: content is nodes, the
+# relationships between them are edges, and a "type of navigation" is just a
+# constraint on which edges exist and how you move along them. Navigation is
+# traversal — you sit on a node and follow an edge to another.
+#
+# The register already encodes instances of this grammar — `lister.item` (a
+# listing CONTAINS cards) is a hard edge; `card.links_to: detail` (a card
+# REFERENCES its detail) is a soft edge. Data patterns NAME and GENERALISE that
+# relationship grammar so a contract can declare its topology explicitly.
+#
+# Brand-agnostic; carries no token values (those live only in tokens.yaml).
+#
+# STATUS: authored as a standalone grammar doc. NOT yet merged by
+# studio.uds.load_uds() nor validated by uds.schema.json — wiring it in (a
+# `data_patterns` schema property + resolver merge + cross-reference checks in
+# validate_uds: every `register:` name resolves to a known archetype, every
+# `aspect_affinity` to a known aspect class) is a later slice, once an engine
+# consumes it. Until then this is the canonical reference, not a live contract.
+version: "1.0"
+
+seal_rule: >-
+  Patterns may be extended and branded, never altered (ADR-005). The two
+  primitives (node, edge), the hard/soft edge distinction, and "the graph is the
+  general case" are sealed. The pattern set, each pattern's topologies, and the
+  per-topology affordances are the open surface — extend them, never rewrite the
+  primitives.
+
+# The two primitives every pattern is built from.
+primitives:
+  node:
+    intent: One addressable unit of content — a contenttype instance (a card's subject, a detail, a slide, a section, a page).
+    has: [identity, contenttype, edges]
+  edge:
+    intent: A relationship between two nodes; the thing traversal moves along.
+    properties:
+      scope: hard | soft                                   # the load-bearing axis — see edge_scope
+      directed: true | false                               # one-way (sequence, depends-on) vs two-way (relates-to)
+      weight: number | null                                # strength / cost / distance; soft edges are rankable, hard edges are not
+      role: containment | sequence | reference | similarity # open set — the kind of relationship
+
+# The load-bearing distinction: hard vs soft.
+edge_scope:
+  hard:
+    intent: Structural, intrinsic, WITHIN one space. Constitutive — it makes the space the shape it is.
+    traits: [authored, stable, usually-directed, not-ranked]
+    realises_as: a doc's sequence; lister.item (containment); a grid's neighbours
+    affordance: primary navigation chrome — the rails (scroll, next/prev, pan)
+    on_traverse: stay in the same space and mode — continuous
+  soft:
+    intent: Associative, referential, ACROSS spaces. Connective — it relates shapes to each other.
+    traits: [often-emergent-or-computed, rankable, weightable, filterable, usually-symmetric]
+    realises_as: card.links_to / lister.links_to (reference); tags; citations; similarity
+    affordance: secondary, opt-in surfaces — see-also, related, backlinks, side panel
+    on_traverse: a context switch into another space, possibly another mode — needs transitions, cross-space breadcrumbs, a back-stack
+  relativity: >-
+    Hard vs soft is defined RELATIVE to the current container, and nests.
+    Slide→slide is hard inside a deck; deck→deck is soft. Zoom out and treat the
+    whole showcase as the space and deck→deck becomes hard (its backbone),
+    leaving only the genuinely lateral links soft. This recursion is what lets
+    patterns compose into a graph-of-graphs: each space is a subgraph held by
+    hard edges; soft edges are the sparse bridges between subgraphs.
+
+# The patterns. Each is a constraint profile over edges. Currently one —
+# wayfinding — with room for more (e.g. faceting, sequencing, recommendation).
+patterns:
+  wayfinding:
+    intent: How a reader moves through a body of content.
+    model: >-
+      A graph. The linear / planar / spatial topologies are that graph
+      RESTRICTED to a spatial embedding (edges pruned to the embedding's
+      neighbours); the unrestricted graph is the general case — dimensionless,
+      pure connectivity. So the topologies below are one dial: how constrained
+      the edges are, from low to high degrees of freedom.
+    aspect_affinity_note: >-
+      aspect_affinity is the topology's natural home, not an exclusive binding —
+      any topology can render in any aspect class.
+    topologies:
+      linear:
+        dof: 1
+        edges: sequence only (a path); node degree ≤ 2
+        address: a single index — "page 7 of 20"
+        affordances: [next/prev, progress, breadcrumb-trivial]
+        wayfinding_cost: low — position is always known
+        aspect_affinity: page
+        register: [body, contents, detail]
+        example: a document, a slide deck
+      planar:
+        dof: 2
+        edges: orthogonal neighbours on a plane (a lattice)
+        address: coordinates — (x, y) / (row, col)
+        affordances: [pan, minimap, coordinates]
+        wayfinding_cost: moderate — needs a minimap
+        aspect_affinity: slide
+        register: [board, grid]
+        example: a map, a canvas, a pannable frame
+      spatial:
+        dof: 3
+        edges: neighbours in a volume
+        address: coordinates — (x, y, z)
+        affordances: [orbit, fly-to, spatial-minimap]
+        wayfinding_cost: high — full spatial wayfinding
+        aspect_affinity: null            # no UDS aspect class today (reserved)
+        register: []
+        example: a 3D scene, a spatial / VR walkthrough
+      graph:
+        dof: n
+        edges: arbitrary — any node to any node; the general case, no embedding
+        address: none — identity + links only
+        affordances: [search, breadcrumbs, you-are-here, overview-map, backlinks]
+        wayfinding_cost: highest — the "lost in hyperspace" risk lives on soft edges
+        aspect_affinity: screen
+        register: [lister, navigation, links, card]
+        example: a wiki, a knowledge graph
+    sealed: [primitives, hard-soft-distinction, graph-is-the-general-case]
+    extends: [topologies, per-topology-affordances, edge-roles]
+
+# How patterns realise through the existing contract register (archetypes.yml).
+# Data patterns are upstream of, and orthogonal to, the A/B/C register layers
+# (which govern rendering); this binds the abstract grammar to concrete contracts.
+register_binding:
+  hard_edges:
+    lister.item: a listing CONTAINS its cards (containment)
+    sequence: a body / deck reading order (sequence)
+  soft_edges:
+    card.links_to: a card REFERENCES its detail (reference)
+    lister.links_to: a listing's items open to a detail (reference)
+  renders_through:
+    navigation: renders a traversal of the wayfinding graph (active marker per the navigation contract)
+    guided_tour: a precomputed LINEAR path laid over the graph — linear and networked are not opposites; the tour is a curated walk

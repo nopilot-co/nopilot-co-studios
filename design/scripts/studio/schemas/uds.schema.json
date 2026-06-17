@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "uds.schema.json",
+  "title": "UDS grammar manifest",
+  "description": "The studio's adoption layer for the nopilot Universal Design System (ADR-006). The concrete token VALUES live in a W3C Design Tokens file (tokens.yaml, validated by Style Dictionary) in the brand store; THIS schema validates the brand-agnostic grammar the studio adds on top: the format set, the cross-format px→pt type rule, the aspect classes, the markdown mapping, and the contract register (archetypes). Authored across uds.yml + aspect-classes.yml + archetypes.yml and merged by studio.uds.load_uds().",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "token_format", "transform", "formats", "type_px_to_pt", "aspect_classes", "archetypes"],
+  "properties": {
+    "version": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+
+    "token_format": {
+      "type": "string",
+      "description": "The token source format. The UDS source of truth is W3C Design Tokens.",
+      "enum": ["w3c-design-tokens/2025.10"]
+    },
+    "transform": {
+      "type": "string",
+      "description": "How tokens.yaml is transformed into per-format artifacts.",
+      "enum": ["style-dictionary@4"]
+    },
+    "tokens_source": {
+      "type": "string",
+      "description": "Brand-store-relative path to the W3C tokens file (e.g. '{brand}/tokens.yaml')."
+    },
+
+    "formats": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["composition", "critical", "full"],
+      "properties": {
+        "composition": { "type": "string", "description": "The primary editing/composition format (HTML)." },
+        "critical": { "type": "array", "minItems": 1, "items": { "type": "string" } },
+        "full": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+      }
+    },
+
+    "type_px_to_pt": {
+      "type": "object",
+      "description": "The cross-format type rule: each size token's web px maps to a fixed document pt, so a heading is the same heading in a browser or a slide. Keys are font.size names in tokens.yaml.",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string", "pattern": "pt$" }
+    },
+
+    "aspect_classes": {
+      "type": "object",
+      "description": "The media classes a docket renders across. Each format maps to one; the px→pt rule applies to pt-unit classes.",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["orientation", "unit", "formats"],
+        "properties": {
+          "label": { "type": "string" },
+          "orientation": { "enum": ["portrait", "landscape", "fluid"] },
+          "canvas": { "type": "string" },
+          "unit": { "enum": ["px", "pt"], "description": "Type/length unit for this class. px → screen; pt → document/slide (apply type_px_to_pt)." },
+          "margin": { "type": "string" },
+          "formats": { "type": "array", "minItems": 1, "items": { "type": "string" } }
+        }
+      }
+    },
+
+    "markdown_mapping": {
+      "type": "array",
+      "description": "The spine: each markdown construct → one element per format. Every construct has exactly one defined home.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["md", "element"],
+        "properties": {
+          "md": { "type": "string" },
+          "element": { "type": "string", "description": "Archetype / contract it maps to." },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+
+    "seal_rule": {
+      "type": "string",
+      "description": "The governing rule: archetypes may be extended and branded, never altered."
+    },
+
+    "archetypes": {
+      "type": "object",
+      "description": "The contract register, by tier: infrastructure (page/app scaffold) · view (content arrangement) · component (composable block) · element (atomic). Each is a strict contract — extend + brand, never alter.",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["tier", "intent", "formats"],
+        "properties": {
+          "tier": { "enum": ["infrastructure", "view", "component", "element"] },
+          "intent": { "type": "string" },
+          "asset": { "type": ["string", "null"], "description": "Existing formats/assets/<asset>.yml slug, or null." },
+          "tokens": { "type": "array", "items": { "type": "string" }, "description": "Semantic tokens this contract consumes." },
+          "formats": { "type": "array", "minItems": 1, "items": { "type": "string" }, "description": "Formats the contract must render in (app-structure tiers are typically [html])." },
+          "sealed": { "type": "array", "items": { "type": "string" }, "description": "Contract terms that cannot be altered (only extended/branded); changing one forks." },
+          "extends": { "type": "array", "items": { "type": "string" }, "description": "The open surface — where a design may extend without forking." },
+          "item": { "type": "string", "description": "For listing views: the archetype used as the repeated item (e.g. card)." },
+          "links_to": { "type": "string", "description": "The archetype this opens to (e.g. card / lister → detail)." },
+          "variants": {
+            "type": "object",
+            "description": "Named variant axes (e.g. lister arrangement / cardinality).",
+            "additionalProperties": { "type": "array", "items": { "type": "string" } }
+          },
+          "reflow": {
+            "type": "object",
+            "description": "Optional per-aspect-class layout note (keyed by an aspect_classes name).",
+            "additionalProperties": {
+              "type": "object",
+              "required": ["mode"],
+              "properties": { "mode": { "type": "string" }, "notes": { "type": "string" } }
+            }
+          }
+        }
+      }
+    },
+
+    "register_layers": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}

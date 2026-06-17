@@ -27,6 +27,16 @@ referenced by the same icon *names* where possible, swapping sets is mechanical.
 distributed as SVGs and npm packages. The community fork of Feather; the safest
 neutral default for documents, decks, and web. Source: https://lucide.dev
 
+## Brand locks
+
+A brand may **canonically lock** its icon set so it is no longer a per-design
+choice. The lock lives in the brand's `tokens.yaml` `icon` group (`set`, `stroke`,
+`size`) — the single source of truth — not here; this is the human cross-reference.
+
+| Brand | Set | Stroke | Source of truth |
+|-------|-----|--------|-----------------|
+| nopilot | `lucide` | 1.5px (to match the altimeter) | `~/context/studios/brand/nopilot/tokens.yaml` → `icon` |
+
 ## Catalog (open-source SVG sets, interchangeable)
 
 Prefer permissively licensed sets (MIT / ISC / open source) for embedding.

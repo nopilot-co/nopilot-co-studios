@@ -1,0 +1,57 @@
+# Universal Design System — grammar manifest (ADR-006).
+#
+# The UDS is the nopilot brand-v3 system. Its token VALUES are the single source
+# of truth in a W3C Design Tokens file (tokens.yaml) held in the brand store and
+# transformed by Style Dictionary v4; this manifest is the brand-agnostic GRAMMAR
+# the studio adds on top — the format set, the cross-format px→pt type rule, and
+# pointers to the aspect classes (aspect-classes.yml) and the contract register
+# (archetypes.yml). studio.uds.load_uds() merges the three and validates against
+# scripts/studio/schemas/uds.schema.json. Nothing here carries a token value —
+# values live only in tokens.yaml ("one source reaches six formats").
+version: "1.0"
+name: nopilot Universal Design System
+description: >-
+  Command without noise. A graphite ground that stays quiet until it speaks, then
+  speaks once: crimson for what to do, yellow for what to notice. One source
+  (tokens.yaml) renders consistently across six formats. "Universal" = universal
+  across output formats, not across brands.
+
+token_format: w3c-design-tokens/2025.10
+transform: style-dictionary@4
+tokens_source: "{brand}/tokens.yaml"   # brand-store relative; graduated canonical home
+
+# The output languages. HTML is the composition/canonical surface; PDF + GSlide are
+# the critical parallels (GSlide built natively via the Drive connector / Apps Script
+# Workspace theme + direct API/MCP injection, and stays docket-referenceable). The
+# full set is the six the UDS contracts must hold in.
+formats:
+  composition: html
+  critical: [html, gslide, pdf]
+  full: [html, pdf, pptx, docx, gslide, gdoc]
+
+# The cross-format TYPE rule (design.md). Each size token's web px maps to a fixed
+# document pt so a heading is the same heading in a browser, a slide, or on A4.
+# Keys are font.size names in tokens.yaml; the px side is read from there (never
+# duplicated here). Applied by the resolver for pt-unit aspect classes.
+type_px_to_pt:
+  display: 40pt
+  h1: 36pt
+  h2: 24pt
+  h3: 18pt
+  h4: 15pt
+  body: 11pt
+  small: 9.5pt
+  caption: 8.5pt
+  eyebrow: 8.5pt
+
+# The three register layers (full contracts in archetypes.yml).
+register_layers:
+  A: Page and block elements (cover sheet, header/footer, contents, stat, pull-quote, callout, table, image, accents, dividers, buttons).
+  B: Text and house-style mechanics (typography roles, spacing, links, citations, code, numbers/dates, icons, third-party logos). Markdown mapping is the spine.
+  C: Application UI (navigation, headers, footers, shelves, modals, feedback, forms, motion). HTML-canonical; the colour split and motion restraint hold exactly as on the page.
+
+# Upstream of the register layers above (which govern rendering): the relationship
+# + wayfinding grammar — content as nodes/edges, hard (intra) vs soft (inter)
+# edges, and the linear/planar/spatial/graph topologies — lives in
+# `data-patterns.yml`. Authored as a standalone grammar doc; not merged here nor
+# validated by the schema yet (a later wiring slice). See README → "Data patterns".

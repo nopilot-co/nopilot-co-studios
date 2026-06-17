@@ -1,0 +1,31 @@
+# Aspect classes — the media canvases a docket renders across (ADR-006).
+#
+# The brief's "rules for execution across varying aspect ratios" (widescreen
+# landscape ↔ A4 portrait). Each output format maps to exactly one class. The
+# px→pt type rule (uds.yml type_px_to_pt) applies to the pt-unit classes; the
+# screen class keeps the web px values from tokens.yaml. Generous margins are the
+# brand's "confidence" tell (design.md → space.5xl on cover/section).
+aspect_classes:
+  screen:
+    label: Screen (composition / canonical)
+    orientation: fluid
+    canvas: responsive
+    unit: px
+    margin: clamp(24px, 5vw, 96px)
+    formats: [html]
+
+  slide:
+    label: Slide (16:9 landscape)
+    orientation: landscape
+    canvas: 1280px x 720px
+    unit: pt
+    margin: 48px
+    formats: [gslide, pptx]
+
+  page:
+    label: Page (A4 portrait)
+    orientation: portrait
+    canvas: 210mm x 297mm
+    unit: pt
+    margin: 22mm
+    formats: [pdf, docx, gdoc]

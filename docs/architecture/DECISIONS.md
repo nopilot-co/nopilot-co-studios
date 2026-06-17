@@ -302,3 +302,174 @@ hard-to-reverse decision. Link back from the issue that prompted it.
     forks must be frozen, resolved snapshots with a lineage pointer.
   - *Treat header/footer as its own axis.* Rejected — it is a shared contract:
     layout owns slot presence/placement (sealed); brand owns fill/style.
+
+## ADR-006 — Universal Design System (UDS) + parallel-render dockets: HTML-primary, one source → many formats
+
+- **Status:** accepted (2026-06-17)
+- **Issue:** #123 (UDS epic); Slice 0 (#124). Slices 1–7 tracked on #123.
+- **Extends:** ADR-005. The four orthogonal layers, sealed keys, fail-closed
+  validation, the fork model, and the `built_against` provenance stamp are the
+  substrate this builds on — not replaced.
+
+- **Context.** The studio renders on `select format → scaffold → render → publish`,
+  where a **format = purpose × export** and **one session = one format = one
+  export** (`design/CLAUDE.md`, `formats/README.md`). "Want the same pitch as PDF
+  *and* HTML? That's two sessions." We want the inverse: one tokenised design
+  system rendered into **many parallel formats from one source**, HTML as the
+  **primary editing surface**, a **docket** that carries the design system as an
+  onboard traveller, and a **save** that updates every parallel format at once —
+  consistent and rules-driven across aspect ratios (16:9 landscape ↔ A4 portrait).
+  Three facts make this a small step, not a rewrite:
+  1. **"HTML is never *translated* into PDF" is already true in code.** Each export
+     renders *from `source.md`*: `render.py::_engine_linear` produces PDF via
+     Quarto→Typst from the source body; `_engine_pptx` builds native shapes from the
+     same source. Neither reads the HTML. The PIE/French/English analogy *is* the
+     implementation — it just isn't *expressed* as "one docket, parallel renders".
+  2. **The design system was real but scattered, incomplete, and unnamed.** Tokens
+     lived in `tokens.py` (color/space/radius only), values in
+     `resources/design-systems/`, navigation in `formats/layouts/`, blocks in
+     `formats/assets/` — and typography authored in those systems was silently
+     dropped (`tokens.resolve` emitted only color/space/radius). The nopilot
+     **brand-v3 UDS** (this session's reference, authored separately) resolves that:
+     one **W3C Design Tokens** file is the single source of truth, transformed by
+     **Style Dictionary v4** into every format's theming.
+  3. **"Docket" already exists** (`scripts/studio/docket.py`) as a portable tree,
+     and ADR-005 already froze the lockfile model (`contract.lock.yml`) that the
+     "onboard traveller" needs.
+
+- **Decision.**
+  1. **The UDS is the nopilot brand-v3 system; the studio adopts it, unaltered.**
+     Its token *values* are the single source of truth in a **W3C Design Tokens**
+     file (`tokens.yaml`) transformed by **Style Dictionary v4** into CSS vars /
+     Tailwind-shadcn / PDF print styles / generated PPTX·DOCX·Google themes — "one
+     source reaches six formats; no template carries a hard-coded value."
+     **"Universal" means across output formats, not across brands.** The studio adds
+     a brand-agnostic **grammar** in `design/uds/` (the format set, the cross-format
+     type rule, the aspect classes, the contract register) and *reads* the values
+     from `tokens.yaml`; it never re-models them. Archetypes **promote** existing
+     `formats/assets/<asset>.yml`.
+  2. **`tokens.yaml` graduates to a studio-owned canonical home** (the brand store,
+     `~/context/studios/brand/<brand>/tokens.yaml`), resolved natively in Python now
+     (`studio.uds.resolve_tokens` dereferences `{a.b.c}` refs + the light/dark
+     semantic sets). **Style Dictionary becomes the artifact generator at the wiring
+     slice** — the Node toolchain enters only when artifacts are consumed. A docket
+     carries a **frozen, hashed snapshot** of the tokens (the onboard traveller; the
+     ADR-005 lockfile model). One source of truth, no fork.
+  3. **The cross-format type rule is an explicit px→pt map, not a multiplier.**
+     `design.md` fixes it: display 64px→40pt, h1 48→36, h2 32→24, h3 24→18, h4
+     20→15, body 16→11, small 14→9.5, eyebrow/caption 12→8.5. Three **aspect
+     classes** — `screen` (px, fluid, html), `slide` (pt, 16:9, gslide/pptx),
+     `page` (pt, A4 portrait, pdf/docx/gdoc) — partition the format set; the px→pt
+     rule applies to the pt classes. Sealed + fail-closed (ADR-005): divergence
+     forks, never drifts.
+  4. **The register is the archetype set; markdown is the spine.** Layer A (page/
+     block — cover sheet, header/footer, contents, stat, pull-quote, callout, table,
+     image, accents, dividers, buttons), Layer B (text/house-style), Layer C
+     (application UI — HTML-canonical; "a modal has no place in a Word file"). Each
+     contract names the tokens it consumes and must hold its worked example **in all
+     six formats**; the markdown mapping gives every construct one home per format.
+  5. **Invert session → docket; HTML is the composition surface.** A docket locks
+     the UDS + a **parallel-format set** — critical **HTML (composition) + GSlide +
+     PDF**, within the full six — rather than one export; `studio render` renders the
+     set from one source. **GSlide is built natively via the Drive connector / Apps
+     Script Workspace theme and maintained over direct API/MCP injection, while
+     staying docket-referenceable** (the docket records the live Google asset + theme
+     provenance like any other render). A **sideways render**
+     (`studio render --sideways <format>`) produces any one format for comparison
+     without disturbing the locked set; in `nopilot-co-www`, **save fans out the
+     parallel set** (extend `POST /api/dockets/<id>/edit` to drive the PDF + GSlide
+     jobs). The editor stays an HTML editor — not a slides/PDF IDE.
+
+- **Consequences.**
+  - The token system gains one named home with a real pipeline; typography the old
+    resolver dropped now comes from the W3C tokens directly.
+  - "One asset, parallel formats" replaces "one session, one export"; the truth is
+    one source + a frozen token snapshot, HTML as the surface, PDF/GSlide co-equal
+    renders — never derived from the HTML.
+  - The first cross-format proof is the **cover sheet across HTML + GSlide + PDF**
+    (the UDS build order), before the markdown mapping and the rest of Layer A/B/C.
+  - **Sliced delivery:** Slice 0 (grammar + W3C resolver, render-inert) lands first
+    and independently. Slices 1–7 (Style-Dictionary artifact generation + wiring →
+    archetypes → sealed reflow → docket inversion → sideways render → www save
+    fan-out → 360 refactor) assume the **ADR-005 spine** is merged.
+
+- **Alternatives considered.**
+  - *Re-model the tokens in the studio's own `tokens.py` (color/space/radius + an
+    invented type scale).* Rejected — it forks the single source of truth and drifts
+    from the UDS; the studio reads `tokens.yaml`, it does not re-author it. (Slice 0
+    first drafted an invented modular scale; this supersedes it.)
+  - *Adopt Style Dictionary as a Node build step in the studio immediately.*
+    Deferred, not rejected — the source of truth is adopted now (read natively); the
+    Node generator enters at the wiring slice, when artifacts are consumed.
+  - *Keep `tokens.yaml` only in the brand-v3 vault and reference it by path.*
+    Rejected — not docket-portable and couples the studio to a vault path; it
+    graduates to the brand store with provenance instead.
+  - *Derive PDF/GSlide from the rendered HTML (true print/serialisation).* Rejected
+    — it reintroduces translation (HTML as a source), the exact thing the model
+    forbids; each format renders from the source + tokens.
+  - *Aspect reflow / type rule as a QA warning, not fail-closed.* Rejected —
+    "consistent and rules-driven" requires enforcement; ADR-005 precedent is a
+    non-zero exit, not a soft note.
+
+## ADR-007 — Application-UI hydration (Layer C): greyscale-default archetypes, token-injected themes, enforced seals
+
+- **Status:** accepted (2026-06-17)
+- **Issue:** #125 (Slice C0), under #123 (UDS epic).
+- **Extends:** ADR-006 (Layer C / application UI is HTML-canonical) and ADR-005
+  (sealed keys, governed forks, `built_against` provenance). Reuses the ADR-005
+  enforcement engine (`studio.formats`) rather than duplicating it.
+
+- **Context.** The register (`design/uds/archetypes.yml`) *declares* governance — the
+  `seal_rule`, each archetype's `sealed:` terms, and the brand store's
+  `tokens.provenance.json` `locks` — but nothing *realised or enforced* it for the
+  application UI. The brief (a login + a dashboard, branded by npt, greyscale by
+  default) needed the screen layer that ADR-006 names but Slice 0 left render-inert.
+  (Built concurrently with a parallel session that rewrote the register in place; per
+  owner decision this converged on that register as canonical — the hydration layer is
+  additive and binds to it by slug, never redefining it.)
+
+- **Decision.**
+  1. **One contract, two skins.** Archetypes are realised in `design/uds/ui/base.css`,
+     greyscale by default, every rule a `var(--uds-*)` (no literal value). A **theme**
+     fills those properties on `:root`; swapping `themes/theme-greyscale.css` ↔
+     `themes/theme-<brand>.css` re-skins identical markup. Both themes are **generated**
+     by `studio.hydrate` from the brand's `tokens.yaml` via `studio.uds.resolve_uds` —
+     no value authored twice. The class binding is `.uds-<slug>` / `__part` / `--variant`
+     / `.is-state`; the register declares contracts, this layer supplies selectors.
+  2. **Governance enforced, fail-closed.** `studio.hydrate validate` is the gate (ADR-005
+     precedent — a violation is a non-zero exit): **closure** (base.css references only
+     tokens a theme emits), **coverage** (every `.uds-<slug>` is a real archetype/helper),
+     **seals realised** (a *built* archetype must implement each `sealed:` term — slots,
+     focus-trap/scrim/dismissal, the crimson/yellow colour-split, `stroke-1.5px`), and
+     **naming** (`--uds-<group>-<name>`, kebab slugs).
+  3. **Brands skin, never alter.** `hydrate_archetype(slug, brand, overrides)` merges the
+     contract ← the brand token surface ← overrides through `formats._merge_layers`. Token
+     *values* are the open surface; an override on a **sealed** path (`tier`, `selector`,
+     `sealed_terms`) raises `SealedKeyConflict`. To change a sealed term you fork
+     (local-frozen / global-PR) — it never drifts.
+  4. **Provenance.** `themes/uds-ui.lock.json` records `built_against` — the register hash
+     + the exact `tokens.yaml` hash (verified equal to the brand store's
+     `tokens.provenance.json` `content_hash`), the sealed token surface, and the carried
+     `locks` (`icon:lucide@1.5px`). Each asset cites it via `<meta name="uds-built-against">`.
+  5. **HTML-canonical; the auth boundary is a documented contract, not a backend.** The
+     login posts to a gateway that authenticates *and* confirms TwentyCRM authorisation
+     (`403` = not an authorised user — the brief's gate); the live gateway/TwentyCRM wiring
+     is out of scope (offline `data-mock` stands in).
+
+- **Consequences.** The seals stop being decorative — an unrealised sealed term fails CI.
+  The hydration layer uses the *same* sealing/provenance engine as format contracts, so
+  "one mental model" holds across both. Greyscale is a first-class default (the
+  brand-agnostic contract), proving "tokenisable, branded by an opinionated UDS." React/
+  Tailwind-shadcn emit remains a later Style-Dictionary slice; the `declared` archetypes
+  (board/detail/graphic) and the Lucide vendoring are follow-ups.
+
+- **Alternatives considered.**
+  - *A parallel `ui/registry.yml` (selector/anatomy/variants as a second register).*
+    Rejected — it forks the contract; converged on the in-place register and kept only the
+    realisation (base.css) + enforcement (`studio.hydrate`).
+  - *Ship a React/shadcn component library now.* Deferred — ADR-006 makes HTML canonical
+    and defers the Node/Style-Dictionary toolchain; the native CSS-vars path is consistent.
+  - *Treat seals as documentation / soft QA.* Rejected — ADR-005 precedent is fail-closed;
+    a seal you don't enforce is a seal that drifts.
+  - *Reimplement sealing in the hydration layer.* Rejected — `studio.formats` already
+    implements `_merge_layers` + `SealedKeyConflict` + `contract_hash`; reuse, don't fork.

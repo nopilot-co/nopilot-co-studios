@@ -1,0 +1,62 @@
+{
+  "scope": "canonical",
+  "derived_from": "design/uds/archetypes.yml",
+  "built_against": {
+    "register": {
+      "file": "design/uds/archetypes.yml",
+      "sha256": "sha256:efca2afd188e60840952f2d71ee11130c8e1e955ddbec03b3400aa551a7b2078",
+      "archetypes": 34
+    },
+    "tokens": {
+      "brand": "nopilot",
+      "source": "/Users/ted/context/studios/brand/nopilot/tokens.yaml",
+      "sha256": "sha256:2516316412556a07203af96dc18d6e8acc3621cd0f2fd32e214894c45d99470a",
+      "provenance_hash": "sha256:2516316412556a07203af96dc18d6e8acc3621cd0f2fd32e214894c45d99470a",
+      "matches_provenance": true
+    }
+  },
+  "token_surface": {
+    "color": [
+      "active",
+      "active-wash",
+      "bg",
+      "eyebrow",
+      "line",
+      "link",
+      "on-active",
+      "on-primary",
+      "primary",
+      "primary-hover",
+      "surface",
+      "surface-sunk",
+      "text",
+      "text-muted",
+      "text-subtle"
+    ],
+    "dataviz": [
+      "1",
+      "2",
+      "3",
+      "4",
+      "5",
+      "6"
+    ]
+  },
+  "icons": {
+    "set": "lucide",
+    "stroke": "1.5px",
+    "version": "0.469.0",
+    "license": "ISC",
+    "vendored": "design/resources/iconography/lucide",
+    "sprite": "design/uds/ui/icons.svg",
+    "sprite_sha256": "sha256:673cf52e3250205708de44f7c9822e8b02576bb1d26ba686868207f96a73c0ff"
+  },
+  "locks": [
+    "icon:lucide@1.5px"
+  ],
+  "themes": [
+    "theme-greyscale.css",
+    "theme-nopilot.css"
+  ],
+  "generated_with": "studio.hydrate"
+}

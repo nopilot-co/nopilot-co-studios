@@ -1,0 +1,300 @@
+# Contract register — UI archetypes (ADR-006).
+#
+# Archetypes are STRICT CONTRACTS: they may be EXTENDED (at declared extension
+# points) and BRANDED (skinned via tokens.yaml), but never ALTERED. That is the
+# ADR-005 sealing applied to UI — the contract's structure (anatomy, sealed slots,
+# behaviour) is fixed; the open surface extends; structural divergence FORKS
+# (local-frozen or global-PR), it never drifts silently.
+#
+# Four tiers, coarse → fine: infrastructures → views → components → elements.
+# The markdown mapping is the spine (every construct → one home per format).
+# Each contract declares: tier, intent, the tokens it consumes, the formats its
+# worked example must hold in, what is `sealed`, and where it may `extend`.
+# Engines don't read this yet (Slice 2+); Slice 0 validates it.
+seal_rule: >-
+  Archetypes may be extended and branded, never altered. Sealed terms (anatomy,
+  slots, behaviour) cannot be overridden by a brand, design, or session — changing
+  one forks the contract (local-frozen / global-PR), per ADR-005.
+
+# The spine — markdown construct → the archetype it maps to.
+markdown_mapping:
+  - { md: "# H1",            element: cover-sheet,   notes: "Page/slide title; Newsreader display; cover uses the 40pt step" }
+  - { md: "## H2 / ### H3",  element: contents,      notes: "Section/sub-section headings; Newsreader, sentence case only" }
+  - { md: "paragraph",       element: typography,    notes: "Body prose; Inter, 1.6 line height, left aligned" }
+  - { md: "> blockquote",    element: pull-quote,    notes: "Newsreader italic, accent rule" }
+  - { md: "- / 1. list",     element: typography,    notes: "Restrained; prose preferred (ted-voice)" }
+  - { md: "**bold** *italic*", element: typography,  notes: "Emphasis by weight / serif italic, never colour" }
+  - { md: "`code` / fenced", element: code-block,    notes: "Geist Mono, sunk surface" }
+  - { md: "[text](url)",     element: links,         notes: "Internal vs external treatment" }
+  - { md: "![](img)",        element: image,         notes: "Figure frame, caption, credit" }
+  - { md: "| table |",       element: table,         notes: "Header row, hairline rules, numeric alignment" }
+  - { md: "---",             element: divider,       notes: "Hairline in line colour" }
+  - { md: "footnote",        element: citations,     notes: "Numbered, Geist Mono, sources block" }
+
+archetypes:
+  # ===================== Infrastructures — page/app scaffold =====================
+  ui-header:
+    tier: infrastructure
+    intent: Running top bar — mark, context, primary actions; sticky.
+    formats: [html]
+    tokens: [surface, line, text]
+    sealed: [anatomy, sticky-behaviour]
+    extends: [slots, actions]
+  ui-footer:
+    tier: infrastructure
+    intent: Running foot — status, meta, secondary links.
+    formats: [html]
+    tokens: [text-muted, line]
+    sealed: [anatomy]
+    extends: [slots]
+  shelf:
+    tier: infrastructure
+    intent: A side column → shelf — navigation/context (left) or detail/inspector (right); toggleable.
+    formats: [html]
+    tokens: [surface, line, shadow]
+    sealed: [position, collapse-behaviour]
+    extends: [side, contents]   # side = left | right
+  central-body:
+    tier: infrastructure
+    intent: The main canvas; standardised title + byline placement.
+    formats: [html]
+    tokens: [text, text-muted]
+    sealed: [title-slot, byline-slot]
+    extends: [view]
+  modal:
+    tier: infrastructure
+    intent: Focus-trapped dialog / alert / confirmation (Base UI primitive).
+    formats: [html]
+    tokens: [surface, primary, active]
+    sealed: [focus-trap, dismissal, scrim]
+    extends: [body]
+
+  # =========================== Views — content arrangement =======================
+  board:
+    tier: view
+    intent: Kanban — columns of cards.
+    formats: [html]
+    tokens: [surface, line]
+    item: card
+    sealed: [column-of-cards]
+    extends: [columns]
+  grid:
+    tier: view
+    intent: Uniform tiling of items.
+    formats: [html]
+    tokens: [space]
+    sealed: [uniform-cells]
+    extends: [cell-count]
+  body:
+    tier: view
+    intent: Single normalised reading column.
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [text]
+    sealed: [single-column-measure]
+    extends: [content]
+  lister:
+    tier: view
+    intent: A listing of one contenttype; item is a card; each links to a detail.
+    formats: [html]
+    tokens: [space, line]
+    item: card
+    links_to: detail
+    variants:
+      arrangement: [grid, column, row]
+      cardinality: [fixed, variable]   # fixed: grid 3x3 / column@N · variable: paginated (grid paginated, column@20)
+    sealed: [item-is-card, item-links-to-detail]
+    extends: [arrangement, cardinality, filters]
+  detail:
+    tier: view
+    intent: One contenttype in the normalised content hierarchy.
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [text, eyebrow]
+    sealed: [content-hierarchy]
+    extends: [contenttype-fields]
+
+  # ============================== Components — blocks ============================
+  card:
+    tier: component
+    intent: A contenttype's advert — title, byline, figure, excerpt; links to its detail.
+    asset: null
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [surface, line, text, text-muted]
+    links_to: detail
+    sealed: [anatomy, links-to-detail]
+    extends: [fields, media]
+  accordion:
+    tier: component
+    intent: Progressive disclosure — (summary, detail) pairs.
+    formats: [html]
+    tokens: [line, text]
+    sealed: [summary-detail-pairing]
+    extends: [items]
+  table:
+    tier: component
+    intent: Tabular data — header row, hairline rules, numeric alignment.
+    asset: data-table
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [line, surface-sunk, active, text]
+    sealed: [header-row, rule-style]
+    extends: [columns, rows]
+  graphic:
+    tier: component
+    intent: Data visualisation — chart / diagram (data-viz); dataviz ramp leads crimson.
+    asset: data-viz
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [dataviz, text]
+    sealed: [dataviz-ramp-order]
+    extends: [series, type]
+  image:
+    tier: component
+    intent: Figure — frame, aspect, caption, credit; full-bleed vs inset.
+    asset: asset-embed
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [line, radius, text-muted]
+    sealed: [caption-credit]
+    extends: [media, aspect]
+  text-column:
+    tier: component
+    intent: Single prose column — Inter, 1.6 leading, left aligned.
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [text]
+    sealed: [measure, leading]
+    extends: [content]
+  two-column-text:
+    tier: component
+    intent: Two-column prose.
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [text]
+    sealed: [gutter, balance]
+    extends: [content]
+  hero:
+    tier: component
+    intent: Single focal statement / cover — display serif title + standfirst.
+    asset: cover
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [primary, active, text, surface]
+    sealed: [single-focus]
+    extends: [media, standfirst]
+  banner:
+    tier: component
+    intent: Full-width callout / announcement strip.
+    formats: [html]
+    tokens: [primary, on-primary, active]
+    sealed: [full-width]
+    extends: [message, cta]
+  cover-sheet:
+    tier: component
+    intent: Title page — glyph, eyebrow, serif title, accent, header, footer.
+    asset: cover
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [primary, active, text, eyebrow]
+    sealed: [title-slot, eyebrow-slot]
+    extends: [media]
+  pull-quote:
+    tier: component
+    intent: Display-serif quotation with attribution.
+    asset: pullquote
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [text, primary, line]
+    sealed: [attribution]
+    extends: [quote]
+  contents:
+    tier: component
+    intent: Table of contents / section index with anchors.
+    asset: contents
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [text, line, eyebrow]
+    sealed: [anchor-mapping]
+    extends: [entries]
+  stat:
+    tier: component
+    intent: Large figure, label, optional yellow highlight.
+    asset: stat-panel
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [text, active, primary]
+    sealed: [figure-label]
+    extends: [figures]
+  callout:
+    tier: component
+    intent: Self-contained accent block — eyebrow, heading, body, optional CTA.
+    asset: callout-panel
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [surface, line, active-wash]
+    sealed: [accent-edge]
+    extends: [body, cta]
+  typography:
+    tier: component
+    intent: Type roles, emphasis (weight not colour), lists (restrained), alignment.
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [text, text-muted]
+    sealed: [role-scale]
+    extends: [content]
+  citations:
+    tier: component
+    intent: Numbered references + a sources block.
+    asset: source-reference
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [eyebrow, text-muted, link]
+    sealed: [numbering, sources-block]
+    extends: [entries]
+  code-block:
+    tier: component
+    intent: Code — Geist Mono, sunk surface, no syntax rainbow.
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [surface-sunk, text]
+    sealed: [mono-sunk]
+    extends: [content]
+
+  navigation:
+    tier: component
+    intent: Navigation construct — primary nav / rail / tabs; the active marker is yellow, never crimson.
+    formats: [html]
+    tokens: [active, surface, line, text]
+    sealed: [active-marker]
+    extends: [items]
+
+  # ============================== Elements — atomic ==============================
+  button:
+    tier: element
+    intent: Primary / secondary / text CTA; states. Crimson = the one action.
+    asset: cta
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [primary, on-primary, active, link]
+    sealed: [state-set, colour-split]
+    extends: [label, icon]
+  icon:
+    tier: element
+    intent: Lucide at the locked 1.5px stroke; semantic colour, never decoratively recoloured.
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [text, primary, active]
+    sealed: [set-lucide, stroke-1.5px]
+    extends: [name, size]
+  control:
+    tier: element
+    intent: Form input / select / toggle / etc.; the yellow focus ring.
+    formats: [html]
+    tokens: [active, line, text-subtle]
+    sealed: [focus-ring, error-state]
+    extends: [field-type]
+  links:
+    tier: element
+    intent: Internal vs external link treatment; external host shown; security.
+    asset: anchor-link
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [link, primary]
+    sealed: [internal-external-split]
+    extends: [target]
+  divider:
+    tier: element
+    intent: Section rule / hairline in the line colour; the visible spacing scale.
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: [line]
+    sealed: [hairline]
+    extends: []
+  third-party-logos:
+    tier: element
+    intent: LinkedIn / GitHub / Claude etc — official SVG, clear space, never recoloured.
+    formats: [html, pdf, pptx, docx, gslide, gdoc]
+    tokens: []
+    sealed: [official-svg, clear-space, no-recolour]
+    extends: [mark]

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign in · nopilot</title>
+  <meta name="uds-built-against" content="../themes/uds-ui.lock.json">   <!-- provenance: register + tokens snapshot -->
+  <meta name="uds-archetypes" content="card · control · button · callout · icon · links">  <!-- governed contracts realised -->
+
+  <!-- HYDRATION: swap this one link to themes/theme-greyscale.css → the unbranded
+       contract, identical markup. The brand lives entirely in the token :root. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link id="uds-theme" rel="stylesheet" href="../themes/theme-nopilot.css">
+  <link rel="stylesheet" href="../base.css">
+</head>
+<body class="uds-root">
+  <!-- icon sprite (Lucide-style line icons, stroke 1.5 — the `icon` archetype) -->
+
+  <main style="min-height:100dvh; display:grid; place-items:center; padding:var(--uds-space-xl)">
+    <div class="uds-card" style="width:min(100%,420px); box-shadow:var(--uds-shadow-card)">
+      <div class="uds-card__body" style="gap:var(--uds-space-xl); padding:var(--uds-space-3xl)">
+
+        <header class="uds-stack" style="gap:var(--uds-space-md)">
+          <span class="uds-brand"><span class="uds-brand__glyph">n</span><span class="uds-brand__word">nopilot</span></span>
+          <h1 class="uds-card__title" style="font-size:var(--uds-size-h2)">Sign in</h1>
+        </header>
+
+        <form class="uds-stack" data-uds-login data-gateway="/api/auth/login" data-mock novalidate>
+          <!-- inline error (feedback) — text + invalid rule, never colour alone -->
+          <div class="uds-field__error" data-uds-error role="alert" hidden></div>
+          <div class="uds-callout" data-uds-success hidden>
+            <span><strong>Authorised.</strong> Signing you in…</span>
+          </div>
+
+          <label class="uds-field">
+            <span class="uds-field__label">Work email</span>
+            <span style="position:relative; display:block">
+              <svg class="uds-icon uds-icon--sm" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--uds-color-text-subtle)"><use href="../icons.svg#i-mail"/></svg>
+              <input class="uds-control" name="email" type="email" autocomplete="username"
+                     placeholder="you@company.com" style="padding-left:38px" required>
+            </span>
+          </label>
+
+          <label class="uds-field">
+            <span class="uds-cluster" style="justify-content:space-between">
+              <span class="uds-field__label">Password</span>
+              <a class="uds-button uds-button--link uds-button--sm" href="#">Forgot?</a>
+            </span>
+            <span style="position:relative; display:block">
+              <svg class="uds-icon uds-icon--sm" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--uds-color-text-subtle)"><use href="../icons.svg#i-lock"/></svg>
+              <input class="uds-control" name="password" type="password" autocomplete="current-password"
+                     placeholder="••••••••" style="padding-left:38px" required>
+            </span>
+            <span class="uds-field__hint">Minimum 8 characters.</span>
+          </label>
+
+          <button class="uds-button uds-button--primary uds-button--lg uds-button--block" type="submit">
+            Sign in <svg class="uds-icon uds-icon--sm"><use href="../icons.svg#i-arrow"/></svg>
+          </button>
+        </form>
+
+      </div>
+      <div class="uds-card__meta" style="padding:var(--uds-space-md) var(--uds-space-3xl); border-top:var(--uds-border-hair) solid var(--uds-color-line)">
+        <span>Demo · <strong style="color:var(--uds-color-text)">demo@nopilot.co</strong> + any 8-char password</span>
+      </div>
+    </div>
+  </main>
+
+  <script src="../app.js"></script>
+</body>
+</html>

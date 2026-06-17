@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pipeline · nopilot</title>
+  <meta name="uds-built-against" content="../themes/uds-ui.lock.json">
+  <meta name="uds-archetypes" content="shelf · navigation · central-body · board · card · button">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Newsreader:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link id="uds-theme" rel="stylesheet" href="../themes/theme-nopilot.css">
+  <link rel="stylesheet" href="../base.css">
+</head>
+<body class="uds-root">
+
+  <div class="uds-shell">
+    <aside class="uds-shelf" id="shelf-left" data-side="left" data-collapsed="false">
+      <div class="uds-shelf__header">
+        <span class="uds-brand"><span class="uds-brand__glyph">n</span><span class="uds-brand__word">nopilot</span></span>
+        <span class="uds-spacer"></span>
+        <button class="uds-button uds-button--ghost uds-button--icon uds-shelf__toggle" data-uds-toggle="shelf-left" aria-label="Collapse sidebar" aria-expanded="true"><svg class="uds-icon"><use href="../icons.svg#i-panel-left"/></svg></button>
+      </div>
+      <button class="uds-button uds-button--secondary uds-shelf__search"><svg class="uds-icon uds-icon--sm"><use href="../icons.svg#i-search"/></svg><span class="uds-shelf__search-label">Search</span></button>
+      <nav class="uds-shelf__body uds-navigation" aria-label="Primary">
+        <a class="uds-navigation__item" href="dashboard.html" title="Dashboard"><svg class="uds-icon"><use href="../icons.svg#i-grid"/></svg><span class="uds-navigation__label">Dashboard</span></a>
+        <a class="uds-navigation__item" href="#" title="Leads"><svg class="uds-icon"><use href="../icons.svg#i-users"/></svg><span class="uds-navigation__label">Leads</span><span class="uds-badge">24</span></a>
+        <div class="uds-navigation__group" data-collapsed="false">
+          <button class="uds-navigation__item uds-navigation__trigger is-current" aria-expanded="true" title="Pipeline"><svg class="uds-icon"><use href="../icons.svg#i-branch"/></svg><span class="uds-navigation__label">Pipeline</span><span class="uds-badge uds-badge--attention">6</span><svg class="uds-icon uds-icon--sm uds-navigation__chevron"><use href="../icons.svg#i-chevron"/></svg></button>
+          <div class="uds-navigation__sub">
+            <a class="uds-navigation__item uds-navigation__item--sub" href="#"><span class="uds-navigation__label">Inbound</span><span class="uds-badge">3</span></a>
+            <a class="uds-navigation__item uds-navigation__item--sub" href="#"><span class="uds-navigation__label">Qualifying</span></a>
+            <a class="uds-navigation__item uds-navigation__item--sub" href="#"><span class="uds-navigation__label">Negotiation</span><span class="uds-badge uds-badge--attention">2</span></a>
+            <a class="uds-navigation__item uds-navigation__item--sub" href="#"><span class="uds-navigation__label">Closing</span></a>
+          </div>
+        </div>
+        <a class="uds-navigation__item" href="#" title="Accounts"><svg class="uds-icon"><use href="../icons.svg#i-building"/></svg><span class="uds-navigation__label">Accounts</span></a>
+        <a class="uds-navigation__item" href="#" title="Tasks"><svg class="uds-icon"><use href="../icons.svg#i-check"/></svg><span class="uds-navigation__label">Tasks</span><span class="uds-badge">12</span></a>
+        <a class="uds-navigation__item" href="#" title="Reports"><svg class="uds-icon"><use href="../icons.svg#i-chart"/></svg><span class="uds-navigation__label">Reports</span></a>
+      </nav>
+      <div class="uds-shelf__footer">
+        <span class="uds-avatar" title="Jordan Pierce">JP</span>
+        <span class="uds-shelf__who"><b>Jordan Pierce</b><small>connected</small></span>
+        <span class="uds-spacer"></span>
+        <button class="uds-button uds-button--ghost uds-button--icon" aria-label="Notifications"><svg class="uds-icon"><use href="../icons.svg#i-bell"/></svg></button>
+        <button class="uds-button uds-button--ghost uds-button--icon" aria-label="Settings"><svg class="uds-icon"><use href="../icons.svg#i-cog"/></svg></button>
+      </div>
+    </aside>
+
+    <div class="uds-shell__main">
+      <main class="uds-central-body uds-central-body--full" style="display:flex; flex-direction:column; height:100%">
+        <div class="uds-central-body__titlebar">
+          <h1 class="uds-central-body__title uds-central-body__heading">Pipeline</h1>
+          <div class="uds-central-body__toolbar">
+            <button class="uds-button uds-button--secondary">Filter</button>
+            <button class="uds-button uds-button--primary"><svg class="uds-icon uds-icon--sm"><use href="../icons.svg#i-plus"/></svg> New deal</button>
+          </div>
+        </div>
+
+        <!-- board — kanban: named columns, each an ordered stack of cards -->
+        <section class="uds-board" style="flex:1; min-height:0">
+          <div class="uds-board__column">
+            <div class="uds-board__header"><h3>Inbound</h3><span class="uds-badge uds-board__count">3</span></div>
+            <div class="uds-board__body">
+              <a class="uds-card" href="detail.html"><div class="uds-card__body"><p class="uds-eyebrow">Prospecting</p><h3 class="uds-card__title">Atlas outbound</h3><div class="uds-card__meta"><span class="uds-badge">New</span> 142 leads</div></div></a>
+              <a class="uds-card" href="detail.html"><div class="uds-card__body"><p class="uds-eyebrow">Inbound</p><h3 class="uds-card__title">Cirrus trial</h3><div class="uds-card__meta">£18k</div></div></a>
+              <a class="uds-card" href="detail.html"><div class="uds-card__body"><p class="uds-eyebrow">Inbound</p><h3 class="uds-card__title">Delta demo</h3><div class="uds-card__meta">£26k</div></div></a>
+            </div>
+          </div>
+          <div class="uds-board__column">
+            <div class="uds-board__header"><h3>Qualifying</h3><span class="uds-badge uds-board__count">2</span></div>
+            <div class="uds-board__body">
+              <a class="uds-card" href="detail.html"><div class="uds-card__body"><p class="uds-eyebrow">Q3 · Mid-market</p><h3 class="uds-card__title">Helios onboarding</h3><div class="uds-card__meta"><span class="uds-badge">Active</span> £54k</div></div></a>
+              <a class="uds-card" href="detail.html"><div class="uds-card__body"><p class="uds-eyebrow">Partners</p><h3 class="uds-card__title">Meridian co-sell</h3><div class="uds-card__meta">£71k</div></div></a>
+            </div>
+          </div>
+          <div class="uds-board__column">
+            <div class="uds-board__header"><h3>Negotiation</h3><span class="uds-badge uds-badge--attention uds-board__count">2</span></div>
+            <div class="uds-board__body">
+              <a class="uds-card uds-card--accent" href="detail.html"><div class="uds-card__body"><p class="uds-eyebrow">Q3 · Enterprise</p><h3 class="uds-card__title">Northwind renewal</h3><div class="uds-card__meta"><span class="uds-badge uds-badge--attention">Hot</span> £128k</div></div></a>
+              <a class="uds-card" href="detail.html"><div class="uds-card__body"><p class="uds-eyebrow">Q3 · Enterprise</p><h3 class="uds-card__title">Vertex expansion</h3><div class="uds-card__meta"><span class="uds-badge">Active</span> £96k</div></div></a>
+            </div>
+          </div>
+          <div class="uds-board__column">
+            <div class="uds-board__header"><h3>Closing</h3><span class="uds-badge uds-board__count">1</span></div>
+            <div class="uds-board__body">
+              <a class="uds-card" href="detail.html"><div class="uds-card__body"><p class="uds-eyebrow">Q3 · Enterprise</p><h3 class="uds-card__title">Solace upgrade</h3><div class="uds-card__meta">£64k · countersign</div></div></a>
+            </div>
+          </div>
+          <div class="uds-board__column">
+            <div class="uds-board__header"><h3>Won</h3><span class="uds-badge uds-board__count">1</span></div>
+            <div class="uds-board__body">
+              <a class="uds-card" href="detail.html"><div class="uds-card__body"><p class="uds-eyebrow">Q2 · Closed</p><h3 class="uds-card__title">Quanta rollout</h3><div class="uds-card__meta"><span class="uds-badge">Won</span> £133k</div></div></a>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="../app.js"></script>
+</body>
+</html>
