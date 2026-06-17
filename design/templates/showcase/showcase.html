@@ -95,6 +95,35 @@
   .pdots i{width:7px;height:7px;border-radius:9999px;background:#D8D2C6;display:block;transition:all .25s;cursor:pointer}
   .pdots i.on{background:#D99A4E;width:20px}
   .detailcue{display:inline-flex;align-items:center;gap:7px;font-family:'Montserrat';font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#B97C30}
+
+  /* ===== print / PDF export =====
+     The showcase is a horizontal scroll-snap carousel with reveal-on-scroll
+     animations. On paper that clips every panel past the first and prints blank
+     reveal blocks. For PDF (Chromium page.pdf) re-flow to a LINEAR document:
+     each topic a chapter, each carousel row stacked vertically, all panels shown,
+     keeping brand colour, type, SVG charts and panels verbatim. */
+  @page{ size:A4 portrait; margin:14mm; }
+  @media print{
+    /* honour brand fills/backgrounds (Chromium strips them otherwise) */
+    *{ -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+    html{ scroll-behavior:auto !important; }
+    /* drop fixed nav + interactive-only carousel chrome */
+    body > .fixed{ display:none !important; }
+    .chev,.pdots,.np-back,.nav-status,.detailcue{ display:none !important; }
+    main#top{ padding-top:0 !important; max-width:none !important; }
+    /* reveal-on-scroll: force visible in case the observer hasn't run */
+    .reveal{ opacity:1 !important; transform:none !important; animation:none !important; }
+    /* horizontal scroll-snap track -> vertical stack so EVERY panel prints */
+    .track{ display:block !important; overflow:visible !important; scroll-snap-type:none !important; }
+    .track > .panel{ flex:none !important; min-width:0 !important; width:100% !important;
+      margin:0 0 1.25rem !important; break-inside:avoid; page-break-inside:avoid; }
+    /* one topic (chapter) per page; never split a panel/figure/table */
+    main#top > section{ break-before:page; page-break-before:always; }
+    main#top > section:first-of-type{ break-before:auto; page-break-before:auto; }
+    figure,svg,table,.panel{ break-inside:avoid; page-break-inside:avoid; }
+    /* hover-only popovers never apply on paper */
+    .cite-pop,.tl-tip-fo{ display:none !important; }
+  }
 </style>
 </head>
 <body class="bg-paper text-ink antialiased">
