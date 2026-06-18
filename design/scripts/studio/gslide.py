@@ -511,17 +511,17 @@ def _card_grid_reqs(slide_id: str, cards: list, x: int, y: int, w: int, h: int, 
         cid = f"{slide_id}_{idbase}{i}"
         out += _shape(slide_id, f"{cid}r", "ROUND_RECTANGLE", cx0, cy0, cwc, rh, fill)
         pad, tw, ty = 220_000, cwc - 440_000, cy0 + 200_000
-        if c.get("eyebrow"):
+        if c.eyebrow:
             out.append(_text_box(slide_id, f"{cid}e", cx0 + pad, ty, tw, 230_000))
-            out.append({"insertText": {"objectId": f"{cid}e", "text": str(c["eyebrow"]).upper(), "insertionIndex": 0}})
+            out.append({"insertText": {"objectId": f"{cid}e", "text": str(c.eyebrow).upper(), "insertionIndex": 0}})
             out += _style(f"{cid}e", font=p["body"], size=8, color=_rgb(eb_col), weight=600)
             ty += 300_000
         out.append(_text_box(slide_id, f"{cid}t", cx0 + pad, ty, tw, 360_000))
-        out.append({"insertText": {"objectId": f"{cid}t", "text": str(c.get("title", "")), "insertionIndex": 0}})
+        out.append({"insertText": {"objectId": f"{cid}t", "text": str(c.title), "insertionIndex": 0}})
         out += _style(f"{cid}t", font=p["body"], size=11, color=_rgb(title_col), weight=600)
         ty += 420_000
         out.append(_text_box(slide_id, f"{cid}b", cx0 + pad, ty, tw, max(cy0 + rh - ty - 150_000, 250_000)))
-        out.append({"insertText": {"objectId": f"{cid}b", "text": str(c.get("body", "")), "insertionIndex": 0}})
+        out.append({"insertText": {"objectId": f"{cid}b", "text": str(c.body), "insertionIndex": 0}})
         out += _style(f"{cid}b", font=p["body"], size=8, color=_rgb(body_col))
     return out
 
@@ -539,7 +539,7 @@ def _panel_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p: di
         out.append({"insertText": {"objectId": f"{slide_id}_pe", "text": str(spec["eyebrow"]).upper(), "insertionIndex": 0}})
         out += _style(f"{slide_id}_pe", font=p["body"], size=9, color=_rgb(eb_col), weight=600)
         iy += 350_000
-    cards = spec.get("cards") or []
+    cards = archetype_ir.normalise_cards({"cards": spec.get("cards") or []}).cards
     body = str(spec.get("body", "")).strip()
     if body:
         bh = 1_350_000 if cards else max(h - (iy - y) - 300_000, 400_000)
@@ -716,7 +716,7 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             cy = _lead_band(sid, s.get("lead"), 1_650_000)
-            reqs += _card_grid_reqs(sid, s["cards"], MARGIN, cy, cw, min(PAGE_H - cy - MARGIN, 2_400_000), p)
+            reqs += _card_grid_reqs(sid, archetype_ir.normalise_cards(s["cards"]).cards, MARGIN, cy, cw, min(PAGE_H - cy - MARGIN, 2_400_000), p)
         elif kind == "panel":              # feature panel (+ optional nested cards)
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")

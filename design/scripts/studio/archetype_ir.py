@@ -36,6 +36,7 @@ CHART_TYPES = {"bar", "line", "pie", "scatter", "area"}
 CAPABILITIES: dict[str, set[str]] = {
     "chart": {"gslide", "pptx", "html"},
     "flow": {"gslide", "pptx", "html"},
+    "cards": {"gslide", "pptx", "html"},
 }
 
 # Fence name → canonical archetype (aliases collapse here as archetypes land).
@@ -44,6 +45,8 @@ ALIASES: dict[str, str] = {
     "flow": "flow",
     "process": "flow",  # gslide/pptx render :::process as a flow; HTML keeps its card
     #                     form pending a process→flow reconciliation of the 360 example.
+    "cards": "cards",
+    "card-grid": "cards",
 }
 
 
@@ -213,3 +216,50 @@ def normalise_flow(spec: Any) -> FlowNode:
         else:
             steps.append(_split_step(str(it)))
     return FlowNode(steps)
+
+
+# ----------------------------------------------------------------- cards
+@dataclass
+class Card:
+    title: str = ""
+    body: str = ""
+    eyebrow: str = ""
+
+
+@dataclass
+class CardsNode:
+    cards: list[Card] = field(default_factory=list)
+
+    @property
+    def is_empty(self) -> bool:
+        return not self.cards
+
+
+def normalise_cards(spec: Any) -> CardsNode:
+    """Reconcile card dialects into Cards (parsed value or raw body):
+        gslide  a bare list of {eyebrow?,title,body}  |  {cards:[…]}
+        a list of strings → title-only cards.
+    """
+    raw = spec
+    if isinstance(spec, str):
+        try:
+            raw = yaml.safe_load(spec)
+        except yaml.YAMLError:
+            raw = None
+    if isinstance(raw, dict):
+        items = raw.get("cards") or raw.get("items") or []
+    elif isinstance(raw, list):
+        items = raw
+    else:
+        items = []
+    cards: list[Card] = []
+    for it in items:
+        if isinstance(it, dict):
+            cards.append(Card(
+                str(it.get("title") or it.get("label") or it.get("name") or ""),
+                str(it.get("body") or it.get("caption") or it.get("desc") or it.get("excerpt") or ""),
+                str(it.get("eyebrow") or ""),
+            ))
+        else:
+            cards.append(Card(str(it)))
+    return CardsNode(cards)

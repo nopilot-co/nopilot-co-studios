@@ -237,6 +237,22 @@ def _flow(inner: str, ctx: dict | None = None) -> str:
             + "".join(chips) + "</ol>")
 
 
+def _cards(inner: str, ctx: dict | None = None) -> str:
+    """A native HTML card grid from a CardsNode — reuses the registered .uds-card / .uds-grid
+    archetype (styled in base.css), so it themes with the rest of the document."""
+    node = _ir.normalise_cards(inner)
+    if not node.cards:
+        return ""
+    cells = []
+    for c in node.cards:
+        eb = f'<p class="uds-eyebrow">{_inline(c.eyebrow)}</p>' if c.eyebrow else ""
+        body = f'<p class="uds-card__excerpt">{_inline(c.body)}</p>' if c.body else ""
+        cells.append(f'<div class="uds-card"><div class="uds-card__body">{eb}'
+                     f'<h3 class="uds-card__title">{_inline(c.title)}</h3>{body}</div></div>')
+    cols = min(len(cells), 3) or 1
+    return f'<section class="uds-grid" data-cols="{cols}">{"".join(cells)}</section>'
+
+
 _FENCE = {"stat-panel": _stat_grid, "pullquote": _pull_from_text, "callout-panel": _callout,
           "process": _process, "cta": _cta}
 
@@ -273,6 +289,8 @@ def _render_blocks(blocks: list[tuple], *, demote: int = 0, ctx: dict | None = N
                 out.append(_chart(b[2], ctx))
             elif b[1] == "flow":
                 out.append(_flow(b[2], ctx))
+            elif b[1] == "cards":
+                out.append(_cards(b[2], ctx))
             else:
                 fn = _FENCE.get(b[1])
                 out.append(fn(b[2]) if fn else "")

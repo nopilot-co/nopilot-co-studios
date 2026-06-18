@@ -291,6 +291,10 @@ def _place_block(s, block, tokens, top: float) -> float:
         return top + 1.9
     if kind == "chart":
         return _place_chart(s, block["body"], tokens, top)
+    if kind in ("cards", "card-grid"):
+        from . import archetype_ir
+
+        return _place_cards(s, archetype_ir.normalise_cards(block["body"]), tokens, top)
     if kind in ("flow", "process", "timeline", "hierarchy", "org"):
         return _place_diagram(s, kind, block["body"], tokens, top)
     if kind == "swimlane":
@@ -423,6 +427,49 @@ def _add_native_chart(s, node, tokens, top) -> None:
                 )
     except Exception:  # noqa: BLE001 — colour is best-effort; never fail the render
         pass
+
+
+def _place_cards(s, node, tokens, top: float) -> float:
+    """Native PPTX card grid from a CardsNode — rounded-rect cards (eyebrow? + title +
+    body) laid out ≤3 across, wrapping to rows. Brand-tokenised; degrades to nothing
+    on an empty node."""
+    from pptx.dml.color import RGBColor
+    from pptx.enum.shapes import MSO_SHAPE
+    from pptx.util import Inches, Pt
+
+    c = tokens["color"]
+    cards = node.cards
+    if not cards:
+        return top
+    n = len(cards)
+    cols = min(n, 3)
+    gap, cw, ch = 0.3, (12.4 - 0.3 * (min(n, 3) - 1)) / min(n, 3), 1.6
+    for i, card in enumerate(cards):
+        x = 0.6 + (i % cols) * (cw + gap)
+        y = top + (i // cols) * (ch + 0.3)
+        shp = s.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(x), Inches(y), Inches(cw), Inches(ch))
+        _solid(shp, c["surface"])
+        tf = shp.text_frame
+        tf.word_wrap = True
+        para = tf.paragraphs[0]
+        if card.eyebrow:
+            r = para.add_run()
+            r.text = card.eyebrow.upper()
+            r.font.size, r.font.bold = Pt(9), True
+            r.font.color.rgb = RGBColor.from_string(_hex(c["primary"]))
+            para = tf.add_paragraph()
+        rt = para.add_run()
+        rt.text = card.title
+        rt.font.size, rt.font.bold = Pt(15), True
+        rt.font.color.rgb = RGBColor.from_string(_hex(c["on_surface"]))
+        if card.body:
+            pb = tf.add_paragraph()
+            rb = pb.add_run()
+            rb.text = card.body
+            rb.font.size = Pt(11)
+            rb.font.color.rgb = RGBColor.from_string(_hex(c["on_surface"]))
+    rows = -(-n // cols)
+    return top + rows * (ch + 0.3) + 0.2
 
 
 def _place_diagram(s, kind, body, tokens, top: float) -> float:
