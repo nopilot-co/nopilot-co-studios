@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any
 
 from . import brand as brand_mod
+from . import hydrate as hydrate_mod
 from . import uds_html
 
 # Page geometry is a RENDER choice (owned here), kept out of the shared doc CSS.
@@ -104,6 +105,23 @@ def _footer_template(company: str) -> str:
 
 
 # ------------------------------------------------------------------- compose
+def _ensure_theme(brand: str) -> None:
+    """Generate the brand's theme CSS on demand if absent — themes derive from the
+    brand's tokens.yaml, so a render shouldn't fail just because a brand hasn't been
+    pre-themed (only nopilot/greyscale ship pre-generated). Writes ONLY the brand's
+    theme file — deliberately not ``hydrate.write_themes``, which also rewrites the
+    shared single-brand ``uds-ui.lock.json`` (a build-step side effect, wrong to
+    trigger from a render)."""
+    theme = hydrate_mod.THEMES_DIR / f"theme-{brand}.css"
+    if theme.exists():
+        return
+    try:
+        css = hydrate_mod.theme_css(hydrate_mod.vars_for_brand(brand), label=f"{brand} (hydrated)")
+        theme.write_text(css, encoding="utf-8")
+    except Exception:
+        pass  # _self_contained raises a clear FileNotFoundError if truly missing
+
+
 def compose_html(source: Path, *, brand: str) -> tuple[str, str]:
     """Produce the self-contained UDS-HTML to print, from a flat ``:::`` ``.md``
     source, a docket manifest (``.yaml``/``.yml``), or an already-built ``.html``.
@@ -112,6 +130,7 @@ def compose_html(source: Path, *, brand: str) -> tuple[str, str]:
     source = Path(source)
     if source.suffix == ".html":
         return source.read_text(encoding="utf-8"), source.stem
+    _ensure_theme(brand)  # md / docket compose inlines theme-{brand}.css
     if source.suffix in (".yaml", ".yml"):
         meta, body = uds_html.render_docket(source)
         title = str(meta.get("title", "Proposition"))
