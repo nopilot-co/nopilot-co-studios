@@ -108,9 +108,11 @@ def _topic_body(content_dir: Path, topic: dict[str, Any]) -> tuple[list[str], st
 
 # ----------------------------------------------------------------- IR (flat HTML-laced source → slides)
 def _strip_html(md: str) -> str:
-    """Flatten HTML-laced markdown: drop <style>/<script>/comments, strip tags (keep inner text)."""
+    """Flatten HTML-laced markdown: drop <style>/<script>/<svg>/comments, strip tags (keep inner text).
+    SVGs are images, not prose — dropped whole (else their labels leak as stray text)."""
     md = re.sub(r"<style\b[^>]*>.*?</style>", "", md, flags=re.S | re.I)
     md = re.sub(r"<script\b[^>]*>.*?</script>", "", md, flags=re.S | re.I)
+    md = re.sub(r"<svg\b[\s\S]*?</svg>", "", md, flags=re.I)
     md = re.sub(r"<!--.*?-->", "", md, flags=re.S)
     return re.sub(r"<[^>]+>", "", md)
 
@@ -198,7 +200,18 @@ def _flat_blocks(body: str) -> list[tuple]:
         md = body[i:nxt]
         if md.strip():
             for b in uds_html._blocks(_strip_html(md)):
-                out.append(("table", _pipe_rows(b[1])) if b[0] == "table" else b)
+                if b[0] == "table":
+                    out.append(("table", _pipe_rows(b[1])))
+                elif b[0] == "fence" and b[1] in ("swimlane", "timeline", "diagram"):
+                    try:
+                        spec = yaml.safe_load(b[2]) or {}
+                    except Exception:
+                        spec = {}
+                    if isinstance(spec, dict):
+                        spec.setdefault("type", b[1])
+                        out.append(("diagram", spec))
+                else:
+                    out.append(b)
         if not cands:
             break
         if c and c.start() == nxt:
@@ -257,6 +270,9 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
                 _emit(pending, sub_title); pending = []
                 if b[1]:
                     deck.append({"kind": "table", "eyebrow": gtitle, "title": sub_title, "rows": b[1]})
+            elif b[0] == "diagram":          # timeline / swimlane → its own slide
+                _emit(pending, sub_title); pending = []
+                deck.append({"kind": "diagram", "eyebrow": gtitle, "title": sub_title, "spec": b[1]})
             else:
                 pending += _flat_lines([b])
         _emit(pending, sub_title)
@@ -377,6 +393,53 @@ def _table_reqs(slide_id: str, tid: str, rows: list[list[str]], x: int, y: int, 
     return out
 
 
+def _swimlane_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A native swimlane / timeline: a month axis, lane rows with span bars (primary tint),
+    and milestone diamonds. All native shapes — editable, crisp, on-brand, no image upload."""
+    months = spec.get("months", [])
+    lanes = spec.get("lanes", [])
+    milestones = spec.get("milestones", []) or []
+    if not months or not lanes:
+        return []
+    label_w = 1_150_000
+    track_x = x + label_w
+    col_w = (w - label_w) / len(months)
+    tint = _mix(p["primary"], "#FFFFFF", 0.86)
+
+    def mx(name):
+        return track_x + (months.index(name) if name in months else len(months)) * col_w
+
+    out: list[dict] = []
+    for i, m in enumerate(months):                       # month axis
+        b = f"{slide_id}_mo{i}"
+        out.append(_text_box(slide_id, b, int(track_x + i * col_w), int(y), int(col_w), 280_000))
+        out.append({"insertText": {"objectId": b, "text": str(m), "insertionIndex": 0}})
+        out += _style(b, font=p["body"], size=8, color=_rgb(p["muted"]), align="CENTER")
+    top, lane_h = int(y + 340_000), 520_000
+    for li, lane in enumerate(lanes):                    # lane rows + span bars
+        ly = top + li * (lane_h + 36_000)
+        ln = f"{slide_id}_ln{li}"
+        out.append(_text_box(slide_id, ln, int(x), ly, int(label_w - 40_000), lane_h))
+        out.append({"insertText": {"objectId": ln, "text": str(lane.get("name", "")), "insertionIndex": 0}})
+        out += _style(ln, font=p["body"], size=9, color=_rgb(p["ink"]), weight=600)
+        sx, ex = mx(lane.get("start")), mx(lane.get("end"))
+        bw = max(int(ex - sx), 240_000)
+        bar = f"{slide_id}_bar{li}"
+        out += _shape(slide_id, f"{bar}r", "ROUND_RECTANGLE", int(sx), ly, bw, int(lane_h * 0.6), tint)
+        out.append(_text_box(slide_id, f"{bar}t", int(sx + 70_000), ly + 24_000, bw - 120_000, int(lane_h * 0.6)))
+        out.append({"insertText": {"objectId": f"{bar}t", "text": str(lane.get("label", "")), "insertionIndex": 0}})
+        out += _style(f"{bar}t", font=p["body"], size=8, color=_rgb(p["ink"]))
+    my = top + len(lanes) * (lane_h + 36_000) + 30_000   # milestone diamonds
+    for mi, ms in enumerate(milestones):
+        dx = int(mx(ms.get("at")) - 66_000)
+        d = f"{slide_id}_ms{mi}"
+        out += _shape(slide_id, f"{d}d", "DIAMOND", dx, my, 132_000, 132_000, p["primary"])
+        out.append(_text_box(slide_id, f"{d}t", dx - 520_000, my + 150_000, 1_180_000, 280_000))
+        out.append({"insertText": {"objectId": f"{d}t", "text": str(ms.get("label", "")), "insertionIndex": 0}})
+        out += _style(f"{d}t", font=p["body"], size=8, color=_rgb(p["primary"]), align="CENTER", weight=600)
+    return out
+
+
 def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None) -> tuple[str, list[dict]]:
     """IR → Slides API batchUpdate requests (cover, section, quote, content). A render
     ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS."""
@@ -440,6 +503,11 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             reqs += _table_reqs(sid, f"{sid}_tbl", s["rows"], MARGIN, 1_550_000, cw, p, max(8, round(R["body"]["size"])))
+        elif kind == "diagram":            # native swimlane / timeline
+            reqs.append(_bg(sid, p["surface"]))
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
+            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
+            reqs += _swimlane_reqs(sid, s.get("spec", {}), MARGIN, 2_000_000, cw, PAGE_H - 2_000_000 - MARGIN, p)
         else:  # content
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
