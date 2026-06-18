@@ -43,6 +43,7 @@ CAPABILITIES: dict[str, set[str]] = {
     "pullquote": {"gslide", "html"},
     "cta": {"gslide", "html"},
     "bullseye": {"gslide", "html"},
+    "hype-cycle": {"gslide", "html"},
 }
 
 # Fence name → canonical archetype (aliases collapse here as archetypes land).
@@ -60,6 +61,8 @@ ALIASES: dict[str, str] = {
     "pullquote": "pullquote",
     "cta": "cta",
     "bullseye": "bullseye",
+    "hype-cycle": "hype-cycle",
+    "hype": "hype-cycle",
 }
 
 
@@ -434,3 +437,59 @@ def normalise_bullseye(spec: Any) -> BullseyeNode:
             grouped[ring].append(label)
         out = [Ring(r, grouped[r]) for r in order]
     return BullseyeNode(out)
+
+
+# ----------------------------------------------------------------- hype-cycle (S-curve)
+# The canonical hype-cycle shape (x 0..1 → y 0..1): trigger → peak → trough → slope → plateau.
+HYPE_CURVE = [(0.0, 0.12), (0.08, 0.42), (0.16, 0.94), (0.24, 0.72), (0.34, 0.34),
+              (0.45, 0.18), (0.6, 0.34), (0.78, 0.52), (1.0, 0.6)]
+_PHASE_X = {"trigger": 0.05, "innovation": 0.05, "peak": 0.16, "inflated": 0.16,
+            "trough": 0.45, "disillusion": 0.45, "slope": 0.7, "enlighten": 0.7,
+            "plateau": 0.92, "productivity": 0.92}
+
+
+def hype_y(x: float) -> float:
+    """Interpolate the hype-cycle y (0..1) for an x in 0..1."""
+    for i in range(len(HYPE_CURVE) - 1):
+        x0, y0 = HYPE_CURVE[i]
+        x1, y1 = HYPE_CURVE[i + 1]
+        if x0 <= x <= x1:
+            t = (x - x0) / (x1 - x0) if x1 > x0 else 0.0
+            return y0 + t * (y1 - y0)
+    return HYPE_CURVE[-1][1]
+
+
+@dataclass
+class HypePoint:
+    label: str = ""
+    x: float = 0.5      # position along the curve, 0..1
+    tooltip: str = ""
+
+
+@dataclass
+class HypeCycleNode:
+    phases: list[str] = field(default_factory=list)
+    points: list[HypePoint] = field(default_factory=list)
+
+    @property
+    def is_empty(self) -> bool:
+        return not self.points
+
+
+def normalise_hype(spec: Any) -> HypeCycleNode:
+    """A hype-cycle: phases (x-axis) + plotted points. A point's x is explicit (0..1) or
+    derived from its named `phase`. `tooltip` is the annotation — shown on hover in HTML,
+    surfaced as a visible note in non-interactive formats (gslide / pdf)."""
+    s = _as_spec(spec)
+    phases = [str(p) for p in (s.get("phases") or ["Trigger", "Peak", "Trough", "Slope", "Plateau"])]
+    points: list[HypePoint] = []
+    for it in (s.get("points") or s.get("items") or []):
+        if isinstance(it, dict):
+            x = it.get("x")
+            if x is None:
+                ph = str(it.get("phase", "")).lower()
+                x = next((v for k, v in _PHASE_X.items() if k in ph), 0.5)
+            points.append(HypePoint(str(it.get("label", "")), float(x), str(it.get("tooltip", "") or it.get("note", ""))))
+        else:
+            points.append(HypePoint(str(it), 0.5, ""))
+    return HypeCycleNode(phases, points)

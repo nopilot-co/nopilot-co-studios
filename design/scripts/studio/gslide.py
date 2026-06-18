@@ -216,10 +216,10 @@ def _flat_blocks(body: str) -> list[tuple]:
                     if isinstance(spec, dict):
                         spec.setdefault("type", b[1])
                         out.append(("diagram", spec))
-                elif b[0] == "fence" and b[1] in ("cards", "panel", "flow", "process", "chart", "stat-panel", "stats", "bullseye"):
+                elif b[0] == "fence" and b[1] in ("cards", "panel", "flow", "process", "chart", "stat-panel", "stats", "bullseye", "hype-cycle", "hype"):
                     try:
                         spec = yaml.safe_load(b[2])
-                        kind = {"process": "flow", "stats": "stat-panel"}.get(b[1], b[1])
+                        kind = {"process": "flow", "stats": "stat-panel", "hype": "hype-cycle"}.get(b[1], b[1])
                         out.append((kind, spec))
                     except Exception:
                         out.append(("p", _clean(b[2])))
@@ -323,7 +323,7 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
                 head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
                 _emit(head, sub_title); pending = []
                 deck.append({"kind": "chart", "eyebrow": gtitle, "title": sub_title, "spec": b[1] or {}, "lead": lead})
-            elif b[0] in ("stat-panel", "bullseye"):  # stat tiles / bullseye → its own slide
+            elif b[0] in ("stat-panel", "bullseye", "hype-cycle"):  # stat tiles / bullseye / hype-cycle → its own slide
                 head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
                 _emit(head, sub_title); pending = []
                 deck.append({"kind": b[0], "eyebrow": gtitle, "title": sub_title, "spec": b[1], "lead": lead})
@@ -726,6 +726,52 @@ def _bullseye_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict)
     return out
 
 
+def _hype_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A native hype-cycle: the S-curve as a row of small dots, plotted data points as
+    labelled dots, a phase axis, and the tooltips surfaced as a visible note block (a
+    non-interactive deck can't hover). Dynamic — driven entirely by the node's data."""
+    pts = node.points
+    if not pts:
+        return []
+    ramp = p.get("dataviz") or [p["primary"]]
+    pad = 200_000
+    plot_w = w - 2 * pad
+    plot_h = h - 1_000_000        # room for the phase axis + the notes block
+
+    def px(fx):
+        return x + pad + int(fx * plot_w)
+
+    def py(fy):
+        return y + plot_h - int(fy * (plot_h - 200_000))
+
+    out: list[dict] = []
+    for k in range(41):                       # the curve, drawn as a dotted line
+        fx = k / 40.0
+        d = 56_000
+        out += _shape(slide_id, f"{slide_id}_hc{k}", "ELLIPSE", px(fx) - d // 2, py(archetype_ir.hype_y(fx)) - d // 2, d, d, p["line"])
+    for i, pt in enumerate(pts):              # plotted data points + labels
+        cxp, cyp = px(pt.x), py(archetype_ir.hype_y(pt.x))
+        out += _shape(slide_id, f"{slide_id}_hp{i}", "ELLIPSE", cxp - 90_000, cyp - 90_000, 180_000, 180_000, ramp[i % len(ramp)])
+        out.append(_text_box(slide_id, f"{slide_id}_hl{i}", cxp - 1_000_000, cyp - 440_000, 2_000_000, 300_000))
+        out.append({"insertText": {"objectId": f"{slide_id}_hl{i}", "text": str(pt.label), "insertionIndex": 0}})
+        out += _style(f"{slide_id}_hl{i}", font=p["body"], size=8, color=_rgb(p["ink"]), align="CENTER", weight=600)
+    nph = len(node.phases)                    # phase axis
+    for i, ph in enumerate(node.phases):
+        ax = px((i + 0.5) / nph) if nph else px(0.5)
+        out.append(_text_box(slide_id, f"{slide_id}_hx{i}", ax - 1_000_000, y + plot_h + 40_000, 2_000_000, 260_000))
+        out.append({"insertText": {"objectId": f"{slide_id}_hx{i}", "text": str(ph), "insertionIndex": 0}})
+        out += _style(f"{slide_id}_hx{i}", font=p["body"], size=7, color=_rgb(p["muted"]), align="CENTER")
+    ny = y + plot_h + 400_000                 # tooltips → a visible note block
+    for i, pt in enumerate(pts):
+        if not pt.tooltip:
+            continue
+        out.append(_text_box(slide_id, f"{slide_id}_hn{i}", x + pad, ny, w - 2 * pad, 240_000))
+        out.append({"insertText": {"objectId": f"{slide_id}_hn{i}", "text": f"{pt.label} — {pt.tooltip}", "insertionIndex": 0}})
+        out += _style(f"{slide_id}_hn{i}", font=p["body"], size=7, color=_rgb(p["muted"]))
+        ny += 250_000
+    return out
+
+
 def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None) -> tuple[str, list[dict]]:
     """IR → Slides API batchUpdate requests (cover, section, quote, content). A render
     ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS."""
@@ -845,6 +891,12 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             byy = _lead_band(sid, s.get("lead"), 1_650_000)
             reqs += _bullseye_reqs(sid, archetype_ir.normalise_bullseye(s.get("spec")), MARGIN, byy, cw, PAGE_H - byy - MARGIN, p)
+        elif kind == "hype-cycle":         # native hype-cycle (S-curve + plotted points)
+            reqs.append(_bg(sid, p["surface"]))
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
+            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
+            hyy = _lead_band(sid, s.get("lead"), 1_650_000)
+            reqs += _hype_reqs(sid, archetype_ir.normalise_hype(s.get("spec")), MARGIN, hyy, cw, PAGE_H - hyy - MARGIN, p)
         elif kind == "pullquote":          # native pull-quote
             reqs.append(_bg(sid, p["paper"]))
             add_role(sid, 0, s.get("eyebrow", ""), 700_000, 320_000, "eyebrow")

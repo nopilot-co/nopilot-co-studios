@@ -314,6 +314,40 @@ def _bullseye(inner: str, ctx: dict | None = None) -> str:
             + "".join(parts) + "</svg></figure>")
 
 
+def _hype(inner: str, ctx: dict | None = None) -> str:
+    """A native HTML hype-cycle — inline SVG S-curve with plotted points; tooltips on hover
+    (<title>) AND surfaced as a visible note list so non-interactive prints keep them."""
+    node = _ir.normalise_hype(inner)
+    if node.is_empty:
+        return ""
+    ramp = (ctx or {}).get("ramp") or _ir.DEFAULT_RAMP
+    W, H, pad = 920.0, 360.0, 44.0
+
+    def px(fx):
+        return pad + fx * (W - 2 * pad)
+
+    def py(fy):
+        return H - pad - fy * (H - 2 * pad - 24)
+
+    d = "M " + " L ".join(f"{px(k / 60):.0f} {py(_ir.hype_y(k / 60)):.0f}" for k in range(61))
+    dots, labels, notes = [], [], []
+    for i, pt in enumerate(node.points):
+        cxp, cyp = px(pt.x), py(_ir.hype_y(pt.x))
+        col = ramp[i % len(ramp)]
+        title = f"<title>{_esc(pt.tooltip)}</title>" if pt.tooltip else ""
+        dots.append(f'<circle cx="{cxp:.0f}" cy="{cyp:.0f}" r="7" fill="{col}">{title}</circle>')
+        labels.append(f'<text x="{cxp:.0f}" y="{cyp - 14:.0f}" text-anchor="middle" font-size="11" font-weight="600" fill="var(--uds-color-text,#1C2022)">{_esc(pt.label)}</text>')
+        if pt.tooltip:
+            notes.append(f'<li style="margin:.25rem 0"><span style="color:{col};font-weight:600">{_esc(pt.label)}</span> — {_esc(pt.tooltip)}</li>')
+    nph = len(node.phases)
+    axis = "".join(f'<text x="{px((i + 0.5) / nph):.0f}" y="{H - 10:.0f}" text-anchor="middle" font-size="9" fill="var(--uds-color-text-subtle,#6E747A)">{_esc(ph)}</text>' for i, ph in enumerate(node.phases)) if nph else ""
+    notes_html = (f'<ul class="uds-hype__notes" style="list-style:none;padding:0;margin:.6rem 0 0;font-size:.8rem;color:var(--uds-color-text-subtle,#6E747A)">{"".join(notes)}</ul>') if notes else ""
+    return ('<figure class="uds-hype" style="margin:1.5rem 0">'
+            f'<svg viewBox="0 0 {W:.0f} {H:.0f}" width="100%" role="img" aria-label="Hype cycle">'
+            f'<path d="{d}" fill="none" stroke="var(--uds-color-line,#E5E5E5)" stroke-width="2.5"/>'
+            + "".join(dots) + "".join(labels) + axis + "</svg>" + notes_html + "</figure>")
+
+
 _FENCE = {"stat-panel": _stat_grid, "pullquote": _pull_from_text, "callout-panel": _callout,
           "process": _process, "cta": _cta}
 
@@ -363,6 +397,8 @@ def _render_blocks(blocks: list[tuple], *, demote: int = 0, ctx: dict | None = N
                 out.append(_swimlane(b[2], ctx))
             elif b[1] == "bullseye":
                 out.append(_bullseye(b[2], ctx))
+            elif b[1] in ("hype-cycle", "hype"):
+                out.append(_hype(b[2], ctx))
             else:
                 fn = _FENCE.get(b[1])
                 out.append(fn(b[2]) if fn else _unsupported_fence(b[1]))
