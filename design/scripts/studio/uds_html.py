@@ -307,10 +307,15 @@ def _content_topic(content_dir: Path, topic: dict[str, Any]) -> str:
         parts.append(f'<p class="uds-eyebrow">{_inline(topic["eyebrow"])}</p>')
     parts.append(f'<h2>{_inline(topic.get("title",""))}</h2>')
     if topic.get("section_md"):
-        blocks = _blocks(_read_ref(content_dir, topic["section_md"]))
-        # drop the section's own leading H1 (manifest title is authoritative); demote the rest.
-        blocks = [b for b in blocks if not (b[0] == "h" and b[1] == 1)]
-        parts += _render_blocks(blocks, demote=1)
+        try:
+            md = _read_ref(content_dir, topic["section_md"])
+        except OSError:
+            parts.append(f'<p class="uds-muted">[section source missing: {_esc(topic["section_md"])}]</p>')
+            md = ""
+        if md:
+            # drop the section's own leading H1 (manifest title is authoritative); demote the rest.
+            blocks = [b for b in _blocks(md) if not (b[0] == "h" and b[1] == 1)]
+            parts += _render_blocks(blocks, demote=1)
     for spec in topic.get("tables", []) or []:
         parts.append(_csv_table(content_dir, spec))
     if topic.get("viz"):
