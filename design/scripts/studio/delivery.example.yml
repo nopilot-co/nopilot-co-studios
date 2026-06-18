@@ -1,0 +1,19 @@
+# Template — per-account Google Slides delivery (ADR-006).
+# Copy to ~/context/studios/delivery.yml (or point $STUDIOS_DELIVERY_CONFIG at it)
+# and fill in. studio.gslide reads it: `studio-gslide <manifest> --execute --account <acct>`.
+#
+# Credentials are env-var NAMES that point at the service-account key JSON —
+# never inline a key here. Folder IDs are Shared-Drive destinations (not secret).
+# Before a run, export the key path, e.g.:  export COH_GSLIDE_SA_KEY=/path/to/sa-key.json
+#
+# Prerequisites per account (one-off, admin):
+#   1. Enable the Slides API + Drive API on the SA's Google Cloud project.
+#   2. Add the SA (…@….iam.gserviceaccount.com) as a Content manager of the
+#      target Shared Drive. (A service account CANNOT write to a My-Drive folder.)
+accounts:
+  <account>:                                    # e.g. coh, npt
+    credential_env: <ACCOUNT>_GSLIDE_SA_KEY     # env var holding the SA key path
+    default_destination: opportunities
+    destinations:
+      opportunities: { drive_folder_id: "<shared-drive-folder-id>", label: "…" }
+      # add more named destinations as needed

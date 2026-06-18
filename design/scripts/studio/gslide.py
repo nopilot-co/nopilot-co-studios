@@ -22,6 +22,7 @@ CLI:  studio-gslide <manifest> [--out payload.json]            # dry-run
 from __future__ import annotations
 
 import json
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -207,25 +208,87 @@ def payload(manifest_path: Path, *, brand: str = "nopilot") -> dict[str, Any]:
     return {"title": title, "slides": sum(1 for r in reqs if "createSlide" in r), "requests": reqs}
 
 
-# ----------------------------------------------------------------- live execution
-def execute(manifest_path: Path, *, brand: str = "nopilot", creds_file: str) -> str:
-    """Create the presentation and apply the requests via the Slides API.
+# ----------------------------------------------------------------- delivery config
+_SCOPES = ["https://www.googleapis.com/auth/presentations", "https://www.googleapis.com/auth/drive"]
 
-    Needs OAuth credentials with the ``presentations`` scope (``creds_file`` =
-    an authorized-user token JSON). Returns the presentation URL. This is an
-    account write — confirm before calling.
-    """
-    from google.oauth2.credentials import Credentials  # lazy: only needed live
+
+def load_delivery() -> dict[str, Any]:
+    """Per-account delivery config — from $STUDIOS_DELIVERY_CONFIG or
+    ~/context/studios/delivery.yml. Credentials are env-var *names* (paths to the
+    SA key), never inline; folder IDs are Shared-Drive destinations."""
+    path = os.environ.get("STUDIOS_DELIVERY_CONFIG") or str(Path.home() / "context" / "studios" / "delivery.yml")
+    p = Path(path)
+    return yaml.safe_load(p.read_text(encoding="utf-8")) if p.exists() else {}
+
+
+def resolve_account(account: str, destination: str | None = None) -> tuple[str, str]:
+    """account (+ optional destination) → (sa_key_path, drive_folder_id)."""
+    cfg = (load_delivery().get("accounts", {}) or {}).get(account)
+    if not cfg:
+        raise SystemExit(f"no delivery config for '{account}' — set STUDIOS_DELIVERY_CONFIG or ~/context/studios/delivery.yml")
+    key = os.environ.get(cfg.get("credential_env", ""))
+    if not key:
+        raise SystemExit(f"credential env {cfg.get('credential_env')!r} is unset (point it at the SA key JSON)")
+    dest = (cfg.get("destinations", {}) or {}).get(destination or cfg.get("default_destination"))
+    if not dest:
+        raise SystemExit(f"no destination {destination!r} for account '{account}'")
+    return key, dest["drive_folder_id"]
+
+
+# ----------------------------------------------------------------- live execution
+def _services(creds_file: str):
+    from google.oauth2 import service_account  # lazy: only needed live
     from googleapiclient.discovery import build
 
-    creds = Credentials.from_authorized_user_file(creds_file, ["https://www.googleapis.com/auth/presentations"])
-    svc = build("slides", "v1", credentials=creds)
+    creds = service_account.Credentials.from_service_account_file(creds_file, scopes=_SCOPES)
+    return build("drive", "v3", credentials=creds), build("slides", "v1", credentials=creds)
+
+
+def _ensure_subfolder(drive, parent_id: str, name: str) -> str:
+    """Find-or-create a subfolder `name` under `parent_id` (Shared-Drive aware)."""
+    safe = name.replace("'", "\\'")
+    q = (f"name = '{safe}' and '{parent_id}' in parents and "
+         "mimeType = 'application/vnd.google-apps.folder' and trashed = false")
+    res = drive.files().list(q=q, fields="files(id)", supportsAllDrives=True,
+                             includeItemsFromAllDrives=True).execute()
+    if res.get("files"):
+        return res["files"][0]["id"]
+    return drive.files().create(
+        body={"name": name, "mimeType": "application/vnd.google-apps.folder", "parents": [parent_id]},
+        fields="id", supportsAllDrives=True).execute()["id"]
+
+
+def execute(manifest_path: Path, *, brand: str = "nopilot", creds_file: str,
+            drive_folder_id: str | None = None, asset_name: str | None = None,
+            presentation_id: str | None = None) -> str:
+    """Create (or update in place) the native deck via the Slides + Drive APIs using
+    a **service account**. Places it in a Shared-Drive folder (optionally an
+    ``asset_name`` subfolder), or updates ``presentation_id`` if given. Returns the URL.
+
+    Requires: Slides + Drive APIs enabled on the SA's project, and the SA a member
+    of the target Shared Drive. This is an account write — confirm first.
+    """
+    drive, slides = _services(creds_file)
     title, reqs = build_requests(manifest_path, brand=brand)
-    pres = svc.presentations().create(body={"title": title}).execute()
-    pid = pres["presentationId"]
-    # The created deck has one default slide; drop it after ours are inserted.
-    reqs = reqs + [{"deleteObject": {"objectId": pres["slides"][0]["objectId"]}}]
-    svc.presentations().batchUpdate(presentationId=pid, body={"requests": reqs}).execute()
+
+    if presentation_id:                                          # update in place (re-render)
+        pid = presentation_id
+        cur = slides.presentations().get(presentationId=pid, fields="slides(objectId)").execute().get("slides", [])
+        batch = [{"deleteObject": {"objectId": s["objectId"]}} for s in cur] + reqs
+    else:
+        parent = drive_folder_id
+        if parent and asset_name:
+            parent = _ensure_subfolder(drive, parent, asset_name)
+        if parent:                                               # create inside the Shared-Drive folder
+            pid = drive.files().create(
+                body={"name": title, "mimeType": "application/vnd.google-apps.presentation", "parents": [parent]},
+                fields="id", supportsAllDrives=True).execute()["id"]
+        else:                                                    # fallback: the SA's own Drive
+            pid = slides.presentations().create(body={"title": title}).execute()["presentationId"]
+        default = slides.presentations().get(presentationId=pid, fields="slides(objectId)").execute().get("slides", [])
+        batch = reqs + [{"deleteObject": {"objectId": s["objectId"]}} for s in default]
+
+    slides.presentations().batchUpdate(presentationId=pid, body={"requests": batch}).execute()
     return f"https://docs.google.com/presentation/d/{pid}/edit"
 
 
@@ -236,13 +299,22 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("manifest")
     ap.add_argument("--brand", default="nopilot")
     ap.add_argument("--out", help="write the dry-run payload JSON here")
-    ap.add_argument("--execute", action="store_true", help="create the live deck (needs --creds)")
-    ap.add_argument("--creds", help="OAuth authorized-user token JSON (presentations scope)")
+    ap.add_argument("--execute", action="store_true", help="create/update the live deck")
+    ap.add_argument("--account", help="delivery account (e.g. coh/npt) — resolves SA key + folder from the delivery config")
+    ap.add_argument("--destination", help="named destination within the account (else its default)")
+    ap.add_argument("--asset-name", help="subfolder under the destination for this asset")
+    ap.add_argument("--creds", help="explicit service-account key JSON (overrides --account)")
+    ap.add_argument("--folder", help="explicit Drive folder id (overrides --account)")
+    ap.add_argument("--presentation-id", help="update this deck in place instead of creating a new one")
     args = ap.parse_args(argv)
     if args.execute:
-        if not args.creds:
-            ap.error("--execute requires --creds")
-        print(execute(Path(args.manifest), brand=args.brand, creds_file=args.creds))
+        creds, folder = args.creds, args.folder
+        if args.account and not creds:
+            creds, folder = resolve_account(args.account, args.destination)
+        if not creds:
+            ap.error("--execute needs --account (configured) or --creds")
+        print(execute(Path(args.manifest), brand=args.brand, creds_file=creds,
+                       drive_folder_id=folder, asset_name=args.asset_name, presentation_id=args.presentation_id))
         return 0
     pl = payload(Path(args.manifest), brand=args.brand)
     if args.out:
