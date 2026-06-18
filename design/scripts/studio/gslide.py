@@ -213,6 +213,11 @@ def _flat_blocks(body: str) -> list[tuple]:
                     if isinstance(spec, dict):
                         spec.setdefault("type", b[1])
                         out.append(("diagram", spec))
+                elif b[0] == "fence" and b[1] in ("cards", "panel"):
+                    try:
+                        out.append((b[1], yaml.safe_load(b[2])))
+                    except Exception:
+                        out.append(("p", _clean(b[2])))
                 else:
                     out.append(b)
         if not cands:
@@ -280,6 +285,18 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
                 head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
                 _emit(head, sub_title); pending = []
                 deck.append({"kind": "diagram", "eyebrow": gtitle, "title": sub_title, "spec": b[1], "lead": lead})
+            elif b[0] == "cards":            # icon/feature card grid
+                head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
+                _emit(head, sub_title); pending = []
+                cards = b[1] if isinstance(b[1], list) else ((b[1] or {}).get("cards") or [])
+                if cards:
+                    deck.append({"kind": "cards", "eyebrow": gtitle, "title": sub_title, "cards": cards, "lead": lead})
+                elif lead:
+                    _emit(lead, sub_title)
+            elif b[0] == "panel":            # feature panel (dark/light) + optional nested cards
+                head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
+                _emit(head, sub_title); pending = []
+                deck.append({"kind": "panel", "eyebrow": gtitle, "title": sub_title, "spec": b[1] or {}, "lead": lead})
             else:
                 pending += _flat_lines([b])
         _emit(pending, sub_title)
@@ -451,6 +468,63 @@ def _swimlane_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p:
     return out
 
 
+def _card_grid_reqs(slide_id: str, cards: list, x: int, y: int, w: int, h: int, p: dict, *, dark: bool = False, idbase: str = "card") -> list[dict]:
+    """A row of cards (eyebrow? + title + body). Light (grey, ink) or dark (on a panel)."""
+    n = max(1, len(cards))
+    gap = 200_000
+    cwc = (w - gap * (n - 1)) // n
+    fill = _mix(p["ink"], "#FFFFFF", 0.10) if dark else p["paper"]
+    title_col = p["surface"] if dark else p["ink"]
+    body_col = _mix(p["surface"], p["ink"], 0.40) if dark else p["muted"]
+    eb_col = p["active"] if dark else p["primary"]
+    out: list[dict] = []
+    for i, c in enumerate(cards):
+        cx0 = x + i * (cwc + gap)
+        cid = f"{slide_id}_{idbase}{i}"
+        out += _shape(slide_id, f"{cid}r", "ROUND_RECTANGLE", cx0, y, cwc, h, fill)
+        pad = 220_000
+        ty, tw = y + 200_000, cwc - 2 * 220_000
+        if c.get("eyebrow"):
+            out.append(_text_box(slide_id, f"{cid}e", cx0 + pad, ty, tw, 230_000))
+            out.append({"insertText": {"objectId": f"{cid}e", "text": str(c["eyebrow"]).upper(), "insertionIndex": 0}})
+            out += _style(f"{cid}e", font=p["body"], size=8, color=_rgb(eb_col), weight=600)
+            ty += 300_000
+        out.append(_text_box(slide_id, f"{cid}t", cx0 + pad, ty, tw, 360_000))
+        out.append({"insertText": {"objectId": f"{cid}t", "text": str(c.get("title", "")), "insertionIndex": 0}})
+        out += _style(f"{cid}t", font=p["body"], size=11, color=_rgb(title_col), weight=600)
+        ty += 420_000
+        out.append(_text_box(slide_id, f"{cid}b", cx0 + pad, ty, tw, max(h - (ty - y) - 150_000, 300_000)))
+        out.append({"insertText": {"objectId": f"{cid}b", "text": str(c.get("body", "")), "insertionIndex": 0}})
+        out += _style(f"{cid}b", font=p["body"], size=8, color=_rgb(body_col))
+    return out
+
+
+def _panel_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A feature panel: a box (dark or light) with eyebrow + body + optional nested cards."""
+    dark = bool(spec.get("dark"))
+    out = _shape(slide_id, f"{slide_id}_pnl", "ROUND_RECTANGLE", x, y, w, h, p["ink"] if dark else p["paper"])
+    pad = 340_000
+    ix, iw, iy = x + pad, w - 2 * pad, y + 300_000
+    eb_col = p["active"] if dark else p["primary"]
+    body_col = _mix(p["surface"], p["ink"], 0.20) if dark else p["ink"]
+    if spec.get("eyebrow"):
+        out.append(_text_box(slide_id, f"{slide_id}_pe", ix, iy, iw, 250_000))
+        out.append({"insertText": {"objectId": f"{slide_id}_pe", "text": str(spec["eyebrow"]).upper(), "insertionIndex": 0}})
+        out += _style(f"{slide_id}_pe", font=p["body"], size=9, color=_rgb(eb_col), weight=600)
+        iy += 350_000
+    cards = spec.get("cards") or []
+    body = str(spec.get("body", "")).strip()
+    if body:
+        bh = 1_350_000 if cards else max(h - (iy - y) - 300_000, 400_000)
+        out.append(_text_box(slide_id, f"{slide_id}_pb", ix, iy, iw, bh))
+        out.append({"insertText": {"objectId": f"{slide_id}_pb", "text": body, "insertionIndex": 0}})
+        out += _style(f"{slide_id}_pb", font=p["body"], size=9, color=_rgb(body_col))
+        iy += bh + 150_000
+    if cards:
+        out += _card_grid_reqs(slide_id, cards, ix, iy, iw, max(y + h - iy - pad, 800_000), p, dark=dark, idbase="pc")
+    return out
+
+
 def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None) -> tuple[str, list[dict]]:
     """IR → Slides API batchUpdate requests (cover, section, quote, content). A render
     ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS."""
@@ -534,6 +608,18 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             dy = _lead_band(sid, s.get("lead"), 1_950_000)
             reqs += _swimlane_reqs(sid, s.get("spec", {}), MARGIN, dy, cw, PAGE_H - dy - MARGIN, p)
+        elif kind == "cards":              # icon/feature card grid
+            reqs.append(_bg(sid, p["surface"]))
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
+            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
+            cy = _lead_band(sid, s.get("lead"), 1_650_000)
+            reqs += _card_grid_reqs(sid, s["cards"], MARGIN, cy, cw, min(PAGE_H - cy - MARGIN, 2_400_000), p)
+        elif kind == "panel":              # feature panel (+ optional nested cards)
+            reqs.append(_bg(sid, p["surface"]))
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
+            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
+            py = _lead_band(sid, s.get("lead"), 1_650_000)
+            reqs += _panel_reqs(sid, s.get("spec", {}), MARGIN, py, cw, PAGE_H - py - MARGIN, p)
         else:  # content
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
