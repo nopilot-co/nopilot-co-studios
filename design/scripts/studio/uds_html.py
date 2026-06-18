@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import csv
 import re
+import sys
 from html import escape as _esc
 from pathlib import Path
 from typing import Any
@@ -267,6 +268,13 @@ def _table_rows(rows: list[str], caption: str = "") -> str:
     return f'<table class="uds-table">{cap}<thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>'
 
 
+def _unsupported_fence(name: str) -> str:
+    """Fail-closed: an unknown ::: fence becomes a visible placeholder + a stderr warning,
+    never a silent drop (mirrors the charts/diagrams fallback discipline)."""
+    print(f"[uds_html] no HTML renderer for ':::{name}' — placeholder emitted (not dropped)", file=sys.stderr)
+    return f'<p class="uds-muted" data-uds-unsupported="{_esc(name)}">[unsupported block: {_esc(name)}]</p>'
+
+
 def _render_blocks(blocks: list[tuple], *, demote: int = 0, ctx: dict | None = None) -> list[str]:
     out: list[str] = []
     for b in blocks:
@@ -293,7 +301,7 @@ def _render_blocks(blocks: list[tuple], *, demote: int = 0, ctx: dict | None = N
                 out.append(_cards(b[2], ctx))
             else:
                 fn = _FENCE.get(b[1])
-                out.append(fn(b[2]) if fn else "")
+                out.append(fn(b[2]) if fn else _unsupported_fence(b[1]))
     return out
 
 
