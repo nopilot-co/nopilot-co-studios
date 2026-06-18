@@ -266,25 +266,70 @@ def _labelled(body: str, label: str) -> str:
     return re.sub(r"\s+", " ", m.group(1)).strip() if m else ""
 
 
-def _cover_topic(content_dir: Path, topic: dict[str, Any]) -> str:
-    body = _read_ref(content_dir, topic["section_md"]) if topic.get("section_md") else ""
-    eyebrow = _labelled(body, "Eyebrow") or topic.get("eyebrow", "")
-    wordmark = _labelled(body, "Wordmark") or topic.get("title", "360")
+def _wordmark(text: str) -> str:
+    """Wordmark with the degree mark in crimson (the nopilot accent)."""
+    return _inline(text).replace("°", '<span class="deg">°</span>')
+
+
+_NAV_PREF = ["landscape", "vision", "model", "gtm", "commercials", "ask"]
+
+
+def _doc_header(topics_by_id: dict[str, Any], version: str) -> str:
+    nav = "".join(
+        f'<a href="#{nid}">{_inline(topics_by_id[nid].get("title", nid))}</a>'
+        for nid in _NAV_PREF if nid in topics_by_id
+    )
+    nav_html = f'<nav class="doc-nav">{nav}</nav>' if nav else ""
+    ask = "#ask" if "ask" in topics_by_id else "#contents"
+    return ('<header class="doc-header">'
+            '<span class="doc-brand">360<span class="deg">°</span></span>'
+            f'<span class="doc-badge">Draft · {_esc(version)}</span>'
+            f'{nav_html}<a class="doc-cta" href="{ask}">The ask</a></header>')
+
+
+def _doc_cover(content_dir: Path, topic: dict[str, Any], meta: dict[str, Any], version: str) -> str:
+    try:
+        body = _read_ref(content_dir, topic["section_md"]) if topic.get("section_md") else ""
+    except OSError:
+        body = ""
+    eyebrow = _labelled(body, "Eyebrow") or topic.get("eyebrow", "A partnership proposition")
+    wordmark = _labelled(body, "Wordmark") or topic.get("title", "360°")
+    m = re.match(r"^(.*?°)\s*(.*)$", wordmark, re.DOTALL)
+    title, sub = (m.group(1), re.sub(r"\s+", " ", m.group(2)).strip()) if m else (wordmark, "")
     standfirst = _labelled(body, "Standfirst")
-    parts = ['<header class="uds-hero uds-hero--centre">']
-    if eyebrow:
-        parts.append(f'<p class="uds-eyebrow">{_inline(eyebrow)}</p>')
-    parts.append(f'<h1 class="uds-hero__title">{_inline(wordmark)}</h1>')
+    footer = re.sub(r"\s+", " ", _labelled(body, "Footer")).strip() or (
+        f"Prepared for {str(meta.get('audience','')).split('(')[0].strip()} · {version}")
+    p = ['<section class="doc-cover" id="cover">',
+         f'<p class="doc-cover-eyebrow">{_inline(eyebrow)}</p>',
+         f'<h1 class="doc-cover-title">{_wordmark(title)}</h1>']
+    if sub:
+        p.append(f'<p class="doc-cover-sub">{_inline(sub)}</p>')
     if standfirst:
-        parts.append(f'<p class="uds-hero__standfirst">{_inline(standfirst)}</p>')
-    parts.append("</header>")
-    return "".join(parts)
+        p.append(f'<p class="doc-cover-standfirst">{_inline(standfirst)}</p>')
+    if footer:
+        p.append(f'<p class="doc-cover-footer">{_inline(footer)}</p>')
+    p.append("</section>")
+    return "".join(p)
 
 
-def _divider_topic(topic: dict[str, Any]) -> str:
-    eyebrow = f'<p class="uds-eyebrow">{_inline(topic.get("eyebrow", "Section"))}</p>' if topic.get("eyebrow") else ""
-    return (f'<section class="uds-section-break" id="{_esc(topic.get("id",""))}">'
-            f'{eyebrow}<h2>{_inline(topic.get("title",""))}</h2><hr class="uds-divider"></section>')
+def _doc_contents(topics: list[dict[str, Any]]) -> str:
+    items = []
+    for t in topics:
+        if t.get("id") == "cover" or t.get("type") == "index":
+            continue
+        cls = ' class="is-part"' if not t.get("section_md") else ""
+        items.append(f'<li{cls}><a href="#{_esc(t.get("id",""))}">{_inline(t.get("title",""))}</a></li>')
+    return ('<section class="doc-contents" id="contents">'
+            '<p class="uds-eyebrow">Contents</p><h2>What’s inside</h2>'
+            f'<ol>{"".join(items)}</ol></section>')
+
+
+def _doc_section_cover(topic: dict[str, Any], dark: bool) -> str:
+    cls = "doc-section-cover is-dark" if dark else "doc-section-cover"
+    eyebrow = _inline(topic.get("eyebrow", "")) or "Section"
+    return (f'<section class="{cls}" id="{_esc(topic.get("id",""))}">'
+            f'<p class="doc-section-eyebrow">{eyebrow}</p>'
+            f'<h2>{_inline(topic.get("title",""))}</h2></section>')
 
 
 def _csv_table(content_dir: Path, spec: dict[str, Any]) -> str:
@@ -301,11 +346,11 @@ def _csv_table(content_dir: Path, spec: dict[str, Any]) -> str:
     return f'<table class="uds-table">{cap}<thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>'
 
 
-def _content_topic(content_dir: Path, topic: dict[str, Any]) -> str:
-    parts = [f'<section class="uds-topic" id="{_esc(topic.get("id",""))}">']
+def _doc_topic(content_dir: Path, topic: dict[str, Any]) -> str:
+    parts = [f'<article class="doc-topic" id="{_esc(topic.get("id",""))}">']
     if topic.get("eyebrow"):
         parts.append(f'<p class="uds-eyebrow">{_inline(topic["eyebrow"])}</p>')
-    parts.append(f'<h2>{_inline(topic.get("title",""))}</h2>')
+    parts.append(f'<h2>{_inline(topic.get("title",""))}</h2><div class="doc-prose">')
     if topic.get("section_md"):
         try:
             md = _read_ref(content_dir, topic["section_md"])
@@ -321,32 +366,36 @@ def _content_topic(content_dir: Path, topic: dict[str, Any]) -> str:
     if topic.get("viz"):
         names = ", ".join(str(v).split("/")[-1] for v in topic["viz"])
         parts.append(f'<p class="uds-muted">[figure: {_esc(names)} — viz port pending]</p>')
-    parts.append("</section>")
+    parts.append("</div></article>")
     return "".join(parts)
 
 
-def render_docket(manifest_path: Path) -> tuple[dict[str, Any], str]:
-    """Render a docket (manifest + sections + CSV tables) to a UDS-HTML body."""
+def render_docket(manifest_path: Path, *, version: str = "v13") -> tuple[dict[str, Any], str]:
+    """Render a docket to a UDS-HTML document with full chrome: branded header,
+    cover, contents, alternating section covers, and prose topics."""
     manifest_path = Path(manifest_path)
     content_dir = manifest_path.parent.parent  # docket source/ root; section_md paths are "content/..."
     manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
     meta = manifest.get("meta", {})
-    body: list[str] = []
-    for topic in manifest.get("topics", []):
+    topics = manifest.get("topics", [])
+    topics_by_id = {t.get("id"): t for t in topics}
+
+    main: list[str] = []
+    dark = False
+    for topic in topics:
         if topic.get("id") == "cover":
-            body.append(_cover_topic(content_dir, topic))
+            main.append(_doc_cover(content_dir, topic, meta, version))
+            main.append(_doc_contents(topics))
         elif topic.get("type") == "index":
-            continue  # contents/index — generated nav not ported this pass
+            continue
         elif not topic.get("section_md"):
-            body.append(_divider_topic(topic))
-        elif topic.get("type") == "index":
-            continue  # contents/index — generated nav not ported this pass
+            main.append(_doc_section_cover(topic, dark))
+            dark = not dark
         else:
-            body.append(_content_topic(content_dir, topic))
-    title = meta.get("doc_title", "360 proposition")
-    html = ('<main class="uds-central-body uds-central-body--measure">\n'
-            + "\n".join(body) + "\n</main>")
-    return {"title": title, **meta}, html
+            main.append(_doc_topic(content_dir, topic))
+    body = (_doc_header(topics_by_id, version)
+            + '\n<main class="doc-main">\n' + "\n".join(main) + "\n</main>")
+    return {"title": meta.get("doc_title", "360 proposition"), **meta}, body
 
 
 # ----------------------------------------------------------------- documents
@@ -354,6 +403,7 @@ def _self_contained(body: str, title: str, brand: str) -> str:
     """A standalone UDS document — base.css + theme inlined (docket-servable)."""
     base = hydrate_mod.BASE_CSS.read_text(encoding="utf-8")
     theme = (hydrate_mod.THEMES_DIR / f"theme-{brand}.css").read_text(encoding="utf-8")
+    doc = (hydrate_mod.UI_ROOT / "uds-doc.css").read_text(encoding="utf-8")
     return f"""<!doctype html>
 <html lang="en" data-theme="light">
 <head>
@@ -362,8 +412,9 @@ def _self_contained(body: str, title: str, brand: str) -> str:
 {hydrate_mod._FONT_LINK}
 <style>{theme}</style>
 <style>{base}</style>
+<style>{doc}</style>
 </head>
-<body class="uds-root">
+<body class="uds-root doc">
 {body}
 </body>
 </html>

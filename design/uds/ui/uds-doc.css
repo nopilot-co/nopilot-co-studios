@@ -1,0 +1,98 @@
+/* UDS document chrome + treatments (ADR-006).
+   Models the v12.1 showcase visual range — branded header, cover, contents,
+   section covers, colour blocks — in the nopilot UDS palette. References only
+   var(--uds-*) (theme-hydrated: crimson primary, yellow active, graphite ink,
+   Newsreader display, Inter body, Geist Mono instrument). Sits over base.css. */
+
+.doc { background: var(--uds-color-bg); }
+.doc-main { max-width: 1180px; margin: 0 auto; padding: 0 var(--uds-space-xl) var(--uds-space-5xl); }
+.doc [id] { scroll-margin-top: 104px; }                 /* anchors land below the sticky header */
+
+/* --- sticky branded header (the pill) ------------------------------------ */
+.doc-header { position: sticky; top: var(--uds-space-md); z-index: 50; display: flex; align-items: center;
+  gap: var(--uds-space-lg); max-width: 1180px; margin: var(--uds-space-md) auto var(--uds-space-3xl);
+  padding: var(--uds-space-sm) var(--uds-space-md) var(--uds-space-sm) var(--uds-space-lg);
+  background: color-mix(in srgb, var(--uds-color-surface) 86%, transparent); backdrop-filter: blur(14px);
+  border: var(--uds-border-hair) solid var(--uds-color-line); border-radius: var(--uds-radius-pill);
+  box-shadow: var(--uds-shadow-card); }
+.doc-brand { display: flex; align-items: center; gap: var(--uds-space-sm); font-family: var(--uds-font-display);
+  font-size: var(--uds-size-h4); font-weight: var(--uds-weight-semibold); color: var(--uds-color-text); }
+.doc-brand .deg { color: var(--uds-color-primary); }
+.doc-badge { display: inline-flex; align-items: center; gap: 6px; font-family: var(--uds-font-mono);
+  font-size: var(--uds-size-eyebrow); letter-spacing: var(--uds-tracking-eyebrow); text-transform: uppercase;
+  color: var(--uds-color-text-muted); background: var(--uds-color-surface-sunk);
+  padding: 3px 10px; border-radius: var(--uds-radius-pill); }
+.doc-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--uds-color-primary); }
+.doc-nav { display: flex; gap: var(--uds-space-lg); margin-left: auto; }
+.doc-nav a { font-size: var(--uds-size-small); color: var(--uds-color-text-muted); text-decoration: none; white-space: nowrap; }
+.doc-nav a:hover { color: var(--uds-color-primary); }
+.doc-cta { font-size: var(--uds-size-small); font-weight: var(--uds-weight-medium); background: var(--uds-color-text);
+  color: var(--uds-color-surface); padding: 9px 18px; border-radius: var(--uds-radius-pill); text-decoration: none; }
+.doc-cta:hover { background: var(--uds-color-primary); }
+@media (max-width: 860px) { .doc-nav { display: none; } }
+
+/* --- cover --------------------------------------------------------------- */
+.doc-cover { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  text-align: center; gap: var(--uds-space-lg); min-height: 80vh; padding: var(--uds-space-5xl) var(--uds-space-3xl);
+  border-radius: var(--uds-radius-lg); background: var(--uds-color-surface);
+  border: var(--uds-border-hair) solid var(--uds-color-line); overflow: hidden; }
+.doc-cover::before { content: ""; position: absolute; inset: 0;
+  background-image: linear-gradient(var(--uds-color-line) 1px, transparent 1px),
+                    linear-gradient(90deg, var(--uds-color-line) 1px, transparent 1px);
+  background-size: 46px 46px; opacity: .45;
+  -webkit-mask-image: radial-gradient(ellipse 62% 56% at 50% 0%, #000 52%, transparent 100%);
+  mask-image: radial-gradient(ellipse 62% 56% at 50% 0%, #000 52%, transparent 100%); }
+.doc-cover > * { position: relative; }
+.doc-cover-eyebrow { font-family: var(--uds-font-mono); font-size: var(--uds-size-eyebrow);
+  letter-spacing: var(--uds-tracking-eyebrow); text-transform: uppercase; color: var(--uds-color-primary); }
+.doc-cover-title { font-family: var(--uds-font-display); font-weight: var(--uds-weight-semibold);
+  font-size: clamp(72px, 13vw, 148px); line-height: .95; letter-spacing: var(--uds-tracking-tight); color: var(--uds-color-text); }
+.doc-cover-title .deg { color: var(--uds-color-primary); }
+.doc-cover-sub { font-family: var(--uds-font-mono); font-size: var(--uds-size-caption);
+  letter-spacing: var(--uds-tracking-eyebrow); text-transform: uppercase; color: var(--uds-color-text-muted); }
+.doc-cover-standfirst { font-family: var(--uds-font-display); font-size: clamp(24px, 3.4vw, 38px);
+  line-height: var(--uds-leading-snug); max-width: 20ch; color: var(--uds-color-text); }
+.doc-cover-footer { font-size: var(--uds-size-small); color: var(--uds-color-text-muted); margin-top: var(--uds-space-xl); }
+
+/* --- contents ------------------------------------------------------------ */
+.doc-contents { padding: var(--uds-space-4xl) 0; }
+.doc-contents > .uds-eyebrow { color: var(--uds-color-primary); }
+.doc-contents h2 { font-size: var(--uds-size-h2); margin: var(--uds-space-xs) 0 var(--uds-space-lg); }
+.doc-contents ol { list-style: none; counter-reset: toc; border-top: var(--uds-border-hair) solid var(--uds-color-line); }
+.doc-contents li { counter-increment: toc; border-bottom: var(--uds-border-hair) solid var(--uds-color-line); }
+.doc-contents li.is-part { margin-top: var(--uds-space-md); }
+.doc-contents a { display: flex; align-items: baseline; gap: var(--uds-space-lg); padding: var(--uds-space-md) var(--uds-space-sm);
+  text-decoration: none; color: var(--uds-color-text); font-family: var(--uds-font-display); font-size: var(--uds-size-h4); }
+.doc-contents a::before { content: counter(toc, decimal-leading-zero); font-family: var(--uds-font-mono);
+  font-size: var(--uds-size-small); color: var(--uds-color-text-subtle); min-width: 2.4em; }
+.doc-contents li.is-part a { color: var(--uds-color-primary); }
+.doc-contents a:hover { color: var(--uds-color-primary); background: var(--uds-color-surface-sunk); }
+
+/* --- section cover (interstitial colour block) --------------------------- */
+.doc-section-cover { display: flex; flex-direction: column; justify-content: center; min-height: 44vh;
+  padding: var(--uds-space-5xl) var(--uds-space-3xl); margin: var(--uds-space-2xl) 0; border-radius: var(--uds-radius-lg);
+  background: var(--uds-color-surface); border: var(--uds-border-hair) solid var(--uds-color-line);
+  border-top: var(--uds-border-accent) solid var(--uds-color-primary); }
+.doc-section-eyebrow { font-family: var(--uds-font-mono); font-size: var(--uds-size-eyebrow);
+  letter-spacing: var(--uds-tracking-eyebrow); text-transform: uppercase; color: var(--uds-color-primary); }
+.doc-section-cover h2 { font-family: var(--uds-font-display); font-weight: var(--uds-weight-semibold);
+  font-size: clamp(44px, 6.4vw, 80px); line-height: 1.02; margin-top: var(--uds-space-md); }
+.doc-section-cover.is-dark { background: var(--uds-color-text); color: var(--uds-color-surface);
+  border: none; border-top: var(--uds-border-accent) solid var(--uds-color-active); }
+.doc-section-cover.is-dark h2 { color: var(--uds-color-surface); }
+.doc-section-cover.is-dark .doc-section-eyebrow { color: var(--uds-color-active); }
+
+/* --- topic + prose ------------------------------------------------------- */
+.doc-topic { padding: var(--uds-space-3xl) 0; border-bottom: var(--uds-border-hair) solid var(--uds-color-line); }
+.doc-topic > .uds-eyebrow { color: var(--uds-color-primary); }
+.doc-topic > h2 { font-family: var(--uds-font-display); font-size: var(--uds-size-h1); line-height: var(--uds-leading-tight);
+  margin: var(--uds-space-xs) 0 var(--uds-space-xl); }
+.doc-prose { max-width: 70ch; }
+.doc-prose > * + * { margin-top: var(--uds-space-lg); }
+.doc-prose h3 { font-size: var(--uds-size-h3); margin-top: var(--uds-space-2xl); }
+.doc-prose h4 { font-size: var(--uds-size-h4); margin-top: var(--uds-space-xl); }
+.doc-prose ul { padding-left: var(--uds-space-lg); }
+.doc-prose li { margin-top: var(--uds-space-sm); }
+.doc-prose .uds-pull-quote { margin: var(--uds-space-2xl) 0; font-size: var(--uds-size-h2); max-width: none; }
+.doc-prose .uds-table { margin: var(--uds-space-xl) 0; }
+.doc-prose .uds-muted { color: var(--uds-color-text-subtle); font-family: var(--uds-font-mono); font-size: var(--uds-size-small); }
