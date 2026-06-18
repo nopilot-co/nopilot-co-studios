@@ -42,6 +42,7 @@ CAPABILITIES: dict[str, set[str]] = {
     "stat-panel": {"gslide", "html"},
     "pullquote": {"gslide", "html"},
     "cta": {"gslide", "html"},
+    "bullseye": {"gslide", "html"},
 }
 
 # Fence name → canonical archetype (aliases collapse here as archetypes land).
@@ -58,6 +59,7 @@ ALIASES: dict[str, str] = {
     "stats": "stat-panel",
     "pullquote": "pullquote",
     "cta": "cta",
+    "bullseye": "bullseye",
 }
 
 
@@ -390,3 +392,45 @@ def normalise_cta(spec: Any) -> CTANode:
     if isinstance(spec, dict):
         return CTANode(str(spec.get("text", "")), str(spec.get("button", "") or spec.get("label", "")), str(spec.get("href", "")))
     return CTANode(" ".join(str(spec or "").split()))
+
+
+# ----------------------------------------------------------------- bullseye (concentric rings)
+@dataclass
+class Ring:
+    label: str = ""
+    items: list[str] = field(default_factory=list)
+
+
+@dataclass
+class BullseyeNode:
+    rings: list[Ring] = field(default_factory=list)  # centre → outward
+
+    @property
+    def is_empty(self) -> bool:
+        return not self.rings
+
+
+def normalise_bullseye(spec: Any) -> BullseyeNode:
+    """Concentric rings, centre→outward: rings:[{ring,items}] | items:[{ring,label}]
+    (mirrors frameworks._bands so the gslide / html / pptx bullseye agree)."""
+    s = _as_spec(spec)
+    out: list[Ring] = []
+    rings = s.get("rings")
+    if isinstance(rings, list):
+        for r in rings:
+            if isinstance(r, dict):
+                out.append(Ring(str(r.get("ring") or r.get("label", "")), [str(x) for x in (r.get("items") or [])]))
+            else:
+                out.append(Ring(str(r), []))
+    else:
+        grouped: dict[str, list[str]] = {}
+        order: list[str] = []
+        for it in (s.get("items") or []):
+            ring = str(it.get("ring", "")) if isinstance(it, dict) else ""
+            label = str(it.get("label", it.get("name", ""))) if isinstance(it, dict) else str(it)
+            if ring not in grouped:
+                grouped[ring] = []
+                order.append(ring)
+            grouped[ring].append(label)
+        out = [Ring(r, grouped[r]) for r in order]
+    return BullseyeNode(out)

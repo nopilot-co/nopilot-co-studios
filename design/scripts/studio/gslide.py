@@ -216,7 +216,7 @@ def _flat_blocks(body: str) -> list[tuple]:
                     if isinstance(spec, dict):
                         spec.setdefault("type", b[1])
                         out.append(("diagram", spec))
-                elif b[0] == "fence" and b[1] in ("cards", "panel", "flow", "process", "chart", "stat-panel", "stats"):
+                elif b[0] == "fence" and b[1] in ("cards", "panel", "flow", "process", "chart", "stat-panel", "stats", "bullseye"):
                     try:
                         spec = yaml.safe_load(b[2])
                         kind = {"process": "flow", "stats": "stat-panel"}.get(b[1], b[1])
@@ -323,10 +323,10 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
                 head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
                 _emit(head, sub_title); pending = []
                 deck.append({"kind": "chart", "eyebrow": gtitle, "title": sub_title, "spec": b[1] or {}, "lead": lead})
-            elif b[0] == "stat-panel":       # stat tiles → its own slide
+            elif b[0] in ("stat-panel", "bullseye"):  # stat tiles / bullseye → its own slide
                 head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
                 _emit(head, sub_title); pending = []
-                deck.append({"kind": "stat-panel", "eyebrow": gtitle, "title": sub_title, "spec": b[1], "lead": lead})
+                deck.append({"kind": b[0], "eyebrow": gtitle, "title": sub_title, "spec": b[1], "lead": lead})
             elif b[0] == "pullquote":        # pull-quote band
                 _emit(pending, sub_title); pending = []
                 deck.append({"kind": "pullquote", "eyebrow": gtitle, "spec": b[1]})
@@ -702,6 +702,30 @@ def _cta_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> l
     return out
 
 
+def _bullseye_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """Concentric rings (native ELLIPSE shapes), outermost first so inner rings sit on top;
+    each ring labelled at its mid-radius. rings[0] = the core (centre)."""
+    rings = node.rings
+    n = len(rings)
+    if not n:
+        return []
+    R = min(w, h) // 2 - 120_000
+    cx, cy = x + w // 2, y + h // 2
+    ramp = p.get("dataviz") or [p["primary"]]
+    out: list[dict] = []
+    for j in range(n - 1, -1, -1):
+        r = int(R * (j + 1) / n)
+        out += _shape(slide_id, f"{slide_id}_be{j}", "ELLIPSE", cx - r, cy - r, 2 * r, 2 * r, ramp[j % len(ramp)])
+    for j, ring in enumerate(rings):
+        midr = int(R * (2 * j + 1) / (2 * n))
+        txt = (ring.label + ": " if ring.label and ring.items else ring.label) + ", ".join(ring.items)
+        lid = f"{slide_id}_bel{j}"
+        out.append(_text_box(slide_id, lid, cx - R, cy - midr - 130_000, 2 * R, 280_000))
+        out.append({"insertText": {"objectId": lid, "text": txt, "insertionIndex": 0}})
+        out += _style(lid, font=p["body"], size=8, color=_rgb(p["on_primary"]), align="CENTER", weight=600)
+    return out
+
+
 def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None) -> tuple[str, list[dict]]:
     """IR → Slides API batchUpdate requests (cover, section, quote, content). A render
     ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS."""
@@ -815,6 +839,12 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             sy = _lead_band(sid, s.get("lead"), 1_650_000)
             reqs += _stat_reqs(sid, archetype_ir.normalise_stats(s.get("spec")), MARGIN, sy, cw, PAGE_H - sy - MARGIN, p)
+        elif kind == "bullseye":           # native concentric rings
+            reqs.append(_bg(sid, p["surface"]))
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
+            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
+            byy = _lead_band(sid, s.get("lead"), 1_650_000)
+            reqs += _bullseye_reqs(sid, archetype_ir.normalise_bullseye(s.get("spec")), MARGIN, byy, cw, PAGE_H - byy - MARGIN, p)
         elif kind == "pullquote":          # native pull-quote
             reqs.append(_bg(sid, p["paper"]))
             add_role(sid, 0, s.get("eyebrow", ""), 700_000, 320_000, "eyebrow")

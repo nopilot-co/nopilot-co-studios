@@ -290,6 +290,30 @@ def _swimlane(inner: str, ctx: dict | None = None) -> str:
             f'<div class="uds-swimlane__lanes">{"".join(rows)}</div>{ms}</figure>')
 
 
+def _bullseye(inner: str, ctx: dict | None = None) -> str:
+    """A native HTML bullseye — inline SVG concentric circles (data-driven), outermost
+    first; each ring labelled at its mid-radius. Vector, themeable, prints crisp."""
+    node = _ir.normalise_bullseye(inner)
+    n = len(node.rings)
+    if not n:
+        return ""
+    ramp = (ctx or {}).get("ramp") or _ir.DEFAULT_RAMP
+    size = 340.0
+    cx = cy = size / 2
+    R = size / 2 - 10
+    parts = []
+    for j in range(n - 1, -1, -1):
+        r = R * (j + 1) / n
+        parts.append(f'<circle cx="{cx:.0f}" cy="{cy:.0f}" r="{r:.0f}" fill="{ramp[j % len(ramp)]}" stroke="#fff" stroke-width="2"/>')
+    for j, ring in enumerate(node.rings):
+        midr = R * (2 * j + 1) / (2 * n)
+        txt = (ring.label + ": " if ring.label and ring.items else ring.label) + ", ".join(ring.items)
+        parts.append(f'<text x="{cx:.0f}" y="{cy - midr + 4:.0f}" text-anchor="middle" fill="#fff" font-size="11" font-weight="600">{_esc(txt)}</text>')
+    return ('<figure class="uds-bullseye" style="margin:1.5rem 0;text-align:center">'
+            f'<svg viewBox="0 0 {size:.0f} {size:.0f}" width="{size:.0f}" height="{size:.0f}" role="img" aria-label="Bullseye diagram">'
+            + "".join(parts) + "</svg></figure>")
+
+
 _FENCE = {"stat-panel": _stat_grid, "pullquote": _pull_from_text, "callout-panel": _callout,
           "process": _process, "cta": _cta}
 
@@ -337,6 +361,8 @@ def _render_blocks(blocks: list[tuple], *, demote: int = 0, ctx: dict | None = N
                 out.append(_cards(b[2], ctx))
             elif b[1] in ("swimlane", "timeline"):
                 out.append(_swimlane(b[2], ctx))
+            elif b[1] == "bullseye":
+                out.append(_bullseye(b[2], ctx))
             else:
                 fn = _FENCE.get(b[1])
                 out.append(fn(b[2]) if fn else _unsupported_fence(b[1]))
