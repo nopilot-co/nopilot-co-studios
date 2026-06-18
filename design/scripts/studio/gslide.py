@@ -55,6 +55,8 @@ def _palette(brand: str) -> dict[str, Any]:
     fam = u["font"]["family"]
     display = (fam.get("display") or ["Newsreader"])[0]
     body = (fam.get("body") or ["Inter"])[0]
+    mono_fam = (fam.get("mono") or ["Geist Mono"])[0]
+    mono = _GSLIDE_MONO if "geist" in mono_fam.lower() else mono_fam  # Geist Mono → Workspace fallback; else the brand's own face
     return {
         "ink": light.get("text", "#1C2022"),
         "muted": light.get("text-muted", "#6E747A"),
@@ -64,7 +66,7 @@ def _palette(brand: str) -> dict[str, Any]:
         "surface": light.get("surface", "#FFFFFF"),
         "paper": light.get("bg", "#F1F1F4"),
         "on_primary": light.get("on-primary", "#FFFFFF"),
-        "display": display, "body": body, "mono": _GSLIDE_MONO,
+        "display": display, "body": body, "mono": mono,
     }
 
 
@@ -100,9 +102,90 @@ def _topic_body(content_dir: Path, topic: dict[str, Any]) -> tuple[list[str], st
     return [ln for ln in lines if ln], quote
 
 
+# ----------------------------------------------------------------- IR (flat HTML-laced source → slides)
+def _strip_html(md: str) -> str:
+    """Flatten HTML-laced markdown: drop <style>/<script>/comments, strip tags (keep inner text)."""
+    md = re.sub(r"<style\b[^>]*>.*?</style>", "", md, flags=re.S | re.I)
+    md = re.sub(r"<script\b[^>]*>.*?</script>", "", md, flags=re.S | re.I)
+    md = re.sub(r"<!--.*?-->", "", md, flags=re.S)
+    return re.sub(r"<[^>]+>", "", md)
+
+
+def _split_anchor(heading: str) -> tuple[str, str]:
+    """'Title {#anchor}' → ('Title', 'anchor')."""
+    m = re.match(r"^(.*?)\s*\{#([^}]+)\}\s*$", heading)
+    return (m.group(1).strip(), m.group(2)) if m else (heading.strip(), "")
+
+
+def _flat_lines(blocks: list[tuple]) -> list[str]:
+    """Body blocks → slide lines (sub-heads as '§', list items '•', tables/quotes flattened)."""
+    lines: list[str] = []
+    for b in blocks:
+        if b[0] == "h":
+            lines.append("§ " + _clean(_split_anchor(b[2])[0]))
+        elif b[0] == "p":
+            lines.append(_clean(b[1]))
+        elif b[0] == "list":
+            lines += ["• " + _clean(it) for it in b[1]]
+        elif b[0] == "quote":
+            lines.append("“" + _clean(b[1]) + "”")
+        elif b[0] == "table":
+            rows = b[1]
+            keep = ([rows[0]] + rows[2:]) if len(rows) >= 2 else rows  # drop the |---| separator row
+            for r in keep:
+                cells = [c.strip() for c in r.strip().strip("|").split("|") if c.strip()]
+                if cells:
+                    lines.append(" · ".join(cells))
+    return [ln for ln in lines if ln]
+
+
+def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6) -> tuple[str, list[dict]]:
+    """Flat HTML-laced markdown (front-matter + ``## {#anchor}`` sections) → the slide IR.
+    The cover comes from front-matter; each H2 → a section divider; its lead-in prose
+    and each H3 subsection → content slides (paginated). A ``{#hero}`` H2 is dropped
+    (the cover already carries it)."""
+    text = Path(src_path).read_text(encoding="utf-8")
+    meta, body = uds_html.split_frontmatter(text)
+    blocks = uds_html._blocks(_strip_html(body))
+    title = _clean(str(meta.get("title", "Document")))
+    deck: list[dict] = [{"kind": "cover", "eyebrow": _clean(str(meta.get("eyebrow", "") or "Proposal")),
+                         "title": title, "sub": "", "standfirst": _clean(str(meta.get("description", "")))}]
+    groups: list[dict] = []
+    cur: dict | None = None
+    for b in blocks:
+        if b[0] == "h" and b[1] == 2:
+            htext, anchor = _split_anchor(b[2])
+            cur = {"title": _clean(htext), "anchor": anchor, "blocks": []}
+            groups.append(cur)
+        elif cur is not None:
+            cur["blocks"].append(b)
+    for g in groups:
+        if g["anchor"] == "hero":            # the cover already carries the hero
+            continue
+        deck.append({"kind": "section", "eyebrow": "Section", "title": g["title"]})
+        subs: list[dict] = [{"title": g["title"], "blocks": []}]   # lead-in prose, then each H3
+        for b in g["blocks"]:
+            if b[0] == "h" and b[1] == 3:
+                subs.append({"title": _clean(_split_anchor(b[2])[0]), "blocks": []})
+            else:
+                subs[-1]["blocks"].append(b)
+        for sub in subs:
+            lines = _flat_lines(sub["blocks"])
+            if not lines:
+                continue
+            chunks = [lines[i:i + lines_per_slide] for i in range(0, len(lines), lines_per_slide)]
+            for nch, chunk in enumerate(chunks):
+                deck.append({"kind": "content", "eyebrow": g["title"],
+                             "title": sub["title"] + ("" if nch == 0 else f" (cont. {nch + 1})"), "body": chunk})
+    return title, deck
+
+
 def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6) -> tuple[str, list[dict]]:
-    """Docket manifest → an ordered deck of plain slide specs (the IR)."""
+    """Docket manifest → an ordered deck of plain slide specs (the IR). A ``.md`` path
+    is treated as a flat HTML-laced source (``slide_specs_flat``)."""
     manifest_path = Path(manifest_path)
+    if manifest_path.suffix.lower() in (".md", ".markdown"):
+        return slide_specs_flat(manifest_path, brand=brand, lines_per_slide=lines_per_slide)
     content_dir = manifest_path.parent.parent
     manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
     meta = manifest.get("meta", {})
@@ -236,17 +319,41 @@ def resolve_account(account: str, destination: str | None = None) -> tuple[str, 
 
 
 # ----------------------------------------------------------------- live execution
-def _services(creds_file: str, impersonate: str | None = None):
-    from google.oauth2 import service_account  # lazy: only needed live
-    from googleapiclient.discovery import build
+def _load_creds(creds_file: str, impersonate: str | None = None):
+    """Credentials from either a service-account key OR an OAuth authorized-user
+    token (auto-detected by the JSON's `type`).
 
-    creds = service_account.Credentials.from_service_account_file(creds_file, scopes=_SCOPES)
-    if impersonate:
-        # Domain-wide delegation: act AS a Workspace user, so files are owned by
-        # them (their quota) — lets a SA write to a My-Drive folder. Requires the
-        # Workspace admin to authorize this SA's client ID for the scopes.
-        creds = creds.with_subject(impersonate)
+    Use OAuth for a personal @gmail.com destination: a service account can't write
+    to a consumer My Drive (no storage quota; no Workspace → no Shared Drive and no
+    domain-wide delegation). OAuth acts AS the user, so files are owned by them.
+    """
+    import json
+    info = json.loads(Path(creds_file).read_text(encoding="utf-8"))
+    if info.get("type") == "service_account":
+        from google.oauth2 import service_account
+        creds = service_account.Credentials.from_service_account_file(creds_file, scopes=_SCOPES)
+        if impersonate:  # domain-wide delegation (Workspace only)
+            creds = creds.with_subject(impersonate)
+        return creds
+    from google.oauth2.credentials import Credentials  # authorized_user (OAuth)
+    return Credentials.from_authorized_user_file(creds_file, _SCOPES)
+
+
+def _services(creds_file: str, impersonate: str | None = None):
+    from googleapiclient.discovery import build
+    creds = _load_creds(creds_file, impersonate)
     return build("drive", "v3", credentials=creds), build("slides", "v1", credentials=creds)
+
+
+def authorize(client_secret_file: str, token_out: str) -> str:
+    """Run the OAuth consent flow (opens a browser) and save an authorized-user token.
+    The signed-in user IS the owner of everything the pipeline then creates — the
+    route for personal @gmail.com destinations. The user runs this (it's their login)."""
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    flow = InstalledAppFlow.from_client_secrets_file(client_secret_file, _SCOPES)
+    creds = flow.run_local_server(port=0)
+    Path(token_out).write_text(creds.to_json(), encoding="utf-8")
+    return token_out
 
 
 def _ensure_subfolder(drive, parent_id: str, name: str) -> str:
