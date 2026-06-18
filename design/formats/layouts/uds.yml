@@ -1,0 +1,12 @@
+# Layout: uds — the Universal Design System reading surface (ADR-006).
+# Structural sibling to `linear` / `frame`. Content is the UDS `:::` source rendered
+# through the UDS archetypes: HTML via uds_html, PDF via uds_pdf (Chromium print),
+# GSlide via gslide. The engine below is the PDF default; the html / gslide exports
+# declare their own engine, which overrides this (the export layer merges last).
+layout: uds
+name: UDS
+description: >-
+  The Universal Design System reading surface — branded cover, contents, section
+  covers and prose topics from one `:::` source. "One source reaches six formats."
+render:
+  engine: uds-pdf-engine   # scripts/studio/render.py::_engine_uds_pdf — PDF default

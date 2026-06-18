@@ -178,6 +178,33 @@ def _engine_pptx(
     return {"pptx": dest}
 
 
+# ---------------------------------------------------------------- uds-pdf-engine
+
+
+def _engine_uds_pdf(
+    session_path: Path, resolved: dict[str, Any], state: dict[str, Any], version: str
+) -> dict[str, Path]:
+    """UDS-HTML → PDF print engine (#123). Prints the UDS reading document via
+    Chromium with a native running header/footer — no Quarto. Playwright is an
+    optional dep, imported lazily so this module still loads without it."""
+    from . import uds_pdf as uds_pdf_mod
+
+    slug = state["brand"]
+    dest = session_path / "outputs" / f"{_out_stem(state)}.v{version}.pdf"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    # Meta-content strip first (issue #11): no `nopilot:` region or front-matter
+    # may leak into the client-facing PDF, so compose from a cleaned source.
+    body = metacontent.strip(session_path / "inputs" / "source.md")
+    tmp_src = session_path / "_uds_src.md"
+    tmp_src.write_text(body, encoding="utf-8")
+    try:
+        orientation = (resolved.get("render") or {}).get("orientation") or "landscape"
+        uds_pdf_mod.render(tmp_src, dest, brand=slug, orientation=orientation)
+    finally:
+        tmp_src.unlink(missing_ok=True)
+    return {"pdf": dest}
+
+
 # ---------------------------------------------------------------- linear-engine
 
 
@@ -413,6 +440,7 @@ def _engine_frame(
 _ENGINES: dict[str, Engine] = {
     "linear-engine": _engine_linear,
     "pptx-engine": _engine_pptx,
+    "uds-pdf-engine": _engine_uds_pdf,
     "frame-engine": _engine_frame,
 }
 

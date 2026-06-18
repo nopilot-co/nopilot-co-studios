@@ -1,0 +1,11 @@
+# Format: proposal-uds-pdf = purposes/proposal.yml <- layouts/uds.yml <- exports/pdf.yml <- overrides
+# The UDS reading document printed to PDF via Chromium (scripts/studio/uds_pdf.py)
+# — the in-studio path for the branded landscape proposal built by hand in the
+# KMS/Indicia cowork run (learnings/2026/uds-pdf-bake-ins.md). UDS is the *layout*;
+# pdf is the *export*, so every pdf-capable asset is already supported.
+extends: proposal
+export: pdf
+layout: uds
+overrides:
+  requires:
+    render: [playwright]   # Chromium print, not Quarto (overrides exports/pdf.yml)
