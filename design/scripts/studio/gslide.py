@@ -221,8 +221,8 @@ def load_delivery() -> dict[str, Any]:
     return yaml.safe_load(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
-def resolve_account(account: str, destination: str | None = None) -> tuple[str, str]:
-    """account (+ optional destination) → (sa_key_path, drive_folder_id)."""
+def resolve_account(account: str, destination: str | None = None) -> tuple[str, str, str | None]:
+    """account (+ optional destination) → (sa_key_path, drive_folder_id, impersonate)."""
     cfg = (load_delivery().get("accounts", {}) or {}).get(account)
     if not cfg:
         raise SystemExit(f"no delivery config for '{account}' — set STUDIOS_DELIVERY_CONFIG or ~/context/studios/delivery.yml")
@@ -232,15 +232,20 @@ def resolve_account(account: str, destination: str | None = None) -> tuple[str, 
     dest = (cfg.get("destinations", {}) or {}).get(destination or cfg.get("default_destination"))
     if not dest:
         raise SystemExit(f"no destination {destination!r} for account '{account}'")
-    return key, dest["drive_folder_id"]
+    return key, dest["drive_folder_id"], dest.get("impersonate") or cfg.get("impersonate")
 
 
 # ----------------------------------------------------------------- live execution
-def _services(creds_file: str):
+def _services(creds_file: str, impersonate: str | None = None):
     from google.oauth2 import service_account  # lazy: only needed live
     from googleapiclient.discovery import build
 
     creds = service_account.Credentials.from_service_account_file(creds_file, scopes=_SCOPES)
+    if impersonate:
+        # Domain-wide delegation: act AS a Workspace user, so files are owned by
+        # them (their quota) — lets a SA write to a My-Drive folder. Requires the
+        # Workspace admin to authorize this SA's client ID for the scopes.
+        creds = creds.with_subject(impersonate)
     return build("drive", "v3", credentials=creds), build("slides", "v1", credentials=creds)
 
 
@@ -260,7 +265,7 @@ def _ensure_subfolder(drive, parent_id: str, name: str) -> str:
 
 def execute(manifest_path: Path, *, brand: str = "nopilot", creds_file: str,
             drive_folder_id: str | None = None, asset_name: str | None = None,
-            presentation_id: str | None = None) -> str:
+            presentation_id: str | None = None, impersonate: str | None = None) -> str:
     """Create (or update in place) the native deck via the Slides + Drive APIs using
     a **service account**. Places it in a Shared-Drive folder (optionally an
     ``asset_name`` subfolder), or updates ``presentation_id`` if given. Returns the URL.
@@ -268,7 +273,7 @@ def execute(manifest_path: Path, *, brand: str = "nopilot", creds_file: str,
     Requires: Slides + Drive APIs enabled on the SA's project, and the SA a member
     of the target Shared Drive. This is an account write — confirm first.
     """
-    drive, slides = _services(creds_file)
+    drive, slides = _services(creds_file, impersonate=impersonate)
     title, reqs = build_requests(manifest_path, brand=brand)
 
     if presentation_id:                                          # update in place (re-render)
@@ -305,16 +310,19 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--asset-name", help="subfolder under the destination for this asset")
     ap.add_argument("--creds", help="explicit service-account key JSON (overrides --account)")
     ap.add_argument("--folder", help="explicit Drive folder id (overrides --account)")
+    ap.add_argument("--impersonate", help="Workspace user to act as (domain-wide delegation) — needed to write to a My-Drive folder")
     ap.add_argument("--presentation-id", help="update this deck in place instead of creating a new one")
     args = ap.parse_args(argv)
     if args.execute:
-        creds, folder = args.creds, args.folder
+        creds, folder, impersonate = args.creds, args.folder, args.impersonate
         if args.account and not creds:
-            creds, folder = resolve_account(args.account, args.destination)
+            creds, folder, cfg_imp = resolve_account(args.account, args.destination)
+            impersonate = impersonate or cfg_imp
         if not creds:
             ap.error("--execute needs --account (configured) or --creds")
         print(execute(Path(args.manifest), brand=args.brand, creds_file=creds,
-                       drive_folder_id=folder, asset_name=args.asset_name, presentation_id=args.presentation_id))
+                       drive_folder_id=folder, asset_name=args.asset_name,
+                       presentation_id=args.presentation_id, impersonate=impersonate))
         return 0
     pl = payload(Path(args.manifest), brand=args.brand)
     if args.out:
