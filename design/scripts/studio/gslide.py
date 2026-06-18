@@ -213,9 +213,10 @@ def _flat_blocks(body: str) -> list[tuple]:
                     if isinstance(spec, dict):
                         spec.setdefault("type", b[1])
                         out.append(("diagram", spec))
-                elif b[0] == "fence" and b[1] in ("cards", "panel"):
+                elif b[0] == "fence" and b[1] in ("cards", "panel", "flow", "process"):
                     try:
-                        out.append((b[1], yaml.safe_load(b[2])))
+                        spec = yaml.safe_load(b[2])
+                        out.append(("flow" if b[1] in ("flow", "process") else b[1], spec))
                     except Exception:
                         out.append(("p", _clean(b[2])))
                 else:
@@ -297,6 +298,14 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
                 head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
                 _emit(head, sub_title); pending = []
                 deck.append({"kind": "panel", "eyebrow": gtitle, "title": sub_title, "spec": b[1] or {}, "lead": lead})
+            elif b[0] == "flow":             # process / flow → its own slide, every stage (wraps)
+                head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
+                _emit(head, sub_title); pending = []
+                steps = b[1] if isinstance(b[1], list) else ((b[1] or {}).get("steps") or [])
+                if steps:
+                    deck.append({"kind": "flow", "eyebrow": gtitle, "title": sub_title, "steps": steps, "lead": lead})
+                elif lead:
+                    _emit(lead, sub_title)
             else:
                 pending += _flat_lines([b])
         _emit(pending, sub_title)
@@ -525,6 +534,42 @@ def _panel_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p: di
     return out
 
 
+def _flow_reqs(slide_id: str, steps: list, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A process/flow: numbered step chips + arrows, WRAPPING to multiple rows so every
+    stage shows (never truncated to fit one row)."""
+    n = len(steps)
+    if not n:
+        return []
+    rows = max(1, -(-n // 4))            # ceil(n/4) rows…
+    per_row = -(-n // rows)              # …balanced across them
+    arrow_w, row_gap = 200_000, 280_000
+    chip_w = (w - (per_row - 1) * arrow_w) // per_row
+    row_h = min(int((h - (rows - 1) * row_gap) / rows), 1_500_000)
+    out: list[dict] = []
+    for i, st in enumerate(steps):
+        r, c = divmod(i, per_row)
+        cx0, cy0 = x + c * (chip_w + arrow_w), y + r * (row_h + row_gap)
+        cid = f"{slide_id}_fs{i}"
+        out += _shape(slide_id, f"{cid}c", "ROUND_RECTANGLE", cx0, cy0, chip_w, row_h, p["paper"])
+        out += _shape(slide_id, f"{cid}n", "ROUND_RECTANGLE", cx0 + 150_000, cy0 + 150_000, 320_000, 320_000, p["primary"])
+        out.append(_text_box(slide_id, f"{cid}ni", cx0 + 150_000, cy0 + 185_000, 320_000, 250_000))
+        out.append({"insertText": {"objectId": f"{cid}ni", "text": str(i + 1), "insertionIndex": 0}})
+        out += _style(f"{cid}ni", font=p["body"], size=11, color=_rgb(p["on_primary"]), align="CENTER", weight=600)
+        tw = chip_w - 300_000
+        out.append(_text_box(slide_id, f"{cid}t", cx0 + 150_000, cy0 + 540_000, tw, 300_000))
+        out.append({"insertText": {"objectId": f"{cid}t", "text": str(st.get("title", "")), "insertionIndex": 0}})
+        out += _style(f"{cid}t", font=p["body"], size=10, color=_rgb(p["ink"]), weight=600)
+        out.append(_text_box(slide_id, f"{cid}cap", cx0 + 150_000, cy0 + 880_000, tw, max(row_h - 1_000_000, 250_000)))
+        out.append({"insertText": {"objectId": f"{cid}cap", "text": str(st.get("caption", "")), "insertionIndex": 0}})
+        out += _style(f"{cid}cap", font=p["body"], size=8, color=_rgb(p["muted"]))
+        if c < per_row - 1 and i < n - 1:   # arrow to the next chip in the row
+            aid = f"{slide_id}_fa{i}"
+            out.append(_text_box(slide_id, aid, cx0 + chip_w, cy0 + row_h // 2 - 170_000, arrow_w, 340_000))
+            out.append({"insertText": {"objectId": aid, "text": "→", "insertionIndex": 0}})
+            out += _style(aid, font=p["body"], size=14, color=_rgb(p["primary"]), align="CENTER")
+    return out
+
+
 def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None) -> tuple[str, list[dict]]:
     """IR → Slides API batchUpdate requests (cover, section, quote, content). A render
     ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS."""
@@ -620,6 +665,12 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             py = _lead_band(sid, s.get("lead"), 1_650_000)
             reqs += _panel_reqs(sid, s.get("spec", {}), MARGIN, py, cw, PAGE_H - py - MARGIN, p)
+        elif kind == "flow":               # process / flow — wraps to show every stage
+            reqs.append(_bg(sid, p["surface"]))
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
+            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
+            fy = _lead_band(sid, s.get("lead"), 1_650_000)
+            reqs += _flow_reqs(sid, s["steps"], MARGIN, fy, cw, PAGE_H - fy - MARGIN, p)
         else:  # content
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
