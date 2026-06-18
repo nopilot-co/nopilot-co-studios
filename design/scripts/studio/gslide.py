@@ -233,7 +233,7 @@ def _flat_blocks(body: str) -> list[tuple]:
     return out
 
 
-def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6, group_lead: int = 0) -> tuple[str, list[dict]]:
+def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6, group_lead: int = 0, table_rows: int = 0) -> tuple[str, list[dict]]:
     """Flat HTML-laced markdown (front-matter + ``## {#anchor}`` sections) → the slide IR.
     The cover comes from front-matter; each H2 → a section divider; its lead-in prose
     and each H3 subsection → content slides (paginated). A ``{#hero}`` H2 is dropped
@@ -275,11 +275,18 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
                 _emit(pending, sub_title); pending = []
                 deck.append({"kind": "callout", "eyebrow": (b[1].get("heading") or gtitle),
                              "heading": b[1].get("heading", ""), "body": b[1].get("body", "")})
-            elif b[0] == "table":            # data table → its own slide, grouping the supporting lead-in prose
+            elif b[0] == "table":            # data table → its own slide(s); long tables paginate (header repeats)
                 head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
                 _emit(head, sub_title); pending = []
-                if b[1]:
-                    deck.append({"kind": "table", "eyebrow": gtitle, "title": sub_title, "rows": b[1], "lead": lead})
+                rows = b[1] or []
+                if rows:
+                    header, bodyrows = rows[0], rows[1:]
+                    cap = table_rows if table_rows else (len(bodyrows) or 1)
+                    chunks = [bodyrows[k:k + cap] for k in range(0, len(bodyrows), cap)] or [[]]
+                    for ci, chunk in enumerate(chunks):
+                        deck.append({"kind": "table", "eyebrow": gtitle,
+                                     "title": sub_title + ("" if ci == 0 else " (cont.)"),
+                                     "rows": [header] + chunk, "lead": lead if ci == 0 else []})
                 elif lead:
                     _emit(lead, sub_title)
             elif b[0] == "diagram":          # timeline / swimlane → its own slide, grouping the lead-in prose
@@ -312,12 +319,12 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
     return title, deck
 
 
-def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6, group_lead: int = 0) -> tuple[str, list[dict]]:
+def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6, group_lead: int = 0, table_rows: int = 0) -> tuple[str, list[dict]]:
     """Docket manifest → an ordered deck of plain slide specs (the IR). A ``.md`` path
     is treated as a flat HTML-laced source (``slide_specs_flat``)."""
     manifest_path = Path(manifest_path)
     if manifest_path.suffix.lower() in (".md", ".markdown"):
-        return slide_specs_flat(manifest_path, brand=brand, lines_per_slide=lines_per_slide, group_lead=group_lead)
+        return slide_specs_flat(manifest_path, brand=brand, lines_per_slide=lines_per_slide, group_lead=group_lead, table_rows=table_rows)
     content_dir = manifest_path.parent.parent
     manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
     meta = manifest.get("meta", {})
@@ -478,21 +485,25 @@ def _swimlane_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p:
 
 
 def _card_grid_reqs(slide_id: str, cards: list, x: int, y: int, w: int, h: int, p: dict, *, dark: bool = False, idbase: str = "card") -> list[dict]:
-    """A row of cards (eyebrow? + title + body). Light (grey, ink) or dark (on a panel)."""
+    """Cards (eyebrow? + title + body), WRAPPING to balanced rows (≤3 wide) so every card
+    shows. Light (grey, ink) or dark (on a panel)."""
     n = max(1, len(cards))
-    gap = 200_000
-    cwc = (w - gap * (n - 1)) // n
+    rows = max(1, -(-n // 3))            # ceil(n/3) rows
+    per_row = -(-n // rows)              # balanced across them
+    gap = row_gap = 200_000
+    cwc = (w - gap * (per_row - 1)) // per_row
+    rh = min(int((h - (rows - 1) * row_gap) / rows), 2_400_000)
     fill = _mix(p["ink"], "#FFFFFF", 0.10) if dark else p["paper"]
     title_col = p["surface"] if dark else p["ink"]
     body_col = _mix(p["surface"], p["ink"], 0.40) if dark else p["muted"]
     eb_col = p["active"] if dark else p["primary"]
     out: list[dict] = []
     for i, c in enumerate(cards):
-        cx0 = x + i * (cwc + gap)
+        r, cc = divmod(i, per_row)
+        cx0, cy0 = x + cc * (cwc + gap), y + r * (rh + row_gap)
         cid = f"{slide_id}_{idbase}{i}"
-        out += _shape(slide_id, f"{cid}r", "ROUND_RECTANGLE", cx0, y, cwc, h, fill)
-        pad = 220_000
-        ty, tw = y + 200_000, cwc - 2 * 220_000
+        out += _shape(slide_id, f"{cid}r", "ROUND_RECTANGLE", cx0, cy0, cwc, rh, fill)
+        pad, tw, ty = 220_000, cwc - 440_000, cy0 + 200_000
         if c.get("eyebrow"):
             out.append(_text_box(slide_id, f"{cid}e", cx0 + pad, ty, tw, 230_000))
             out.append({"insertText": {"objectId": f"{cid}e", "text": str(c["eyebrow"]).upper(), "insertionIndex": 0}})
@@ -502,7 +513,7 @@ def _card_grid_reqs(slide_id: str, cards: list, x: int, y: int, w: int, h: int, 
         out.append({"insertText": {"objectId": f"{cid}t", "text": str(c.get("title", "")), "insertionIndex": 0}})
         out += _style(f"{cid}t", font=p["body"], size=11, color=_rgb(title_col), weight=600)
         ty += 420_000
-        out.append(_text_box(slide_id, f"{cid}b", cx0 + pad, ty, tw, max(h - (ty - y) - 150_000, 300_000)))
+        out.append(_text_box(slide_id, f"{cid}b", cx0 + pad, ty, tw, max(cy0 + rh - ty - 150_000, 250_000)))
         out.append({"insertText": {"objectId": f"{cid}b", "text": str(c.get("body", "")), "insertionIndex": 0}})
         out += _style(f"{cid}b", font=p["body"], size=8, color=_rgb(body_col))
     return out
@@ -576,7 +587,7 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
     prof = uds_mod.profile_spec(profile)
     columns = int(prof.get("columns", 1))
     tsize = int(prof.get("table_size") or 9)
-    title, deck = slide_specs(manifest_path, brand=brand, lines_per_slide=int(prof.get("lines_per_slide", 6)), group_lead=int(prof.get("group_lead", 0)))
+    title, deck = slide_specs(manifest_path, brand=brand, lines_per_slide=int(prof.get("lines_per_slide", 6)), group_lead=int(prof.get("group_lead", 0)), table_rows=int(prof.get("table_rows", 0)))
     p = _palette(brand)
     reqs: list[dict] = []
     cx, cw = MARGIN, PAGE_W - 2 * MARGIN
