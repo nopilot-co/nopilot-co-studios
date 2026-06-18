@@ -438,9 +438,9 @@ def _place_diagram(s, kind, body, tokens, top: float) -> float:
                     if isinstance(e, dict)
                 ]
             else:
-                labels = [
-                    str(x) for x in (spec.get("nodes") or spec.get("steps") or [])
-                ]
+                from . import archetype_ir
+
+                labels = [st.title for st in archetype_ir.normalise_flow(spec).steps]
             _diagram_linear(s, labels, tokens, top)
         else:
             from . import diagrams as diagrams_mod

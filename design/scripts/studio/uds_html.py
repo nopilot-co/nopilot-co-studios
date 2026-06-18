@@ -215,6 +215,28 @@ def _chart(inner: str, ctx: dict | None = None) -> str:
     return f'<figure class="uds-chart" data-type="{_esc(node.chart_type)}" style="margin:1.75rem 0">{title}{plot}</figure>'
 
 
+def _flow(inner: str, ctx: dict | None = None) -> str:
+    """A native HTML process/flow from a FlowNode — numbered step chips that WRAP (every
+    stage shown, never truncated), self-contained inline styles + var(--uds-*) theming."""
+    node = _ir.normalise_flow(inner)
+    if not node.steps:
+        return ""
+    chips = []
+    for i, st in enumerate(node.steps):
+        cap = (f'<p class="uds-flow__caption" style="margin:.35rem 0 0;font-size:.8rem;'
+               f'color:var(--uds-color-text-subtle,#6E747A);line-height:1.4">{_inline(st.caption)}</p>') if st.caption else ""
+        chips.append(
+            '<li class="uds-flow__step" style="flex:1 1 200px;min-width:180px;'
+            'background:var(--uds-color-surface,#fff);border:1px solid var(--uds-color-line,#E5E5E5);border-radius:10px;padding:1rem 1.1rem">'
+            '<span class="uds-flow__num" style="display:inline-flex;align-items:center;justify-content:center;width:1.7rem;height:1.7rem;'
+            'border-radius:50%;background:var(--uds-color-primary,#C3094A);'
+            f'color:var(--uds-color-on-primary,#fff);font-weight:600;font-size:.85rem">{i + 1}</span>'
+            f'<h4 class="uds-flow__title" style="margin:.55rem 0 0;font-size:.95rem;color:var(--uds-color-text,#1C2022)">{_inline(st.title)}</h4>{cap}</li>'
+        )
+    return ('<ol class="uds-flow" style="list-style:none;margin:1.5rem 0;padding:0;display:flex;flex-wrap:wrap;gap:14px">'
+            + "".join(chips) + "</ol>")
+
+
 _FENCE = {"stat-panel": _stat_grid, "pullquote": _pull_from_text, "callout-panel": _callout,
           "process": _process, "cta": _cta}
 
@@ -247,8 +269,10 @@ def _render_blocks(blocks: list[tuple], *, demote: int = 0, ctx: dict | None = N
         elif b[0] == "table":
             out.append(_table_rows(b[1]))
         elif b[0] == "fence":
-            if _ir.canonical(b[1]) == "chart":
+            if b[1] == "chart":
                 out.append(_chart(b[2], ctx))
+            elif b[1] == "flow":
+                out.append(_flow(b[2], ctx))
             else:
                 fn = _FENCE.get(b[1])
                 out.append(fn(b[2]) if fn else "")

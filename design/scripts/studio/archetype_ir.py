@@ -35,11 +35,15 @@ CHART_TYPES = {"bar", "line", "pie", "scatter", "area"}
 # test and the fail-closed placeholder. Extended as archetypes converge (#129).
 CAPABILITIES: dict[str, set[str]] = {
     "chart": {"gslide", "pptx", "html"},
+    "flow": {"gslide", "pptx", "html"},
 }
 
 # Fence name → canonical archetype (aliases collapse here as archetypes land).
 ALIASES: dict[str, str] = {
     "chart": "chart",
+    "flow": "flow",
+    "process": "flow",  # gslide/pptx render :::process as a flow; HTML keeps its card
+    #                     form pending a process→flow reconciliation of the 360 example.
 }
 
 
@@ -154,3 +158,58 @@ def normalise_chart(spec: Any) -> ChartNode:
         node = ChartNode(ctype, cats, [])
     node.chart_type, node.title, node.caption = ctype, title, caption
     return node
+
+
+# ----------------------------------------------------------------- flow / process
+@dataclass
+class Step:
+    title: str = ""
+    caption: str = ""
+
+
+@dataclass
+class FlowNode:
+    steps: list[Step] = field(default_factory=list)
+
+    @property
+    def is_empty(self) -> bool:
+        return not self.steps
+
+
+def _split_step(text: str) -> Step:
+    """A flat step string 'Title — caption' (em/en dash or hyphen) → Step."""
+    for sep in (" — ", " – ", " - "):
+        if sep in text:
+            head, _, tail = text.partition(sep)
+            return Step(head.strip(), tail.strip())
+    return Step(text.strip(), "")
+
+
+def normalise_flow(spec: Any) -> FlowNode:
+    """Reconcile flow dialects into ordered Steps (parsed value or raw body):
+        gslide    steps:[{title,caption}]  |  a bare list
+        html      steps:["Title — caption", …]   (the :::process card source)
+        diagrams  nodes:[label, …]  |  steps:[label, …]
+    """
+    raw = spec
+    if isinstance(spec, str):
+        try:
+            raw = yaml.safe_load(spec)
+        except yaml.YAMLError:
+            raw = None
+    if isinstance(raw, dict):
+        items = raw.get("steps") or raw.get("nodes") or raw.get("stages") or []
+    elif isinstance(raw, list):
+        items = raw
+    else:
+        items = []
+    steps: list[Step] = []
+    for it in items:
+        if isinstance(it, dict):
+            steps.append(Step(
+                str(it.get("title") or it.get("label") or it.get("name") or ""),
+                str(it.get("caption") or it.get("body") or it.get("desc") or ""),
+            ))
+        else:
+            steps.append(_split_step(str(it)))
+    return FlowNode(steps)

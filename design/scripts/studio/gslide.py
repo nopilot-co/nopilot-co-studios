@@ -552,9 +552,10 @@ def _panel_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p: di
     return out
 
 
-def _flow_reqs(slide_id: str, steps: list, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
-    """A process/flow: numbered step chips + arrows, WRAPPING to multiple rows so every
-    stage shows (never truncated to fit one row)."""
+def _flow_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A process/flow from a FlowNode: numbered step chips + arrows, WRAPPING to multiple
+    rows so every stage shows (never truncated to fit one row)."""
+    steps = node.steps
     n = len(steps)
     if not n:
         return []
@@ -575,10 +576,10 @@ def _flow_reqs(slide_id: str, steps: list, x: int, y: int, w: int, h: int, p: di
         out += _style(f"{cid}ni", font=p["body"], size=11, color=_rgb(p["on_primary"]), align="CENTER", weight=600)
         tw = chip_w - 300_000
         out.append(_text_box(slide_id, f"{cid}t", cx0 + 150_000, cy0 + 540_000, tw, 300_000))
-        out.append({"insertText": {"objectId": f"{cid}t", "text": str(st.get("title", "")), "insertionIndex": 0}})
+        out.append({"insertText": {"objectId": f"{cid}t", "text": str(st.title), "insertionIndex": 0}})
         out += _style(f"{cid}t", font=p["body"], size=10, color=_rgb(p["ink"]), weight=600)
         out.append(_text_box(slide_id, f"{cid}cap", cx0 + 150_000, cy0 + 880_000, tw, max(row_h - 1_000_000, 250_000)))
-        out.append({"insertText": {"objectId": f"{cid}cap", "text": str(st.get("caption", "")), "insertionIndex": 0}})
+        out.append({"insertText": {"objectId": f"{cid}cap", "text": str(st.caption), "insertionIndex": 0}})
         out += _style(f"{cid}cap", font=p["body"], size=8, color=_rgb(p["muted"]))
         if c < per_row - 1 and i < n - 1:   # arrow to the next chip in the row
             aid = f"{slide_id}_fa{i}"
@@ -727,7 +728,7 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             fy = _lead_band(sid, s.get("lead"), 1_650_000)
-            reqs += _flow_reqs(sid, s["steps"], MARGIN, fy, cw, PAGE_H - fy - MARGIN, p)
+            reqs += _flow_reqs(sid, archetype_ir.normalise_flow(s["steps"]), MARGIN, fy, cw, PAGE_H - fy - MARGIN, p)
         elif kind == "chart":              # native bar chart (dataviz ramp)
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
