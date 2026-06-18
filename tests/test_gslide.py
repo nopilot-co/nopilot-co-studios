@@ -36,10 +36,13 @@ check("blank layout", all(r["createSlide"]["slideLayoutReference"]["predefinedLa
 bgs = [r["updatePageProperties"]["pageProperties"]["pageBackgroundFill"]["solidFill"]["color"]["rgbColor"] for r in reqs if "updatePageProperties" in r]
 check("cover bg white", bgs[0] == {"red": 1.0, "green": 1.0, "blue": 1.0}, str(bgs[0]))
 check("a dark section bg present", any(c["red"] < 0.2 and c["green"] < 0.2 for c in bgs), str(bgs))
-# crimson eyebrow somewhere
+# the render contract sources every colour from the active brand's tokens — never hardcoded
+from studio import uds as uds_mod  # noqa: E402
 styles = [r["updateTextStyle"]["style"] for r in reqs if "updateTextStyle" in r]
 _fam = lambda s: s.get("fontFamily") or s.get("weightedFontFamily", {}).get("fontFamily")  # weighted text carries no bare fontFamily
-check("crimson text used", any(s["foregroundColor"]["opaqueColor"]["rgbColor"]["red"] > 0.7 and s["foregroundColor"]["opaqueColor"]["rgbColor"]["blue"] > 0.28 for s in styles))
+_eb = gslide._rgb(uds_mod.resolve_uds("nopilot")["semantic"]["light"]["eyebrow"])
+_near = lambda a, b: all(abs(a.get(k, 0) - b.get(k, 0)) <= 0.02 for k in ("red", "green", "blue"))
+check("eyebrow resolves from the brand eyebrow token", any(_near(s["foregroundColor"]["opaqueColor"]["rgbColor"], _eb) for s in styles))
 check("mono fallback = IBM Plex Mono", any(_fam(s) == "IBM Plex Mono" for s in styles))
 check("payload dry-run shape", set(gslide.payload(Path(f"{d}/content/manifest.yaml"))) == {"title", "slides", "requests"})
 
