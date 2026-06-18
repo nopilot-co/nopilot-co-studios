@@ -23,7 +23,7 @@ dependencies = [
 
 [project.optional-dependencies]
 playwright = ["playwright>=1.45"]
-gslide = ["google-api-python-client>=2.0", "google-auth>=2.0"]
+gslide = ["google-api-python-client>=2.0", "google-auth>=2.0", "google-auth-oauthlib>=1.0"]
 
 [project.scripts]
 studio = "studio.cli:main"
