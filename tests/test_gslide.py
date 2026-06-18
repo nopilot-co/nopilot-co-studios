@@ -38,8 +38,9 @@ check("cover bg white", bgs[0] == {"red": 1.0, "green": 1.0, "blue": 1.0}, str(b
 check("a dark section bg present", any(c["red"] < 0.2 and c["green"] < 0.2 for c in bgs), str(bgs))
 # crimson eyebrow somewhere
 styles = [r["updateTextStyle"]["style"] for r in reqs if "updateTextStyle" in r]
+_fam = lambda s: s.get("fontFamily") or s.get("weightedFontFamily", {}).get("fontFamily")  # weighted text carries no bare fontFamily
 check("crimson text used", any(s["foregroundColor"]["opaqueColor"]["rgbColor"]["red"] > 0.7 and s["foregroundColor"]["opaqueColor"]["rgbColor"]["blue"] > 0.28 for s in styles))
-check("mono fallback = IBM Plex Mono", any(s["fontFamily"] == "IBM Plex Mono" for s in styles))
+check("mono fallback = IBM Plex Mono", any(_fam(s) == "IBM Plex Mono" for s in styles))
 check("payload dry-run shape", set(gslide.payload(Path(f"{d}/content/manifest.yaml"))) == {"title", "slides", "requests"})
 
 if failures:

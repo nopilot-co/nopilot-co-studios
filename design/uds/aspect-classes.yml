@@ -12,6 +12,7 @@ aspect_classes:
     canvas: responsive
     unit: px
     margin: clamp(24px, 5vw, 96px)
+    type_scale: 1.0          # web px from tokens.yaml, unscaled
     formats: [html]
 
   slide:
@@ -20,6 +21,7 @@ aspect_classes:
     canvas: 1280px x 720px
     unit: pt
     margin: 48px
+    type_scale: 1.4          # viewed at distance → the doc pt scale steps up; the one knob for slide sizing
     formats: [gslide, pptx]
 
   page:
@@ -28,4 +30,5 @@ aspect_classes:
     canvas: 210mm x 297mm
     unit: pt
     margin: 22mm
+    type_scale: 1.0          # the document pt baseline (type_px_to_pt as-authored)
     formats: [pdf, docx, gdoc]

@@ -267,8 +267,19 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot") -> tuple[str,
         reqs.append({"insertText": {"objectId": box, "text": text, "insertionIndex": 0}})
         reqs.extend(_style(box, font=font, size=size, color=color, bold=bold, align=align, weight=weight))
 
-    hw = p.get("heading_weight")              # semibold for Coherence (never bold); None → bold boolean (nopilot)
-    eb = _rgb(p["eyebrow"])                    # overline colour
+    R = uds_mod.render_contract(brand, "slide")   # role → resolved {family,size,weight,transform,align,colour}
+    _AL = {"center": "CENTER", "right": "END", "justify": "JUSTIFIED"}  # left == default → no paragraph request
+
+    def add_role(slide_id: str, n: int, text: str, y: int, h: int, role: str, *, colour=None, align=None) -> None:
+        st = R.get(role) or {}
+        s = text.upper() if st.get("transform") == "upper" else text
+        fam = (st.get("family") or "Inter").split(",")[0].strip()
+        if "geist" in fam.lower():            # Google Workspace has no Geist Mono → the UDS fallback
+            fam = _GSLIDE_MONO
+        w = st.get("weight")
+        add_text(slide_id, n, s, y, h, font=fam, size=round(st.get("size", 12)),
+                 color=_rgb(colour or st.get("colour", "#1C2022")),
+                 align=align or _AL.get(st.get("align")), bold=(w is None), weight=w)
 
     for i, s in enumerate(deck):
         sid = f"slide{i:03d}"  # Slides object IDs must be >= 5 chars
@@ -277,25 +288,24 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot") -> tuple[str,
         kind = s["kind"]
         if kind == "cover":
             reqs.append(_bg(sid, p["surface"]))
-            add_text(sid, 0, s["eyebrow"].upper(), 1_400_000, 360_000, font=p["mono"], size=12, color=eb, align="CENTER")
-            add_text(sid, 1, s["title"], 1_800_000, 1_500_000, font=p["display"], size=96, color=_rgb(p["ink"]), bold=True, weight=hw, align="CENTER")
+            add_role(sid, 0, s["eyebrow"], 1_400_000, 360_000, "eyebrow", align="CENTER")
+            add_role(sid, 1, s["title"], 1_800_000, 1_500_000, "cover-title")
             if s.get("standfirst"):
-                add_text(sid, 2, s["standfirst"], 3_500_000, 1_200_000, font=p["display"], size=22, color=_rgb(p["ink"]), align="CENTER")
+                add_role(sid, 2, s["standfirst"], 3_500_000, 1_200_000, "standfirst")
         elif kind == "section":
             reqs.append(_bg(sid, p["ink"]))            # dark colour block
-            add_text(sid, 0, s["eyebrow"].upper(), 1_900_000, 360_000, font=p["mono"], size=12, color=_rgb(p["active"]))
-            add_text(sid, 1, s["title"], 2_300_000, 1_600_000, font=p["display"], size=54, color=_rgb(p["surface"]), bold=True, weight=hw)
+            add_role(sid, 0, s["eyebrow"], 1_900_000, 360_000, "eyebrow-ondark")
+            add_role(sid, 1, s["title"], 2_300_000, 1_600_000, "section-title")
         elif kind == "quote":
             reqs.append(_bg(sid, p["paper"]))
-            add_text(sid, 0, s["eyebrow"].upper(), 700_000, 320_000, font=p["mono"], size=11, color=eb)
-            add_text(sid, 1, "“" + s["quote"] + "”", 1_300_000, 3_000_000, font=p["display"], size=28, color=_rgb(p["ink"]), align="START")
+            add_role(sid, 0, s["eyebrow"], 700_000, 320_000, "eyebrow")
+            add_role(sid, 1, "“" + s["quote"] + "”", 1_300_000, 3_000_000, "quote")
         else:  # content
             reqs.append(_bg(sid, p["surface"]))
-            add_text(sid, 0, s["eyebrow"].upper(), 520_000, 300_000, font=p["mono"], size=11, color=eb)
-            add_text(sid, 1, s["title"], 850_000, 760_000, font=p["display"], size=30, color=_rgb(p["ink"]), bold=True, weight=hw)
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
+            add_role(sid, 1, s["title"], 850_000, 760_000, "topic-title")
             if s["body"]:
-                add_text(sid, 2, "\n\n".join(s["body"]), 1_750_000, PAGE_H - 1_750_000 - MARGIN,
-                         font=p["body"], size=13, color=_rgb(p["ink"]))
+                add_role(sid, 2, "\n\n".join(s["body"]), 1_750_000, PAGE_H - 1_750_000 - MARGIN, "body")
     return title, reqs
 
 
@@ -364,14 +374,76 @@ def _services(creds_file: str, impersonate: str | None = None):
     return build("drive", "v3", credentials=creds), build("slides", "v1", credentials=creds)
 
 
-def authorize(client_secret_file: str, token_out: str) -> str:
+def authorize(client_secret_file: str, token_out: str, *, redirect_uri: str | None = None) -> str:
     """Run the OAuth consent flow (opens a browser) and save an authorized-user token.
-    The signed-in user IS the owner of everything the pipeline then creates — the
-    route for personal @gmail.com destinations. The user runs this (it's their login)."""
-    from google_auth_oauthlib.flow import InstalledAppFlow
-    flow = InstalledAppFlow.from_client_secrets_file(client_secret_file, _SCOPES)
-    creds = flow.run_local_server(port=0)
-    Path(token_out).write_text(creds.to_json(), encoding="utf-8")
+    The signed-in user IS the owner of everything the pipeline then creates — the route
+    for personal @gmail.com destinations. The user runs this (it's their login).
+
+    ``redirect_uri`` None → a **Desktop-app** client (loopback on a random port via
+    ``run_local_server``). For a **Web** client, pass one of its already-whitelisted
+    loopback redirects (e.g. ``http://127.0.0.1:3010/api/auth/google/callback``): a
+    one-shot local server on that host/port/path captures the code, so the production
+    web client is reused untouched and no Desktop client is needed.
+    """
+    if not redirect_uri:
+        from google_auth_oauthlib.flow import InstalledAppFlow
+        flow = InstalledAppFlow.from_client_secrets_file(client_secret_file, _SCOPES)
+        creds = flow.run_local_server(port=0)
+        Path(token_out).write_text(creds.to_json(), encoding="utf-8")
+        return token_out
+
+    import http.server
+    import webbrowser
+    from urllib.parse import parse_qs, urlparse
+
+    from google_auth_oauthlib.flow import Flow
+
+    os.environ.setdefault("OAUTHLIB_RELAX_TOKEN_SCOPE", "1")   # tolerate Google reordering/expanding granted scopes
+    u = urlparse(redirect_uri)
+    host, port, want_path = (u.hostname or "127.0.0.1"), (u.port or 80), (u.path or "/")
+    flow = Flow.from_client_secrets_file(client_secret_file, scopes=_SCOPES, redirect_uri=redirect_uri)
+    auth_url, _ = flow.authorization_url(access_type="offline", prompt="consent")
+    captured: dict[str, str] = {}
+
+    class _Handler(http.server.BaseHTTPRequestHandler):
+        def do_GET(self):  # noqa: N802
+            parts = urlparse(self.path)
+            q = parse_qs(parts.query)
+            if parts.path == want_path and ("code" in q or "error" in q):
+                captured.update({k: v[0] for k, v in q.items()})
+                body = ("Authorized — close this tab and return to the terminal."
+                        if "code" in q else f"OAuth error: {q.get('error')}")
+                self.send_response(200)
+                self.send_header("Content-Type", "text/plain; charset=utf-8")
+                self.end_headers()
+                self.wfile.write(body.encode("utf-8"))
+            else:
+                self.send_response(404)
+                self.end_headers()
+
+        def log_message(self, *args):  # keep the consent flow quiet
+            pass
+
+    try:
+        httpd = http.server.HTTPServer((host, port), _Handler)
+    except OSError as e:
+        raise SystemExit(f"can't bind {host}:{port} for the OAuth redirect ({e}); "
+                         "free the port or pass a different whitelisted --redirect-uri")
+    print(f"Opening your browser to authorize as the signed-in Google user.\n"
+          f"If it doesn't open, visit:\n{auth_url}\n")
+    try:
+        webbrowser.open(auth_url)
+    except Exception:
+        pass
+    try:
+        while "code" not in captured and "error" not in captured:
+            httpd.handle_request()
+    finally:
+        httpd.server_close()
+    if "error" in captured:
+        raise SystemExit(f"OAuth consent failed: {captured['error']}")
+    flow.fetch_token(code=captured["code"])
+    Path(token_out).write_text(flow.credentials.to_json(), encoding="utf-8")
     return token_out
 
 
@@ -456,12 +528,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--authorize", action="store_true", help="run the OAuth consent flow and write an authorized-user token (personal @gmail destinations)")
     ap.add_argument("--client-secret", help="OAuth client-secret JSON (with --authorize)")
     ap.add_argument("--token-out", help="where to write the authorized-user token (with --authorize)")
+    ap.add_argument("--redirect-uri", help="exact whitelisted loopback redirect for a Web OAuth client (with --authorize); omit for a Desktop-app client")
     args = ap.parse_args(argv)
 
     if args.authorize:
         if not (args.client_secret and args.token_out):
             ap.error("--authorize needs --client-secret and --token-out")
-        print(authorize(args.client_secret, args.token_out))
+        print(authorize(args.client_secret, args.token_out, redirect_uri=args.redirect_uri))
         return 0
 
     if args.execute:

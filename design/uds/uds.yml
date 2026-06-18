@@ -44,6 +44,24 @@ type_px_to_pt:
   caption: 8.5pt
   eyebrow: 8.5pt
 
+# House-style render roles — the cross-format formatting contract. Each generic
+# role maps to ONE size token (resolved to px/pt per aspect class above) plus the
+# weight / transform / alignment / colour it is set in. A serialiser maps its
+# constructs to these roles and resolves the rest from the brand's tokens.yaml —
+# so a heading is semibold-not-bold for Coherence and bold for nopilot from the
+# *same* role, and sizing follows the aspect class. studio.uds.render_role(...).
+# colour names are semantic.light keys; weight names are font.weight keys (a brand
+# may omit `heading`, in which case the serialiser falls back to its bold default).
+render_roles:
+  eyebrow:        { type: eyebrow, weight: semibold, transform: upper, colour: eyebrow }   # overline (Coherence: dark raspberry)
+  eyebrow-ondark: { type: eyebrow, weight: semibold, transform: upper, colour: active }    # on a dark block → yellow
+  cover-title:    { type: display, weight: heading, align: center, colour: text }
+  standfirst:     { type: h3,      weight: regular,  align: center, colour: text }
+  section-title:  { type: h1,      weight: heading, colour: surface }                       # white on the dark section block
+  topic-title:    { type: h2,      weight: heading, colour: text }
+  body:           { type: body,    weight: regular, colour: text }
+  quote:          { type: h2,      weight: regular, colour: text }
+
 # The three register layers (full contracts in archetypes.yml).
 register_layers:
   A: Page and block elements (cover sheet, header/footer, contents, stat, pull-quote, callout, table, image, accents, dividers, buttons).
