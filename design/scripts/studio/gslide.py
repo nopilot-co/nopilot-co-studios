@@ -174,7 +174,7 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot") -> tuple[str,
         reqs.extend(_style(box, font=font, size=size, color=color, bold=bold, align=align))
 
     for i, s in enumerate(deck):
-        sid = f"s{i:03d}"
+        sid = f"slide{i:03d}"  # Slides object IDs must be >= 5 chars
         reqs.append({"createSlide": {"objectId": sid, "insertionIndex": i,
                      "slideLayoutReference": {"predefinedLayout": "BLANK"}}})
         kind = s["kind"]
