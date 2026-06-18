@@ -564,7 +564,7 @@ def _flow_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> 
     per_row = -(-n // rows)              # …balanced across them
     arrow_w, row_gap = 200_000, 280_000
     chip_w = (w - (per_row - 1) * arrow_w) // per_row
-    row_h = min(int((h - (rows - 1) * row_gap) / rows), 1_500_000)
+    row_h = min(int((h - (rows - 1) * row_gap) / rows), 1_300_000)   # hug content — don't float in a tall card
     out: list[dict] = []
     for i, st in enumerate(steps):
         r, c = divmod(i, per_row)
@@ -576,10 +576,10 @@ def _flow_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> 
         out.append({"insertText": {"objectId": f"{cid}ni", "text": str(i + 1), "insertionIndex": 0}})
         out += _style(f"{cid}ni", font=p["body"], size=11, color=_rgb(p["on_primary"]), align="CENTER", weight=600)
         tw = chip_w - 300_000
-        out.append(_text_box(slide_id, f"{cid}t", cx0 + 150_000, cy0 + 540_000, tw, 300_000))
+        out.append(_text_box(slide_id, f"{cid}t", cx0 + 150_000, cy0 + 500_000, tw, 250_000))   # title hugs the number (unit)
         out.append({"insertText": {"objectId": f"{cid}t", "text": str(st.title), "insertionIndex": 0}})
         out += _style(f"{cid}t", font=p["body"], size=10, color=_rgb(p["ink"]), weight=600)
-        out.append(_text_box(slide_id, f"{cid}cap", cx0 + 150_000, cy0 + 880_000, tw, max(row_h - 1_000_000, 250_000)))
+        out.append(_text_box(slide_id, f"{cid}cap", cx0 + 150_000, cy0 + 820_000, tw, max(row_h - 950_000, 250_000)))   # clearer gap before the caption
         out.append({"insertText": {"objectId": f"{cid}cap", "text": str(st.caption), "insertionIndex": 0}})
         out += _style(f"{cid}cap", font=p["body"], size=8, color=_rgb(p["muted"]))
         if c < per_row - 1 and i < n - 1:   # arrow to the next chip in the row
