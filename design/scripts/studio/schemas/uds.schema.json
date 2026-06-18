@@ -61,6 +61,22 @@
       }
     },
 
+    "profiles": {
+      "type": "object",
+      "description": "Render profiles — the purpose layer over an aspect class (e.g. presentation vs proposal). Each selects an aspect, a column count, optional pagination, and optional absolute per-role size overrides (pt) that win over the aspect type_scale. Read by studio.uds.profile_spec() / render_role(profile=...).",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["aspect"],
+        "properties": {
+          "aspect": { "type": "string", "description": "An aspect_classes key." },
+          "columns": { "type": "integer", "minimum": 1, "maximum": 3 },
+          "lines_per_slide": { "type": "integer", "minimum": 1 },
+          "sizes": { "type": "object", "additionalProperties": { "type": "number", "exclusiveMinimum": 0 }, "description": "Absolute pt per render role; overrides the aspect type_scale." }
+        }
+      }
+    },
+
     "aspect_classes": {
       "type": "object",
       "description": "The media classes a docket renders across. Each format maps to one; the px→pt rule applies to pt-unit classes.",

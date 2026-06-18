@@ -258,24 +258,43 @@ def _num(v: Any) -> float:
     return float(m.group(1)) if m else 0.0
 
 
+def profile_spec(name: str | None, uds: dict[str, Any] | None = None) -> dict[str, Any]:
+    """A render profile (``profiles``) by name — the purpose layer (e.g. 'proposal')."""
+    if not name:
+        return {}
+    uds = uds if uds is not None else load_uds()
+    return (uds.get("profiles", {}) or {}).get(name, {})
+
+
 def render_role(role: str, brand: str, aspect_class: str = "slide", *,
-                uds: dict[str, Any] | None = None, resolved: dict[str, Any] | None = None) -> dict[str, Any]:
+                uds: dict[str, Any] | None = None, resolved: dict[str, Any] | None = None,
+                profile: dict[str, Any] | None = None) -> dict[str, Any]:
     """Resolve a house-style render role (``render_roles``) for a brand × aspect class
     into a concrete text style: ``{family, size, unit, weight, transform, align, colour}``.
 
     This is the format-specific render *setting*, sourced entirely from the UDS — the
     role's size token (resolved px/pt) scaled by the aspect class's ``type_scale``, its
-    ``weight``/``colour`` from the brand's ``tokens.yaml``. ``weight`` is ``None`` when the
-    brand omits that weight token (the serialiser then applies its bold default). Change
-    a token, ``type_px_to_pt``, or a class ``type_scale`` and every serialiser follows.
+    ``weight``/``colour`` from the brand's ``tokens.yaml``. A ``profile`` (e.g. 'proposal')
+    may pick a different aspect and override the size to an absolute reading pt. ``weight``
+    is ``None`` when the brand omits that weight token (the serialiser applies its bold
+    default). Change a token, ``type_px_to_pt``, a class ``type_scale``, or a profile size
+    and every serialiser follows.
     """
     uds = uds if uds is not None else load_uds()
     r = resolved if resolved is not None else resolve_uds(brand)
     spec = (uds.get("render_roles", {}) or {}).get(role, {})
     t = r["type"].get(spec.get("type", "body"), {})
+    if profile and profile.get("aspect"):
+        aspect_class = profile["aspect"]
     cls = uds.get("aspect_classes", {}).get(aspect_class, {})
     unit = cls.get("unit", "pt")
-    size = _num(t.get("px")) if unit == "px" else round(_num(t.get("pt")) * cls.get("type_scale", 1.0), 1)
+    override = (profile or {}).get("sizes", {}).get(role)
+    if override is not None:                                  # absolute reading size (the profile wins)
+        size = float(override)
+    elif unit == "px":
+        size = _num(t.get("px"))
+    else:
+        size = round(_num(t.get("pt")) * cls.get("type_scale", 1.0), 1)
     wt = spec.get("weight")
     return {
         "family": t.get("family") or _stack(r["font"]["family"].get(t.get("family_role", "body"))),
@@ -287,9 +306,13 @@ def render_role(role: str, brand: str, aspect_class: str = "slide", *,
     }
 
 
-def render_contract(brand: str, aspect_class: str = "slide") -> dict[str, dict[str, Any]]:
-    """Every render role resolved for a brand × aspect class — the serialiser's table."""
+def render_contract(brand: str, aspect_class: str = "slide", *, profile: str | dict | None = None) -> dict[str, dict[str, Any]]:
+    """Every render role resolved for a brand × aspect class (+ optional profile) — the
+    serialiser's table. ``profile`` may be a name or an already-resolved spec dict."""
     uds = load_uds()
     r = resolve_uds(brand)
-    return {role: render_role(role, brand, aspect_class, uds=uds, resolved=r)
+    prof = profile_spec(profile, uds) if isinstance(profile, str) else (profile or {})
+    if prof.get("aspect"):
+        aspect_class = prof["aspect"]
+    return {role: render_role(role, brand, aspect_class, uds=uds, resolved=r, profile=prof)
             for role in (uds.get("render_roles", {}) or {})}

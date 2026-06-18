@@ -62,6 +62,21 @@ render_roles:
   body:           { type: body,    weight: regular, colour: text }
   quote:          { type: h2,      weight: regular, colour: text }
 
+# Render profiles — the PURPOSE layer on top of an aspect class. The same archetypes
+# and tokens, but a different reading posture. `presentation` is projected (the aspect
+# type_scale governs sizing, one column). `proposal` is a long-form reading document on
+# the same canvas: explicit small reading sizes (absolute pt, overriding type_scale) and
+# a two-column body. A serialiser takes a profile; sizes here win over the aspect scale.
+profiles:
+  presentation:
+    aspect: slide
+    columns: 1
+  proposal:
+    aspect: slide
+    columns: 2
+    lines_per_slide: 12
+    sizes: { eyebrow: 10, eyebrow-ondark: 10, cover-title: 30, standfirst: 13, section-title: 22, topic-title: 16, body: 8, quote: 14 }
+
 # The three register layers (full contracts in archetypes.yml).
 register_layers:
   A: Page and block elements (cover sheet, header/footer, contents, stat, pull-quote, callout, table, image, accents, dividers, buttons).

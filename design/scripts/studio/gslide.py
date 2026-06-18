@@ -150,20 +150,21 @@ def _div_block(body: str, open_start: int) -> tuple[str, int]:
 
 
 def _parse_callout(inner: str) -> dict[str, str]:
-    """A callout div's inner HTML → {heading, body}: first heading-ish element + the prose."""
+    """A callout div's inner HTML → {heading, body}: first heading-ish element + the prose.
+    Tags strip to a space so adjacent fragments don't run together (``direction``+``Getting``)."""
     head = re.search(r"<(?:div|h[1-6])[^>]*>(.*?)</(?:div|h[1-6])>", inner, re.S | re.I)
-    heading = _clean(re.sub(r"<[^>]+>", "", head.group(1))) if head else ""
+    heading = _clean(re.sub(r"<[^>]+>", " ", head.group(1))) if head else ""
     paras = re.findall(r"<p[^>]*>(.*?)</p>", inner, re.S | re.I)
-    body = " ".join(_clean(re.sub(r"<[^>]+>", "", p)) for p in paras)
+    body = " ".join(_clean(re.sub(r"<[^>]+>", " ", p)) for p in paras)
     if not (heading or body):
-        body = _clean(re.sub(r"<[^>]+>", "", inner))
+        body = _clean(re.sub(r"<[^>]+>", " ", inner))
     return {"heading": heading, "body": body}
 
 
 def _parse_html_table(html: str) -> list[list[str]]:
     rows: list[list[str]] = []
     for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S | re.I):
-        cells = [_clean(re.sub(r"<[^>]+>", "", c)) for c in re.findall(r"<t[hd][^>]*>(.*?)</t[hd]>", tr, re.S | re.I)]
+        cells = [_clean(re.sub(r"<[^>]+>", " ", c)) for c in re.findall(r"<t[hd][^>]*>(.*?)</t[hd]>", tr, re.S | re.I)]
         if any(cells):
             rows.append(cells)
     return rows
@@ -352,7 +353,7 @@ def _shape(slide_id: str, box_id: str, shape_type: str, x: int, y: int, w: int, 
     ]
 
 
-def _table_reqs(slide_id: str, tid: str, rows: list[list[str]], x: int, y: int, w: int, p: dict) -> list[dict]:
+def _table_reqs(slide_id: str, tid: str, rows: list[list[str]], x: int, y: int, w: int, p: dict, cell_size: int = 10) -> list[dict]:
     """A native Slides table — header row in the brand primary (uppercase), body in ink."""
     nrows = len(rows)
     ncols = max((len(r) for r in rows), default=1)
@@ -370,15 +371,18 @@ def _table_reqs(slide_id: str, tid: str, rows: list[list[str]], x: int, y: int, 
             out.append({"insertText": {"objectId": tid, "cellLocation": {"rowIndex": r, "columnIndex": c}, "text": txt.upper() if head else txt, "insertionIndex": 0}})
             out.append({"updateTextStyle": {"objectId": tid, "cellLocation": {"rowIndex": r, "columnIndex": c},
                 "textRange": {"type": "ALL"},
-                "style": {"fontFamily": p["body"], "fontSize": {"magnitude": 10, "unit": "PT"},
+                "style": {"fontFamily": p["body"], "fontSize": {"magnitude": cell_size, "unit": "PT"},
                           "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(p["primary"] if head else p["ink"])}}, "bold": head},
                 "fields": "fontFamily,fontSize,foregroundColor,bold"}})
     return out
 
 
-def build_requests(manifest_path: Path, *, brand: str = "nopilot") -> tuple[str, list[dict]]:
-    """IR → Slides API batchUpdate requests (cover, section, quote, content)."""
-    title, deck = slide_specs(manifest_path, brand=brand)
+def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None) -> tuple[str, list[dict]]:
+    """IR → Slides API batchUpdate requests (cover, section, quote, content). A render
+    ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS."""
+    prof = uds_mod.profile_spec(profile)
+    columns = int(prof.get("columns", 1))
+    title, deck = slide_specs(manifest_path, brand=brand, lines_per_slide=int(prof.get("lines_per_slide", 6)))
     p = _palette(brand)
     reqs: list[dict] = []
     cx, cw = MARGIN, PAGE_W - 2 * MARGIN
@@ -389,7 +393,7 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot") -> tuple[str,
         reqs.append({"insertText": {"objectId": box, "text": text, "insertionIndex": 0}})
         reqs.extend(_style(box, font=font, size=size, color=color, bold=bold, align=align, weight=weight))
 
-    R = uds_mod.render_contract(brand, "slide")   # role → resolved {family,size,weight,transform,align,colour}
+    R = uds_mod.render_contract(brand, "slide", profile=prof)   # role → resolved {family,size,weight,transform,align,colour}
     _AL = {"center": "CENTER", "right": "END", "justify": "JUSTIFIED"}  # left == default → no paragraph request
 
     def add_role(slide_id: str, n: int, text: str, y: int, h: int, role: str, *, colour=None, align=None, x=None, w=None) -> None:
@@ -435,13 +439,22 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot") -> tuple[str,
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            reqs += _table_reqs(sid, f"{sid}_tbl", s["rows"], MARGIN, 1_650_000, cw, p)
+            reqs += _table_reqs(sid, f"{sid}_tbl", s["rows"], MARGIN, 1_550_000, cw, p, max(8, round(R["body"]["size"])))
         else:  # content
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
             add_role(sid, 1, s["title"], 850_000, 760_000, "topic-title")
             if s["body"]:
-                add_role(sid, 2, "\n\n".join(s["body"]), 1_750_000, PAGE_H - 1_750_000 - MARGIN, "body")
+                by, bh = 1_650_000, PAGE_H - 1_650_000 - MARGIN
+                if columns == 2:                       # two-column reading layout (proposal)
+                    gutter = 360_000
+                    colw = (cw - gutter) // 2
+                    mid = (len(s["body"]) + 1) // 2
+                    add_role(sid, 2, "\n\n".join(s["body"][:mid]), by, bh, "body", x=MARGIN, w=colw)
+                    if s["body"][mid:]:
+                        add_role(sid, 3, "\n\n".join(s["body"][mid:]), by, bh, "body", x=MARGIN + colw + gutter, w=colw)
+                else:
+                    add_role(sid, 2, "\n\n".join(s["body"]), by, bh, "body")
     return title, reqs
 
 
@@ -610,7 +623,7 @@ def _ensure_path(drive, parent_id: str, path: str) -> str:
 def execute(manifest_path: Path | None, *, brand: str = "nopilot", creds_file: str,
             drive_folder_id: str | None = None, asset_name: str | None = None,
             presentation_id: str | None = None, impersonate: str | None = None,
-            prebuilt: tuple[str, list[dict]] | None = None) -> str:
+            profile: str | None = None, prebuilt: tuple[str, list[dict]] | None = None) -> str:
     """Create (or update in place) the native deck via the Slides + Drive APIs.
 
     Creds may be a **service account** (Shared-Drive / domain-wide delegation) or an
@@ -622,7 +635,7 @@ def execute(manifest_path: Path | None, *, brand: str = "nopilot", creds_file: s
     ``manifest_path``. This is an account write — confirm first. Returns the URL.
     """
     drive, slides = _services(creds_file, impersonate=impersonate)
-    title, reqs = prebuilt if prebuilt is not None else build_requests(manifest_path, brand=brand)
+    title, reqs = prebuilt if prebuilt is not None else build_requests(manifest_path, brand=brand, profile=profile)
 
     if presentation_id:                                          # update in place (re-render)
         pid = presentation_id
