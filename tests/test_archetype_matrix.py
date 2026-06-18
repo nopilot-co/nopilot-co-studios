@@ -37,6 +37,9 @@ SAMPLES = {
     "flow": "- {title: Discover, caption: Audit}\n- {title: Design, caption: Wireframes}\n- {title: Build, caption: Ship}",
     "cards": "- {title: Discover, body: Audit}\n- {title: Design, body: Wireframes}\n- {title: Build, body: Ship}",
     "swimlane": "months: [Jan, Feb, Mar]\nlanes:\n  - {name: Discover, label: Audit, start: Jan, end: Feb}\n  - {name: Build, label: Ship, start: Feb, end: Mar}",
+    "stat-panel": "- {value: \"45%\", label: faster, delta: \"+12\"}\n- {value: \"£267k\", label: cost}",
+    "pullquote": "A quote that matters.\n— Author",
+    "cta": "Book a paid Lunch and Learn.",
 }
 
 
@@ -79,6 +82,9 @@ GSLIDE_OK = {
     "flow": lambda reqs: "Discover" in _inserts(reqs),
     "cards": lambda reqs: "Discover" in _inserts(reqs),
     "swimlane": lambda reqs: "Discover" in _inserts(reqs),
+    "stat-panel": lambda reqs: "45%" in _inserts(reqs),
+    "pullquote": lambda reqs: any("matters" in t for t in _inserts(reqs)),
+    "cta": lambda reqs: any("Lunch" in t for t in _inserts(reqs)),
 }
 PPTX_OK = {
     "chart": lambda sh: any(getattr(x, "has_chart", False) for x in sh),
@@ -90,6 +96,9 @@ HTML_OK = {
     "flow": lambda h: "uds-flow" in h and ":::" not in h,
     "cards": lambda h: "uds-card__title" in h and ":::" not in h,
     "swimlane": lambda h: "uds-swimlane" in h and ":::" not in h,
+    "stat-panel": lambda h: "uds-stat" in h and ":::" not in h,
+    "pullquote": lambda h: "uds-pull-quote" in h and ":::" not in h,
+    "cta": lambda h: "uds-banner" in h and ":::" not in h,
 }
 PROBE = {"gslide": (_gslide_reqs, GSLIDE_OK), "pptx": (_pptx_shapes, PPTX_OK), "html": (_html, HTML_OK)}
 

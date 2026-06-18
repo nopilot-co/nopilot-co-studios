@@ -39,6 +39,9 @@ CAPABILITIES: dict[str, set[str]] = {
     "cards": {"gslide", "pptx", "html"},
     "swimlane": {"gslide", "html"},  # the timeline/gantt model. pptx renders a DISTINCT
     #                                  node-flow swimlane — not the same viz (see #129).
+    "stat-panel": {"gslide", "html"},
+    "pullquote": {"gslide", "html"},
+    "cta": {"gslide", "html"},
 }
 
 # Fence name → canonical archetype (aliases collapse here as archetypes land).
@@ -51,6 +54,10 @@ ALIASES: dict[str, str] = {
     "card-grid": "cards",
     "swimlane": "swimlane",
     "timeline": "swimlane",  # gslide renders :::timeline via the swimlane (gantt) model
+    "stat-panel": "stat-panel",
+    "stats": "stat-panel",
+    "pullquote": "pullquote",
+    "cta": "cta",
 }
 
 
@@ -311,3 +318,75 @@ def normalise_swimlane(spec: Any) -> SwimlaneNode:
         if isinstance(m, dict):
             milestones.append(Milestone(str(m.get("at", "")), str(m.get("label", ""))))
     return SwimlaneNode(months, lanes, milestones)
+
+
+# ----------------------------------------------------------------- stat-panel / pullquote / cta
+@dataclass
+class Stat:
+    value: str = ""
+    label: str = ""
+    delta: str = ""
+
+
+@dataclass
+class StatsNode:
+    items: list[Stat] = field(default_factory=list)
+
+    @property
+    def is_empty(self) -> bool:
+        return not self.items
+
+
+def normalise_stats(spec: Any) -> StatsNode:
+    """A stat panel: a list of {value, label, delta?} (the HTML `_stat_grid` shape)."""
+    raw = spec
+    if isinstance(spec, str):
+        try:
+            raw = yaml.safe_load(spec)
+        except yaml.YAMLError:
+            raw = None
+    items_raw = (raw.get("items") or raw.get("stats")) if isinstance(raw, dict) else (raw if isinstance(raw, list) else [])
+    items: list[Stat] = []
+    for it in (items_raw or []):
+        if isinstance(it, dict):
+            items.append(Stat(str(it.get("value", "")), str(it.get("label", "")), str(it.get("delta", "") or "")))
+    return StatsNode(items)
+
+
+@dataclass
+class PullQuoteNode:
+    body: str = ""
+    attribution: str = ""
+
+    @property
+    def is_empty(self) -> bool:
+        return not self.body
+
+
+def normalise_pullquote(spec: Any) -> PullQuoteNode:
+    """A pull-quote: body + optional trailing `— attribution` line (the HTML shape)."""
+    if isinstance(spec, dict):
+        return PullQuoteNode(str(spec.get("quote") or spec.get("body", "")), str(spec.get("attribution", "") or spec.get("by", "")))
+    lines = [ln.strip() for ln in str(spec or "").strip().splitlines() if ln.strip()]
+    attribution = ""
+    if lines and re.match(r"^[—–-]\s+", lines[-1]):
+        attribution = re.sub(r"^[—–-]\s+", "", lines.pop())
+    return PullQuoteNode(" ".join(lines), attribution)
+
+
+@dataclass
+class CTANode:
+    text: str = ""
+    button: str = ""
+    href: str = ""
+
+    @property
+    def is_empty(self) -> bool:
+        return not self.text
+
+
+def normalise_cta(spec: Any) -> CTANode:
+    """A call-to-action banner: text (+ optional button label / href)."""
+    if isinstance(spec, dict):
+        return CTANode(str(spec.get("text", "")), str(spec.get("button", "") or spec.get("label", "")), str(spec.get("href", "")))
+    return CTANode(" ".join(str(spec or "").split()))

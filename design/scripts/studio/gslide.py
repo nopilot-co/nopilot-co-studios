@@ -216,12 +216,15 @@ def _flat_blocks(body: str) -> list[tuple]:
                     if isinstance(spec, dict):
                         spec.setdefault("type", b[1])
                         out.append(("diagram", spec))
-                elif b[0] == "fence" and b[1] in ("cards", "panel", "flow", "process", "chart"):
+                elif b[0] == "fence" and b[1] in ("cards", "panel", "flow", "process", "chart", "stat-panel", "stats"):
                     try:
                         spec = yaml.safe_load(b[2])
-                        out.append(("flow" if b[1] in ("flow", "process") else b[1], spec))
+                        kind = {"process": "flow", "stats": "stat-panel"}.get(b[1], b[1])
+                        out.append((kind, spec))
                     except Exception:
                         out.append(("p", _clean(b[2])))
+                elif b[0] == "fence" and b[1] in ("pullquote", "cta"):
+                    out.append((b[1], b[2]))   # free text — normalised at render
                 else:
                     out.append(b)
         if not cands:
@@ -320,6 +323,16 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
                 head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
                 _emit(head, sub_title); pending = []
                 deck.append({"kind": "chart", "eyebrow": gtitle, "title": sub_title, "spec": b[1] or {}, "lead": lead})
+            elif b[0] == "stat-panel":       # stat tiles → its own slide
+                head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
+                _emit(head, sub_title); pending = []
+                deck.append({"kind": "stat-panel", "eyebrow": gtitle, "title": sub_title, "spec": b[1], "lead": lead})
+            elif b[0] == "pullquote":        # pull-quote band
+                _emit(pending, sub_title); pending = []
+                deck.append({"kind": "pullquote", "eyebrow": gtitle, "spec": b[1]})
+            elif b[0] == "cta":              # call-to-action banner
+                _emit(pending, sub_title); pending = []
+                deck.append({"kind": "cta", "spec": b[1]})
             else:
                 pending += _flat_lines([b])
         _emit(pending, sub_title)
@@ -629,6 +642,66 @@ def _chart_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) ->
     return out
 
 
+def _stat_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A stat panel: a row of tiles (big value + label + optional delta). Native shapes."""
+    stats = node.items
+    n = len(stats)
+    if not n:
+        return []
+    gap = 200_000
+    tw = (w - gap * (n - 1)) // n
+    th = min(h, 1_500_000)
+    out: list[dict] = []
+    for i, st in enumerate(stats):
+        tx = x + i * (tw + gap)
+        cid = f"{slide_id}_st{i}"
+        out += _shape(slide_id, f"{cid}b", "ROUND_RECTANGLE", tx, y, tw, th, p["paper"])
+        out.append(_text_box(slide_id, f"{cid}v", tx + 200_000, y + 200_000, tw - 400_000, 620_000))
+        out.append({"insertText": {"objectId": f"{cid}v", "text": str(st.value), "insertionIndex": 0}})
+        out += _style(f"{cid}v", font=p["display"], size=26, color=_rgb(p["primary"]), weight=600)
+        out.append(_text_box(slide_id, f"{cid}l", tx + 200_000, y + 880_000, tw - 400_000, 400_000))
+        out.append({"insertText": {"objectId": f"{cid}l", "text": str(st.label), "insertionIndex": 0}})
+        out += _style(f"{cid}l", font=p["body"], size=9, color=_rgb(p["muted"]))
+        if st.delta:
+            out.append(_text_box(slide_id, f"{cid}d", tx + 200_000, y + th - 320_000, tw - 400_000, 250_000))
+            out.append({"insertText": {"objectId": f"{cid}d", "text": str(st.delta), "insertionIndex": 0}})
+            out += _style(f"{cid}d", font=p["body"], size=8, color=_rgb(p["primary"]), weight=600)
+    return out
+
+
+def _pullquote_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A pull-quote: large display quote + an em-dash attribution."""
+    if node.is_empty:
+        return []
+    out: list[dict] = [_text_box(slide_id, f"{slide_id}_pq", x, y, w, max(h - 500_000, 700_000))]
+    out.append({"insertText": {"objectId": f"{slide_id}_pq", "text": "“" + node.body + "”", "insertionIndex": 0}})
+    out += _style(f"{slide_id}_pq", font=p["display"], size=20, color=_rgb(p["ink"]))
+    if node.attribution:
+        out.append(_text_box(slide_id, f"{slide_id}_pqa", x, y + max(h - 420_000, 750_000), w, 320_000))
+        out.append({"insertText": {"objectId": f"{slide_id}_pqa", "text": "— " + node.attribution, "insertionIndex": 0}})
+        out += _style(f"{slide_id}_pqa", font=p["body"], size=10, color=_rgb(p["primary"]), weight=600)
+    return out
+
+
+def _cta_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A call-to-action banner: tinted box + accent edge + text + a primary button."""
+    if node.is_empty:
+        return []
+    bh = min(h, 1_150_000)
+    out = _shape(slide_id, f"{slide_id}_cta", "ROUND_RECTANGLE", x, y, w, bh, _mix(p["primary"], "#FFFFFF", 0.90))
+    out += _shape(slide_id, f"{slide_id}_ctae", "RECTANGLE", x, y, 46_000, bh, p["primary"])
+    bw = 2_000_000
+    out.append(_text_box(slide_id, f"{slide_id}_ctat", x + 340_000, y + 220_000, w - bw - 900_000, bh - 440_000))
+    out.append({"insertText": {"objectId": f"{slide_id}_ctat", "text": str(node.text), "insertionIndex": 0}})
+    out += _style(f"{slide_id}_ctat", font=p["body"], size=11, color=_rgb(p["ink"]), weight=600)
+    by = y + (bh - 440_000) // 2
+    out += _shape(slide_id, f"{slide_id}_ctab", "ROUND_RECTANGLE", x + w - bw - 340_000, by, bw, 440_000, p["primary"])
+    out.append(_text_box(slide_id, f"{slide_id}_ctabt", x + w - bw - 340_000, by + 90_000, bw, 280_000))
+    out.append({"insertText": {"objectId": f"{slide_id}_ctabt", "text": node.button or "Get in touch", "insertionIndex": 0}})
+    out += _style(f"{slide_id}_ctabt", font=p["body"], size=10, color=_rgb(p["on_primary"]), align="CENTER", weight=600)
+    return out
+
+
 def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None) -> tuple[str, list[dict]]:
     """IR → Slides API batchUpdate requests (cover, section, quote, content). A render
     ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS."""
@@ -736,6 +809,19 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             chy = _lead_band(sid, s.get("lead"), 1_950_000)
             reqs += _chart_reqs(sid, archetype_ir.normalise_chart(s.get("spec", {})), MARGIN, chy, cw, PAGE_H - chy - MARGIN, p)
+        elif kind == "stat-panel":         # native stat tiles
+            reqs.append(_bg(sid, p["surface"]))
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
+            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
+            sy = _lead_band(sid, s.get("lead"), 1_650_000)
+            reqs += _stat_reqs(sid, archetype_ir.normalise_stats(s.get("spec")), MARGIN, sy, cw, PAGE_H - sy - MARGIN, p)
+        elif kind == "pullquote":          # native pull-quote
+            reqs.append(_bg(sid, p["paper"]))
+            add_role(sid, 0, s.get("eyebrow", ""), 700_000, 320_000, "eyebrow")
+            reqs += _pullquote_reqs(sid, archetype_ir.normalise_pullquote(s.get("spec")), MARGIN, 1_300_000, cw, 2_800_000, p)
+        elif kind == "cta":                # native CTA banner
+            reqs.append(_bg(sid, p["surface"]))
+            reqs += _cta_reqs(sid, archetype_ir.normalise_cta(s.get("spec")), MARGIN, 2_000_000, cw, 1_150_000, p)
         else:  # content
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
