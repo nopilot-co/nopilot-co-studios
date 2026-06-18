@@ -133,14 +133,81 @@ def _flat_lines(blocks: list[tuple]) -> list[str]:
             lines += ["• " + _clean(it) for it in b[1]]
         elif b[0] == "quote":
             lines.append("“" + _clean(b[1]) + "”")
-        elif b[0] == "table":
-            rows = b[1]
-            keep = ([rows[0]] + rows[2:]) if len(rows) >= 2 else rows  # drop the |---| separator row
-            for r in keep:
-                cells = [c.strip() for c in r.strip().strip("|").split("|") if c.strip()]
-                if cells:
-                    lines.append(" · ".join(cells))
     return [ln for ln in lines if ln]
+
+
+# --- branded archetypes from the flat source: callout + table (native, not flattened) ---
+def _div_block(body: str, open_start: int) -> tuple[str, int]:
+    """Inner HTML of the <div> opening at open_start + the index past its matching </div>
+    (depth-balanced, so nested divs inside a callout are handled)."""
+    open_end = body.find(">", open_start) + 1
+    depth = 1
+    for m in re.finditer(r"<(/?)div\b", body[open_end:], re.I):
+        depth += -1 if m.group(1) else 1
+        if depth == 0:
+            return body[open_end:open_end + m.start()], body.find(">", open_end + m.end()) + 1
+    return body[open_end:], len(body)
+
+
+def _parse_callout(inner: str) -> dict[str, str]:
+    """A callout div's inner HTML → {heading, body}: first heading-ish element + the prose."""
+    head = re.search(r"<(?:div|h[1-6])[^>]*>(.*?)</(?:div|h[1-6])>", inner, re.S | re.I)
+    heading = _clean(re.sub(r"<[^>]+>", "", head.group(1))) if head else ""
+    paras = re.findall(r"<p[^>]*>(.*?)</p>", inner, re.S | re.I)
+    body = " ".join(_clean(re.sub(r"<[^>]+>", "", p)) for p in paras)
+    if not (heading or body):
+        body = _clean(re.sub(r"<[^>]+>", "", inner))
+    return {"heading": heading, "body": body}
+
+
+def _parse_html_table(html: str) -> list[list[str]]:
+    rows: list[list[str]] = []
+    for tr in re.findall(r"<tr[^>]*>(.*?)</tr>", html, re.S | re.I):
+        cells = [_clean(re.sub(r"<[^>]+>", "", c)) for c in re.findall(r"<t[hd][^>]*>(.*?)</t[hd]>", tr, re.S | re.I)]
+        if any(cells):
+            rows.append(cells)
+    return rows
+
+
+def _pipe_rows(rows: list[str]) -> list[list[str]]:
+    """Markdown ``| a | b |`` rows → list-of-lists (the |---| separator dropped)."""
+    out: list[list[str]] = []
+    for r in rows:
+        if re.match(r"^\s*\|?[\s:|-]+\|?\s*$", r):
+            continue
+        out.append([c.strip() for c in r.strip().strip("|").split("|")])
+    return out
+
+
+def _flat_blocks(body: str) -> list[tuple]:
+    """Ordered blocks from HTML-laced markdown: markdown via uds_html._blocks, plus the
+    native branded archetypes — ``<table>`` → ('table', rows) and a callout ``<div>`` →
+    ('callout', {heading, body}). Markdown tables (``| … |``) are normalised to the same
+    ('table', rows) shape. So both canonical and HTML-laced sources reach the serialiser
+    as archetypes, not flattened text."""
+    callout_open = re.compile(r'<div[^>]*class="[^"]*\bcallout\b[^"]*"[^>]*>', re.I)
+    table_re = re.compile(r"<table\b[\s\S]*?</table>", re.I)
+    out: list[tuple] = []
+    i = 0
+    while i <= len(body):
+        c = callout_open.search(body, i)
+        t = table_re.search(body, i)
+        cands = [m.start() for m in (c, t) if m]
+        nxt = min(cands) if cands else len(body)
+        md = body[i:nxt]
+        if md.strip():
+            for b in uds_html._blocks(_strip_html(md)):
+                out.append(("table", _pipe_rows(b[1])) if b[0] == "table" else b)
+        if not cands:
+            break
+        if c and c.start() == nxt:
+            inner, end = _div_block(body, c.start())
+            out.append(("callout", _parse_callout(inner)))
+            i = end
+        else:
+            out.append(("table", _parse_html_table(t.group(0))))
+            i = t.end()
+    return out
 
 
 def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6) -> tuple[str, list[dict]]:
@@ -150,7 +217,7 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
     (the cover already carries it)."""
     text = Path(src_path).read_text(encoding="utf-8")
     meta, body = uds_html.split_frontmatter(text)
-    blocks = uds_html._blocks(_strip_html(body))
+    blocks = _flat_blocks(body)              # markdown + native callout/table archetypes, in order
     title = _clean(str(meta.get("title", "Document")))
     deck: list[dict] = [{"kind": "cover", "eyebrow": _clean(str(meta.get("eyebrow", "") or "Proposal")),
                          "title": title, "sub": "", "standfirst": _clean(str(meta.get("description", "")))}]
@@ -167,20 +234,31 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
         if g["anchor"] == "hero":            # the cover already carries the hero
             continue
         deck.append({"kind": "section", "eyebrow": "Section", "title": g["title"]})
-        subs: list[dict] = [{"title": g["title"], "blocks": []}]   # lead-in prose, then each H3
-        for b in g["blocks"]:
-            if b[0] == "h" and b[1] == 3:
-                subs.append({"title": _clean(_split_anchor(b[2])[0]), "blocks": []})
-            else:
-                subs[-1]["blocks"].append(b)
-        for sub in subs:
-            lines = _flat_lines(sub["blocks"])
-            if not lines:
-                continue
+        gtitle = g["title"]
+        pending: list[str] = []
+
+        def _emit(lines: list[str], sub_title: str) -> None:
             chunks = [lines[i:i + lines_per_slide] for i in range(0, len(lines), lines_per_slide)]
             for nch, chunk in enumerate(chunks):
-                deck.append({"kind": "content", "eyebrow": g["title"],
-                             "title": sub["title"] + ("" if nch == 0 else f" (cont. {nch + 1})"), "body": chunk})
+                deck.append({"kind": "content", "eyebrow": gtitle,
+                             "title": sub_title + ("" if nch == 0 else f" (cont. {nch + 1})"), "body": chunk})
+
+        sub_title = gtitle                   # lead-in prose under the H2, then each H3 subsection
+        for b in g["blocks"]:
+            if b[0] == "h" and b[1] == 3:
+                _emit(pending, sub_title); pending = []
+                sub_title = _clean(_split_anchor(b[2])[0])
+            elif b[0] == "callout":          # branded callout → its own slide
+                _emit(pending, sub_title); pending = []
+                deck.append({"kind": "callout", "eyebrow": (b[1].get("heading") or gtitle),
+                             "heading": b[1].get("heading", ""), "body": b[1].get("body", "")})
+            elif b[0] == "table":            # data table → its own slide (native)
+                _emit(pending, sub_title); pending = []
+                if b[1]:
+                    deck.append({"kind": "table", "eyebrow": gtitle, "title": sub_title, "rows": b[1]})
+            else:
+                pending += _flat_lines([b])
+        _emit(pending, sub_title)
     return title, deck
 
 
@@ -254,6 +332,50 @@ def _bg(slide_id: str, hex_color: str) -> dict:
             "fields": "pageBackgroundFill.solidFill.color"}}
 
 
+def _mix(a: str, b: str, t: float) -> str:
+    """Blend hex a→b by t (0..1). Used for the callout tint = primary washed into white."""
+    ca, cb = _rgb(a), _rgb(b)
+    return "#" + "".join(f"{round((ca[k] * (1 - t) + cb[k] * t) * 255):02X}" for k in ("red", "green", "blue"))
+
+
+def _shape(slide_id: str, box_id: str, shape_type: str, x: int, y: int, w: int, h: int, fill_hex: str) -> list[dict]:
+    """A filled shape (no outline) — the callout box (ROUND_RECTANGLE) + its accent edge (RECTANGLE)."""
+    return [
+        {"createShape": {"objectId": box_id, "shapeType": shape_type,
+            "elementProperties": {"pageObjectId": slide_id,
+                "size": {"width": {"magnitude": w, "unit": "EMU"}, "height": {"magnitude": h, "unit": "EMU"}},
+                "transform": {"scaleX": 1, "scaleY": 1, "translateX": x, "translateY": y, "unit": "EMU"}}}},
+        {"updateShapeProperties": {"objectId": box_id,
+            "shapeProperties": {"shapeBackgroundFill": {"solidFill": {"color": {"rgbColor": _rgb(fill_hex)}}},
+                                "outline": {"propertyState": "NOT_RENDERED"}},
+            "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"}},
+    ]
+
+
+def _table_reqs(slide_id: str, tid: str, rows: list[list[str]], x: int, y: int, w: int, p: dict) -> list[dict]:
+    """A native Slides table — header row in the brand primary (uppercase), body in ink."""
+    nrows = len(rows)
+    ncols = max((len(r) for r in rows), default=1)
+    out: list[dict] = [{"createTable": {"objectId": tid,
+        "elementProperties": {"pageObjectId": slide_id,
+            "size": {"width": {"magnitude": w, "unit": "EMU"}, "height": {"magnitude": min(3_000_000, 340_000 * nrows), "unit": "EMU"}},
+            "transform": {"scaleX": 1, "scaleY": 1, "translateX": x, "translateY": y, "unit": "EMU"}},
+        "rows": nrows, "columns": ncols}}]
+    for r, row in enumerate(rows):
+        for c in range(ncols):
+            txt = row[c] if c < len(row) else ""
+            if not txt:
+                continue
+            head = r == 0
+            out.append({"insertText": {"objectId": tid, "cellLocation": {"rowIndex": r, "columnIndex": c}, "text": txt.upper() if head else txt, "insertionIndex": 0}})
+            out.append({"updateTextStyle": {"objectId": tid, "cellLocation": {"rowIndex": r, "columnIndex": c},
+                "textRange": {"type": "ALL"},
+                "style": {"fontFamily": p["body"], "fontSize": {"magnitude": 10, "unit": "PT"},
+                          "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(p["primary"] if head else p["ink"])}}, "bold": head},
+                "fields": "fontFamily,fontSize,foregroundColor,bold"}})
+    return out
+
+
 def build_requests(manifest_path: Path, *, brand: str = "nopilot") -> tuple[str, list[dict]]:
     """IR → Slides API batchUpdate requests (cover, section, quote, content)."""
     title, deck = slide_specs(manifest_path, brand=brand)
@@ -261,25 +383,25 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot") -> tuple[str,
     reqs: list[dict] = []
     cx, cw = MARGIN, PAGE_W - 2 * MARGIN
 
-    def add_text(slide_id: str, n: int, text: str, y: int, h: int, *, font, size, color, bold=False, align=None, weight=None) -> None:
+    def add_text(slide_id: str, n: int, text: str, y: int, h: int, *, font, size, color, bold=False, align=None, weight=None, x=None, w=None) -> None:
         box = f"{slide_id}_t{n}"
-        reqs.append(_text_box(slide_id, box, cx, y, cw, h))
+        reqs.append(_text_box(slide_id, box, cx if x is None else x, y, cw if w is None else w, h))
         reqs.append({"insertText": {"objectId": box, "text": text, "insertionIndex": 0}})
         reqs.extend(_style(box, font=font, size=size, color=color, bold=bold, align=align, weight=weight))
 
     R = uds_mod.render_contract(brand, "slide")   # role → resolved {family,size,weight,transform,align,colour}
     _AL = {"center": "CENTER", "right": "END", "justify": "JUSTIFIED"}  # left == default → no paragraph request
 
-    def add_role(slide_id: str, n: int, text: str, y: int, h: int, role: str, *, colour=None, align=None) -> None:
+    def add_role(slide_id: str, n: int, text: str, y: int, h: int, role: str, *, colour=None, align=None, x=None, w=None) -> None:
         st = R.get(role) or {}
         s = text.upper() if st.get("transform") == "upper" else text
         fam = (st.get("family") or "Inter").split(",")[0].strip()
         if "geist" in fam.lower():            # Google Workspace has no Geist Mono → the UDS fallback
             fam = _GSLIDE_MONO
-        w = st.get("weight")
+        wt = st.get("weight")
         add_text(slide_id, n, s, y, h, font=fam, size=round(st.get("size", 12)),
                  color=_rgb(colour or st.get("colour", "#1C2022")),
-                 align=align or _AL.get(st.get("align")), bold=(w is None), weight=w)
+                 align=align or _AL.get(st.get("align")), bold=(wt is None), weight=wt, x=x, w=w)
 
     for i, s in enumerate(deck):
         sid = f"slide{i:03d}"  # Slides object IDs must be >= 5 chars
@@ -300,6 +422,20 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot") -> tuple[str,
             reqs.append(_bg(sid, p["paper"]))
             add_role(sid, 0, s["eyebrow"], 700_000, 320_000, "eyebrow")
             add_role(sid, 1, "“" + s["quote"] + "”", 1_300_000, 3_000_000, "quote")
+        elif kind == "callout":            # branded callout box: tint fill + primary accent edge
+            reqs.append(_bg(sid, p["surface"]))
+            box_x, box_y, box_h = MARGIN, 1_450_000, 2_300_000
+            reqs += _shape(sid, f"{sid}_box", "ROUND_RECTANGLE", box_x, box_y, cw, box_h, _mix(p["primary"], "#FFFFFF", 0.90))
+            reqs += _shape(sid, f"{sid}_edge", "RECTANGLE", box_x, box_y, 46_000, box_h, p["primary"])  # ~3.6pt accent edge
+            pad, tx, tw = 300_000, box_x + 300_000, cw - 600_000
+            if s.get("heading"):
+                add_role(sid, 0, s["heading"], box_y + pad, 380_000, "eyebrow", x=tx, w=tw)
+            add_role(sid, 1, s.get("body", ""), box_y + pad + 480_000, box_h - pad - 700_000, "body", x=tx, w=tw)
+        elif kind == "table":              # native data table
+            reqs.append(_bg(sid, p["surface"]))
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
+            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
+            reqs += _table_reqs(sid, f"{sid}_tbl", s["rows"], MARGIN, 1_650_000, cw, p)
         else:  # content
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
