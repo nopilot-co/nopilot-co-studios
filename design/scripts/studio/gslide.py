@@ -444,12 +444,13 @@ def _table_reqs(slide_id: str, tid: str, rows: list[list[str]], x: int, y: int, 
     return out
 
 
-def _swimlane_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
-    """A native swimlane / timeline: a month axis, lane rows with span bars (primary tint),
-    and milestone diamonds. All native shapes — editable, crisp, on-brand, no image upload."""
-    months = spec.get("months", [])
-    lanes = spec.get("lanes", [])
-    milestones = spec.get("milestones", []) or []
+def _swimlane_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A native swimlane / timeline from a SwimlaneNode: a month axis, lane rows with span
+    bars (primary tint), and milestone diamonds. All native shapes — editable, crisp,
+    on-brand, no image upload."""
+    months = node.months
+    lanes = node.lanes
+    milestones = node.milestones
     if not months or not lanes:
         return []
     label_w = 1_150_000
@@ -471,22 +472,22 @@ def _swimlane_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p:
         ly = top + li * (lane_h + 36_000)
         ln = f"{slide_id}_ln{li}"
         out.append(_text_box(slide_id, ln, int(x), ly, int(label_w - 40_000), lane_h))
-        out.append({"insertText": {"objectId": ln, "text": str(lane.get("name", "")), "insertionIndex": 0}})
+        out.append({"insertText": {"objectId": ln, "text": str(lane.name), "insertionIndex": 0}})
         out += _style(ln, font=p["body"], size=9, color=_rgb(p["ink"]), weight=600)
-        sx, ex = mx(lane.get("start")), mx(lane.get("end"))
+        sx, ex = mx(lane.start), mx(lane.end)
         bw = max(int(ex - sx), 240_000)
         bar = f"{slide_id}_bar{li}"
         out += _shape(slide_id, f"{bar}r", "ROUND_RECTANGLE", int(sx), ly, bw, int(lane_h * 0.6), tint)
         out.append(_text_box(slide_id, f"{bar}t", int(sx + 70_000), ly + 24_000, bw - 120_000, int(lane_h * 0.6)))
-        out.append({"insertText": {"objectId": f"{bar}t", "text": str(lane.get("label", "")), "insertionIndex": 0}})
+        out.append({"insertText": {"objectId": f"{bar}t", "text": str(lane.label), "insertionIndex": 0}})
         out += _style(f"{bar}t", font=p["body"], size=8, color=_rgb(p["ink"]))
     my = top + len(lanes) * (lane_h + 36_000) + 30_000   # milestone diamonds
     for mi, ms in enumerate(milestones):
-        dx = int(mx(ms.get("at")) - 66_000)
+        dx = int(mx(ms.at) - 66_000)
         d = f"{slide_id}_ms{mi}"
         out += _shape(slide_id, f"{d}d", "DIAMOND", dx, my, 132_000, 132_000, p["primary"])
         out.append(_text_box(slide_id, f"{d}t", dx - 520_000, my + 150_000, 1_180_000, 280_000))
-        out.append({"insertText": {"objectId": f"{d}t", "text": str(ms.get("label", "")), "insertionIndex": 0}})
+        out.append({"insertText": {"objectId": f"{d}t", "text": str(ms.label), "insertionIndex": 0}})
         out += _style(f"{d}t", font=p["body"], size=8, color=_rgb(p["primary"]), align="CENTER", weight=600)
     return out
 
@@ -710,7 +711,7 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             dy = _lead_band(sid, s.get("lead"), 1_950_000)
-            reqs += _swimlane_reqs(sid, s.get("spec", {}), MARGIN, dy, cw, PAGE_H - dy - MARGIN, p)
+            reqs += _swimlane_reqs(sid, archetype_ir.normalise_swimlane(s.get("spec", {})), MARGIN, dy, cw, PAGE_H - dy - MARGIN, p)
         elif kind == "cards":              # icon/feature card grid
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")

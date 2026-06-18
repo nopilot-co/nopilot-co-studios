@@ -37,6 +37,8 @@ CAPABILITIES: dict[str, set[str]] = {
     "chart": {"gslide", "pptx", "html"},
     "flow": {"gslide", "pptx", "html"},
     "cards": {"gslide", "pptx", "html"},
+    "swimlane": {"gslide", "html"},  # the timeline/gantt model. pptx renders a DISTINCT
+    #                                  node-flow swimlane — not the same viz (see #129).
 }
 
 # Fence name → canonical archetype (aliases collapse here as archetypes land).
@@ -47,6 +49,8 @@ ALIASES: dict[str, str] = {
     #                     form pending a process→flow reconciliation of the 360 example.
     "cards": "cards",
     "card-grid": "cards",
+    "swimlane": "swimlane",
+    "timeline": "swimlane",  # gslide renders :::timeline via the swimlane (gantt) model
 }
 
 
@@ -263,3 +267,47 @@ def normalise_cards(spec: Any) -> CardsNode:
         else:
             cards.append(Card(str(it)))
     return CardsNode(cards)
+
+
+# ----------------------------------------------------------------- swimlane (timeline / gantt)
+@dataclass
+class Lane:
+    name: str = ""
+    label: str = ""
+    start: str = ""
+    end: str = ""
+
+
+@dataclass
+class Milestone:
+    at: str = ""
+    label: str = ""
+
+
+@dataclass
+class SwimlaneNode:
+    months: list[str] = field(default_factory=list)
+    lanes: list[Lane] = field(default_factory=list)
+    milestones: list[Milestone] = field(default_factory=list)
+
+    @property
+    def is_empty(self) -> bool:
+        return not (self.months and self.lanes)
+
+
+def normalise_swimlane(spec: Any) -> SwimlaneNode:
+    """Reconcile the timeline/gantt swimlane (gslide model): a month axis, lanes each with
+    a span bar (start→end month + label), and milestones (at + label). NB: the pptx
+    node-flow swimlane is a different visualisation and is NOT unified here (#129)."""
+    s = _as_spec(spec)
+    months = [str(m) for m in (s.get("months") or [])]
+    lanes: list[Lane] = []
+    for ln in (s.get("lanes") or []):
+        if isinstance(ln, dict):
+            lanes.append(Lane(str(ln.get("name", "")), str(ln.get("label", "")),
+                              str(ln.get("start", "")), str(ln.get("end", ""))))
+    milestones: list[Milestone] = []
+    for m in (s.get("milestones") or []):
+        if isinstance(m, dict):
+            milestones.append(Milestone(str(m.get("at", "")), str(m.get("label", ""))))
+    return SwimlaneNode(months, lanes, milestones)

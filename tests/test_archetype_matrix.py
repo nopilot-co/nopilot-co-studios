@@ -36,6 +36,7 @@ SAMPLES = {
     "chart": "type: bar\nx: [A, B, C]\ny: [3, 9, 6]",
     "flow": "- {title: Discover, caption: Audit}\n- {title: Design, caption: Wireframes}\n- {title: Build, caption: Ship}",
     "cards": "- {title: Discover, body: Audit}\n- {title: Design, body: Wireframes}\n- {title: Build, body: Ship}",
+    "swimlane": "months: [Jan, Feb, Mar]\nlanes:\n  - {name: Discover, label: Audit, start: Jan, end: Feb}\n  - {name: Build, label: Ship, start: Feb, end: Mar}",
 }
 
 
@@ -77,6 +78,7 @@ GSLIDE_OK = {
     "chart": lambda reqs: any("_bar" in r.get("updateShapeProperties", {}).get("objectId", "") for r in reqs),
     "flow": lambda reqs: "Discover" in _inserts(reqs),
     "cards": lambda reqs: "Discover" in _inserts(reqs),
+    "swimlane": lambda reqs: "Discover" in _inserts(reqs),
 }
 PPTX_OK = {
     "chart": lambda sh: any(getattr(x, "has_chart", False) for x in sh),
@@ -87,6 +89,7 @@ HTML_OK = {
     "chart": lambda h: "uds-chart" in h and ":::" not in h,
     "flow": lambda h: "uds-flow" in h and ":::" not in h,
     "cards": lambda h: "uds-card__title" in h and ":::" not in h,
+    "swimlane": lambda h: "uds-swimlane" in h and ":::" not in h,
 }
 PROBE = {"gslide": (_gslide_reqs, GSLIDE_OK), "pptx": (_pptx_shapes, PPTX_OK), "html": (_html, HTML_OK)}
 

@@ -254,6 +254,42 @@ def _cards(inner: str, ctx: dict | None = None) -> str:
     return f'<section class="uds-grid" data-cols="{cols}">{"".join(cells)}</section>'
 
 
+def _swimlane(inner: str, ctx: dict | None = None) -> str:
+    """A native HTML timeline/gantt swimlane from a SwimlaneNode — a month axis, lane rows
+    with span bars positioned start→end, and milestone markers. Self-contained inline styles."""
+    node = _ir.normalise_swimlane(inner)
+    if node.is_empty:
+        return ""
+    months = node.months
+    n = len(months)
+    head = "".join(f'<span style="flex:1;text-align:center;font-size:.7rem;color:var(--uds-color-text-subtle,#6E747A)">{_esc(m)}</span>' for m in months)
+    header = f'<div style="display:flex;margin-left:150px;padding:0 0 .4rem">{head}</div>'
+    rows = []
+    for lane in node.lanes:
+        si = months.index(lane.start) if lane.start in months else 0
+        ei = months.index(lane.end) if lane.end in months else n - 1
+        left = si / n * 100.0
+        width = max((ei - si + 1) / n * 100.0, 100.0 / n)
+        rows.append(
+            '<div class="uds-swimlane__lane" style="display:flex;align-items:center;gap:12px;margin:7px 0">'
+            f'<span style="width:138px;flex:none;font-weight:600;font-size:.85rem;color:var(--uds-color-text,#1C2022)">{_inline(lane.name)}</span>'
+            '<div style="position:relative;flex:1;height:30px;background:var(--uds-color-line,#E5E5E5);border-radius:6px">'
+            f'<div style="position:absolute;top:0;bottom:0;left:{left:.1f}%;width:{width:.1f}%;background:var(--uds-color-primary,#C3094A);'
+            f'border-radius:6px;display:flex;align-items:center;padding:0 10px;color:var(--uds-color-on-primary,#fff);font-size:.72rem;white-space:nowrap;overflow:hidden">{_inline(lane.label)}</div>'
+            '</div></div>'
+        )
+    ms = ""
+    if node.milestones:
+        marks = []
+        for m in node.milestones:
+            ai = months.index(m.at) if m.at in months else 0
+            pos = (ai + 0.5) / n * 100.0
+            marks.append(f'<span style="position:absolute;left:{pos:.1f}%;transform:translateX(-50%);font-size:.66rem;color:var(--uds-color-primary,#C3094A);font-weight:600">◆ {_esc(m.label)}</span>')
+        ms = f'<div style="position:relative;height:1.4rem;margin-left:150px">{"".join(marks)}</div>'
+    return (f'<figure class="uds-swimlane" style="margin:1.5rem 0">{header}'
+            f'<div class="uds-swimlane__lanes">{"".join(rows)}</div>{ms}</figure>')
+
+
 _FENCE = {"stat-panel": _stat_grid, "pullquote": _pull_from_text, "callout-panel": _callout,
           "process": _process, "cta": _cta}
 
@@ -299,6 +335,8 @@ def _render_blocks(blocks: list[tuple], *, demote: int = 0, ctx: dict | None = N
                 out.append(_flow(b[2], ctx))
             elif b[1] == "cards":
                 out.append(_cards(b[2], ctx))
+            elif b[1] in ("swimlane", "timeline"):
+                out.append(_swimlane(b[2], ctx))
             else:
                 fn = _FENCE.get(b[1])
                 out.append(fn(b[2]) if fn else _unsupported_fence(b[1]))
