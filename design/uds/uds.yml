@@ -75,6 +75,8 @@ profiles:
     aspect: slide
     columns: 2
     lines_per_slide: 12
+    table_size: 6                  # dense data tables read fine small in a document
+    group_lead: 3                  # paragraphs of supporting prose that group onto a table/diagram slide (kills white space)
     sizes: { eyebrow: 10, eyebrow-ondark: 10, cover-title: 30, standfirst: 13, section-title: 22, topic-title: 16, body: 8, quote: 14 }
 
 # The three register layers (full contracts in archetypes.yml).

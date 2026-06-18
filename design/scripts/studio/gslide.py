@@ -108,13 +108,16 @@ def _topic_body(content_dir: Path, topic: dict[str, Any]) -> tuple[list[str], st
 
 # ----------------------------------------------------------------- IR (flat HTML-laced source → slides)
 def _strip_html(md: str) -> str:
-    """Flatten HTML-laced markdown: drop <style>/<script>/<svg>/comments, strip tags (keep inner text).
-    SVGs are images, not prose — dropped whole (else their labels leak as stray text)."""
+    """Flatten HTML-laced markdown: drop <style>/<script>/<svg>/comments, then strip tags.
+    Block-level closes become paragraph breaks and remaining tags become a space, so adjacent
+    fragments don't run together (``TedstoneStrategy`` / ``FirstA`` / ``MinoltaYou``)."""
     md = re.sub(r"<style\b[^>]*>.*?</style>", "", md, flags=re.S | re.I)
     md = re.sub(r"<script\b[^>]*>.*?</script>", "", md, flags=re.S | re.I)
     md = re.sub(r"<svg\b[\s\S]*?</svg>", "", md, flags=re.I)
     md = re.sub(r"<!--.*?-->", "", md, flags=re.S)
-    return re.sub(r"<[^>]+>", "", md)
+    md = re.sub(r"<br\s*/?>", "\n", md, flags=re.I)
+    md = re.sub(r"</(?:p|div|h[1-6]|li|tr|section|article|header|figure)>", "\n\n", md, flags=re.I)
+    return re.sub(r"<[^>]+>", " ", md)
 
 
 def _split_anchor(heading: str) -> tuple[str, str]:
@@ -224,7 +227,7 @@ def _flat_blocks(body: str) -> list[tuple]:
     return out
 
 
-def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6) -> tuple[str, list[dict]]:
+def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6, group_lead: int = 0) -> tuple[str, list[dict]]:
     """Flat HTML-laced markdown (front-matter + ``## {#anchor}`` sections) → the slide IR.
     The cover comes from front-matter; each H2 → a section divider; its lead-in prose
     and each H3 subsection → content slides (paginated). A ``{#hero}`` H2 is dropped
@@ -266,25 +269,29 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
                 _emit(pending, sub_title); pending = []
                 deck.append({"kind": "callout", "eyebrow": (b[1].get("heading") or gtitle),
                              "heading": b[1].get("heading", ""), "body": b[1].get("body", "")})
-            elif b[0] == "table":            # data table → its own slide (native)
-                _emit(pending, sub_title); pending = []
+            elif b[0] == "table":            # data table → its own slide, grouping the supporting lead-in prose
+                head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
+                _emit(head, sub_title); pending = []
                 if b[1]:
-                    deck.append({"kind": "table", "eyebrow": gtitle, "title": sub_title, "rows": b[1]})
-            elif b[0] == "diagram":          # timeline / swimlane → its own slide
-                _emit(pending, sub_title); pending = []
-                deck.append({"kind": "diagram", "eyebrow": gtitle, "title": sub_title, "spec": b[1]})
+                    deck.append({"kind": "table", "eyebrow": gtitle, "title": sub_title, "rows": b[1], "lead": lead})
+                elif lead:
+                    _emit(lead, sub_title)
+            elif b[0] == "diagram":          # timeline / swimlane → its own slide, grouping the lead-in prose
+                head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
+                _emit(head, sub_title); pending = []
+                deck.append({"kind": "diagram", "eyebrow": gtitle, "title": sub_title, "spec": b[1], "lead": lead})
             else:
                 pending += _flat_lines([b])
         _emit(pending, sub_title)
     return title, deck
 
 
-def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6) -> tuple[str, list[dict]]:
+def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6, group_lead: int = 0) -> tuple[str, list[dict]]:
     """Docket manifest → an ordered deck of plain slide specs (the IR). A ``.md`` path
     is treated as a flat HTML-laced source (``slide_specs_flat``)."""
     manifest_path = Path(manifest_path)
     if manifest_path.suffix.lower() in (".md", ".markdown"):
-        return slide_specs_flat(manifest_path, brand=brand, lines_per_slide=lines_per_slide)
+        return slide_specs_flat(manifest_path, brand=brand, lines_per_slide=lines_per_slide, group_lead=group_lead)
     content_dir = manifest_path.parent.parent
     manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
     meta = manifest.get("meta", {})
@@ -378,6 +385,10 @@ def _table_reqs(slide_id: str, tid: str, rows: list[list[str]], x: int, y: int, 
             "size": {"width": {"magnitude": w, "unit": "EMU"}, "height": {"magnitude": min(3_000_000, 340_000 * nrows), "unit": "EMU"}},
             "transform": {"scaleX": 1, "scaleY": 1, "translateX": x, "translateY": y, "unit": "EMU"}},
         "rows": nrows, "columns": ncols}}]
+    out.append({"updateTableCellProperties": {"objectId": tid,          # header row → brand grey fill
+        "tableRange": {"location": {"rowIndex": 0, "columnIndex": 0}, "rowSpan": 1, "columnSpan": ncols},
+        "tableCellProperties": {"tableCellBackgroundFill": {"solidFill": {"color": {"rgbColor": _rgb(p.get("paper", "#F1F1F4"))}}}},
+        "fields": "tableCellBackgroundFill.solidFill.color"}})
     for r, row in enumerate(rows):
         for c in range(ncols):
             txt = row[c] if c < len(row) else ""
@@ -445,7 +456,8 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
     ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS."""
     prof = uds_mod.profile_spec(profile)
     columns = int(prof.get("columns", 1))
-    title, deck = slide_specs(manifest_path, brand=brand, lines_per_slide=int(prof.get("lines_per_slide", 6)))
+    tsize = int(prof.get("table_size") or 9)
+    title, deck = slide_specs(manifest_path, brand=brand, lines_per_slide=int(prof.get("lines_per_slide", 6)), group_lead=int(prof.get("group_lead", 0)))
     p = _palette(brand)
     reqs: list[dict] = []
     cx, cw = MARGIN, PAGE_W - 2 * MARGIN
@@ -469,6 +481,18 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
         add_text(slide_id, n, s, y, h, font=fam, size=round(st.get("size", 12)),
                  color=_rgb(colour or st.get("colour", "#1C2022")),
                  align=align or _AL.get(st.get("align")), bold=(wt is None), weight=wt, x=x, w=w)
+
+    def _lead_band(sid: str, lead, base_y: int) -> int:
+        """Grouped supporting prose (two columns) above a table/diagram; returns the y to start the data at."""
+        if not lead:
+            return base_y
+        lh, gutter = 1_000_000, 360_000
+        colw = (cw - gutter) // 2
+        mid = (len(lead) + 1) // 2
+        add_role(sid, 8, "\n\n".join(lead[:mid]), base_y, lh, "body", x=MARGIN, w=colw)
+        if lead[mid:]:
+            add_role(sid, 9, "\n\n".join(lead[mid:]), base_y, lh, "body", x=MARGIN + colw + gutter, w=colw)
+        return base_y + lh + 200_000
 
     for i, s in enumerate(deck):
         sid = f"slide{i:03d}"  # Slides object IDs must be >= 5 chars
@@ -502,12 +526,14 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            reqs += _table_reqs(sid, f"{sid}_tbl", s["rows"], MARGIN, 1_550_000, cw, p, max(8, round(R["body"]["size"])))
+            ty = _lead_band(sid, s.get("lead"), 1_550_000)
+            reqs += _table_reqs(sid, f"{sid}_tbl", s["rows"], MARGIN, ty, cw, p, tsize)
         elif kind == "diagram":            # native swimlane / timeline
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            reqs += _swimlane_reqs(sid, s.get("spec", {}), MARGIN, 2_000_000, cw, PAGE_H - 2_000_000 - MARGIN, p)
+            dy = _lead_band(sid, s.get("lead"), 1_950_000)
+            reqs += _swimlane_reqs(sid, s.get("spec", {}), MARGIN, dy, cw, PAGE_H - dy - MARGIN, p)
         else:  # content
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
