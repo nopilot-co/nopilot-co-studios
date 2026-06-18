@@ -24,6 +24,7 @@ from typing import Any
 
 import yaml
 
+from . import archetype_ir as _ir
 from . import hydrate as hydrate_mod
 
 _FENCE_RE = re.compile(r"^:::+\s*([a-z][a-z0-9-]*)\s*$")
@@ -173,6 +174,47 @@ def _cta(inner: str) -> str:
             '<a class="uds-button uds-button--primary" href="#book">Book a paid Lunch &amp; Learn</a></aside>')
 
 
+def _numfmt(v: float) -> str:
+    return str(int(v)) if float(v).is_integer() else f"{v:g}"
+
+
+def _chart(inner: str, ctx: dict | None = None) -> str:
+    """A native HTML bar chart from a ChartNode — self-contained inline-styled DOM bars
+    (no image, no external-CSS dependency), coloured from the brand's dataviz ramp
+    (``ctx['ramp']``) so HTML matches the gslide/pptx natives. Colours theme via
+    ``var(--uds-*, fallback)`` when a stylesheet is present and fall back otherwise; the
+    .uds-chart classes + ``--uds-bar-*`` custom props are hooks for later stylesheet theming."""
+    node = _ir.normalise_chart(inner)
+    ramp = (ctx or {}).get("ramp") or _ir.DEFAULT_RAMP
+    s0 = node.series[0] if node.series else None
+    vals = list(s0.values) if s0 else []
+    title = (f'<figcaption class="uds-chart__title" style="font-family:var(--uds-font-mono,monospace);'
+             'font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;'
+             f'color:var(--uds-color-primary,#C3094A);margin-bottom:.6rem">{_inline(node.title)}</figcaption>') if node.title else ""
+    if not vals:
+        return (f'<figure class="uds-chart uds-chart--empty" data-type="{_esc(node.chart_type)}" style="margin:1.5rem 0">'
+                f'{title}<p class="uds-muted">[chart: no data]</p></figure>')
+    mx = max(vals) or 1.0
+    cats = node.categories
+    disp = s0.displays if s0 else []
+    bars = []
+    for i, v in enumerate(vals):
+        hpct = round(max(v / mx * 100.0, 2.0), 1)
+        col = ramp[i % len(ramp)]
+        label = disp[i] if i < len(disp) else _numfmt(v)
+        cat = cats[i] if i < len(cats) else ""
+        bars.append(
+            f'<div class="uds-chart__bar" style="--uds-bar-h:{hpct}%;--uds-bar-c:{col};'
+            'flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center">'
+            f'<span class="uds-chart__val" style="font-size:.72rem;font-weight:600;color:var(--uds-color-text,#1C2022);margin-bottom:4px">{_esc(str(label))}</span>'
+            f'<span class="uds-chart__fill" style="width:100%;height:{hpct}%;min-height:3px;background:{col};border-radius:6px 6px 0 0"></span>'
+            f'<span class="uds-chart__cat" style="font-size:.7rem;color:var(--uds-color-text-subtle,#6E747A);margin-top:8px;text-align:center;overflow-wrap:anywhere">{_esc(str(cat))}</span></div>'
+        )
+    plot = ('<div class="uds-chart__plot" style="display:flex;align-items:flex-end;gap:12px;height:240px;'
+            'padding-top:1.25rem;border-bottom:2px solid var(--uds-color-line,#E5E5E5)">' + "".join(bars) + "</div>")
+    return f'<figure class="uds-chart" data-type="{_esc(node.chart_type)}" style="margin:1.75rem 0">{title}{plot}</figure>'
+
+
 _FENCE = {"stat-panel": _stat_grid, "pullquote": _pull_from_text, "callout-panel": _callout,
           "process": _process, "cta": _cta}
 
@@ -187,7 +229,7 @@ def _table_rows(rows: list[str], caption: str = "") -> str:
     return f'<table class="uds-table">{cap}<thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>'
 
 
-def _render_blocks(blocks: list[tuple], *, demote: int = 0) -> list[str]:
+def _render_blocks(blocks: list[tuple], *, demote: int = 0, ctx: dict | None = None) -> list[str]:
     out: list[str] = []
     for b in blocks:
         if b[0] == "h":
@@ -205,15 +247,20 @@ def _render_blocks(blocks: list[tuple], *, demote: int = 0) -> list[str]:
         elif b[0] == "table":
             out.append(_table_rows(b[1]))
         elif b[0] == "fence":
-            fn = _FENCE.get(b[1])
-            out.append(fn(b[2]) if fn else "")
+            if _ir.canonical(b[1]) == "chart":
+                out.append(_chart(b[2], ctx))
+            else:
+                fn = _FENCE.get(b[1])
+                out.append(fn(b[2]) if fn else "")
     return out
 
 
 # ----------------------------------------------------------------- flat source
-def render_body(source_md: str) -> tuple[dict[str, Any], str]:
-    """Map a single flat `:::` source to a UDS-HTML body (hero + detail body)."""
+def render_body(source_md: str, *, brand: str | None = None) -> tuple[dict[str, Any], str]:
+    """Map a single flat `:::` source to a UDS-HTML body (hero + detail body). ``brand``
+    resolves the dataviz ramp for native viz (charts); None → the default ramp."""
     meta, body = split_frontmatter(source_md)
+    ctx = {"ramp": _ir.palette_for(brand)}
     blocks = _blocks(body)
     hero_title = meta.get("title", "")
     standfirst: list[str] = []
@@ -239,7 +286,7 @@ def render_body(source_md: str) -> tuple[dict[str, Any], str]:
     if standfirst:
         hero.append(f'<p class="uds-hero__standfirst">{_inline(" ".join(standfirst))}</p>')
     hero.append("</header>")
-    body_html = _render_blocks(blocks[rest_start:])
+    body_html = _render_blocks(blocks[rest_start:], ctx=ctx)
     html = ('<article class="uds-detail">\n' + "".join(hero) + "\n"
             + '<div class="uds-detail__body">\n' + "\n".join(body_html) + "\n</div>\n</article>")
     return meta, html
@@ -422,7 +469,7 @@ def _self_contained(body: str, title: str, brand: str) -> str:
 
 
 def render_file(src_path: Path, out_path: Path, *, brand: str = "nopilot") -> Path:
-    meta, body = render_body(Path(src_path).read_text(encoding="utf-8"))
+    meta, body = render_body(Path(src_path).read_text(encoding="utf-8"), brand=brand)
     doc = hydrate_mod.render_document(
         body, title=str(meta.get("title", "Untitled")), theme=brand,
         base_href="../ui/base.css", theme_href=f"../ui/themes/theme-{brand}.css",

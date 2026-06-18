@@ -31,6 +31,7 @@ from typing import Any
 
 import yaml
 
+from . import archetype_ir
 from . import uds as uds_mod
 from . import uds_html
 
@@ -587,16 +588,18 @@ def _flow_reqs(slide_id: str, steps: list, x: int, y: int, w: int, h: int, p: di
     return out
 
 
-def _chart_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
-    """A native bar chart: bars (dataviz ramp) on a baseline, value labels above, category
-    labels below. Native shapes — every bar shown, coloured from the brand's dataviz tokens."""
-    data = spec.get("series") or spec.get("data") or []
-    data = [d for d in data if isinstance(d, dict)]
-    if not data:
+def _chart_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A native bar chart from a ChartNode: bars (dataviz ramp) on a baseline, value
+    labels above, category labels below. Native shapes — every bar shown, coloured from
+    the brand's dataviz tokens. Renders the node's first series (gslide bars)."""
+    s0 = node.series[0] if node.series else None
+    vals = list(s0.values) if s0 else []
+    if not vals:
         return []
-    vals = [float(d.get("value", 0) or 0) for d in data]
+    cats = node.categories
+    disp = s0.displays if s0 else []
     mx = max(vals) or 1.0
-    n = len(data)
+    n = len(vals)
     gap = 200_000
     bw = (w - gap * (n - 1)) // n
     base_y = y + h - 560_000           # baseline; room for category labels below
@@ -609,15 +612,17 @@ def _chart_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p: di
         {"updateShapeProperties": {"objectId": f"{slide_id}_axis",
             "shapeProperties": {"shapeBackgroundFill": {"solidFill": {"color": {"rgbColor": _rgb(p["line"])}}}, "outline": {"propertyState": "NOT_RENDERED"}},
             "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"}}]
-    for i, d in enumerate(data):
-        bh = max(int(maxbar * vals[i] / mx), 20_000)
+    for i, val in enumerate(vals):
+        bh = max(int(maxbar * val / mx), 20_000)
         bx, by = x + i * (bw + gap), base_y - bh
         out += _shape(slide_id, f"{slide_id}_bar{i}", "ROUND_RECTANGLE", bx, by, bw, bh, ramp[i % len(ramp)])
         out.append(_text_box(slide_id, f"{slide_id}_bv{i}", bx, by - 300_000, bw, 280_000))
-        out.append({"insertText": {"objectId": f"{slide_id}_bv{i}", "text": str(d.get("display", d.get("value", ""))), "insertionIndex": 0}})
+        label = disp[i] if i < len(disp) else str(val)
+        out.append({"insertText": {"objectId": f"{slide_id}_bv{i}", "text": str(label), "insertionIndex": 0}})
         out += _style(f"{slide_id}_bv{i}", font=p["body"], size=9, color=_rgb(p["ink"]), align="CENTER", weight=600)
         out.append(_text_box(slide_id, f"{slide_id}_bc{i}", bx, base_y + 40_000, bw, 480_000))
-        out.append({"insertText": {"objectId": f"{slide_id}_bc{i}", "text": str(d.get("label", "")), "insertionIndex": 0}})
+        cat = cats[i] if i < len(cats) else ""
+        out.append({"insertText": {"objectId": f"{slide_id}_bc{i}", "text": str(cat), "insertionIndex": 0}})
         out += _style(f"{slide_id}_bc{i}", font=p["body"], size=8, color=_rgb(p["muted"]), align="CENTER")
     return out
 
@@ -728,7 +733,7 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             chy = _lead_band(sid, s.get("lead"), 1_950_000)
-            reqs += _chart_reqs(sid, s.get("spec", {}), MARGIN, chy, cw, PAGE_H - chy - MARGIN, p)
+            reqs += _chart_reqs(sid, archetype_ir.normalise_chart(s.get("spec", {})), MARGIN, chy, cw, PAGE_H - chy - MARGIN, p)
         else:  # content
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")

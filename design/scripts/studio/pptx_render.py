@@ -362,19 +362,13 @@ def _place_chart(s, body, tokens, top: float) -> float:
     from pptx.util import Inches
 
     try:
-        import yaml
-
+        from . import archetype_ir
         from . import charts as charts_mod
 
-        spec = yaml.safe_load(body) or {}
-        if not isinstance(spec, dict):
-            raise ValueError("chart body must be a YAML mapping")
-        ctype = spec.get("type", "bar")
-        if ctype not in charts_mod.CHART_TYPES:
-            raise ValueError(f"unknown chart type '{ctype}'")
-        series = charts_mod._series(spec)
-        cats = [str(v) for v in (spec.get("x") or spec.get("labels") or [])]
-        _add_native_chart(s, ctype, spec, series, cats, tokens, top)
+        node = archetype_ir.normalise_chart(body)  # one normaliser, shared across backends
+        if node.chart_type not in charts_mod.CHART_TYPES:
+            raise ValueError(f"unknown chart type '{node.chart_type}'")
+        _add_native_chart(s, node, tokens, top)
         return top + 4.2
     except Exception:  # noqa: BLE001 — degrade: a chart must never crash the deck
         tb = s.shapes.add_textbox(Inches(0.6), Inches(top), Inches(12), Inches(0.8))
@@ -396,31 +390,29 @@ _XL = {
 }
 
 
-def _add_native_chart(s, ctype, spec, series, cats, tokens, top) -> None:
+def _add_native_chart(s, node, tokens, top) -> None:
     from pptx.chart.data import CategoryChartData
     from pptx.dml.color import RGBColor
     from pptx.enum.chart import XL_CHART_TYPE
     from pptx.util import Inches
 
     c = tokens["color"]
-    xltype = getattr(XL_CHART_TYPE, _XL.get(ctype, "COLUMN_CLUSTERED"))
+    xltype = getattr(XL_CHART_TYPE, _XL.get(node.chart_type, "COLUMN_CLUSTERED"))
     cd = CategoryChartData()
-    if ctype == "pie":
-        cd.categories = cats or [str(i) for i in range(len(spec.get("values") or []))]
-        cd.add_series(
-            "", tuple(float(v) for v in (spec.get("values") or spec.get("y") or []))
-        )
+    if node.chart_type == "pie":
+        vals = node.series[0].values if node.series else []
+        cd.categories = node.categories or [str(i) for i in range(len(vals))]
+        cd.add_series("", tuple(vals))
     else:
-        cd.categories = cats or [
-            str(i) for i in range(len(series[0]["y"]) if series else 0)
-        ]
-        for sname_y in series:
-            cd.add_series(sname_y["name"] or "series", tuple(sname_y["y"]))
+        first = node.series[0].values if node.series else []
+        cd.categories = node.categories or [str(i) for i in range(len(first))]
+        for ser in node.series:
+            cd.add_series(ser.name or "series", tuple(ser.values))
     gframe = s.shapes.add_chart(
         xltype, Inches(0.6), Inches(top), Inches(8.5), Inches(4.0), cd
     )
     chart = gframe.chart
-    chart.has_legend = any(sy["name"] for sy in series)
+    chart.has_legend = any(ser.name for ser in node.series)
     try:
         palette = [c["tertiary"], c["primary"], c["secondary"]]
         for plot in chart.plots:
