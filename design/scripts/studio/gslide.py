@@ -67,10 +67,12 @@ def _palette(brand: str) -> dict[str, Any]:
         "on_active": light.get("on-active", "#1C2022"),
         "surface": light.get("surface", "#FFFFFF"),
         "paper": light.get("bg", "#F1F1F4"),
+        "line": light.get("line", "#E5E5E5"),
         "on_primary": light.get("on-primary", "#FFFFFF"),
         "display": display, "body": body, "mono": mono,
         "eyebrow": light.get("eyebrow", light.get("primary", "#C3094A")),  # overline colour (Coherence: dark raspberry)
         "heading_weight": u["font"].get("weight", {}).get("heading"),       # e.g. 600 = semibold; None → bold boolean
+        "dataviz": u.get("dataviz") or [light.get("primary", "#C3094A")],   # chart series ramp (crimson-led)
     }
 
 
@@ -213,7 +215,7 @@ def _flat_blocks(body: str) -> list[tuple]:
                     if isinstance(spec, dict):
                         spec.setdefault("type", b[1])
                         out.append(("diagram", spec))
-                elif b[0] == "fence" and b[1] in ("cards", "panel", "flow", "process"):
+                elif b[0] == "fence" and b[1] in ("cards", "panel", "flow", "process", "chart"):
                     try:
                         spec = yaml.safe_load(b[2])
                         out.append(("flow" if b[1] in ("flow", "process") else b[1], spec))
@@ -313,6 +315,10 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
                     deck.append({"kind": "flow", "eyebrow": gtitle, "title": sub_title, "steps": steps, "lead": lead})
                 elif lead:
                     _emit(lead, sub_title)
+            elif b[0] == "chart":            # native chart → its own slide
+                head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
+                _emit(head, sub_title); pending = []
+                deck.append({"kind": "chart", "eyebrow": gtitle, "title": sub_title, "spec": b[1] or {}, "lead": lead})
             else:
                 pending += _flat_lines([b])
         _emit(pending, sub_title)
@@ -581,6 +587,41 @@ def _flow_reqs(slide_id: str, steps: list, x: int, y: int, w: int, h: int, p: di
     return out
 
 
+def _chart_reqs(slide_id: str, spec: dict, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A native bar chart: bars (dataviz ramp) on a baseline, value labels above, category
+    labels below. Native shapes — every bar shown, coloured from the brand's dataviz tokens."""
+    data = spec.get("series") or spec.get("data") or []
+    data = [d for d in data if isinstance(d, dict)]
+    if not data:
+        return []
+    vals = [float(d.get("value", 0) or 0) for d in data]
+    mx = max(vals) or 1.0
+    n = len(data)
+    gap = 200_000
+    bw = (w - gap * (n - 1)) // n
+    base_y = y + h - 560_000           # baseline; room for category labels below
+    maxbar = h - 900_000               # room for value label above + category below
+    ramp = p.get("dataviz") or [p["primary"]]
+    out: list[dict] = [{"createShape": {"objectId": f"{slide_id}_axis", "shapeType": "RECTANGLE",
+        "elementProperties": {"pageObjectId": slide_id,
+            "size": {"width": {"magnitude": w, "unit": "EMU"}, "height": {"magnitude": 12_000, "unit": "EMU"}},
+            "transform": {"scaleX": 1, "scaleY": 1, "translateX": x, "translateY": base_y, "unit": "EMU"}}}},
+        {"updateShapeProperties": {"objectId": f"{slide_id}_axis",
+            "shapeProperties": {"shapeBackgroundFill": {"solidFill": {"color": {"rgbColor": _rgb(p["line"])}}}, "outline": {"propertyState": "NOT_RENDERED"}},
+            "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"}}]
+    for i, d in enumerate(data):
+        bh = max(int(maxbar * vals[i] / mx), 20_000)
+        bx, by = x + i * (bw + gap), base_y - bh
+        out += _shape(slide_id, f"{slide_id}_bar{i}", "ROUND_RECTANGLE", bx, by, bw, bh, ramp[i % len(ramp)])
+        out.append(_text_box(slide_id, f"{slide_id}_bv{i}", bx, by - 300_000, bw, 280_000))
+        out.append({"insertText": {"objectId": f"{slide_id}_bv{i}", "text": str(d.get("display", d.get("value", ""))), "insertionIndex": 0}})
+        out += _style(f"{slide_id}_bv{i}", font=p["body"], size=9, color=_rgb(p["ink"]), align="CENTER", weight=600)
+        out.append(_text_box(slide_id, f"{slide_id}_bc{i}", bx, base_y + 40_000, bw, 480_000))
+        out.append({"insertText": {"objectId": f"{slide_id}_bc{i}", "text": str(d.get("label", "")), "insertionIndex": 0}})
+        out += _style(f"{slide_id}_bc{i}", font=p["body"], size=8, color=_rgb(p["muted"]), align="CENTER")
+    return out
+
+
 def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None) -> tuple[str, list[dict]]:
     """IR → Slides API batchUpdate requests (cover, section, quote, content). A render
     ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS."""
@@ -682,6 +723,12 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             fy = _lead_band(sid, s.get("lead"), 1_650_000)
             reqs += _flow_reqs(sid, s["steps"], MARGIN, fy, cw, PAGE_H - fy - MARGIN, p)
+        elif kind == "chart":              # native bar chart (dataviz ramp)
+            reqs.append(_bg(sid, p["surface"]))
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
+            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
+            chy = _lead_band(sid, s.get("lead"), 1_950_000)
+            reqs += _chart_reqs(sid, s.get("spec", {}), MARGIN, chy, cw, PAGE_H - chy - MARGIN, p)
         else:  # content
             reqs.append(_bg(sid, p["surface"]))
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
