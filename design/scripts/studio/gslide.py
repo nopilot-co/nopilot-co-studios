@@ -15,8 +15,10 @@ Three layers, so it runs with or without Google auth:
   ``google-api-python-client`` (lazy import). Needs OAuth creds with the
   ``presentations`` scope; the live deck is an account write (confirm first).
 
-CLI:  studio-gslide <manifest> [--out payload.json]            # dry-run
-      studio-gslide <manifest> --execute --creds token.json    # live
+CLI:  python -m studio.gslide <manifest> [--out payload.json]              # dry-run (no creds)
+      python -m studio.gslide --authorize --client-secret npt.json --token-out token.json  # one-time OAuth (personal @gmail)
+      python -m studio.gslide --execute --account npt --payload deck.gslide.json            # push a pre-built payload
+      python -m studio.gslide <manifest> --execute --account coh                            # build + push (configured)
 """
 
 from __future__ import annotations
@@ -67,6 +69,8 @@ def _palette(brand: str) -> dict[str, Any]:
         "paper": light.get("bg", "#F1F1F4"),
         "on_primary": light.get("on-primary", "#FFFFFF"),
         "display": display, "body": body, "mono": mono,
+        "eyebrow": light.get("eyebrow", light.get("primary", "#C3094A")),  # overline colour (Coherence: dark raspberry)
+        "heading_weight": u["font"].get("weight", {}).get("heading"),       # e.g. 600 = semibold; None → bold boolean
     }
 
 
@@ -226,11 +230,18 @@ def _text_box(slide_id: str, box_id: str, x: int, y: int, w: int, h: int) -> dic
                 "transform": {"scaleX": 1, "scaleY": 1, "translateX": x, "translateY": y, "unit": "EMU"}}}}
 
 
-def _style(box_id: str, *, font: str, size: int, color: dict, bold: bool = False, align: str | None = None) -> list[dict]:
+def _style(box_id: str, *, font: str, size: int, color: dict, bold: bool = False,
+           align: str | None = None, weight: int | None = None) -> list[dict]:
+    style: dict = {"fontSize": {"magnitude": size, "unit": "PT"},
+                   "foregroundColor": {"opaqueColor": {"rgbColor": color}}}
+    if weight:  # a true weighted face (e.g. Poppins SemiBold 600) — "never bold"; beats the bold boolean
+        style["weightedFontFamily"] = {"fontFamily": font, "weight": weight}
+        fields = "fontSize,foregroundColor,weightedFontFamily"
+    else:
+        style.update({"fontFamily": font, "bold": bold})
+        fields = "fontFamily,fontSize,foregroundColor,bold"
     reqs = [{"updateTextStyle": {"objectId": box_id, "textRange": {"type": "ALL"},
-             "style": {"fontFamily": font, "fontSize": {"magnitude": size, "unit": "PT"},
-                       "foregroundColor": {"opaqueColor": {"rgbColor": color}}, "bold": bold},
-             "fields": "fontFamily,fontSize,foregroundColor,bold"}}]
+             "style": style, "fields": fields}}]
     if align:
         reqs.append({"updateParagraphStyle": {"objectId": box_id, "textRange": {"type": "ALL"},
                      "style": {"alignment": align}, "fields": "alignment"}})
@@ -250,11 +261,14 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot") -> tuple[str,
     reqs: list[dict] = []
     cx, cw = MARGIN, PAGE_W - 2 * MARGIN
 
-    def add_text(slide_id: str, n: int, text: str, y: int, h: int, *, font, size, color, bold=False, align=None) -> None:
+    def add_text(slide_id: str, n: int, text: str, y: int, h: int, *, font, size, color, bold=False, align=None, weight=None) -> None:
         box = f"{slide_id}_t{n}"
         reqs.append(_text_box(slide_id, box, cx, y, cw, h))
         reqs.append({"insertText": {"objectId": box, "text": text, "insertionIndex": 0}})
-        reqs.extend(_style(box, font=font, size=size, color=color, bold=bold, align=align))
+        reqs.extend(_style(box, font=font, size=size, color=color, bold=bold, align=align, weight=weight))
+
+    hw = p.get("heading_weight")              # semibold for Coherence (never bold); None → bold boolean (nopilot)
+    eb = _rgb(p["eyebrow"])                    # overline colour
 
     for i, s in enumerate(deck):
         sid = f"slide{i:03d}"  # Slides object IDs must be >= 5 chars
@@ -263,22 +277,22 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot") -> tuple[str,
         kind = s["kind"]
         if kind == "cover":
             reqs.append(_bg(sid, p["surface"]))
-            add_text(sid, 0, s["eyebrow"].upper(), 1_400_000, 360_000, font=p["mono"], size=12, color=_rgb(p["primary"]), align="CENTER")
-            add_text(sid, 1, s["title"], 1_800_000, 1_500_000, font=p["display"], size=96, color=_rgb(p["ink"]), bold=True, align="CENTER")
+            add_text(sid, 0, s["eyebrow"].upper(), 1_400_000, 360_000, font=p["mono"], size=12, color=eb, align="CENTER")
+            add_text(sid, 1, s["title"], 1_800_000, 1_500_000, font=p["display"], size=96, color=_rgb(p["ink"]), bold=True, weight=hw, align="CENTER")
             if s.get("standfirst"):
                 add_text(sid, 2, s["standfirst"], 3_500_000, 1_200_000, font=p["display"], size=22, color=_rgb(p["ink"]), align="CENTER")
         elif kind == "section":
             reqs.append(_bg(sid, p["ink"]))            # dark colour block
             add_text(sid, 0, s["eyebrow"].upper(), 1_900_000, 360_000, font=p["mono"], size=12, color=_rgb(p["active"]))
-            add_text(sid, 1, s["title"], 2_300_000, 1_600_000, font=p["display"], size=54, color=_rgb(p["surface"]), bold=True)
+            add_text(sid, 1, s["title"], 2_300_000, 1_600_000, font=p["display"], size=54, color=_rgb(p["surface"]), bold=True, weight=hw)
         elif kind == "quote":
             reqs.append(_bg(sid, p["paper"]))
-            add_text(sid, 0, s["eyebrow"].upper(), 700_000, 320_000, font=p["mono"], size=11, color=_rgb(p["primary"]))
+            add_text(sid, 0, s["eyebrow"].upper(), 700_000, 320_000, font=p["mono"], size=11, color=eb)
             add_text(sid, 1, "“" + s["quote"] + "”", 1_300_000, 3_000_000, font=p["display"], size=28, color=_rgb(p["ink"]), align="START")
         else:  # content
             reqs.append(_bg(sid, p["surface"]))
-            add_text(sid, 0, s["eyebrow"].upper(), 520_000, 300_000, font=p["mono"], size=11, color=_rgb(p["primary"]))
-            add_text(sid, 1, s["title"], 850_000, 760_000, font=p["display"], size=30, color=_rgb(p["ink"]), bold=True)
+            add_text(sid, 0, s["eyebrow"].upper(), 520_000, 300_000, font=p["mono"], size=11, color=eb)
+            add_text(sid, 1, s["title"], 850_000, 760_000, font=p["display"], size=30, color=_rgb(p["ink"]), bold=True, weight=hw)
             if s["body"]:
                 add_text(sid, 2, "\n\n".join(s["body"]), 1_750_000, PAGE_H - 1_750_000 - MARGIN,
                          font=p["body"], size=13, color=_rgb(p["ink"]))
@@ -304,18 +318,23 @@ def load_delivery() -> dict[str, Any]:
     return yaml.safe_load(p.read_text(encoding="utf-8")) if p.exists() else {}
 
 
-def resolve_account(account: str, destination: str | None = None) -> tuple[str, str, str | None]:
-    """account (+ optional destination) → (sa_key_path, drive_folder_id, impersonate)."""
+def resolve_account(account: str, destination: str | None = None) -> tuple[str, str, str | None, str | None]:
+    """account (+ optional destination) → (creds_path, drive_folder_id, impersonate, asset_path).
+
+    ``creds_path`` is whatever ``credential_env`` points at — a service-account key
+    *or* an OAuth authorized-user token (``_load_creds`` auto-detects which). ``asset_path``
+    is an optional ``/``-separated sub-path find-or-created under the destination folder.
+    """
     cfg = (load_delivery().get("accounts", {}) or {}).get(account)
     if not cfg:
         raise SystemExit(f"no delivery config for '{account}' — set STUDIOS_DELIVERY_CONFIG or ~/context/studios/delivery.yml")
     key = os.environ.get(cfg.get("credential_env", ""))
     if not key:
-        raise SystemExit(f"credential env {cfg.get('credential_env')!r} is unset (point it at the SA key JSON)")
+        raise SystemExit(f"credential env {cfg.get('credential_env')!r} is unset (point it at the creds JSON — SA key or OAuth token)")
     dest = (cfg.get("destinations", {}) or {}).get(destination or cfg.get("default_destination"))
     if not dest:
         raise SystemExit(f"no destination {destination!r} for account '{account}'")
-    return key, dest["drive_folder_id"], dest.get("impersonate") or cfg.get("impersonate")
+    return key, dest["drive_folder_id"], dest.get("impersonate") or cfg.get("impersonate"), dest.get("asset_path")
 
 
 # ----------------------------------------------------------------- live execution
@@ -370,18 +389,32 @@ def _ensure_subfolder(drive, parent_id: str, name: str) -> str:
         fields="id", supportsAllDrives=True).execute()["id"]
 
 
-def execute(manifest_path: Path, *, brand: str = "nopilot", creds_file: str,
-            drive_folder_id: str | None = None, asset_name: str | None = None,
-            presentation_id: str | None = None, impersonate: str | None = None) -> str:
-    """Create (or update in place) the native deck via the Slides + Drive APIs using
-    a **service account**. Places it in a Shared-Drive folder (optionally an
-    ``asset_name`` subfolder), or updates ``presentation_id`` if given. Returns the URL.
+def _ensure_path(drive, parent_id: str, path: str) -> str:
+    """Find-or-create each ``/``-separated segment of ``path`` under ``parent_id``;
+    return the leaf folder id. ``'360/360-proposition'`` nests both levels."""
+    cur = parent_id
+    for seg in (s.strip() for s in path.split("/")):
+        if seg:
+            cur = _ensure_subfolder(drive, cur, seg)
+    return cur
 
-    Requires: Slides + Drive APIs enabled on the SA's project, and the SA a member
-    of the target Shared Drive. This is an account write — confirm first.
+
+def execute(manifest_path: Path | None, *, brand: str = "nopilot", creds_file: str,
+            drive_folder_id: str | None = None, asset_name: str | None = None,
+            presentation_id: str | None = None, impersonate: str | None = None,
+            prebuilt: tuple[str, list[dict]] | None = None) -> str:
+    """Create (or update in place) the native deck via the Slides + Drive APIs.
+
+    Creds may be a **service account** (Shared-Drive / domain-wide delegation) or an
+    **OAuth authorized-user token** — the route for a personal @gmail.com My Drive, where
+    a service account has no storage quota (see ``_load_creds`` / ``authorize``). Places
+    the deck under ``drive_folder_id`` (``asset_name`` may be a ``/``-separated sub-path,
+    find-or-created), or updates ``presentation_id`` in place. ``prebuilt`` pushes an
+    already-rendered ``(title, requests)`` payload instead of rebuilding from
+    ``manifest_path``. This is an account write — confirm first. Returns the URL.
     """
     drive, slides = _services(creds_file, impersonate=impersonate)
-    title, reqs = build_requests(manifest_path, brand=brand)
+    title, reqs = prebuilt if prebuilt is not None else build_requests(manifest_path, brand=brand)
 
     if presentation_id:                                          # update in place (re-render)
         pid = presentation_id
@@ -390,12 +423,12 @@ def execute(manifest_path: Path, *, brand: str = "nopilot", creds_file: str,
     else:
         parent = drive_folder_id
         if parent and asset_name:
-            parent = _ensure_subfolder(drive, parent, asset_name)
-        if parent:                                               # create inside the Shared-Drive folder
+            parent = _ensure_path(drive, parent, asset_name)     # nested sub-path under the destination
+        if parent:                                               # create inside the destination folder
             pid = drive.files().create(
                 body={"name": title, "mimeType": "application/vnd.google-apps.presentation", "parents": [parent]},
                 fields="id", supportsAllDrives=True).execute()["id"]
-        else:                                                    # fallback: the SA's own Drive
+        else:                                                    # fallback: the account's own Drive root
             pid = slides.presentations().create(body={"title": title}).execute()["presentationId"]
         default = slides.presentations().get(presentationId=pid, fields="slides(objectId)").execute().get("slides", [])
         batch = reqs + [{"deleteObject": {"objectId": s["objectId"]}} for s in default]
@@ -407,30 +440,51 @@ def execute(manifest_path: Path, *, brand: str = "nopilot", creds_file: str,
 def main(argv: list[str] | None = None) -> int:
     import argparse
 
-    ap = argparse.ArgumentParser(prog="studio-gslide", description="Native Google Slides from a UDS docket (ADR-006).")
-    ap.add_argument("manifest")
+    ap = argparse.ArgumentParser(prog="python -m studio.gslide", description="Native Google Slides from a UDS docket (ADR-006).")
+    ap.add_argument("manifest", nargs="?", help="docket manifest or flat .md source (omit with --payload / --authorize)")
     ap.add_argument("--brand", default="nopilot")
     ap.add_argument("--out", help="write the dry-run payload JSON here")
-    ap.add_argument("--execute", action="store_true", help="create/update the live deck")
-    ap.add_argument("--account", help="delivery account (e.g. coh/npt) — resolves SA key + folder from the delivery config")
+    ap.add_argument("--execute", action="store_true", help="create/update the live deck (an account write)")
+    ap.add_argument("--payload", help="push a pre-built .gslide.json {title,requests} instead of rebuilding from a manifest")
+    ap.add_argument("--account", help="delivery account (e.g. coh/npt) — resolves creds + folder + asset_path from the delivery config")
     ap.add_argument("--destination", help="named destination within the account (else its default)")
-    ap.add_argument("--asset-name", help="subfolder under the destination for this asset")
-    ap.add_argument("--creds", help="explicit service-account key JSON (overrides --account)")
+    ap.add_argument("--asset-name", help="sub-path under the destination (may be /-nested, e.g. 360/360-proposition); overrides the account's asset_path")
+    ap.add_argument("--creds", help="explicit creds JSON — SA key OR OAuth token (overrides --account)")
     ap.add_argument("--folder", help="explicit Drive folder id (overrides --account)")
-    ap.add_argument("--impersonate", help="Workspace user to act as (domain-wide delegation) — needed to write to a My-Drive folder")
+    ap.add_argument("--impersonate", help="Workspace user to act as (domain-wide delegation) — Workspace only, not consumer @gmail")
     ap.add_argument("--presentation-id", help="update this deck in place instead of creating a new one")
+    ap.add_argument("--authorize", action="store_true", help="run the OAuth consent flow and write an authorized-user token (personal @gmail destinations)")
+    ap.add_argument("--client-secret", help="OAuth client-secret JSON (with --authorize)")
+    ap.add_argument("--token-out", help="where to write the authorized-user token (with --authorize)")
     args = ap.parse_args(argv)
+
+    if args.authorize:
+        if not (args.client_secret and args.token_out):
+            ap.error("--authorize needs --client-secret and --token-out")
+        print(authorize(args.client_secret, args.token_out))
+        return 0
+
     if args.execute:
-        creds, folder, impersonate = args.creds, args.folder, args.impersonate
+        creds, folder, impersonate, asset_name = args.creds, args.folder, args.impersonate, args.asset_name
         if args.account and not creds:
-            creds, folder, cfg_imp = resolve_account(args.account, args.destination)
+            creds, folder, cfg_imp, cfg_asset = resolve_account(args.account, args.destination)
             impersonate = impersonate or cfg_imp
+            asset_name = asset_name or cfg_asset
         if not creds:
             ap.error("--execute needs --account (configured) or --creds")
-        print(execute(Path(args.manifest), brand=args.brand, creds_file=creds,
-                       drive_folder_id=folder, asset_name=args.asset_name,
-                       presentation_id=args.presentation_id, impersonate=impersonate))
+        prebuilt = None
+        if args.payload:
+            data = json.loads(Path(args.payload).read_text(encoding="utf-8"))
+            prebuilt = (data["title"], data["requests"])
+        elif not args.manifest:
+            ap.error("--execute needs a manifest or --payload")
+        print(execute(Path(args.manifest) if args.manifest else None, brand=args.brand, creds_file=creds,
+                       drive_folder_id=folder, asset_name=asset_name,
+                       presentation_id=args.presentation_id, impersonate=impersonate, prebuilt=prebuilt))
         return 0
+
+    if not args.manifest:
+        ap.error("a manifest is required for a dry-run (or use --execute --payload, or --authorize)")
     pl = payload(Path(args.manifest), brand=args.brand)
     if args.out:
         Path(args.out).write_text(json.dumps(pl, indent=2), encoding="utf-8")
