@@ -104,3 +104,34 @@ render; native header/footer correct on cover + continuation pages; cards / quot
   `@media print` multicol was tried and **reverted**: per-topic multicol orphaned
   headings and produced near-empty pages (117 pp > 112 pp single-col). Continuous
   2-column flow needs `uds_html` to emit the profile at the document level.
+
+## Diagrams & viz on the PDF path (open — all in `uds_html`, not the engine)
+The `uds_pdf` engine is done; **every remaining PDF-track item is in the shared
+`uds_html` mapper** (the convergence surface with gslide).
+
+- **Current state:** `uds_html` renders natively only stat-panel, pullquote,
+  callout-panel, process, cta, **bar** chart, flow, cards, swimlane/timeline.
+  Everything else → `[unsupported block]`. The docket path (`_doc_topic`) defers
+  **all** `topic.viz` to `[figure: … — viz port pending]`. So on the 360 proposal
+  the dartboard/bullseye, model, swimlanes, pillars, economics, financials
+  diagrams currently print as placeholders.
+- **The renderers already exist:** `frameworks.py` (bullseye, matrix, funnel,
+  heatmap, decision-tree), `charts.py` (bar/line/pie/scatter/area), `diagrams.py`
+  (flow/process/timeline/hierarchy/org) all emit brand-styled SVG — but they are
+  wired to the Quarto *linear-engine*, not to `uds_html`. This is **wiring, not
+  new rendering**.
+- **Handle, two tiers:** (A, quick) teach `uds_html._doc_topic` to **inline the
+  docket's pre-rendered SVGs** (`dartboard.svg`, `model.svg`, …) instead of the
+  port-pending placeholder — unblocks the 360 proposal PDF immediately; (B,
+  proper / Group 3) wire `uds_html` to reuse `frameworks`/`charts`/`diagrams` for
+  authored `:::bullseye|matrix|funnel|heatmap|chart|hierarchy` blocks so
+  HTML/PDF/gslide draw from one engine (shared `uds_html` edit — coordinate with
+  the gslide agent).
+- **hype-cycle / market-landscape curve:** **no studio archetype exists.** The
+  360 docket keeps a **bespoke** hype-cycle renderer (manifest J-003: the studio
+  `timeline` block is a flat strip with no curve — strictly less informative).
+  Handle via Tier A (embed the bespoke SVG); only build a `hype-cycle` archetype
+  in `frameworks.py` if it's wanted as reusable.
+- **Also open:** 2-column proposal profile (above); `theme-360` (graduate the 360
+  brand tokens into the store); optional webfont bundling (print currently fetches
+  Google Fonts at render time).
