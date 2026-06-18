@@ -584,7 +584,7 @@ def _flow_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> 
         out += _style(f"{cid}cap", font=p["body"], size=8, color=_rgb(p["muted"]))
         if c < per_row - 1 and i < n - 1:   # arrow to the next chip in the row
             aid = f"{slide_id}_fa{i}"
-            out.append(_text_box(slide_id, aid, cx0 + chip_w, cy0 + row_h // 2 - 170_000, arrow_w, 340_000))
+            out.append(_text_box(slide_id, aid, cx0 + chip_w - 32_000, cy0 + row_h // 2 - 170_000, arrow_w, 340_000))   # optical centre: nudge ~7px left (→ glyph mass sits on the arrowhead)
             out.append({"insertText": {"objectId": aid, "text": "→", "insertionIndex": 0}})
             out += _style(aid, font=p["body"], size=14, color=_rgb(p["primary"]), align="CENTER")
     return out
