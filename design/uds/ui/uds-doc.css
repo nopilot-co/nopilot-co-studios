@@ -96,3 +96,48 @@
 .doc-prose .uds-pull-quote { margin: var(--uds-space-2xl) 0; font-size: var(--uds-size-h2); max-width: none; }
 .doc-prose .uds-table { margin: var(--uds-space-xl) 0; }
 .doc-prose .uds-muted { color: var(--uds-color-text-subtle); font-family: var(--uds-font-mono); font-size: var(--uds-size-small); }
+
+/* --- print / PDF (ADR-006 · scripts/studio/uds_pdf.py) ------------------- */
+/* Rules proven on the cowork PDF run (learnings/2026/uds-pdf-bake-ins.md). The
+   running header/footer is drawn by Chromium's native displayHeaderFooter margin
+   box (uds_pdf.py), NOT by the DOM — a fixed/sticky header overlaps continuation
+   pages — so the on-page pill is hidden here. Page size + margins are owned by
+   uds_pdf.py; this block governs flow, page breaks and keeping blocks whole. */
+@media print {
+  .doc { background: #fff; }
+  .doc-header { display: none; }                          /* native margin-box draws the running header */
+  .doc-main { max-width: none; margin: 0; padding: 0; }   /* Chromium page margins frame the body */
+
+  /* cover + section covers start their own page; vw-clamped display type does not
+     map to paper, so the cover headings are pinned to pt (type_px_to_pt, uds.yml) */
+  .doc-cover { break-after: page; }
+  .doc-cover::before { display: none; }                   /* the masked grid rasterises poorly in print */
+  .doc-cover-title { font-size: 60pt; }
+  .doc-cover-standfirst { font-size: 15pt; }
+  .doc-contents { break-after: page; }
+  .doc-section-cover { break-before: page; break-inside: avoid; }
+  .doc-section-cover h2 { font-size: 32pt; }
+
+  /* flat render_body path opens with .uds-hero (not .doc-cover) — give it the page */
+  .uds-detail > .uds-hero { break-after: page; }
+
+  /* break per topic, flow within — keep atomic blocks whole (never split one) */
+  .doc-topic { break-inside: auto; }
+  .doc-topic > h2, .doc-prose h3, .doc-prose h4 { break-after: avoid; }
+  .uds-card, .uds-stat, .uds-callout, .uds-banner, .uds-pull-quote,
+  .uds-flow__step, figure.uds-chart, .uds-swimlane { break-inside: avoid; }
+
+  /* tables paginate with the header repeated — never truncate (proposal profile) */
+  table.uds-table thead { display: table-header-group; }
+  table.uds-table tr, table.uds-table caption { break-inside: avoid; }
+
+  /* third-party logos in a flex row stretch under the default align-items:stretch */
+  .uds-banner img, .uds-card img, .uds-logo, img[class*="logo"] {
+    width: auto; height: auto; align-self: flex-start; }
+
+  /* wide elements must never bleed past the column — it collapses Chromium pagination */
+  .uds-swimlane, figure.uds-chart, .uds-table {
+    max-width: 100%; transform: none; margin-left: 0; margin-right: 0; }
+
+  a { color: inherit; }                                   /* no link-blue in a printed document */
+}
