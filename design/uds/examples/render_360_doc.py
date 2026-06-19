@@ -33,6 +33,36 @@ VIZ_SVG = {
     "pillars": ["pillars.svg"],
     "model": ["model.svg"],
 }
+DIST = DOCKET.parent / "dist" / "360-proposition.html"   # the canonical render — has every chart inline
+
+
+def extract_dist_charts(drive, skip_topics):
+    """Screenshot every chart/diagram in the canonical dist render that isn't already covered by a
+    standalone viz SVG, mapped to its topic id (so the landscape hype-cycle + name-scoring chart get in)."""
+    out = {}
+    if not DIST.exists():
+        return out
+    from playwright.sync_api import sync_playwright
+    with sync_playwright() as pw:
+        b = pw.chromium.launch()
+        pg = b.new_page(viewport={"width": 1280, "height": 900}, device_scale_factor=2)
+        pg.goto(f"file://{DIST}", wait_until="networkidle")
+        for i, el in enumerate(pg.query_selector_all("svg")):
+            box = el.bounding_box()
+            if not box or box["width"] < 220 or box["height"] < 110:        # skip icons / marks
+                continue
+            tid = el.evaluate("e => { const n = e.closest('[id]'); return n ? n.id : '' }")
+            if not tid or tid in skip_topics:                                # already have a figure for this topic
+                continue
+            try:
+                png = el.screenshot(omit_background=True)
+            except Exception:  # noqa: BLE001
+                continue
+            _fid, url = gslide.upload_drive_image(drive, png, f"360doc-chart-{i}.png")
+            out.setdefault(tid, []).append(url)
+            print(f"  captured chart for '{tid}' from dist")
+        b.close()
+    return out
 
 
 def esc(s):
@@ -76,20 +106,22 @@ def table_html(rows):
     return f"<table>{head}{body}</table>"
 
 
-CSS = """body{font-family:'Roboto',sans-serif;font-weight:300;font-size:10pt;color:#15181E;line-height:1.45;}
-h1{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:22pt;margin:26pt 0 6pt;}
+CSS = """body{font-family:'Roboto',sans-serif;font-weight:300;font-size:10pt;color:#15181E;line-height:1.5;}
+h1{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:22pt;margin:32pt 0 10pt;page-break-after:avoid;}
 h1.doctitle{font-size:34pt;margin-top:0;}
-h2{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:16pt;margin:18pt 0 4pt;}
-h3{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:12pt;margin:10pt 0 2pt;}
-p{margin:6pt 0;}
-li{margin:3pt 0;}
-blockquote{font-family:'IBM Plex Serif',serif;font-style:italic;font-size:13pt;margin:12pt 0;color:#2C333D;}
-.pullquote{font-family:'IBM Plex Serif',serif;font-size:12pt;}
-.callout{border-left:3px solid #3B4FE0;padding-left:10pt;}
-.cap{font-size:8.5pt;color:#5B6470;margin-top:8pt;}
-table{border-collapse:collapse;font-size:9pt;margin:8pt 0;width:100%;}
-th,td{border:1px solid #DCE0E6;padding:4pt 6pt;text-align:left;vertical-align:top;}
+h2{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:16pt;margin:24pt 0 8pt;page-break-after:avoid;}
+h3{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:12pt;margin:16pt 0 6pt;page-break-after:avoid;}
+p{margin:0 0 11pt;orphans:2;widows:2;}
+li{margin:0 0 8pt;}
+ul{margin:6pt 0 14pt;}
+blockquote{font-family:'IBM Plex Serif',serif;font-style:italic;font-size:13pt;margin:16pt 0;color:#2C333D;page-break-inside:avoid;}
+.pullquote{font-family:'IBM Plex Serif',serif;font-size:12pt;margin:0 0 11pt;}
+.callout{border-left:3px solid #3B4FE0;padding-left:12pt;margin:14pt 0;page-break-inside:avoid;}
+.cap{font-size:8.5pt;color:#5B6470;margin:12pt 0 2pt;}
+table{border-collapse:collapse;font-size:9pt;margin:10pt 0 18pt;width:100%;page-break-inside:avoid;}
+th,td{border:1px solid #DCE0E6;padding:5pt 7pt;text-align:left;vertical-align:top;}
 th{font-weight:600;background:#F1F1F4;}
+figure{margin:14pt 0;page-break-inside:avoid;}
 img{max-width:100%;}"""
 
 
@@ -98,18 +130,19 @@ def main():
     manifest = yaml.safe_load(MANI.read_text(encoding="utf-8"))
     content_dir = MANI.parent.parent
 
-    img_url, fids = {}, []                            # rasterise + upload each diagram once
-    for svgs in VIZ_SVG.values():
+    charts, seen = {}, {}                             # topic id → [image urls]; the 7 standalone figures…
+    for tid, svgs in VIZ_SVG.items():
         for svg in svgs:
-            if svg in img_url:
-                continue
             p = DOCKET / "content" / "viz" / svg
             if not p.exists():
                 continue
-            png, _aspect = gslide.rasterize_svg(p)
-            fid, url = gslide.upload_drive_image(drive, png, f"360doc-{svg}.png")
-            img_url[svg], _ = url, fids.append(fid)
-            print(f"  rasterised {svg}")
+            if svg not in seen:
+                png, _a = gslide.rasterize_svg(p)
+                _fid, seen[svg] = gslide.upload_drive_image(drive, png, f"360doc-{svg}.png")
+                print(f"  rasterised {svg}")
+            charts.setdefault(tid, []).append(seen[svg])
+    for tid, urls in extract_dist_charts(drive, set(VIZ_SVG)).items():   # …plus every other chart from the dist render
+        charts.setdefault(tid, []).extend(urls)
 
     body = ['<h1 class="doctitle">360° — A Partnership Proposition</h1>',
             '<p>A partnership proposition — Context Operating Systems for established businesses.</p>']
@@ -132,9 +165,8 @@ def main():
             if rows:
                 cap = tbl.get("caption", "")
                 body.append((f'<p class="cap">{esc(cap)}</p>' if cap else "") + table_html(rows))
-        for svg in VIZ_SVG.get(tid, []):
-            if svg in img_url:
-                body.append(f'<p><img src="{img_url[svg]}" width="640"></p>')
+        for url in charts.get(tid, []):
+            body.append(f'<figure><img src="{url}" width="640"></figure>')
     if embeds:
         body.append("<h2>Related documents</h2><ul>" + "".join(f"<li>{esc(l)} — docket: {esc(i)}</li>" for i, l in embeds) + "</ul>")
 
@@ -145,7 +177,6 @@ def main():
         body={"name": "360 — A Partnership Proposition", "mimeType": "application/vnd.google-apps.document"},
         media_body=media, fields="id,webViewLink").execute()
     print("DOC:", f.get("webViewLink"))
-    print("(temp figure images left in Drive so the Doc keeps them; ids:", " ".join(fids), ")")
 
 
 if __name__ == "__main__":
