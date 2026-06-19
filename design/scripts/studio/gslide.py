@@ -418,10 +418,11 @@ def _text_box(slide_id: str, box_id: str, x: int, y: int, w: int, h: int) -> dic
 
 
 def _style(box_id: str, *, font: str, size: int, color: dict, bold: bool = False,
-           align: str | None = None, weight: int | None = None) -> list[dict]:
+           align: str | None = None, weight: int | None = None,
+           line_spacing: float | None = None, space_after: float | None = None) -> list[dict]:
     style: dict = {"fontSize": {"magnitude": size, "unit": "PT"},
                    "foregroundColor": {"opaqueColor": {"rgbColor": color}}}
-    if weight:  # a true weighted face (e.g. Poppins SemiBold 600) — "never bold"; beats the bold boolean
+    if weight:  # a true weighted face (e.g. Roboto Light 300) — "never bold"; beats the bold boolean
         style["weightedFontFamily"] = {"fontFamily": font, "weight": weight}
         fields = "fontSize,foregroundColor,weightedFontFamily"
     else:
@@ -429,9 +430,17 @@ def _style(box_id: str, *, font: str, size: int, color: dict, bold: bool = False
         fields = "fontFamily,fontSize,foregroundColor,bold"
     reqs = [{"updateTextStyle": {"objectId": box_id, "textRange": {"type": "ALL"},
              "style": style, "fields": fields}}]
+    pstyle: dict = {}
+    pfields: list[str] = []
     if align:
+        pstyle["alignment"] = align; pfields.append("alignment")
+    if line_spacing:
+        pstyle["lineSpacing"] = line_spacing; pfields.append("lineSpacing")  # percent (115 = 1.15)
+    if space_after:
+        pstyle["spaceBelow"] = {"magnitude": space_after, "unit": "PT"}; pfields.append("spaceBelow")
+    if pstyle:
         reqs.append({"updateParagraphStyle": {"objectId": box_id, "textRange": {"type": "ALL"},
-                     "style": {"alignment": align}, "fields": "alignment"}})
+                     "style": pstyle, "fields": ",".join(pfields)}})
     return reqs
 
 
@@ -832,10 +841,20 @@ def _hype_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> 
 
 
 def _image_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
-    """A native figure card for a bespoke graphic — FIGURE eyebrow + accent edge + caption
-    in a framed box. The full SVG lives in the high-fidelity doc; the deck references it."""
+    """A bespoke graphic. With a rasterised ``url`` → a real native image fit to the box; else a
+    FIGURE card (accent edge + caption) referencing the SVG that lives in the high-fidelity doc."""
     if node.is_empty:
         return []
+    if node.url:                              # rasterised figure → native image, proportional + centred
+        a = node.aspect or 2.0
+        iw, ih = w, w / a
+        if ih > h:
+            ih, iw = h, h * a
+        ix, iy = x + (w - iw) // 2, y + (h - ih) // 2
+        return [{"createImage": {"objectId": f"{slide_id}_img", "url": node.url,
+                 "elementProperties": {"pageObjectId": slide_id,
+                     "size": {"width": {"magnitude": int(iw), "unit": "EMU"}, "height": {"magnitude": int(ih), "unit": "EMU"}},
+                     "transform": {"scaleX": 1, "scaleY": 1, "translateX": int(ix), "translateY": int(iy), "unit": "EMU"}}}}]
     bh = min(h, 2_800_000)
     out = _shape(slide_id, f"{slide_id}_fig", "ROUND_RECTANGLE", x, y, w, bh, p["paper"])
     out += _shape(slide_id, f"{slide_id}_fige2", "RECTANGLE", x, y, 46_000, bh, p["primary"])
@@ -863,9 +882,11 @@ def _md_bold_spans(s: str) -> tuple[str, list[tuple[int, int]]]:
 
 
 def _rich_text_box(sid: str, box_id: str, lines: list[str], x: int, y: int, w: int, h: int,
-                   *, font: str, size: float, color: str, acc: str, serif: str) -> list[dict]:
+                   *, font: str, size: float, color: str, acc: str, serif: str,
+                   weight: int | None = None, line_spacing: float | None = None, space_after: float | None = None) -> list[dict]:
     """A reading column with structure: ``§`` → serif subhead, ``• `` → native bullet,
-    ``**lead**`` → bold run. One text box; styling applied by char range so prose wraps."""
+    ``**lead**`` → bold run. One text box; styling applied by char range so prose wraps.
+    ``weight`` sets a true face (e.g. Roboto Light 300); ``line_spacing``/``space_after`` set the reading rhythm."""
     paras = []  # (clean, kind, bold_spans)
     for ln in lines:
         if ln.startswith("§ "):
@@ -877,12 +898,22 @@ def _rich_text_box(sid: str, box_id: str, lines: list[str], x: int, y: int, w: i
     text = "\n".join(p[0] for p in paras)
     if not text:
         return []
+    if weight:
+        base_style = {"weightedFontFamily": {"fontFamily": font, "weight": weight},
+                      "fontSize": {"magnitude": size, "unit": "PT"}, "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(color)}}}
+        base_fields = "weightedFontFamily,fontSize,foregroundColor"
+    else:
+        base_style = {"fontFamily": font, "fontSize": {"magnitude": size, "unit": "PT"},
+                      "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(color)}}, "bold": False}
+        base_fields = "fontFamily,fontSize,foregroundColor,bold"
     reqs: list[dict] = [_text_box(sid, box_id, x, y, w, h),
                         {"insertText": {"objectId": box_id, "text": text, "insertionIndex": 0}},
-                        {"updateTextStyle": {"objectId": box_id, "textRange": {"type": "ALL"},
-                         "style": {"fontFamily": font, "fontSize": {"magnitude": size, "unit": "PT"},
-                                   "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(color)}}, "bold": False},
-                         "fields": "fontFamily,fontSize,foregroundColor,bold"}}]
+                        {"updateTextStyle": {"objectId": box_id, "textRange": {"type": "ALL"}, "style": base_style, "fields": base_fields}}]
+    if line_spacing or space_after:
+        ps: dict = {}; pf: list[str] = []
+        if line_spacing: ps["lineSpacing"] = line_spacing; pf.append("lineSpacing")
+        if space_after: ps["spaceBelow"] = {"magnitude": space_after, "unit": "PT"}; pf.append("spaceBelow")
+        reqs.append({"updateParagraphStyle": {"objectId": box_id, "textRange": {"type": "ALL"}, "style": ps, "fields": ",".join(pf)}})
 
     def _rng(a: int, b: int, style: dict, fields: str) -> None:
         reqs.append({"updateTextStyle": {"objectId": box_id,
@@ -961,27 +992,39 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
     reqs: list[dict] = []
     cx, cw = MARGIN, PAGE_W - 2 * MARGIN
 
-    def add_text(slide_id: str, n: int, text: str, y: int, h: int, *, font, size, color, bold=False, align=None, weight=None, x=None, w=None) -> None:
+    def add_text(slide_id: str, n: int, text: str, y: int, h: int, *, font, size, color, bold=False, align=None, weight=None, x=None, w=None, line_spacing=None, space_after=None) -> None:
         box = f"{slide_id}_t{n}"
         reqs.append(_text_box(slide_id, box, cx if x is None else x, y, cw if w is None else w, h))
         reqs.append({"insertText": {"objectId": box, "text": text, "insertionIndex": 0}})
-        reqs.extend(_style(box, font=font, size=size, color=color, bold=bold, align=align, weight=weight))
+        reqs.extend(_style(box, font=font, size=size, color=color, bold=bold, align=align, weight=weight, line_spacing=line_spacing, space_after=space_after))
 
     R = uds_mod.render_contract(brand, "slide", profile=prof)   # role → resolved {family,size,weight,transform,align,colour}
     _AL = {"center": "CENTER", "right": "END", "justify": "JUSTIFIED"}  # left == default → no paragraph request
     bodysize = float((R.get("body") or {}).get("size", 11))     # reading size for rich body columns
     BASEY = {"table": 1_550_000, "diagram": 1_950_000, "chart": 1_950_000}  # data-heavy slides → tighter header
+    # Format typography (proposal longform): Roboto Light reading body, IBM Plex Serif Bold titles, 1.15 line + space-after.
+    typo = prof.get("typography", {}) or {}
+    body_family, body_weight = typo.get("body_family"), typo.get("body_weight")
+    title_family, title_weight = typo.get("title_family"), typo.get("title_weight")
+    line_sp = round(float(typo["line_height"]) * 100) if typo.get("line_height") else None
+    space_aft = typo.get("space_after_pt")
+    _TITLE_ROLES = {"cover-title", "section-title", "topic-title", "quote"}
 
     def add_role(slide_id: str, n: int, text: str, y: int, h: int, role: str, *, colour=None, align=None, x=None, w=None) -> None:
         st = R.get(role) or {}
         s = text.upper() if st.get("transform") == "upper" else text
         fam = (st.get("family") or "Inter").split(",")[0].strip()
+        wt = st.get("weight")
+        if role in _TITLE_ROLES and title_family:       # format titles → IBM Plex Serif Bold
+            fam, wt = title_family, (title_weight or wt)
+        elif role == "body" and body_family:            # format reading body → Roboto Light
+            fam, wt = body_family, (body_weight or wt)
         if "geist" in fam.lower():            # Google Workspace has no Geist Mono → the UDS fallback
             fam = _GSLIDE_MONO
-        wt = st.get("weight")
         add_text(slide_id, n, s, y, h, font=fam, size=round(st.get("size", 12)),
                  color=_rgb(colour or st.get("colour", "#1C2022")),
-                 align=align or _AL.get(st.get("align")), bold=(wt is None), weight=wt, x=x, w=w)
+                 align=align or _AL.get(st.get("align")), bold=(wt is None), weight=wt, x=x, w=w,
+                 line_spacing=(line_sp if role == "body" else None), space_after=(space_aft if role == "body" else None))
 
     def _lead_band(sid: str, lead, base_y: int, *, colour=None) -> int:
         """Grouped supporting prose (two columns) above a table/diagram; returns the y to start the data at."""
@@ -1042,7 +1085,7 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             if s.get("heading"):
                 add_role(sid, 0, s["heading"], box_y + pad, 380_000, "eyebrow", colour=acc, x=tx, w=tw)
             add_role(sid, 1, s.get("body", ""), box_y + pad + 480_000, box_h - pad - 700_000, "body", colour=txt, x=tx, w=tw)
-        elif kind in ("table", "diagram", "cards", "panel", "flow", "chart", "stat-panel", "bullseye", "hype-cycle", "image"):
+        elif kind in ("table", "diagram", "cards", "panel", "flow", "chart", "stat-panel", "bullseye", "hype-cycle"):
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow", colour=acc)
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title", colour=txt)
             y0 = _lead_band(sid, s.get("lead"), BASEY.get(kind, 1_650_000), colour=txt)
@@ -1063,10 +1106,16 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
                 reqs += _stat_reqs(sid, archetype_ir.normalise_stats(s.get("spec")), MARGIN, y0, cw, avail, pv)
             elif kind == "bullseye":
                 reqs += _bullseye_reqs(sid, archetype_ir.normalise_bullseye(s.get("spec")), MARGIN, y0, cw, avail, pv)
-            elif kind == "hype-cycle":
+            else:  # hype-cycle
                 reqs += _hype_reqs(sid, archetype_ir.normalise_hype(s.get("spec")), MARGIN, y0, cw, avail, pv)
-            else:  # image
-                reqs += _image_reqs(sid, archetype_ir.normalise_image(s.get("spec")), MARGIN, y0, cw, avail, pv)
+        elif kind == "image":              # bespoke figure: a rasterised image is full-bleed (it carries its own header); else a figure card with chrome
+            node = archetype_ir.normalise_image(s.get("spec"))
+            if node.url:
+                reqs += _image_reqs(sid, node, MARGIN, 560_000, cw, PAGE_H - 560_000 - MARGIN, pv)
+            else:
+                add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow", colour=acc)
+                add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title", colour=txt)
+                reqs += _image_reqs(sid, node, MARGIN, 1_650_000, cw, PAGE_H - 1_650_000 - MARGIN, pv)
         elif kind == "pullquote":          # native pull-quote
             add_role(sid, 0, s.get("eyebrow", ""), 700_000, 320_000, "eyebrow", colour=acc)
             reqs += _pullquote_reqs(sid, archetype_ir.normalise_pullquote(s.get("spec")), MARGIN, 1_300_000, cw, 2_800_000, pv)
@@ -1083,13 +1132,13 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
                     colw = (cw - gutter) // 2
                     mid = (len(body) + 1) // 2
                     reqs += _rich_text_box(sid, f"{sid}_b0", body[:mid], MARGIN, by, colw, bh,
-                                           font=p["body"], size=bodysize, color=txt, acc=acc, serif=p["display"])
+                                           font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft)
                     if body[mid:]:
                         reqs += _rich_text_box(sid, f"{sid}_b1", body[mid:], MARGIN + colw + gutter, by, colw, bh,
-                                               font=p["body"], size=bodysize, color=txt, acc=acc, serif=p["display"])
+                                               font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft)
                 else:
                     reqs += _rich_text_box(sid, f"{sid}_b0", body, MARGIN, by, cw, bh,
-                                           font=p["body"], size=bodysize, color=txt, acc=acc, serif=p["display"])
+                                           font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft)
     return title, reqs
 
 
@@ -1156,6 +1205,37 @@ def _services(creds_file: str, impersonate: str | None = None):
     from googleapiclient.discovery import build
     creds = _load_creds(creds_file, impersonate)
     return build("drive", "v3", credentials=creds), build("slides", "v1", credentials=creds)
+
+
+def rasterize_svg(svg_path, *, scale: int = 2) -> tuple[bytes, float]:
+    """Render an SVG file → (PNG bytes, aspect=w/h) via headless Chromium (playwright).
+    Used to turn the docket's bespoke figures into real images for the Slides deck."""
+    from playwright.sync_api import sync_playwright
+    svg = Path(svg_path).read_text(encoding="utf-8")
+    with sync_playwright() as pw:
+        b = pw.chromium.launch()
+        pg = b.new_page(device_scale_factor=scale)
+        pg.set_content(f'<!doctype html><html><body style="margin:0;background:transparent">{svg}</body></html>', wait_until="networkidle")
+        el = pg.query_selector("svg")
+        box = el.bounding_box() if el else None
+        png = el.screenshot(omit_background=True) if el else pg.screenshot()
+        b.close()
+    aspect = (box["width"] / box["height"]) if box and box.get("height") else 2.0
+    return png, aspect
+
+
+def upload_drive_image(drive, data: bytes, name: str, *, folder_id: str | None = None) -> tuple[str, str]:
+    """Upload PNG bytes to Drive, make it link-readable, return (file_id, fetchable url for createImage)."""
+    import io
+    from googleapiclient.http import MediaIoBaseUpload
+    meta = {"name": name, "mimeType": "image/png"}
+    if folder_id:
+        meta["parents"] = [folder_id]
+    media = MediaIoBaseUpload(io.BytesIO(data), mimetype="image/png", resumable=False)
+    f = drive.files().create(body=meta, media_body=media, fields="id").execute()
+    fid = f["id"]
+    drive.permissions().create(fileId=fid, body={"role": "reader", "type": "anyone"}).execute()
+    return fid, f"https://lh3.googleusercontent.com/d/{fid}"
 
 
 def authorize(client_secret_file: str, token_out: str, *, redirect_uri: str | None = None) -> str:

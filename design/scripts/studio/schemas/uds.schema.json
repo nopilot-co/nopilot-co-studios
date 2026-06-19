@@ -75,7 +75,20 @@
           "table_size": { "type": "number", "exclusiveMinimum": 0, "description": "Table cell pt for this profile." },
           "table_rows": { "type": "integer", "minimum": 1, "description": "Body rows per table slide; longer tables paginate (header repeats) rather than overflow." },
           "group_lead": { "type": "integer", "minimum": 0, "description": "Paragraphs of supporting prose that group onto a table/diagram slide (instead of a separate slide)." },
-          "sizes": { "type": "object", "additionalProperties": { "type": "number", "exclusiveMinimum": 0 }, "description": "Absolute pt per render role; overrides the aspect type_scale." }
+          "sizes": { "type": "object", "additionalProperties": { "type": "number", "exclusiveMinimum": 0 }, "description": "Absolute pt per render role; overrides the aspect type_scale." },
+          "typography": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Format-level typographic contract: overrides brand font families/weights + line/paragraph rhythm for this profile (the longform reading style).",
+            "properties": {
+              "body_family": { "type": "string", "description": "Reading body font family (e.g. Roboto)." },
+              "body_weight": { "type": "integer", "description": "Body weight (e.g. 300 = Light)." },
+              "title_family": { "type": "string", "description": "Title font family (e.g. IBM Plex Serif)." },
+              "title_weight": { "type": "integer", "description": "Title weight (e.g. 700 = Bold)." },
+              "line_height": { "type": "number", "exclusiveMinimum": 0, "description": "Body line-spacing multiple (e.g. 1.15)." },
+              "space_after_pt": { "type": "number", "minimum": 0, "description": "Space after paragraphs/bullets, in pt." }
+            }
+          }
         }
       }
     },

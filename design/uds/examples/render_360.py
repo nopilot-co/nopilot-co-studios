@@ -76,22 +76,70 @@ swimlane_spec = {"months": ["Now", "Sep 2026", "Jan 2027", "Apr 2027"], "lanes":
     {"name": "Tech / BOS", "stages": ["BOS prototype", "BOS in live use", "BOS as the platform"]},
     {"name": "Fin-ops / legal", "stages": ["Entity contracts and banking", "Billing and cash discipline", "Forecasting and reporting"]}],
     "milestones": [{"at": "Apr 2027", "label": "A business that runs"}]}
-img = lambda src, cap: {"src": src, "caption": cap}
-
-VIZ = {
-    "commercials": {"kind": "chart", "spec": chart_spec, "title": chart_spec["title"]},
-    "landscape": {"kind": "hype-cycle", "spec": hype_spec, "title": hype_spec["title"]},
-    "tech": {"kind": "bullseye", "spec": bullseye_spec, "title": "The dartboard"},
-    "structure": [{"kind": "diagram", "spec": swimlane_spec, "title": "A first business that runs"},
-                  {"kind": "image", "spec": img("viz/lean-core.svg", "Operating structure - a small fixed core that carries none of the weight (0 employees, 0 offices, 0 assets, 0 creditors).")}],
-    "pillars": {"kind": "image", "spec": img("viz/pillars.svg", "Four pillars - adoption starts with understanding, lasts with structure, and turns into a business by selling through the work.")},
-    "model": {"kind": "image", "spec": img("viz/model.svg", "The shape of the business - a lean core that grows sideways through partners, not payroll.")},
-    "gtm": {"kind": "image", "spec": img("viz/economics.svg", "Founder economics - from a job you own (1:1 draw) to a margin engine that pays you.")},
+# Bespoke figures: topic id → (svg filename, slide title, caption). Rasterised to real images
+# at push time (playwright → Drive); offline they degrade to a figure card. The "dartboard" is
+# the real designed figure (replacing the native bullseye approximation).
+FIGS = {
+    "tech": ("dartboard.svg", "The dartboard", "Where the work lands - the platform business operating system at the centre."),
+    "pillars": ("pillars.svg", "Four pillars", "Adoption starts with understanding, lasts with structure, and turns into a business by selling through the work."),
+    "model": ("model.svg", "The shape of the business", "A lean core that grows sideways through partners, not payroll."),
+    "gtm": ("economics.svg", "Founder economics", "From a job you own (1:1 draw) to a margin engine that pays you."),
+    "structure": ("lean-core.svg", "Built to be light", "A small fixed core that carries none of the weight - 0 employees, 0 offices, 0 assets, 0 creditors."),
 }
 
+
+def _img(svg, cap, urls):
+    spec = {"src": f"viz/{svg}", "caption": cap}
+    if svg in urls:
+        spec["url"], spec["aspect"] = urls[svg]
+    return spec
+
+
+def build_viz(urls=None):
+    urls = urls or {}
+
+    def im(topic):
+        svg, ttl, cap = FIGS[topic]
+        return {"kind": "image", "spec": _img(svg, cap, urls), "title": ttl}
+
+    return {
+        "commercials": {"kind": "chart", "spec": chart_spec, "title": chart_spec["title"]},
+        "landscape": {"kind": "hype-cycle", "spec": hype_spec, "title": hype_spec["title"]},
+        "tech": im("tech"),
+        "structure": [{"kind": "diagram", "spec": swimlane_spec, "title": "A first business that runs"}, im("structure")],
+        "pillars": im("pillars"),
+        "model": im("model"),
+        "gtm": im("gtm"),
+    }
+
+
 if __name__ == "__main__":
-    title, reqs = gslide.build_requests(MANI, brand="360", profile="proposal", viz=VIZ)
+    push = "--push" in sys.argv
+    urls, drive, fids = {}, None, []
+    if push:
+        token = os.environ["NPT_GSLIDE_OAUTH_TOKEN"]
+        drive, _slides = gslide._services(token)
+        for svg in sorted({v[0] for v in FIGS.values()}):                  # rasterise + upload each figure
+            png, aspect = gslide.rasterize_svg(DOCKET / "content" / "viz" / svg)
+            fid, url = gslide.upload_drive_image(drive, png, f"360fig-{svg}.png")
+            urls[svg] = (url, round(aspect, 3)); fids.append(fid)
+            print(f"  rasterised + uploaded {svg} (aspect {aspect:.2f})")
+
+    # committed artifact = the offline structural payload (caption cards, no ephemeral URLs)
+    title, reqs = gslide.build_requests(MANI, brand="360", profile="proposal", viz=build_viz())
     pl = {"title": title, "slides": sum(1 for r in reqs if "createSlide" in r),
           "requests": [r for r in reqs if "_studio_image" not in r]}
     OUT.write_text(json.dumps(pl, indent=2), encoding="utf-8")
-    print(f"hype points: {len(points)} | gslide: {pl['slides']} slides, {len(pl['requests'])} requests → {OUT.relative_to(REPO)}")
+    print(f"gslide: {pl['slides']} slides, {len(pl['requests'])} requests → {OUT.relative_to(REPO)}")
+
+    if push:
+        pid = os.environ.get("PID", "1r8JMKYJTlnoNx8AaxDwfkoe2HQGUQpErx4u8keD-i6s")
+        ftitle, freqs = gslide.build_requests(MANI, brand="360", profile="proposal", viz=build_viz(urls))  # with real figures
+        u = gslide.execute(None, brand="360", creds_file=os.environ["NPT_GSLIDE_OAUTH_TOKEN"], presentation_id=pid, prebuilt=(ftitle, freqs))
+        print("pushed:", u)
+        for fid in fids:                                                    # figures already copied into the deck → remove temp uploads
+            try:
+                drive.files().delete(fileId=fid).execute()
+            except Exception:  # noqa: BLE001
+                pass
+        print(f"cleaned up {len(fids)} temp figure files")

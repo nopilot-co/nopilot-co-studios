@@ -522,16 +522,19 @@ class ImageNode:
     src: str = ""
     caption: str = ""
     alt: str = ""
+    url: str = ""          # a fetchable raster URL (rasterised SVG) → a real native image; else a figure card
+    aspect: float = 0.0    # source width/height, for proportional placement
 
     @property
     def is_empty(self) -> bool:
-        return not (self.src or self.caption)
+        return not (self.src or self.caption or self.url)
 
 
 def normalise_image(spec: Any) -> ImageNode:
-    """A figure: an image/SVG `src` (+ caption/alt). HTML inlines it; gslide shows a native
-    figure card (the full graphic lives in the high-fidelity doc)."""
+    """A figure: an image/SVG `src` (+ caption/alt). HTML inlines it; gslide shows the rasterised
+    image when a `url` is supplied, else a native figure card (the full graphic lives in the doc)."""
     s = _as_spec(spec)
     if isinstance(s, dict):
-        return ImageNode(str(s.get("src", "") or s.get("path", "")), str(s.get("caption", "")), str(s.get("alt", "") or s.get("title", "")))
+        return ImageNode(str(s.get("src", "") or s.get("path", "")), str(s.get("caption", "")),
+                         str(s.get("alt", "") or s.get("title", "")), str(s.get("url", "")), float(s.get("aspect", 0) or 0))
     return ImageNode(str(spec or "").strip())
