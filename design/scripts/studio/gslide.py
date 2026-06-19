@@ -89,18 +89,41 @@ def _clean(text: str) -> str:
 
 
 def _topic_body(content_dir: Path, topic: dict[str, Any]) -> tuple[list[str], str]:
-    """A topic's body as slide lines + the first pull-quote (if any)."""
+    """A topic's body as marked slide lines (``§`` subhead · ``•`` bullet · ``❝`` hero quote ·
+    ``‼`` callout · ``❞`` pull-quote). Pull-quotes are authored one statement per raw line under a
+    ``Pullquotes`` heading (markdown would merge them into one paragraph), so pull them out by line."""
     try:
         md = uds_html._read_ref(content_dir, topic["section_md"])
     except OSError:
         return [], ""
+    pulls: list[str] = []                                        # extract the Pullquotes block, raw, line by line
+    keep: list[str] = []
+    in_pq = False
+    for ln in md.splitlines():
+        s = ln.strip()
+        if re.match(r"^#{2,4}\s+Pullquotes\s*$", s):
+            in_pq = True; keep.append(ln); continue
+        if in_pq:
+            if re.match(r"^#{1,4}\s", s):
+                in_pq = False; keep.append(ln)
+            elif not s:
+                continue
+            elif " -- " in s or len(s) <= 130:                   # a punchy pull-quote line
+                pulls.append(s)
+            else:
+                keep.append(ln)                                  # a long closing paragraph stays in the flow
+        else:
+            keep.append(ln)
+    md = "\n".join(keep)
     lines: list[str] = []
-    quote = ""
     for b in uds_html._blocks(md):
         if b[0] == "h" and b[1] == 1:
             continue
         if b[0] == "h":
-            lines.append("§ " + _clean(b[2]).replace("Detail: ", ""))
+            htext = _clean(b[2]).replace("Detail: ", "")
+            lines.append("§ " + htext)
+            if htext.lower() == "pullquotes":                    # emit the pulled-out statements after the heading
+                lines += ["❞ " + pq for pq in pulls]
         elif b[0] == "p":
             lines.append(_clean(b[1]))
         elif b[0] == "list":
@@ -397,6 +420,11 @@ def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide:
         lines, _q = _topic_body(content_dir, t)                  # a content topic (hero quotes inline)
         deck.append({"kind": "content", "tone": tone, "eyebrow": eyebrow, "title": title,
                      "sections": _split_sections(lines)})        # build_requests flows sections into columns by measured height
+        for tbl in (t.get("tables") or []):                      # the manifest's data tables (pricing ladder, financials, scoring)
+            rows = _csv_table(content_dir, tbl)
+            if rows:
+                deck.append({"kind": "table", "tone": tone, "eyebrow": eyebrow,
+                             "title": _clean(tbl.get("caption", "")) or title, "rows": rows, "lead": []})
         if tid in viz:                                           # native viz for this topic (chart/bullseye/swimlane/hype/image; one or many)
             blocks = viz[tid] if isinstance(viz[tid], list) else [viz[tid]]
             for v in blocks:
@@ -689,11 +717,11 @@ def _chart_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) ->
             bh = max(int(maxbar * val / mx), 20_000)
             bx, by = gx + si * (bar_w + bar_gap), base_y - bh
             out += _shape(slide_id, f"{slide_id}_bar{ci}_{si}", "ROUND_RECTANGLE", bx, by, bar_w, bh, ramp[(si if nser > 1 else ci) % len(ramp)])
-            if nser == 1:                  # value labels only when a group has one bar (uncluttered)
-                disp = s.displays[ci] if ci < len(s.displays) else str(val)
-                out.append(_text_box(slide_id, f"{slide_id}_bv{ci}", bx, by - 300_000, bar_w, 280_000))
-                out.append({"insertText": {"objectId": f"{slide_id}_bv{ci}", "text": str(disp), "insertionIndex": 0}})
-                out += _style(f"{slide_id}_bv{ci}", font=p["body"], size=9, color=_rgb(p["ink"]), align="CENTER", weight=600)
+            disp = s.displays[ci] if ci < len(s.displays) else str(int(val) if float(val).is_integer() else val)
+            lw = bar_w + (160_000 if nser > 1 else 0)          # value label on EVERY bar — the numbers must be readable
+            out.append(_text_box(slide_id, f"{slide_id}_bv{ci}_{si}", bx - (lw - bar_w) // 2, by - 250_000, lw, 230_000))
+            out.append({"insertText": {"objectId": f"{slide_id}_bv{ci}_{si}", "text": str(disp), "insertionIndex": 0}})
+            out += _style(f"{slide_id}_bv{ci}_{si}", font=p["body"], size=(9 if nser == 1 else 7), color=_rgb(p["ink"]), align="CENTER", weight=600)
         cat = cats[ci] if ci < len(cats) else ""
         out.append(_text_box(slide_id, f"{slide_id}_bc{ci}", gx, base_y + 40_000, group_w, 480_000))
         out.append({"insertText": {"objectId": f"{slide_id}_bc{ci}", "text": str(cat), "insertionIndex": 0}})
@@ -900,6 +928,8 @@ def _rich_text_box(sid: str, box_id: str, lines: list[str], x: int, y: int, w: i
             clean, spans = _md_bold_spans(ln[2:]); paras.append((clean, "head", spans))
         elif ln.startswith("❝ "):
             clean, spans = _md_bold_spans(ln[2:]); paras.append((clean, "quote", spans))
+        elif ln.startswith("❞ "):
+            clean, spans = _md_bold_spans(ln[2:].replace(" -- ", " — ")); paras.append((clean, "pullq", spans))
         elif ln.startswith("• "):
             clean, spans = _md_bold_spans(ln[2:]); paras.append((clean, "bullet", spans))
         else:
@@ -942,6 +972,8 @@ def _rich_text_box(sid: str, box_id: str, lines: list[str], x: int, y: int, w: i
             _rng(start, end, {"fontFamily": serif, "fontSize": {"magnitude": (subhead_size or size) + 4.5, "unit": "PT"},
                               "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(color)}}},
                  "fontFamily,fontSize,foregroundColor")
+        elif kind == "pullq" and end > start:      # pull-quote statement → IBM Plex Serif, slightly larger
+            _rng(start, end, {"fontFamily": serif, "fontSize": {"magnitude": size + 3, "unit": "PT"}}, "fontFamily,fontSize")
         if kind == "bullet":
             run = [start, end] if run is None else [run[0], end]
         elif run is not None:
@@ -956,7 +988,30 @@ def _rich_text_box(sid: str, box_id: str, lines: list[str], x: int, y: int, w: i
     return reqs
 
 
+def _csv_table(content_dir: Path, spec: dict, *, max_cols: int = 6) -> list[list[str]]:
+    """Read a docket table CSV → rows for a native slide table, dropping noise columns
+    (modelled / note / source / fee_basis / role_in_path) and prettifying headers."""
+    import csv as _csv
+    p = content_dir / str(spec.get("csv", ""))
+    try:
+        rows = [r for r in _csv.reader(p.open(encoding="utf-8")) if any(c.strip() for c in r)]
+    except OSError:
+        return []
+    if not rows:
+        return []
+    drop = {"modelled", "note", "notes", "source", "confidence", "fee_basis", "role_in_path"}
+    keep = [i for i, h in enumerate(rows[0]) if h.strip().lower() not in drop][:max_cols]
+    pretty = lambda h: h.replace("price_", "").replace("_", " ").strip().title()
+    return [[pretty(rows[0][i]) for i in keep]] + [[(r[i] if i < len(r) else "") for i in keep] for r in rows[1:]]
+
+
 # ----------------------------------------------------------------- content flow (sections → columns)
+def _is_stepped(sections: list[dict]) -> bool:
+    """A numbered-step sequence (``§ 1. …`` / ``§ 2. …``) → render one step per slide."""
+    return sum(1 for s in sections if s.get("type") == "prose" and s["lines"]
+               and re.match(r"§ \d+[.)]\s", s["lines"][0])) >= 3
+
+
 def _split_sections(lines: list[str]) -> list[dict]:
     """Group body lines into whole sections — a ``§`` subhead + its prose/bullets, a ``❝`` hero
     quote, or a ``‼`` insert/callout — so a section is never split across a column boundary."""
@@ -967,6 +1022,13 @@ def _split_sections(lines: list[str]) -> list[dict]:
             if cur:
                 sections.append(cur); cur = None
             sections.append({"type": "quote", "lines": [ln]})
+        elif ln.startswith("❞ "):
+            if cur and cur["type"] == "pullquotes":
+                cur["lines"].append(ln)
+            else:
+                if cur:
+                    sections.append(cur)
+                cur = {"type": "pullquotes", "lines": [ln]}
         elif ln.startswith("‼ "):
             if cur and cur["type"] == "callout":
                 cur["lines"].append(ln)
@@ -1002,7 +1064,11 @@ def _section_h(section: dict, colw: int, body_sz: float, sub_sz: float) -> float
         if ln.startswith("§ "):
             h += _est_lines(ln[2:], sub_sz, colw) * sub_sz * 1.2 + 7
         elif ln.startswith("❝ "):
-            h += _est_lines(ln[2:], body_sz + 4.5, colw) * (body_sz + 4.5) * 1.25 + 9
+            qz = sub_sz + 4.5                                     # must match the render size (subhead+4.5)
+            h += _est_lines(ln[2:], qz, colw) * qz * 1.3 + 12
+        elif ln.startswith("❞ "):
+            pz = body_sz + 3
+            h += _est_lines(ln[2:], pz, colw) * pz * 1.25 + 8
         elif ln.startswith("‼ ") or ln.startswith("• "):
             h += _est_lines(ln[2:], body_sz, colw) * body_sz * 1.15 + 6
         else:
@@ -1146,7 +1212,7 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
 
     # Column-flow: expand each content topic into per-slide (col1, col2) by measured section height,
     # keeping every section whole and reserving a bottom margin so nothing overflows the canvas.
-    CONTENT_TOP, BOTTOM_MARGIN, GUTTER = 1_700_000, 380_000, 360_000
+    CONTENT_TOP, BOTTOM_MARGIN, GUTTER = 1_700_000, 520_000, 360_000
     _colw = (cw - GUTTER) // 2
     _col_h_pt = (PAGE_H - CONTENT_TOP - MARGIN - BOTTOM_MARGIN) / PT
     _sub = subhead_size or 12
@@ -1154,8 +1220,11 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
     for s in deck:
         if s.get("kind") == "content" and "sections" in s:
             _base = {k: s[k] for k in ("kind", "tone", "eyebrow", "title")}
-            for c1, c2 in _flow_sections(s["sections"], _colw, _col_h_pt, bodysize, _sub):
-                _flowed.append({**_base, "col1": c1, "col2": c2})
+            secs = s["sections"]
+            groups = [[sec] for sec in secs] if _is_stepped(secs) else [secs]   # stepped sequence → one step per slide
+            for grp in groups:
+                for c1, c2 in _flow_sections(grp, _colw, _col_h_pt, bodysize, _sub):
+                    _flowed.append({**_base, "col1": c1, "col2": c2})
         else:
             _flowed.append(s)
     deck = _flowed
