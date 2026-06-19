@@ -37,6 +37,8 @@ _GEOM: dict[str, dict[str, Any]] = {
                   "margin": {"top": "0.72in", "bottom": "0.62in", "left": "0.5in", "right": "0.5in"}},
     "portrait":  {"format": "A4", "landscape": False,
                   "margin": {"top": "0.72in", "bottom": "0.62in", "left": "0.6in", "right": "0.6in"}},
+    "16:9":      {"width": "13.333in", "height": "7.5in",   # the standard 16:9 slide canvas
+                  "margin": {"top": "0.5in", "bottom": "0.45in", "left": "0.6in", "right": "0.6in"}},
 }
 
 _INSTALL = ("UDS→PDF needs Playwright's Chromium. Install it with:\n"
@@ -163,33 +165,41 @@ def to_pdf(html: str, out_path: Path, *, orientation: str = "landscape",
             except Exception:
                 pass
             page.emulate_media(media="print")
-            page.pdf(
+            pdf_kwargs: dict[str, Any] = dict(
                 path=str(out_path),
                 print_background=True,
                 display_header_footer=True,
                 header_template=_header_template(logo_uri, wordmark, confidential),
                 footer_template=_footer_template(company),
-                format=geom["format"],
-                landscape=geom["landscape"],
                 margin=geom["margin"],
             )
+            if "width" in geom:                              # explicit page size (e.g. 16:9 slide)
+                pdf_kwargs.update(width=geom["width"], height=geom["height"])
+            else:                                            # named paper + orientation
+                pdf_kwargs.update(format=geom["format"], landscape=geom["landscape"])
+            page.pdf(**pdf_kwargs)
         finally:
             browser.close()
     return out_path
 
 
 def render(source: Path, out_path: Path, *, brand: str = "nopilot",
-           orientation: str = "landscape",
+           orientation: str = "landscape", present: bool = False,
            confidential: str = "Confidential — not for distribution") -> Path:
     """High-level: compose the UDS-HTML for ``source`` and print it to ``out_path``,
-    pulling the running header/footer chrome (logo, wordmark, company) from the brand."""
+    pulling the running header/footer chrome (logo, wordmark, company) from the brand.
+    ``present=True`` renders a 16:9 slide deck — each top-level section on its own
+    page (gated by the ``data-uds-present`` body attribute the print CSS keys on)."""
     try:
         b = brand_mod.load(brand)
     except Exception:
         b = {}
     html, _title = compose_html(Path(source), brand=brand)
+    if present:
+        html = html.replace('<body class="uds-root doc">',
+                            '<body class="uds-root doc" data-uds-present="1">', 1)
     return to_pdf(
-        html, Path(out_path), orientation=orientation,
+        html, Path(out_path), orientation=("16:9" if present else orientation),
         logo_uri=_logo_data_uri(brand), wordmark=_brand_wordmark(b, brand),
         confidential=confidential, company=_brand_company(b),
     )
@@ -203,10 +213,13 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--out", required=True)
     ap.add_argument("--brand", default="nopilot")
     ap.add_argument("--orientation", choices=["landscape", "portrait"], default="landscape")
+    ap.add_argument("--present", action="store_true",
+                    help="render a 16:9 slide deck, one section per page (presentation purpose)")
     ap.add_argument("--confidential", default="Confidential — not for distribution")
     args = ap.parse_args(argv)
     print("wrote", render(Path(args.source), Path(args.out), brand=args.brand,
-                          orientation=args.orientation, confidential=args.confidential))
+                          orientation=args.orientation, present=args.present,
+                          confidential=args.confidential))
     return 0
 
 

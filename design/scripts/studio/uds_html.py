@@ -237,12 +237,20 @@ def _flow(inner: str, ctx: dict | None = None) -> str:
     for i, st in enumerate(node.steps):
         cap = (f'<p class="uds-flow__caption" style="margin:.35rem 0 0;font-size:.8rem;'
                f'color:var(--uds-color-text-subtle,#6E747A);line-height:1.4">{_inline(st.caption)}</p>') if st.caption else ""
+        # icon badge when the step names a sprite icon (e.g. i-users); else the step number
+        if st.icon:
+            badge = ('<span class="uds-flow__icon" style="display:inline-flex;align-items:center;justify-content:center;'
+                     'width:2.4rem;height:2.4rem;border-radius:50%;background:var(--uds-color-primary,#C3094A);'
+                     'color:var(--uds-color-on-primary,#fff)">'
+                     f'<svg class="uds-icon uds-icon--lg" aria-hidden="true"><use href="#{_esc(st.icon)}"></use></svg></span>')
+        else:
+            badge = ('<span class="uds-flow__num" style="display:inline-flex;align-items:center;justify-content:center;width:1.7rem;height:1.7rem;'
+                     'border-radius:50%;background:var(--uds-color-primary,#C3094A);'
+                     f'color:var(--uds-color-on-primary,#fff);font-weight:600;font-size:.85rem">{i + 1}</span>')
         chips.append(
             '<li class="uds-flow__step" style="flex:1 1 200px;min-width:180px;'
             'background:var(--uds-color-surface,#fff);border:1px solid var(--uds-color-line,#E5E5E5);border-radius:10px;padding:1rem 1.1rem">'
-            '<span class="uds-flow__num" style="display:inline-flex;align-items:center;justify-content:center;width:1.7rem;height:1.7rem;'
-            'border-radius:50%;background:var(--uds-color-primary,#C3094A);'
-            f'color:var(--uds-color-on-primary,#fff);font-weight:600;font-size:.85rem">{i + 1}</span>'
+            + badge +
             f'<h4 class="uds-flow__title" style="margin:.55rem 0 0;font-size:.95rem;color:var(--uds-color-text,#1C2022)">{_inline(st.title)}</h4>{cap}</li>'
         )
     return ('<ol class="uds-flow" style="list-style:none;margin:1.5rem 0;padding:0;display:flex;flex-wrap:wrap;gap:14px">'
@@ -642,6 +650,8 @@ def _self_contained(body: str, title: str, brand: str) -> str:
     base = hydrate_mod.BASE_CSS.read_text(encoding="utf-8")
     theme = (hydrate_mod.THEMES_DIR / f"theme-{brand}.css").read_text(encoding="utf-8")
     doc = (hydrate_mod.UI_ROOT / "uds-doc.css").read_text(encoding="utf-8")
+    _sprite_file = hydrate_mod.UI_ROOT / "icons.svg"
+    sprite = _sprite_file.read_text(encoding="utf-8") if _sprite_file.exists() else ""
     return f"""<!doctype html>
 <html lang="en" data-theme="light">
 <head>
@@ -653,6 +663,7 @@ def _self_contained(body: str, title: str, brand: str) -> str:
 <style>{doc}</style>
 </head>
 <body class="uds-root doc">
+<div aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">{sprite}</div>
 {body}
 </body>
 </html>

@@ -188,6 +188,7 @@ def normalise_chart(spec: Any) -> ChartNode:
 class Step:
     title: str = ""
     caption: str = ""
+    icon: str = ""        # optional sprite id (e.g. "i-users") — flow renders it as a pillar badge
 
 
 @dataclass
@@ -232,6 +233,7 @@ def normalise_flow(spec: Any) -> FlowNode:
             steps.append(Step(
                 str(it.get("title") or it.get("label") or it.get("name") or ""),
                 str(it.get("caption") or it.get("body") or it.get("desc") or ""),
+                str(it.get("icon") or ""),
             ))
         else:
             steps.append(_split_step(str(it)))

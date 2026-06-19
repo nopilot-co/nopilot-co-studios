@@ -1,0 +1,5406 @@
+{
+  "title": "Render Convergence Demo",
+  "slides": 9,
+  "requests": [
+    {
+      "createSlide": {
+        "objectId": "slide000",
+        "insertionIndex": 0,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide000",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 1.0,
+                  "green": 1.0,
+                  "blue": 1.0
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide000_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide000",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1400000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide000_t0",
+        "text": "PROPOSAL",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide000_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide000_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide000_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide000",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1500000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1800000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide000_t1",
+        "text": "Render Convergence Demo",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide000_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 56,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide000_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide001",
+        "insertionIndex": 1,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide001",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.10980392156862745,
+                  "green": 0.12549019607843137,
+                  "blue": 0.13333333333333333
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide001_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide001",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1900000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide001_t0",
+        "text": "SECTION",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide001_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 0.7568627450980392,
+                "blue": 0.054901960784313725
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide001_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide001",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1600000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2300000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide001_t1",
+        "text": "Cost by phase",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide001_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 50,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide002",
+        "insertionIndex": 2,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide002",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 1.0,
+                  "green": 1.0,
+                  "blue": 1.0
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 520000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_t0",
+        "text": "COST BY PHASE",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 620000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 850000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_t1",
+        "text": "Cost by phase",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 34,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_axis",
+        "shapeType": "RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 12000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 4126300,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide002_axis",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.803921568627451,
+                  "green": 0.8,
+                  "blue": 0.8235294117647058
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bar0",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 786985,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 3339315,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide002_bar0",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.8823529411764706,
+                  "green": 0.10196078431372549,
+                  "blue": 0.3411764705882353
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bv0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 3039315,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_bv0",
+        "text": "30k",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_bv0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 9,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide002_bv0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bc0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 480000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 4166300,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_bc0",
+        "text": "Phase 0",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_bc0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide002_bc0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bar1",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1442807,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2564600,
+            "translateY": 2683493,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide002_bar1",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.23137254901960785,
+                  "green": 0.4,
+                  "blue": 0.792156862745098
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bv1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2564600,
+            "translateY": 2383493,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_bv1",
+        "text": "55k",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_bv1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 9,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide002_bv1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bc1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 480000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2564600,
+            "translateY": 4166300,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_bc1",
+        "text": "Phase 1",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_bc1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide002_bc1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bar2",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1180478,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 4672000,
+            "translateY": 2945822,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide002_bar2",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.1843137254901961,
+                  "green": 0.5607843137254902,
+                  "blue": 0.5254901960784314
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bv2",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 4672000,
+            "translateY": 2645822,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_bv2",
+        "text": "45k",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_bv2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 9,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide002_bv2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bc2",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 480000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 4672000,
+            "translateY": 4166300,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_bc2",
+        "text": "Phase 2",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_bc2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide002_bc2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bar3",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1836300,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6779400,
+            "translateY": 2290000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide002_bar3",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 1.0,
+                  "green": 0.7568627450980392,
+                  "blue": 0.054901960784313725
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bv3",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6779400,
+            "translateY": 1990000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_bv3",
+        "text": "70k",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_bv3",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 9,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide002_bv3",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_bc3",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 480000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6779400,
+            "translateY": 4166300,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_bc3",
+        "text": "Phase 3",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_bc3",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide002_bc3",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide003",
+        "insertionIndex": 3,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide003",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.10980392156862745,
+                  "green": 0.12549019607843137,
+                  "blue": 0.13333333333333333
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide003_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide003",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1900000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide003_t0",
+        "text": "SECTION",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide003_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 0.7568627450980392,
+                "blue": 0.054901960784313725
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide003_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide003",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1600000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2300000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide003_t1",
+        "text": "Engagement process",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide003_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 50,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide004",
+        "insertionIndex": 4,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide004",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 1.0,
+                  "green": 1.0,
+                  "blue": 1.0
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 520000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_t0",
+        "text": "ENGAGEMENT PROCESS",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 620000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 850000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_t1",
+        "text": "Engagement process",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 34,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs0c",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1500000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide004_fs0c",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9450980392156862,
+                  "green": 0.9450980392156862,
+                  "blue": 0.9568627450980393
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs0n",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 607200,
+            "translateY": 1800000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide004_fs0n",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.7647058823529411,
+                  "green": 0.03529411764705882,
+                  "blue": 0.2901960784313726
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs0ni",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 250000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 607200,
+            "translateY": 1835000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs0ni",
+        "text": "1",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs0ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 11,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide004_fs0ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs0t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1607400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 607200,
+            "translateY": 2190000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs0t",
+        "text": "Discover",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs0t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 10,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs0cap",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1607400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 500000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 607200,
+            "translateY": 2530000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs0cap",
+        "text": "Audit",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs0cap",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fa0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 200000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 340000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2364600,
+            "translateY": 2230000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fa0",
+        "text": "\u2192",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fa0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 14,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide004_fa0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs1c",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1500000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2564600,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide004_fs1c",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9450980392156862,
+                  "green": 0.9450980392156862,
+                  "blue": 0.9568627450980393
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs1n",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2714600,
+            "translateY": 1800000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide004_fs1n",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.7647058823529411,
+                  "green": 0.03529411764705882,
+                  "blue": 0.2901960784313726
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs1ni",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 250000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2714600,
+            "translateY": 1835000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs1ni",
+        "text": "2",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs1ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 11,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide004_fs1ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs1t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1607400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2714600,
+            "translateY": 2190000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs1t",
+        "text": "Design",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs1t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 10,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs1cap",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1607400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 500000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2714600,
+            "translateY": 2530000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs1cap",
+        "text": "Wireframes and prototypes",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs1cap",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fa1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 200000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 340000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 4472000,
+            "translateY": 2230000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fa1",
+        "text": "\u2192",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fa1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 14,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide004_fa1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs2c",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1500000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 4672000,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide004_fs2c",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9450980392156862,
+                  "green": 0.9450980392156862,
+                  "blue": 0.9568627450980393
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs2n",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 4822000,
+            "translateY": 1800000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide004_fs2n",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.7647058823529411,
+                  "green": 0.03529411764705882,
+                  "blue": 0.2901960784313726
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs2ni",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 250000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 4822000,
+            "translateY": 1835000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs2ni",
+        "text": "3",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs2ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 11,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide004_fs2ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs2t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1607400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 4822000,
+            "translateY": 2190000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs2t",
+        "text": "Build",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs2t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 10,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs2cap",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1607400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 500000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 4822000,
+            "translateY": 2530000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs2cap",
+        "text": "Headless implementation",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs2cap",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fa2",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 200000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 340000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6579400,
+            "translateY": 2230000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fa2",
+        "text": "\u2192",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fa2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 14,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide004_fa2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs3c",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1907400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1500000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6779400,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide004_fs3c",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9450980392156862,
+                  "green": 0.9450980392156862,
+                  "blue": 0.9568627450980393
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs3n",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6929400,
+            "translateY": 1800000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide004_fs3n",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.7647058823529411,
+                  "green": 0.03529411764705882,
+                  "blue": 0.2901960784313726
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs3ni",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 250000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6929400,
+            "translateY": 1835000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs3ni",
+        "text": "4",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs3ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 11,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide004_fs3ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs3t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1607400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6929400,
+            "translateY": 2190000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs3t",
+        "text": "Launch",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs3t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 10,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_fs3cap",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 1607400,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 500000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6929400,
+            "translateY": 2530000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_fs3cap",
+        "text": "QA",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_fs3cap",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide005",
+        "insertionIndex": 5,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide005",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.10980392156862745,
+                  "green": 0.12549019607843137,
+                  "blue": 0.13333333333333333
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1900000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_t0",
+        "text": "SECTION",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 0.7568627450980392,
+                "blue": 0.054901960784313725
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1600000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2300000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_t1",
+        "text": "Three pillars",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 50,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide006",
+        "insertionIndex": 6,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide006",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 1.0,
+                  "green": 1.0,
+                  "blue": 1.0
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 520000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_t0",
+        "text": "THREE PILLARS",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 620000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 850000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_t1",
+        "text": "Three pillars",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 34,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card0r",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2609866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 2400000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide006_card0r",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9450980392156862,
+                  "green": 0.9450980392156862,
+                  "blue": 0.9568627450980393
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card0e",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2169866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 230000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 677200,
+            "translateY": 1850000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_card0e",
+        "text": "ONE",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_card0e",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card0t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2169866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 677200,
+            "translateY": 2150000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_card0t",
+        "text": "Strategy",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_card0t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 11,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card0b",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2169866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1330000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 677200,
+            "translateY": 2570000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_card0b",
+        "text": "Category positioning and messaging",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_card0b",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card1r",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2609866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 2400000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 3267066,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide006_card1r",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9450980392156862,
+                  "green": 0.9450980392156862,
+                  "blue": 0.9568627450980393
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card1e",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2169866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 230000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 3487066,
+            "translateY": 1850000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_card1e",
+        "text": "TWO",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_card1e",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card1t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2169866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 3487066,
+            "translateY": 2150000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_card1t",
+        "text": "Experience",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_card1t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 11,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card1b",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2169866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1330000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 3487066,
+            "translateY": 2570000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_card1b",
+        "text": "Research-led UX and a design system",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_card1b",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card2r",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2609866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 2400000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6076932,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide006_card2r",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9450980392156862,
+                  "green": 0.9450980392156862,
+                  "blue": 0.9568627450980393
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card2e",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2169866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 230000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6296932,
+            "translateY": 1850000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_card2e",
+        "text": "THREE",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_card2e",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card2t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2169866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6296932,
+            "translateY": 2150000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_card2t",
+        "text": "Platform",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_card2t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 11,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_card2b",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 2169866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1330000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6296932,
+            "translateY": 2570000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_card2b",
+        "text": "Headless build and performance",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_card2b",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide007",
+        "insertionIndex": 7,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide007",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.10980392156862745,
+                  "green": 0.12549019607843137,
+                  "blue": 0.13333333333333333
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide007_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide007",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1900000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_t0",
+        "text": "SECTION",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 0.7568627450980392,
+                "blue": 0.054901960784313725
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide007_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide007",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1600000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2300000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_t1",
+        "text": "Delivery timeline",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 50,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide008",
+        "insertionIndex": 8,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide008",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 1.0,
+                  "green": 1.0,
+                  "blue": 1.0
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 520000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_t0",
+        "text": "DELIVERY TIMELINE",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 620000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 850000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_t1",
+        "text": "Delivery timeline",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 34,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_mo0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1179933,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 1607200,
+            "translateY": 1950000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_mo0",
+        "text": "Jan",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_mo0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide008_mo0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_mo1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1179933,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2787133,
+            "translateY": 1950000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_mo1",
+        "text": "Feb",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_mo1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide008_mo1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_mo2",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1179933,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 3967066,
+            "translateY": 1950000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_mo2",
+        "text": "Mar",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_mo2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide008_mo2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_mo3",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1179933,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 5147000,
+            "translateY": 1950000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_mo3",
+        "text": "Apr",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_mo3",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide008_mo3",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_mo4",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1179933,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6326933,
+            "translateY": 1950000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_mo4",
+        "text": "May",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_mo4",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide008_mo4",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_mo5",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1179933,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 7506866,
+            "translateY": 1950000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_mo5",
+        "text": "Jun",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_mo5",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide008_mo5",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_ln0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1110000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 520000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2290000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_ln0",
+        "text": "Discovery",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_ln0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 9,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_bar0r",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1179933,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 312000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 1607200,
+            "translateY": 2290000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide008_bar0r",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9686274509803922,
+                  "green": 0.8666666666666667,
+                  "blue": 0.9019607843137255
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_bar0t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1059933,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 312000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 1677200,
+            "translateY": 2314000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_bar0t",
+        "text": "Audit & research",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_bar0t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_ln1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1110000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 520000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2846000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_ln1",
+        "text": "Design",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_ln1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 9,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_bar1r",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 2359866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 312000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2787133,
+            "translateY": 2846000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide008_bar1r",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9686274509803922,
+                  "green": 0.8666666666666667,
+                  "blue": 0.9019607843137255
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_bar1t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 2239866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 312000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2857133,
+            "translateY": 2870000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_bar1t",
+        "text": "System & screens",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_bar1t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_ln2",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1110000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 520000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 3402000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_ln2",
+        "text": "Build",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_ln2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 9,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_bar2r",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 2359866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 312000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 5147000,
+            "translateY": 3402000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide008_bar2r",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9686274509803922,
+                  "green": 0.8666666666666667,
+                  "blue": 0.9019607843137255
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_bar2t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 2239866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 312000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 5217000,
+            "translateY": 3426000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_bar2t",
+        "text": "Implementation",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_bar2t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_ms0d",
+        "shapeType": "DIAMOND",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 132000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 132000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2721133,
+            "translateY": 3988000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide008_ms0d",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.7647058823529411,
+                  "green": 0.03529411764705882,
+                  "blue": 0.2901960784313726
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_ms0t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1180000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 2201133,
+            "translateY": 4138000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_ms0t",
+        "text": "Kickoff",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_ms0t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide008_ms0t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_ms1d",
+        "shapeType": "DIAMOND",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 132000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 132000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 7440866,
+            "translateY": 3988000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide008_ms1d",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.7647058823529411,
+                  "green": 0.03529411764705882,
+                  "blue": 0.2901960784313726
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_ms1t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 1180000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 280000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6920866,
+            "translateY": 4138000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_ms1t",
+        "text": "Launch",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_ms1t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide008_ms1t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    }
+  ]
+}

@@ -140,4 +140,38 @@
     max-width: 100%; transform: none; margin-left: 0; margin-right: 0; }
 
   a { color: inherit; }                                   /* no link-blue in a printed document */
+
+  /* presentation mode (data-uds-present — injected by uds_pdf --present): a 16:9
+     slide deck. Each top-level section starts its own page, and the stat / callout
+     type is a little tighter so a slide does not feel crowded. */
+  /* presentation type spec: eyebrows 10, titles 20, text 10, stat highlight 24 */
+  [data-uds-present] .uds-detail__body > h2 { break-before: page; font-size: 20pt; }
+  [data-uds-present] .uds-eyebrow { font-size: 10pt; }
+  [data-uds-present] .doc-prose p, [data-uds-present] .uds-detail__body > p,
+  [data-uds-present] .uds-card__excerpt, [data-uds-present] .uds-callout p { font-size: 10pt; }
+  [data-uds-present] .uds-stat__value { font-size: 24pt; }
+  [data-uds-present] .uds-stat__label { font-size: 8pt; }
+  [data-uds-present] .uds-callout h3 { font-size: 15pt; }
+
+  /* cover: a full-bleed Coherence-crimson title slide with light text. Negative
+     margins pull it past the page margins to the sheet edges. */
+  [data-uds-present] .uds-detail > .uds-hero {
+    background: var(--uds-color-primary); color: #fff;
+    margin: -0.5in -0.6in -0.45in; padding: 1.5in 0.9in; min-height: 6.5in; justify-content: center; }
+  [data-uds-present] .uds-detail > .uds-hero .uds-hero__title,
+  [data-uds-present] .uds-detail > .uds-hero .uds-eyebrow { color: #fff; }
+  [data-uds-present] .uds-detail > .uds-hero .uds-hero__standfirst { color: rgba(255,255,255,.88); }
+
+  /* panels: differentiate from the page with a sunk fill + a crimson top accent,
+     and give the slide more room to breathe. */
+  [data-uds-present] .uds-grid { gap: var(--uds-space-xl); }
+  [data-uds-present] .uds-card, [data-uds-present] .uds-stat {
+    background: var(--uds-color-surface-sunk); border-top: 3px solid var(--uds-color-primary);
+    padding: var(--uds-space-lg); }
+
+  /* the five capabilities as pillars: one row, taller, icon-led */
+  [data-uds-present] .uds-flow { flex-wrap: nowrap !important; gap: var(--uds-space-lg) !important; }
+  [data-uds-present] .uds-flow__step { flex: 1 1 0 !important; min-width: 0 !important; min-height: 2.5in;
+    background: var(--uds-color-surface-sunk) !important; border-top: 3px solid var(--uds-color-primary) !important;
+    padding: var(--uds-space-lg) !important; }
 }

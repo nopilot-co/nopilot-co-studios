@@ -1,0 +1,3408 @@
+{
+  "title": "Context Operating Systems for established businesses",
+  "slides": 11,
+  "requests": [
+    {
+      "createSlide": {
+        "objectId": "slide000",
+        "insertionIndex": 0,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide000",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 1.0,
+                  "green": 1.0,
+                  "blue": 1.0
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide000_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide000",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1400000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide000_t0",
+        "text": "PROPOSAL",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide000_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide000_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide000_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide000",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1500000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1800000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide000_t1",
+        "text": "Context Operating Systems for established businesses",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide000_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 30,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide000_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide000_t2",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide000",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1200000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 3500000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide000_t2",
+        "text": "Get agent-ready before you get leapfrogged.",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide000_t2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 13,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Newsreader",
+            "weight": 400
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide000_t2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide001",
+        "insertionIndex": 1,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide001",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.10980392156862745,
+                  "green": 0.12549019607843137,
+                  "blue": 0.13333333333333333
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide001_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide001",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1900000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide001_t0",
+        "text": "SECTION",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide001_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 0.7568627450980392,
+                "blue": 0.054901960784313725
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide001_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide001",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1600000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2300000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide001_t1",
+        "text": "The inflection",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide001_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 22,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide002",
+        "insertionIndex": 2,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide002",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 1.0,
+                  "green": 1.0,
+                  "blue": 1.0
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 520000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_t0",
+        "text": "THE INFLECTION",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 760000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 850000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_t1",
+        "text": "The inflection",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 16,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide002_t2",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide002",
+          "size": {
+            "width": {
+              "magnitude": 3934800,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 3036300,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide002_t2",
+        "text": "Agents are becoming the gateway to B2B buying. Businesses without APIs, MCP servers, or an integration layer are invisible to them \u2014 and AI-on-AI content decay raises the premium on proprietary, human-crafted knowledge. The businesses that make their expertise legible to agents in the next two-to-three years stay in the frame; the rest get routed around.",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide002_t2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 400
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide003",
+        "insertionIndex": 3,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide003",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.10980392156862745,
+                  "green": 0.12549019607843137,
+                  "blue": 0.13333333333333333
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide003_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide003",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1900000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide003_t0",
+        "text": "SECTION",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide003_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 0.7568627450980392,
+                "blue": 0.054901960784313725
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide003_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide003",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1600000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2300000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide003_t1",
+        "text": "What we do differently",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide003_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 22,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide004",
+        "insertionIndex": 4,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide004",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.10980392156862745,
+                  "green": 0.12549019607843137,
+                  "blue": 0.13333333333333333
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1900000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_t0",
+        "text": "SECTION",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 0.7568627450980392,
+                "blue": 0.054901960784313725
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide004_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide004",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1600000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2300000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide004_t1",
+        "text": "The programme",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide004_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 22,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide005",
+        "insertionIndex": 5,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide005",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 1.0,
+                  "green": 1.0,
+                  "blue": 1.0
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 520000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_t0",
+        "text": "THE PROGRAMME",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 620000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 850000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_t1",
+        "text": "The programme",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 16,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs0c",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 2609866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide005_fs0c",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9450980392156862,
+                  "green": 0.9450980392156862,
+                  "blue": 0.9568627450980393
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs0n",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 607200,
+            "translateY": 1800000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide005_fs0n",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.7647058823529411,
+                  "green": 0.03529411764705882,
+                  "blue": 0.2901960784313726
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs0ni",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 250000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 607200,
+            "translateY": 1835000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_fs0ni",
+        "text": "1",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_fs0ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 11,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide005_fs0ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs0t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 2309866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 250000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 607200,
+            "translateY": 2150000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_fs0t",
+        "text": "Clarity Audit",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_fs0t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 10,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs0cap",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 2309866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 350000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 607200,
+            "translateY": 2470000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_fs0cap",
+        "text": "a paid qualifying workshop; leave with a scored readiness map + shortlisted POCs",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_fs0cap",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fa0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 200000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 340000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 3035066,
+            "translateY": 2130000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_fa0",
+        "text": "\u2192",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_fa0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 14,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide005_fa0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs1c",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 2609866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 3267066,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide005_fs1c",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9450980392156862,
+                  "green": 0.9450980392156862,
+                  "blue": 0.9568627450980393
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs1n",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 3417066,
+            "translateY": 1800000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide005_fs1n",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.7647058823529411,
+                  "green": 0.03529411764705882,
+                  "blue": 0.2901960784313726
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs1ni",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 250000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 3417066,
+            "translateY": 1835000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_fs1ni",
+        "text": "2",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_fs1ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 11,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide005_fs1ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs1t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 2309866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 250000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 3417066,
+            "translateY": 2150000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_fs1t",
+        "text": "POC Delivery",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_fs1t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 10,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs1cap",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 2309866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 350000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 3417066,
+            "translateY": 2470000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_fs1cap",
+        "text": "2\u20133 ROI-led builds in weeks on a reusable, open-source agentic platform",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_fs1cap",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fa1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 200000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 340000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 5844932,
+            "translateY": 2130000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_fa1",
+        "text": "\u2192",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_fa1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 14,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide005_fa1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs2c",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 2609866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6076932,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide005_fs2c",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9450980392156862,
+                  "green": 0.9450980392156862,
+                  "blue": 0.9568627450980393
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs2n",
+        "shapeType": "ROUND_RECTANGLE",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6226932,
+            "translateY": 1800000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "updateShapeProperties": {
+        "objectId": "slide005_fs2n",
+        "shapeProperties": {
+          "shapeBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.7647058823529411,
+                  "green": 0.03529411764705882,
+                  "blue": 0.2901960784313726
+                }
+              }
+            }
+          },
+          "outline": {
+            "propertyState": "NOT_RENDERED"
+          }
+        },
+        "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs2ni",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 320000,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 250000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6226932,
+            "translateY": 1835000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_fs2ni",
+        "text": "3",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_fs2ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 11,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "updateParagraphStyle": {
+        "objectId": "slide005_fs2ni",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "alignment": "CENTER"
+        },
+        "fields": "alignment"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs2t",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 2309866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 250000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6226932,
+            "translateY": 2150000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_fs2t",
+        "text": "Strategic Retainer",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_fs2t",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 10,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide005_fs2cap",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide005",
+          "size": {
+            "width": {
+              "magnitude": 2309866,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 350000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 6226932,
+            "translateY": 2470000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide005_fs2cap",
+        "text": "a 12-month engagement that owns product, AI strategy, and multi-stream delivery",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide005_fs2cap",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "fontFamily": "Inter",
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide006",
+        "insertionIndex": 6,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide006",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.10980392156862745,
+                  "green": 0.12549019607843137,
+                  "blue": 0.13333333333333333
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1900000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_t0",
+        "text": "SECTION",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 0.7568627450980392,
+                "blue": 0.054901960784313725
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide006_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide006",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1600000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2300000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide006_t1",
+        "text": "Proof of value",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide006_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 22,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide007",
+        "insertionIndex": 7,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide007",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 1.0,
+                  "green": 1.0,
+                  "blue": 1.0
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide007_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide007",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 520000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_t0",
+        "text": "PROOF OF VALUE",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide007_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide007",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 620000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 850000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_t1",
+        "text": "Proof of value",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 16,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createTable": {
+        "objectId": "slide007_tbl",
+        "elementProperties": {
+          "pageObjectId": "slide007",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1550000,
+            "unit": "EMU"
+          }
+        },
+        "rows": 4,
+        "columns": 3
+      }
+    },
+    {
+      "updateTableCellProperties": {
+        "objectId": "slide007_tbl",
+        "tableRange": {
+          "location": {
+            "rowIndex": 0,
+            "columnIndex": 0
+          },
+          "rowSpan": 1,
+          "columnSpan": 3
+        },
+        "tableCellProperties": {
+          "tableCellBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.9450980392156862,
+                  "green": 0.9450980392156862,
+                  "blue": 0.9568627450980393
+                }
+              }
+            }
+          }
+        },
+        "fields": "tableCellBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 0,
+          "columnIndex": 0
+        },
+        "text": "CLIENT",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 0,
+          "columnIndex": 0
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 0,
+          "columnIndex": 1
+        },
+        "text": "WHAT SHIPPED",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 0,
+          "columnIndex": 1
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 0,
+          "columnIndex": 2
+        },
+        "text": "OUTCOME",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 0,
+          "columnIndex": 2
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.7647058823529411,
+                "green": 0.03529411764705882,
+                "blue": 0.2901960784313726
+              }
+            }
+          },
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 1,
+          "columnIndex": 0
+        },
+        "text": "APL Media (Nat Geo)",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 1,
+          "columnIndex": 0
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 1,
+          "columnIndex": 1
+        },
+        "text": "Two-day Python forecasting widget",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 1,
+          "columnIndex": 1
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 1,
+          "columnIndex": 2
+        },
+        "text": "Retired a planned six-figure HubSpot migration",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 1,
+          "columnIndex": 2
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 2,
+          "columnIndex": 0
+        },
+        "text": "HSS",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 2,
+          "columnIndex": 0
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 2,
+          "columnIndex": 1
+        },
+        "text": "Agentic Sanity site",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 2,
+          "columnIndex": 1
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 2,
+          "columnIndex": 2
+        },
+        "text": "Postcode-adaptive creative; hyper-personalised journeys",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 2,
+          "columnIndex": 2
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 3,
+          "columnIndex": 0
+        },
+        "text": "Founder-prior",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 3,
+          "columnIndex": 0
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 3,
+          "columnIndex": 1
+        },
+        "text": "Five brand sites rebuilt",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 3,
+          "columnIndex": 1
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 3,
+          "columnIndex": 2
+        },
+        "text": "~1.5 days, full content migration",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide007_tbl",
+        "cellLocation": {
+          "rowIndex": 3,
+          "columnIndex": 2
+        },
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontFamily": "Inter",
+          "fontSize": {
+            "magnitude": 6,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "bold": false
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide008",
+        "insertionIndex": 8,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide008",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.10980392156862745,
+                  "green": 0.12549019607843137,
+                  "blue": 0.13333333333333333
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1900000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_t0",
+        "text": "SECTION",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 0.7568627450980392,
+                "blue": 0.054901960784313725
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide008_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide008",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1600000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2300000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide008_t1",
+        "text": "The model",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide008_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 22,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide009",
+        "insertionIndex": 9,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide009",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 1.0,
+                  "green": 1.0,
+                  "blue": 1.0
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide009_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide009",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 300000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 520000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide009_t0",
+        "text": "THE MODEL",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide009_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.43137254901960786,
+                "green": 0.4549019607843137,
+                "blue": 0.47843137254901963
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide009_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide009",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 760000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 850000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide009_t1",
+        "text": "The model",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide009_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 16,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide009_t2",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide009",
+          "size": {
+            "width": {
+              "magnitude": 3934800,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 3036300,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1650000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide009_t2",
+        "text": "360 is a fully independent, founder-owned operator: open-source where it can be, MCP-native throughout, Anthropic-aligned, accredited from day one (Cyber Essentials Plus), and hosted on independent infrastructure. Auditable at every layer \u2014 what runs on it, who reads the code, and where the data lives.",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide009_t2",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 8,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 0.10980392156862745,
+                "green": 0.12549019607843137,
+                "blue": 0.13333333333333333
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "Inter",
+            "weight": 400
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createSlide": {
+        "objectId": "slide010",
+        "insertionIndex": 10,
+        "slideLayoutReference": {
+          "predefinedLayout": "BLANK"
+        }
+      }
+    },
+    {
+      "updatePageProperties": {
+        "objectId": "slide010",
+        "pageProperties": {
+          "pageBackgroundFill": {
+            "solidFill": {
+              "color": {
+                "rgbColor": {
+                  "red": 0.10980392156862745,
+                  "green": 0.12549019607843137,
+                  "blue": 0.13333333333333333
+                }
+              }
+            }
+          }
+        },
+        "fields": "pageBackgroundFill.solidFill.color"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide010_t0",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide010",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 360000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 1900000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide010_t0",
+        "text": "SECTION",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide010_t0",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 12,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 0.7568627450980392,
+                "blue": 0.054901960784313725
+              }
+            }
+          },
+          "weightedFontFamily": {
+            "fontFamily": "IBM Plex Mono",
+            "weight": 600
+          }
+        },
+        "fields": "fontSize,foregroundColor,weightedFontFamily"
+      }
+    },
+    {
+      "createShape": {
+        "objectId": "slide010_t1",
+        "shapeType": "TEXT_BOX",
+        "elementProperties": {
+          "pageObjectId": "slide010",
+          "size": {
+            "width": {
+              "magnitude": 8229600,
+              "unit": "EMU"
+            },
+            "height": {
+              "magnitude": 1600000,
+              "unit": "EMU"
+            }
+          },
+          "transform": {
+            "scaleX": 1,
+            "scaleY": 1,
+            "translateX": 457200,
+            "translateY": 2300000,
+            "unit": "EMU"
+          }
+        }
+      }
+    },
+    {
+      "insertText": {
+        "objectId": "slide010_t1",
+        "text": "Book a paid Lunch & Learn",
+        "insertionIndex": 0
+      }
+    },
+    {
+      "updateTextStyle": {
+        "objectId": "slide010_t1",
+        "textRange": {
+          "type": "ALL"
+        },
+        "style": {
+          "fontSize": {
+            "magnitude": 22,
+            "unit": "PT"
+          },
+          "foregroundColor": {
+            "opaqueColor": {
+              "rgbColor": {
+                "red": 1.0,
+                "green": 1.0,
+                "blue": 1.0
+              }
+            }
+          },
+          "fontFamily": "Newsreader",
+          "bold": true
+        },
+        "fields": "fontFamily,fontSize,foregroundColor,bold"
+      }
+    }
+  ]
+}

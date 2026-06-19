@@ -64,6 +64,7 @@ def _palette(brand: str) -> dict[str, Any]:
         "ink": light.get("text", "#1C2022"),
         "muted": light.get("text-muted", "#6E747A"),
         "primary": light.get("primary", "#C3094A"),
+        "secondary": light.get("secondary", light.get("primary", "#C3094A")),  # warm accent on DARK tone; falls back to primary
         "active": light.get("active", "#FFC10E"),
         "on_active": light.get("on-active", "#1C2022"),
         "surface": light.get("surface", "#FFFFFF"),
@@ -339,7 +340,7 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
     return title, deck
 
 
-def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6, group_lead: int = 0, table_rows: int = 0) -> tuple[str, list[dict]]:
+def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide: int = 6, group_lead: int = 0, table_rows: int = 0, viz: dict[str, Any] | None = None) -> tuple[str, list[dict]]:
     """Docket manifest → an ordered deck of plain slide specs (the IR). A ``.md`` path
     is treated as a flat HTML-laced source (``slide_specs_flat``)."""
     manifest_path = Path(manifest_path)
@@ -348,10 +349,26 @@ def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide:
     content_dir = manifest_path.parent.parent
     manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8")) or {}
     meta = manifest.get("meta", {})
+    topics = manifest.get("topics", [])
+    viz = viz or {}
+
+    def _listed(tp: dict) -> bool:                  # topics that appear in the contents index
+        return tp.get("type", "content") == "content" and tp.get("id") not in ("cover", "intro") and bool(tp.get("section_md"))
+
+    contents = [{"n": i + 1, "title": _clean(tp.get("title", "")), "desc": _clean(tp.get("eyebrow", "")), "anchor": tp.get("id")}
+                for i, tp in enumerate([tp for tp in topics if _listed(tp)])]
     deck: list[dict] = []
-    for t in manifest.get("topics", []):
+    embeds: list[tuple[str, str]] = []
+    for t in topics:
         tid = t.get("id")
-        if t.get("type") == "index":
+        ttype = t.get("type", "content")
+        tone = t.get("tone")                        # None when unset → build_requests applies a kind-aware default (sections dark)
+        eyebrow, title = _clean(t.get("eyebrow", "")), _clean(t.get("title", ""))
+        if ttype == "embed":                        # reference docket → Related-documents appendix, never embedded
+            embeds.append((tid, title or tid))
+            continue
+        if ttype == "index":                        # the contents page, built from the listed topics
+            deck.append({"kind": "contents", "tone": tone, "eyebrow": eyebrow or "Contents", "title": title or "Contents", "entries": contents})
             continue
         if tid == "cover":
             try:
@@ -360,20 +377,35 @@ def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide:
                 body = ""
             wm = uds_html._labelled(body, "Wordmark") or "360°"
             m = re.match(r"^(.*?°)\s*(.*)$", wm, re.DOTALL)
-            title, sub = (m.group(1), _clean(m.group(2))) if m else (wm, "")
-            deck.append({"kind": "cover", "eyebrow": uds_html._labelled(body, "Eyebrow") or "A partnership proposition",
-                         "title": title, "sub": sub, "standfirst": _clean(uds_html._labelled(body, "Standfirst"))})
-        elif not t.get("section_md"):
-            deck.append({"kind": "section", "eyebrow": _clean(t.get("eyebrow", "")) or "Section", "title": _clean(t.get("title", ""))})
-        else:
-            lines, quote = _topic_body(content_dir, t)
-            eyebrow, title = _clean(t.get("eyebrow", "")), _clean(t.get("title", ""))
-            if quote:
-                deck.append({"kind": "quote", "eyebrow": eyebrow, "title": title, "quote": quote})
-            chunks = [lines[i:i + lines_per_slide] for i in range(0, len(lines), lines_per_slide)] or [[]]
-            for n, chunk in enumerate(chunks):
-                deck.append({"kind": "content", "eyebrow": eyebrow,
-                             "title": title + ("" if n == 0 else f" (cont. {n + 1})"), "body": chunk})
+            wtitle, sub = (m.group(1), _clean(m.group(2))) if m else (wm, "")
+            foot = _clean(uds_html._labelled(body, "Footer"))      # _clean flattens newlines → truncate at the draft cruft
+            for _cut in ("Version 0.", "Confidential", "---"):
+                foot = foot.split(_cut)[0].strip()
+            deck.append({"kind": "cover", "tone": tone,
+                         "eyebrow": uds_html._labelled(body, "Eyebrow") or eyebrow or "A partnership proposition",
+                         "title": wtitle, "sub": sub or "Working title. The name comes later.",
+                         "standfirst": _clean(uds_html._labelled(body, "Standfirst")) or "A business we can build together over three years, and hand on in good shape.",
+                         "footer": foot})
+            continue
+        if ttype == "interstitial" or not t.get("section_md"):   # a part divider — full-bleed, tone-coloured
+            deck.append({"kind": "section", "tone": tone, "eyebrow": eyebrow or "Section", "title": title})
+            continue
+        lines, quote = _topic_body(content_dir, t)               # a content topic
+        if quote:
+            deck.append({"kind": "quote", "tone": tone, "eyebrow": eyebrow, "title": title, "quote": quote})
+        chunks = [lines[i:i + lines_per_slide] for i in range(0, len(lines), lines_per_slide)] or [[]]
+        for n, chunk in enumerate(chunks):
+            deck.append({"kind": "content", "tone": tone, "eyebrow": eyebrow,
+                         "title": title + ("" if n == 0 else f" (cont. {n + 1})"), "body": chunk})
+        if tid in viz:                                           # native viz for this topic (chart/bullseye/swimlane/hype/image; one or many)
+            blocks = viz[tid] if isinstance(viz[tid], list) else [viz[tid]]
+            for v in blocks:
+                deck.append({"kind": v["kind"], "tone": tone, "eyebrow": eyebrow,
+                             "title": _clean(v.get("title", title)), "spec": v.get("spec", {}), "lead": v.get("lead", [])})
+    if embeds:
+        deck.append({"kind": "content", "tone": "dark", "eyebrow": "Appendix", "title": "Related documents",
+                     "body": ["Maintained as separate standalone documents (linked, not embedded):"]
+                             + [f"• **{label}** — docket: {tid}" for tid, label in embeds]})
     return str(meta.get("doc_title", "360 proposition")), deck
 
 
@@ -817,13 +849,114 @@ def _image_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) ->
     return out
 
 
-def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None) -> tuple[str, list[dict]]:
-    """IR → Slides API batchUpdate requests (cover, section, quote, content). A render
-    ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS."""
+def _md_bold_spans(s: str) -> tuple[str, list[tuple[int, int]]]:
+    """Strip ``**bold**`` markers, returning the clean text + the bold char ranges."""
+    out, spans = "", []
+    for part in re.split(r"(\*\*.+?\*\*)", s):
+        if len(part) >= 4 and part.startswith("**") and part.endswith("**"):
+            t = part[2:-2]
+            spans.append((len(out), len(out) + len(t)))
+            out += t
+        else:
+            out += part
+    return out, spans
+
+
+def _rich_text_box(sid: str, box_id: str, lines: list[str], x: int, y: int, w: int, h: int,
+                   *, font: str, size: float, color: str, acc: str, serif: str) -> list[dict]:
+    """A reading column with structure: ``§`` → serif subhead, ``• `` → native bullet,
+    ``**lead**`` → bold run. One text box; styling applied by char range so prose wraps."""
+    paras = []  # (clean, kind, bold_spans)
+    for ln in lines:
+        if ln.startswith("§ "):
+            clean, spans = _md_bold_spans(ln[2:]); paras.append((clean, "head", spans))
+        elif ln.startswith("• "):
+            clean, spans = _md_bold_spans(ln[2:]); paras.append((clean, "bullet", spans))
+        else:
+            clean, spans = _md_bold_spans(ln); paras.append((clean, "para", spans))
+    text = "\n".join(p[0] for p in paras)
+    if not text:
+        return []
+    reqs: list[dict] = [_text_box(sid, box_id, x, y, w, h),
+                        {"insertText": {"objectId": box_id, "text": text, "insertionIndex": 0}},
+                        {"updateTextStyle": {"objectId": box_id, "textRange": {"type": "ALL"},
+                         "style": {"fontFamily": font, "fontSize": {"magnitude": size, "unit": "PT"},
+                                   "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(color)}}, "bold": False},
+                         "fields": "fontFamily,fontSize,foregroundColor,bold"}}]
+
+    def _rng(a: int, b: int, style: dict, fields: str) -> None:
+        reqs.append({"updateTextStyle": {"objectId": box_id,
+                     "textRange": {"type": "FIXED_RANGE", "startIndex": a, "endIndex": b},
+                     "style": style, "fields": fields}})
+
+    off, runs, run = 0, [], None
+    for clean, kind, spans in paras:
+        start, end = off, off + len(clean)
+        for bs, be in spans:                       # bold lead-ins / emphasis
+            if be > bs:
+                _rng(start + bs, start + be, {"bold": True}, "bold")
+        if kind == "head" and end > start:         # subsection head → serif, slightly larger, accent
+            _rng(start, end, {"bold": True, "fontFamily": serif, "fontSize": {"magnitude": size + 2.5, "unit": "PT"},
+                              "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(acc)}}},
+                 "bold,fontFamily,fontSize,foregroundColor")
+        if kind == "bullet":
+            run = [start, end] if run is None else [run[0], end]
+        elif run is not None:
+            runs.append(run); run = None
+        off = end + 1
+    if run is not None:
+        runs.append(run)
+    for a, b in runs:
+        reqs.append({"createParagraphBullets": {"objectId": box_id,
+                     "textRange": {"type": "FIXED_RANGE", "startIndex": a, "endIndex": b},
+                     "bulletPreset": "BULLET_DISC_CIRCLE_SQUARE"}})
+    return reqs
+
+
+def _contents_reqs(sid: str, entries: list[dict], x: int, y: int, w: int, h: int,
+                   *, acc: str, txt: str, mut: str, serif: str, mono: str) -> list[dict]:
+    """Numbered contents in two columns: mono accent number + serif title + mono muted descriptor."""
+    if not entries:
+        return []
+    out: list[dict] = []
+    gutter = 520_000
+    colw = (w - gutter) // 2
+    per_col = (len(entries) + 1) // 2
+    row_h = min(430_000, h // max(per_col, 1))
+    for i, e in enumerate(entries):
+        col = 0 if i < per_col else 1
+        row = i - (0 if col == 0 else per_col)
+        ex, ey = x + col * (colw + gutter), y + row * row_h
+        nb, tb = f"{sid}_cn{i}", f"{sid}_ct{i}"
+        out.append(_text_box(sid, nb, ex, ey, 520_000, row_h))
+        out.append({"insertText": {"objectId": nb, "text": f"{e['n']:02d}", "insertionIndex": 0}})
+        out += _style(nb, font=mono, size=12, color=_rgb(acc), bold=True)
+        title, desc = e.get("title", ""), e.get("desc", "")
+        text = title + (("\n" + desc) if desc else "")
+        out.append(_text_box(sid, tb, ex + 560_000, ey, colw - 560_000, row_h))
+        out.append({"insertText": {"objectId": tb, "text": text, "insertionIndex": 0}})
+        out.append({"updateTextStyle": {"objectId": tb, "textRange": {"type": "ALL"},
+                    "style": {"fontFamily": serif, "fontSize": {"magnitude": 15, "unit": "PT"},
+                              "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(txt)}}},
+                    "fields": "fontFamily,fontSize,foregroundColor"}})
+        if desc:
+            ds = len(title) + 1
+            out.append({"updateTextStyle": {"objectId": tb,
+                        "textRange": {"type": "FIXED_RANGE", "startIndex": ds, "endIndex": ds + len(desc)},
+                        "style": {"fontFamily": mono, "fontSize": {"magnitude": 8.5, "unit": "PT"},
+                                  "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(mut)}}},
+                        "fields": "fontFamily,fontSize,foregroundColor"}})
+    return out
+
+
+def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None, viz: dict[str, Any] | None = None) -> tuple[str, list[dict]]:
+    """IR → Slides API batchUpdate requests (cover, contents, section, quote, content). A render
+    ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS. ``viz`` maps
+    a topic id → a native archetype block ({kind, spec, title}) appended after that topic's prose."""
     prof = uds_mod.profile_spec(profile)
     columns = int(prof.get("columns", 1))
     tsize = int(prof.get("table_size") or 9)
-    title, deck = slide_specs(manifest_path, brand=brand, lines_per_slide=int(prof.get("lines_per_slide", 6)), group_lead=int(prof.get("group_lead", 0)), table_rows=int(prof.get("table_rows", 0)))
+    title, deck = slide_specs(manifest_path, brand=brand, lines_per_slide=int(prof.get("lines_per_slide", 6)), group_lead=int(prof.get("group_lead", 0)), table_rows=int(prof.get("table_rows", 0)), viz=viz)
     p = _palette(brand)
     reqs: list[dict] = []
     cx, cw = MARGIN, PAGE_W - 2 * MARGIN
@@ -836,6 +969,8 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
 
     R = uds_mod.render_contract(brand, "slide", profile=prof)   # role → resolved {family,size,weight,transform,align,colour}
     _AL = {"center": "CENTER", "right": "END", "justify": "JUSTIFIED"}  # left == default → no paragraph request
+    bodysize = float((R.get("body") or {}).get("size", 11))     # reading size for rich body columns
+    BASEY = {"table": 1_550_000, "diagram": 1_950_000, "chart": 1_950_000}  # data-heavy slides → tighter header
 
     def add_role(slide_id: str, n: int, text: str, y: int, h: int, role: str, *, colour=None, align=None, x=None, w=None) -> None:
         st = R.get(role) or {}
@@ -848,16 +983,16 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
                  color=_rgb(colour or st.get("colour", "#1C2022")),
                  align=align or _AL.get(st.get("align")), bold=(wt is None), weight=wt, x=x, w=w)
 
-    def _lead_band(sid: str, lead, base_y: int) -> int:
+    def _lead_band(sid: str, lead, base_y: int, *, colour=None) -> int:
         """Grouped supporting prose (two columns) above a table/diagram; returns the y to start the data at."""
         if not lead:
             return base_y
         lh, gutter = 1_000_000, 360_000
         colw = (cw - gutter) // 2
         mid = (len(lead) + 1) // 2
-        add_role(sid, 8, "\n\n".join(lead[:mid]), base_y, lh, "body", x=MARGIN, w=colw)
+        add_role(sid, 8, "\n\n".join(lead[:mid]), base_y, lh, "body", colour=colour, x=MARGIN, w=colw)
         if lead[mid:]:
-            add_role(sid, 9, "\n\n".join(lead[mid:]), base_y, lh, "body", x=MARGIN + colw + gutter, w=colw)
+            add_role(sid, 9, "\n\n".join(lead[mid:]), base_y, lh, "body", colour=colour, x=MARGIN + colw + gutter, w=colw)
         return base_y + lh + 200_000
 
     for i, s in enumerate(deck):
@@ -865,111 +1000,96 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
         reqs.append({"createSlide": {"objectId": sid, "insertionIndex": i,
                      "slideLayoutReference": {"predefinedLayout": "BLANK"}}})
         kind = s["kind"]
+        tone = s.get("tone") or ("dark" if kind == "section" else "light")  # tone-less decks keep dark dividers
+        dark = tone == "dark"
+        bgc = p["ink"] if dark else (p["surface"] if kind == "cover" else p["paper"])  # cover=white; light ground=paper; dark=ink
+        txt = p["paper"] if dark else p["ink"]                  # heading/body ink↔paper
+        mut = _mix(p["paper"], p["ink"], 0.42) if dark else p["muted"]
+        acc = p["secondary"] if dark else p["primary"]          # eyebrow + accent colour-split (indigo light / terracotta dark)
+        pv = {**p, "ink": txt, "muted": mut}                    # tone-adjusted palette for native viz text
+        reqs.append(_bg(sid, bgc))
         if kind == "cover":
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 1_400_000, 360_000, "eyebrow", align="CENTER")
-            add_role(sid, 1, s["title"], 1_800_000, 1_500_000, "cover-title")
+            add_role(sid, 0, s["eyebrow"], 1_350_000, 360_000, "eyebrow", colour=acc, align="CENTER")
+            add_role(sid, 1, s["title"], 1_760_000, 1_300_000, "cover-title", colour=txt)
+            if (s.get("title") or "").endswith("°"):            # degree mark in the primary accent
+                tl = len(s["title"])
+                reqs.append({"updateTextStyle": {"objectId": f"{sid}_t1",
+                    "textRange": {"type": "FIXED_RANGE", "startIndex": tl - 1, "endIndex": tl},
+                    "style": {"foregroundColor": {"opaqueColor": {"rgbColor": _rgb(p["primary"])}}},
+                    "fields": "foregroundColor"}})
+            if s.get("sub"):
+                add_role(sid, 2, s["sub"], 3_150_000, 340_000, "eyebrow", colour=mut, align="CENTER")
             if s.get("standfirst"):
-                add_role(sid, 2, s["standfirst"], 3_500_000, 1_200_000, "standfirst")
-        elif kind == "section":
-            reqs.append(_bg(sid, p["ink"]))            # dark colour block
-            add_role(sid, 0, s["eyebrow"], 1_900_000, 360_000, "eyebrow-ondark")
-            add_role(sid, 1, s["title"], 2_300_000, 1_600_000, "section-title")
+                add_role(sid, 3, s["standfirst"], 3_560_000, 1_000_000, "standfirst", colour=txt)
+            if s.get("footer"):
+                add_text(sid, 4, s["footer"], 4_560_000, 340_000, font=p["mono"], size=9, color=_rgb(mut), align="CENTER")
+        elif kind == "contents":
+            add_role(sid, 0, s["eyebrow"], 470_000, 320_000, "eyebrow", colour=acc)
+            add_role(sid, 1, s["title"], 800_000, 700_000, "section-title", colour=txt)
+            reqs += _contents_reqs(sid, s.get("entries", []), MARGIN, 1_560_000, cw, PAGE_H - 1_560_000 - MARGIN,
+                                   acc=acc, txt=txt, mut=mut, serif=p["display"], mono=p["mono"])
+        elif kind == "section":            # part divider — full-bleed, tone-coloured
+            add_role(sid, 0, s["eyebrow"], 1_950_000, 360_000, "eyebrow", colour=acc, align="CENTER")
+            add_role(sid, 1, s["title"], 2_350_000, 1_600_000, "section-title", colour=txt, align="CENTER")
         elif kind == "quote":
-            reqs.append(_bg(sid, p["paper"]))
-            add_role(sid, 0, s["eyebrow"], 700_000, 320_000, "eyebrow")
-            add_role(sid, 1, "“" + s["quote"] + "”", 1_300_000, 3_000_000, "quote")
-        elif kind == "callout":            # branded callout box: tint fill + primary accent edge
-            reqs.append(_bg(sid, p["surface"]))
+            add_role(sid, 0, s.get("eyebrow", ""), 700_000, 320_000, "eyebrow", colour=acc)
+            add_role(sid, 1, "“" + s["quote"] + "”", 1_300_000, 3_000_000, "quote", colour=txt)
+        elif kind == "callout":            # branded callout box: tint fill + accent edge
             box_x, box_y, box_h = MARGIN, 1_450_000, 2_300_000
-            reqs += _shape(sid, f"{sid}_box", "ROUND_RECTANGLE", box_x, box_y, cw, box_h, _mix(p["primary"], "#FFFFFF", 0.90))
-            reqs += _shape(sid, f"{sid}_edge", "RECTANGLE", box_x, box_y, 46_000, box_h, p["primary"])  # ~3.6pt accent edge
+            reqs += _shape(sid, f"{sid}_box", "ROUND_RECTANGLE", box_x, box_y, cw, box_h, _mix(acc, bgc, 0.90))
+            reqs += _shape(sid, f"{sid}_edge", "RECTANGLE", box_x, box_y, 46_000, box_h, acc)  # ~3.6pt accent edge
             pad, tx, tw = 300_000, box_x + 300_000, cw - 600_000
             if s.get("heading"):
-                add_role(sid, 0, s["heading"], box_y + pad, 380_000, "eyebrow", x=tx, w=tw)
-            add_role(sid, 1, s.get("body", ""), box_y + pad + 480_000, box_h - pad - 700_000, "body", x=tx, w=tw)
-        elif kind == "table":              # native data table
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
-            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            ty = _lead_band(sid, s.get("lead"), 1_550_000)
-            reqs += _table_reqs(sid, f"{sid}_tbl", s["rows"], MARGIN, ty, cw, p, tsize)
-        elif kind == "diagram":            # native swimlane / timeline
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
-            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            dy = _lead_band(sid, s.get("lead"), 1_950_000)
-            reqs += _swimlane_reqs(sid, archetype_ir.normalise_swimlane(s.get("spec", {})), MARGIN, dy, cw, PAGE_H - dy - MARGIN, p)
-        elif kind == "cards":              # icon/feature card grid
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
-            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            cy = _lead_band(sid, s.get("lead"), 1_650_000)
-            reqs += _card_grid_reqs(sid, archetype_ir.normalise_cards(s["cards"]).cards, MARGIN, cy, cw, min(PAGE_H - cy - MARGIN, 2_400_000), p)
-        elif kind == "panel":              # feature panel (+ optional nested cards)
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
-            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            py = _lead_band(sid, s.get("lead"), 1_650_000)
-            reqs += _panel_reqs(sid, s.get("spec", {}), MARGIN, py, cw, PAGE_H - py - MARGIN, p)
-        elif kind == "flow":               # process / flow — wraps to show every stage
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
-            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            fy = _lead_band(sid, s.get("lead"), 1_650_000)
-            reqs += _flow_reqs(sid, archetype_ir.normalise_flow(s["steps"]), MARGIN, fy, cw, PAGE_H - fy - MARGIN, p)
-        elif kind == "chart":              # native bar chart (dataviz ramp)
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
-            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            chy = _lead_band(sid, s.get("lead"), 1_950_000)
-            reqs += _chart_reqs(sid, archetype_ir.normalise_chart(s.get("spec", {})), MARGIN, chy, cw, PAGE_H - chy - MARGIN, p)
-        elif kind == "stat-panel":         # native stat tiles
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
-            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            sy = _lead_band(sid, s.get("lead"), 1_650_000)
-            reqs += _stat_reqs(sid, archetype_ir.normalise_stats(s.get("spec")), MARGIN, sy, cw, PAGE_H - sy - MARGIN, p)
-        elif kind == "bullseye":           # native concentric rings
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
-            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            byy = _lead_band(sid, s.get("lead"), 1_650_000)
-            reqs += _bullseye_reqs(sid, archetype_ir.normalise_bullseye(s.get("spec")), MARGIN, byy, cw, PAGE_H - byy - MARGIN, p)
-        elif kind == "hype-cycle":         # native hype-cycle (S-curve + plotted points)
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
-            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            hyy = _lead_band(sid, s.get("lead"), 1_650_000)
-            reqs += _hype_reqs(sid, archetype_ir.normalise_hype(s.get("spec")), MARGIN, hyy, cw, PAGE_H - hyy - MARGIN, p)
-        elif kind == "image":              # bespoke graphic → native figure card
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
-            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
-            iy = _lead_band(sid, s.get("lead"), 1_650_000)
-            reqs += _image_reqs(sid, archetype_ir.normalise_image(s.get("spec")), MARGIN, iy, cw, PAGE_H - iy - MARGIN, p)
+                add_role(sid, 0, s["heading"], box_y + pad, 380_000, "eyebrow", colour=acc, x=tx, w=tw)
+            add_role(sid, 1, s.get("body", ""), box_y + pad + 480_000, box_h - pad - 700_000, "body", colour=txt, x=tx, w=tw)
+        elif kind in ("table", "diagram", "cards", "panel", "flow", "chart", "stat-panel", "bullseye", "hype-cycle", "image"):
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow", colour=acc)
+            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title", colour=txt)
+            y0 = _lead_band(sid, s.get("lead"), BASEY.get(kind, 1_650_000), colour=txt)
+            avail = PAGE_H - y0 - MARGIN
+            if kind == "table":
+                reqs += _table_reqs(sid, f"{sid}_tbl", s["rows"], MARGIN, max(y0, 1_550_000), cw, pv, tsize)
+            elif kind == "diagram":
+                reqs += _swimlane_reqs(sid, archetype_ir.normalise_swimlane(s.get("spec", {})), MARGIN, y0, cw, avail, pv)
+            elif kind == "cards":
+                reqs += _card_grid_reqs(sid, archetype_ir.normalise_cards(s["cards"]).cards, MARGIN, y0, cw, min(avail, 2_400_000), pv)
+            elif kind == "panel":
+                reqs += _panel_reqs(sid, s.get("spec", {}), MARGIN, y0, cw, avail, pv)
+            elif kind == "flow":
+                reqs += _flow_reqs(sid, archetype_ir.normalise_flow(s["steps"]), MARGIN, y0, cw, avail, pv)
+            elif kind == "chart":
+                reqs += _chart_reqs(sid, archetype_ir.normalise_chart(s.get("spec", {})), MARGIN, y0, cw, avail, pv)
+            elif kind == "stat-panel":
+                reqs += _stat_reqs(sid, archetype_ir.normalise_stats(s.get("spec")), MARGIN, y0, cw, avail, pv)
+            elif kind == "bullseye":
+                reqs += _bullseye_reqs(sid, archetype_ir.normalise_bullseye(s.get("spec")), MARGIN, y0, cw, avail, pv)
+            elif kind == "hype-cycle":
+                reqs += _hype_reqs(sid, archetype_ir.normalise_hype(s.get("spec")), MARGIN, y0, cw, avail, pv)
+            else:  # image
+                reqs += _image_reqs(sid, archetype_ir.normalise_image(s.get("spec")), MARGIN, y0, cw, avail, pv)
         elif kind == "pullquote":          # native pull-quote
-            reqs.append(_bg(sid, p["paper"]))
-            add_role(sid, 0, s.get("eyebrow", ""), 700_000, 320_000, "eyebrow")
-            reqs += _pullquote_reqs(sid, archetype_ir.normalise_pullquote(s.get("spec")), MARGIN, 1_300_000, cw, 2_800_000, p)
+            add_role(sid, 0, s.get("eyebrow", ""), 700_000, 320_000, "eyebrow", colour=acc)
+            reqs += _pullquote_reqs(sid, archetype_ir.normalise_pullquote(s.get("spec")), MARGIN, 1_300_000, cw, 2_800_000, pv)
         elif kind == "cta":                # native CTA banner
-            reqs.append(_bg(sid, p["surface"]))
-            reqs += _cta_reqs(sid, archetype_ir.normalise_cta(s.get("spec")), MARGIN, 2_000_000, cw, 1_150_000, p)
+            reqs += _cta_reqs(sid, archetype_ir.normalise_cta(s.get("spec")), MARGIN, 2_000_000, cw, 1_150_000, pv)
         else:  # content
-            reqs.append(_bg(sid, p["surface"]))
-            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
-            add_role(sid, 1, s["title"], 850_000, 760_000, "topic-title")
-            if s["body"]:
-                by, bh = 1_650_000, PAGE_H - 1_650_000 - MARGIN
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow", colour=acc)
+            add_role(sid, 1, s["title"], 850_000, 760_000, "topic-title", colour=txt)
+            body = s.get("body") or []
+            if body:
+                by, bh = 1_700_000, PAGE_H - 1_700_000 - MARGIN
                 if columns == 2:                       # two-column reading layout (proposal)
                     gutter = 360_000
                     colw = (cw - gutter) // 2
-                    mid = (len(s["body"]) + 1) // 2
-                    add_role(sid, 2, "\n\n".join(s["body"][:mid]), by, bh, "body", x=MARGIN, w=colw)
-                    if s["body"][mid:]:
-                        add_role(sid, 3, "\n\n".join(s["body"][mid:]), by, bh, "body", x=MARGIN + colw + gutter, w=colw)
+                    mid = (len(body) + 1) // 2
+                    reqs += _rich_text_box(sid, f"{sid}_b0", body[:mid], MARGIN, by, colw, bh,
+                                           font=p["body"], size=bodysize, color=txt, acc=acc, serif=p["display"])
+                    if body[mid:]:
+                        reqs += _rich_text_box(sid, f"{sid}_b1", body[mid:], MARGIN + colw + gutter, by, colw, bh,
+                                               font=p["body"], size=bodysize, color=txt, acc=acc, serif=p["display"])
                 else:
-                    add_role(sid, 2, "\n\n".join(s["body"]), by, bh, "body")
+                    reqs += _rich_text_box(sid, f"{sid}_b0", body, MARGIN, by, cw, bh,
+                                           font=p["body"], size=bodysize, color=txt, acc=acc, serif=p["display"])
     return title, reqs
 
 
