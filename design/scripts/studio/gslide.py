@@ -487,13 +487,25 @@ def _swimlane_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict)
         out.append(_text_box(slide_id, ln, int(x), ly, int(label_w - 40_000), lane_h))
         out.append({"insertText": {"objectId": ln, "text": str(lane.name), "insertionIndex": 0}})
         out += _style(ln, font=p["body"], size=9, color=_rgb(p["ink"]), weight=600)
-        sx, ex = mx(lane.start), mx(lane.end)
-        bw = max(int(ex - sx), 240_000)
-        bar = f"{slide_id}_bar{li}"
-        out += _shape(slide_id, f"{bar}r", "ROUND_RECTANGLE", int(sx), ly, bw, int(lane_h * 0.6), tint)
-        out.append(_text_box(slide_id, f"{bar}t", int(sx + 70_000), ly + 24_000, bw - 120_000, int(lane_h * 0.6)))
-        out.append({"insertText": {"objectId": f"{bar}t", "text": str(lane.label), "insertionIndex": 0}})
-        out += _style(f"{bar}t", font=p["body"], size=8, color=_rgb(p["ink"]))
+        if lane.stages:                                  # multi-stage roadmap: equal segments
+            ns = len(lane.stages)
+            seg_w = (w - label_w) / ns
+            for si2, stg in enumerate(lane.stages):
+                sxx = track_x + si2 * seg_w
+                bw2 = int(seg_w - 60_000)
+                bid = f"{slide_id}_bar{li}_{si2}"
+                out += _shape(slide_id, f"{bid}r", "ROUND_RECTANGLE", int(sxx), ly, bw2, int(lane_h * 0.6), tint)
+                out.append(_text_box(slide_id, f"{bid}t", int(sxx + 60_000), ly + 20_000, bw2 - 100_000, int(lane_h * 0.6)))
+                out.append({"insertText": {"objectId": f"{bid}t", "text": str(stg.label), "insertionIndex": 0}})
+                out += _style(f"{bid}t", font=p["body"], size=7, color=_rgb(p["ink"]))
+        else:                                            # single span bar
+            sx, ex = mx(lane.start), mx(lane.end)
+            bw = max(int(ex - sx), 240_000)
+            bar = f"{slide_id}_bar{li}"
+            out += _shape(slide_id, f"{bar}r", "ROUND_RECTANGLE", int(sx), ly, bw, int(lane_h * 0.6), tint)
+            out.append(_text_box(slide_id, f"{bar}t", int(sx + 70_000), ly + 24_000, bw - 120_000, int(lane_h * 0.6)))
+            out.append({"insertText": {"objectId": f"{bar}t", "text": str(lane.label), "insertionIndex": 0}})
+            out += _style(f"{bar}t", font=p["body"], size=8, color=_rgb(p["ink"]))
     my = top + len(lanes) * (lane_h + 36_000) + 30_000   # milestone diamonds
     for mi, ms in enumerate(milestones):
         dx = int(mx(ms.at) - 66_000)

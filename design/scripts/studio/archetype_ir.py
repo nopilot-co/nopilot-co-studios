@@ -283,11 +283,19 @@ def normalise_cards(spec: Any) -> CardsNode:
 
 # ----------------------------------------------------------------- swimlane (timeline / gantt)
 @dataclass
+class Stage:
+    label: str = ""
+    start: str = ""
+    end: str = ""
+
+
+@dataclass
 class Lane:
     name: str = ""
     label: str = ""
     start: str = ""
     end: str = ""
+    stages: list["Stage"] = field(default_factory=list)   # multi-stage roadmap; empty → single span
 
 
 @dataclass
@@ -315,9 +323,16 @@ def normalise_swimlane(spec: Any) -> SwimlaneNode:
     months = [str(m) for m in (s.get("months") or [])]
     lanes: list[Lane] = []
     for ln in (s.get("lanes") or []):
-        if isinstance(ln, dict):
-            lanes.append(Lane(str(ln.get("name", "")), str(ln.get("label", "")),
-                              str(ln.get("start", "")), str(ln.get("end", ""))))
+        if not isinstance(ln, dict):
+            continue
+        stages: list[Stage] = []
+        for st in (ln.get("stages") or []):
+            if isinstance(st, dict):
+                stages.append(Stage(str(st.get("label", "")), str(st.get("start", "")), str(st.get("end", ""))))
+            else:
+                stages.append(Stage(str(st)))
+        lanes.append(Lane(str(ln.get("name", "")), str(ln.get("label", "")),
+                          str(ln.get("start", "")), str(ln.get("end", "")), stages))
     milestones: list[Milestone] = []
     for m in (s.get("milestones") or []):
         if isinstance(m, dict):

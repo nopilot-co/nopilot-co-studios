@@ -277,17 +277,26 @@ def _swimlane(inner: str, ctx: dict | None = None) -> str:
     header = f'<div style="display:flex;margin-left:150px;padding:0 0 .4rem">{head}</div>'
     rows = []
     for lane in node.lanes:
-        si = months.index(lane.start) if lane.start in months else 0
-        ei = months.index(lane.end) if lane.end in months else n - 1
-        left = si / n * 100.0
-        width = max((ei - si + 1) / n * 100.0, 100.0 / n)
+        if lane.stages:                                  # multi-stage roadmap: equal segments
+            ns = len(lane.stages)
+            segs = []
+            for si2, stg in enumerate(lane.stages):
+                left = si2 / ns * 100.0
+                segs.append(f'<div style="position:absolute;top:0;bottom:0;left:{left:.1f}%;width:{100.0 / ns - 1.5:.1f}%;'
+                            'background:var(--uds-color-primary,#C3094A);border-radius:6px;display:flex;align-items:center;padding:0 8px;'
+                            f'color:var(--uds-color-on-primary,#fff);font-size:.66rem;line-height:1.1;overflow:hidden">{_inline(stg.label)}</div>')
+            track = "".join(segs)
+        else:                                            # single span bar
+            si = months.index(lane.start) if lane.start in months else 0
+            ei = months.index(lane.end) if lane.end in months else n - 1
+            left = si / n * 100.0
+            width = max((ei - si + 1) / n * 100.0, 100.0 / n)
+            track = (f'<div style="position:absolute;top:0;bottom:0;left:{left:.1f}%;width:{width:.1f}%;background:var(--uds-color-primary,#C3094A);'
+                     f'border-radius:6px;display:flex;align-items:center;padding:0 10px;color:var(--uds-color-on-primary,#fff);font-size:.72rem;white-space:nowrap;overflow:hidden">{_inline(lane.label)}</div>')
         rows.append(
             '<div class="uds-swimlane__lane" style="display:flex;align-items:center;gap:12px;margin:7px 0">'
             f'<span style="width:138px;flex:none;font-weight:600;font-size:.85rem;color:var(--uds-color-text,#1C2022)">{_inline(lane.name)}</span>'
-            '<div style="position:relative;flex:1;height:30px;background:var(--uds-color-line,#E5E5E5);border-radius:6px">'
-            f'<div style="position:absolute;top:0;bottom:0;left:{left:.1f}%;width:{width:.1f}%;background:var(--uds-color-primary,#C3094A);'
-            f'border-radius:6px;display:flex;align-items:center;padding:0 10px;color:var(--uds-color-on-primary,#fff);font-size:.72rem;white-space:nowrap;overflow:hidden">{_inline(lane.label)}</div>'
-            '</div></div>'
+            f'<div style="position:relative;flex:1;height:34px;background:var(--uds-color-line,#E5E5E5);border-radius:6px">{track}</div></div>'
         )
     ms = ""
     if node.milestones:
