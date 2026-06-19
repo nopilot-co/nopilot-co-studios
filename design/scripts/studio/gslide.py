@@ -717,7 +717,9 @@ def _chart_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) ->
             bh = max(int(maxbar * val / mx), 20_000)
             bx, by = gx + si * (bar_w + bar_gap), base_y - bh
             out += _shape(slide_id, f"{slide_id}_bar{ci}_{si}", "ROUND_RECTANGLE", bx, by, bar_w, bh, ramp[(si if nser > 1 else ci) % len(ramp)])
-            disp = s.displays[ci] if ci < len(s.displays) else str(int(val) if float(val).is_integer() else val)
+            disp = str(s.displays[ci] if ci < len(s.displays) else val)
+            if disp.endswith(".0"):                            # drop trailing .0 (GBP k values)
+                disp = disp[:-2]
             lw = bar_w + (160_000 if nser > 1 else 0)          # value label on EVERY bar — the numbers must be readable
             out.append(_text_box(slide_id, f"{slide_id}_bv{ci}_{si}", bx - (lw - bar_w) // 2, by - 250_000, lw, 230_000))
             out.append({"insertText": {"objectId": f"{slide_id}_bv{ci}_{si}", "text": str(disp), "insertionIndex": 0}})
