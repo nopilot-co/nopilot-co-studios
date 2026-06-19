@@ -51,14 +51,14 @@ AA_BODY = 4.5  # WCAG AA contrast ratio for normal-size text.
 check("on_surface present (default)", "on_surface" in default["color"], str(default["color"].keys()))
 check(
     "default on_surface contrasts",
-    tokens._contrast_ratio(default["color"]["on_surface"], default["color"]["surface"]) >= AA_BODY,
+    tokens._contrast(default["color"]["on_surface"], default["color"]["surface"]) >= AA_BODY,
     f"{default['color']['on_surface']} on {default['color']['surface']}",
 )
 # Every shipped design-system — including the dark-surfaced ones (zed #1D1D1B,
 # yacht-club / index #142F54) that motivated #27 — must yield legible panel text.
 for _sys in tokens.list_design_systems():
     _tk = tokens.resolve("___no_brand___", design_system=_sys)
-    _ratio = tokens._contrast_ratio(_tk["color"]["on_surface"], _tk["color"]["surface"])
+    _ratio = tokens._contrast(_tk["color"]["on_surface"], _tk["color"]["surface"])
     check(f"{_sys} on_surface contrasts", _ratio >= AA_BODY, f"ratio={_ratio:.2f}")
 # The classic regression: a dark brand foreground layered onto a dark design-system
 # surface would be invisible if on_surface just copied the brand ink. Derivation
