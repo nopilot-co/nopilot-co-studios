@@ -187,33 +187,44 @@ def _chart(inner: str, ctx: dict | None = None) -> str:
     .uds-chart classes + ``--uds-bar-*`` custom props are hooks for later stylesheet theming."""
     node = _ir.normalise_chart(inner)
     ramp = (ctx or {}).get("ramp") or _ir.DEFAULT_RAMP
-    s0 = node.series[0] if node.series else None
-    vals = list(s0.values) if s0 else []
+    series = [s for s in node.series if s.values]
     title = (f'<figcaption class="uds-chart__title" style="font-family:var(--uds-font-mono,monospace);'
              'font-size:.72rem;letter-spacing:.06em;text-transform:uppercase;'
              f'color:var(--uds-color-primary,#C3094A);margin-bottom:.6rem">{_inline(node.title)}</figcaption>') if node.title else ""
-    if not vals:
+    if not series:
         return (f'<figure class="uds-chart uds-chart--empty" data-type="{_esc(node.chart_type)}" style="margin:1.5rem 0">'
                 f'{title}<p class="uds-muted">[chart: no data]</p></figure>')
-    mx = max(vals) or 1.0
     cats = node.categories
-    disp = s0.displays if s0 else []
-    bars = []
-    for i, v in enumerate(vals):
-        hpct = round(max(v / mx * 100.0, 2.0), 1)
-        col = ramp[i % len(ramp)]
-        label = disp[i] if i < len(disp) else _numfmt(v)
-        cat = cats[i] if i < len(cats) else ""
-        bars.append(
-            f'<div class="uds-chart__bar" style="--uds-bar-h:{hpct}%;--uds-bar-c:{col};'
-            'flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center">'
-            f'<span class="uds-chart__val" style="font-size:.72rem;font-weight:600;color:var(--uds-color-text,#1C2022);margin-bottom:4px">{_esc(str(label))}</span>'
-            f'<span class="uds-chart__fill" style="width:100%;height:{hpct}%;min-height:3px;background:{col};border-radius:6px 6px 0 0"></span>'
-            f'<span class="uds-chart__cat" style="font-size:.7rem;color:var(--uds-color-text-subtle,#6E747A);margin-top:8px;text-align:center;overflow-wrap:anywhere">{_esc(str(cat))}</span></div>'
-        )
+    ncat = max(len(s.values) for s in series)
+    nser = len(series)
+    mx = max((v for s in series for v in s.values), default=1.0) or 1.0
+    groups = []
+    for ci in range(ncat):
+        barset = []
+        for si, s in enumerate(series):
+            v = s.values[ci] if ci < len(s.values) else 0.0
+            hpct = round(max(v / mx * 100.0, 2.0), 1)
+            col = ramp[(si if nser > 1 else ci) % len(ramp)]
+            vlabel = (f'<span class="uds-chart__val" style="font-size:.72rem;font-weight:600;color:var(--uds-color-text,#1C2022);margin-bottom:4px">'
+                      f'{_esc(str(s.displays[ci] if ci < len(s.displays) else _numfmt(v)))}</span>') if nser == 1 else ""
+            tip = f'{_esc(s.name)}: {_numfmt(v)}' if s.name else _numfmt(v)
+            barset.append(
+                f'<div class="uds-chart__bar" title="{tip}" style="--uds-bar-h:{hpct}%;--uds-bar-c:{col};flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center">'
+                f'{vlabel}<span class="uds-chart__fill" style="width:100%;height:{hpct}%;min-height:3px;background:{col};border-radius:6px 6px 0 0"></span></div>')
+        cat = cats[ci] if ci < len(cats) else ""
+        groups.append(
+            '<div style="flex:1;min-width:0;height:100%;display:flex;flex-direction:column;justify-content:flex-end">'
+            f'<div style="display:flex;align-items:flex-end;gap:3px;height:100%">{"".join(barset)}</div>'
+            f'<span class="uds-chart__cat" style="font-size:.7rem;color:var(--uds-color-text-subtle,#6E747A);margin-top:8px;text-align:center;overflow-wrap:anywhere">{_esc(str(cat))}</span></div>')
     plot = ('<div class="uds-chart__plot" style="display:flex;align-items:flex-end;gap:12px;height:240px;'
-            'padding-top:1.25rem;border-bottom:2px solid var(--uds-color-line,#E5E5E5)">' + "".join(bars) + "</div>")
-    return f'<figure class="uds-chart" data-type="{_esc(node.chart_type)}" style="margin:1.75rem 0">{title}{plot}</figure>'
+            'padding-top:1.25rem;border-bottom:2px solid var(--uds-color-line,#E5E5E5)">' + "".join(groups) + "</div>")
+    legend = ""
+    if nser > 1:
+        items = "".join(f'<span style="display:inline-flex;align-items:center;gap:6px;margin-right:1rem;font-size:.75rem">'
+                        f'<span style="width:12px;height:12px;border-radius:3px;background:{ramp[si % len(ramp)]}"></span>{_esc(s.name or f"Series {si + 1}")}</span>'
+                        for si, s in enumerate(series))
+        legend = f'<div class="uds-chart__legend" style="margin-top:.6rem">{items}</div>'
+    return f'<figure class="uds-chart" data-type="{_esc(node.chart_type)}" style="margin:1.75rem 0">{title}{plot}{legend}</figure>'
 
 
 def _flow(inner: str, ctx: dict | None = None) -> str:

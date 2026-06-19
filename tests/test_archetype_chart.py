@@ -65,7 +65,7 @@ with tempfile.TemporaryDirectory() as td:
     def _near(a: dict, b: dict) -> bool:
         return all(abs(a.get(k, 0) - b.get(k, 0)) <= 0.02 for k in ("red", "green", "blue"))
 
-    bar0 = next((r for r in reqs if r.get("updateShapeProperties", {}).get("objectId", "").endswith("_bar0")), None)
+    bar0 = next((r for r in reqs if r.get("updateShapeProperties", {}).get("objectId", "").endswith("_bar0_0")), None)
     got = bar0["updateShapeProperties"]["shapeProperties"]["shapeBackgroundFill"]["solidFill"]["color"]["rgbColor"] if bar0 else {}
     check("gslide: bar0 uses brand ramp[0]", _near(got, gslide._rgb(RAMP0)), f"{got} vs {RAMP0}")
 

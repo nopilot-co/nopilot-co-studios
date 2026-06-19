@@ -604,22 +604,24 @@ def _flow_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> 
 
 
 def _chart_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
-    """A native bar chart from a ChartNode: bars (dataviz ramp) on a baseline, value
-    labels above, category labels below. Native shapes — every bar shown, coloured from
-    the brand's dataviz tokens. Renders the node's first series (gslide bars)."""
-    s0 = node.series[0] if node.series else None
-    vals = list(s0.values) if s0 else []
-    if not vals:
+    """A native bar chart from a ChartNode. Single series → labelled bars; multiple series
+    → grouped bars (one dataviz colour per series) + a legend. Native shapes, every bar
+    shown, coloured from the brand's dataviz tokens."""
+    series = [s for s in node.series if s.values]
+    if not series:
         return []
     cats = node.categories
-    disp = s0.displays if s0 else []
-    mx = max(vals) or 1.0
-    n = len(vals)
-    gap = 200_000
-    bw = (w - gap * (n - 1)) // n
-    base_y = y + h - 560_000           # baseline; room for category labels below
-    maxbar = h - 900_000               # room for value label above + category below
+    ncat = max(len(s.values) for s in series)
+    nser = len(series)
+    mx = max((v for s in series for v in s.values), default=1.0) or 1.0
     ramp = p.get("dataviz") or [p["primary"]]
+    gap = 200_000
+    legend_h = 360_000 if nser > 1 else 0
+    group_w = (w - gap * (ncat - 1)) // max(ncat, 1)
+    bar_gap = 24_000 if nser > 1 else 0
+    bar_w = (group_w - bar_gap * (nser - 1)) // nser
+    base_y = y + h - 560_000 - legend_h    # baseline; room for category labels (+ legend)
+    maxbar = h - 900_000 - legend_h
     out: list[dict] = [{"createShape": {"objectId": f"{slide_id}_axis", "shapeType": "RECTANGLE",
         "elementProperties": {"pageObjectId": slide_id,
             "size": {"width": {"magnitude": w, "unit": "EMU"}, "height": {"magnitude": 12_000, "unit": "EMU"}},
@@ -627,18 +629,31 @@ def _chart_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) ->
         {"updateShapeProperties": {"objectId": f"{slide_id}_axis",
             "shapeProperties": {"shapeBackgroundFill": {"solidFill": {"color": {"rgbColor": _rgb(p["line"])}}}, "outline": {"propertyState": "NOT_RENDERED"}},
             "fields": "shapeBackgroundFill.solidFill.color,outline.propertyState"}}]
-    for i, val in enumerate(vals):
-        bh = max(int(maxbar * val / mx), 20_000)
-        bx, by = x + i * (bw + gap), base_y - bh
-        out += _shape(slide_id, f"{slide_id}_bar{i}", "ROUND_RECTANGLE", bx, by, bw, bh, ramp[i % len(ramp)])
-        out.append(_text_box(slide_id, f"{slide_id}_bv{i}", bx, by - 300_000, bw, 280_000))
-        label = disp[i] if i < len(disp) else str(val)
-        out.append({"insertText": {"objectId": f"{slide_id}_bv{i}", "text": str(label), "insertionIndex": 0}})
-        out += _style(f"{slide_id}_bv{i}", font=p["body"], size=9, color=_rgb(p["ink"]), align="CENTER", weight=600)
-        out.append(_text_box(slide_id, f"{slide_id}_bc{i}", bx, base_y + 40_000, bw, 480_000))
-        cat = cats[i] if i < len(cats) else ""
-        out.append({"insertText": {"objectId": f"{slide_id}_bc{i}", "text": str(cat), "insertionIndex": 0}})
-        out += _style(f"{slide_id}_bc{i}", font=p["body"], size=8, color=_rgb(p["muted"]), align="CENTER")
+    for ci in range(ncat):
+        gx = x + ci * (group_w + gap)
+        for si, s in enumerate(series):
+            val = s.values[ci] if ci < len(s.values) else 0.0
+            bh = max(int(maxbar * val / mx), 20_000)
+            bx, by = gx + si * (bar_w + bar_gap), base_y - bh
+            out += _shape(slide_id, f"{slide_id}_bar{ci}_{si}", "ROUND_RECTANGLE", bx, by, bar_w, bh, ramp[(si if nser > 1 else ci) % len(ramp)])
+            if nser == 1:                  # value labels only when a group has one bar (uncluttered)
+                disp = s.displays[ci] if ci < len(s.displays) else str(val)
+                out.append(_text_box(slide_id, f"{slide_id}_bv{ci}", bx, by - 300_000, bar_w, 280_000))
+                out.append({"insertText": {"objectId": f"{slide_id}_bv{ci}", "text": str(disp), "insertionIndex": 0}})
+                out += _style(f"{slide_id}_bv{ci}", font=p["body"], size=9, color=_rgb(p["ink"]), align="CENTER", weight=600)
+        cat = cats[ci] if ci < len(cats) else ""
+        out.append(_text_box(slide_id, f"{slide_id}_bc{ci}", gx, base_y + 40_000, group_w, 480_000))
+        out.append({"insertText": {"objectId": f"{slide_id}_bc{ci}", "text": str(cat), "insertionIndex": 0}})
+        out += _style(f"{slide_id}_bc{ci}", font=p["body"], size=8, color=_rgb(p["muted"]), align="CENTER")
+    if nser > 1:                            # legend — swatch + series name
+        ly, lx = y + h - legend_h + 60_000, x
+        for si, s in enumerate(series):
+            name = s.name or f"Series {si + 1}"
+            out += _shape(slide_id, f"{slide_id}_lg{si}", "ROUND_RECTANGLE", lx, ly, 150_000, 150_000, ramp[si % len(ramp)])
+            out.append(_text_box(slide_id, f"{slide_id}_lgt{si}", lx + 190_000, ly - 30_000, 2_400_000, 240_000))
+            out.append({"insertText": {"objectId": f"{slide_id}_lgt{si}", "text": name, "insertionIndex": 0}})
+            out += _style(f"{slide_id}_lgt{si}", font=p["body"], size=8, color=_rgb(p["ink"]))
+            lx += 190_000 + len(name) * 88_000 + 360_000
     return out
 
 
