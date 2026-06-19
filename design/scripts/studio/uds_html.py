@@ -368,6 +368,25 @@ def _hype(inner: str, ctx: dict | None = None) -> str:
             + "".join(dots) + "".join(labels) + axis + "</svg>" + notes_html + "</figure>")
 
 
+def _image(inner: str, ctx: dict | None = None) -> str:
+    """A native HTML figure — inlines the SVG verbatim (faithful), or an <img>, + caption.
+    Resolves a relative ``src`` against ``ctx['base']`` (the docket viz dir)."""
+    node = _ir.normalise_image(inner)
+    if node.is_empty:
+        return ""
+    base = (ctx or {}).get("base")
+    src = node.src
+    body = ""
+    if src:
+        path = (Path(base) / src) if (base and not src.startswith(("http", "/"))) else Path(src)
+        if src.lower().endswith(".svg") and path.exists():
+            body = path.read_text(encoding="utf-8")          # inline the SVG verbatim
+        else:
+            body = f'<img src="{_esc(src)}" alt="{_esc(node.alt)}" loading="lazy" style="max-width:100%;height:auto">'
+    cap = f'<figcaption style="font-size:.8rem;color:var(--uds-color-text-subtle,#6E747A);margin-top:.5rem">{_inline(node.caption)}</figcaption>' if node.caption else ""
+    return f'<figure class="uds-figure" style="margin:1.5rem 0;text-align:center">{body}{cap}</figure>'
+
+
 _FENCE = {"stat-panel": _stat_grid, "pullquote": _pull_from_text, "callout-panel": _callout,
           "process": _process, "cta": _cta}
 
@@ -419,6 +438,8 @@ def _render_blocks(blocks: list[tuple], *, demote: int = 0, ctx: dict | None = N
                 out.append(_bullseye(b[2], ctx))
             elif b[1] in ("hype-cycle", "hype"):
                 out.append(_hype(b[2], ctx))
+            elif b[1] in ("image", "figure", "asset-embed"):
+                out.append(_image(b[2], ctx))
             else:
                 fn = _FENCE.get(b[1])
                 out.append(fn(b[2]) if fn else _unsupported_fence(b[1]))

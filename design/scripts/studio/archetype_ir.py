@@ -44,6 +44,7 @@ CAPABILITIES: dict[str, set[str]] = {
     "cta": {"gslide", "html"},
     "bullseye": {"gslide", "html"},
     "hype-cycle": {"gslide", "html"},
+    "image": {"gslide", "html"},
 }
 
 # Fence name → canonical archetype (aliases collapse here as archetypes land).
@@ -63,6 +64,9 @@ ALIASES: dict[str, str] = {
     "bullseye": "bullseye",
     "hype-cycle": "hype-cycle",
     "hype": "hype-cycle",
+    "image": "image",
+    "figure": "image",
+    "asset-embed": "image",
 }
 
 
@@ -508,3 +512,24 @@ def normalise_hype(spec: Any) -> HypeCycleNode:
         else:
             points.append(HypePoint(str(it), 0.5, ""))
     return HypeCycleNode(phases, points)
+
+
+# ----------------------------------------------------------------- image / figure (bespoke graphics)
+@dataclass
+class ImageNode:
+    src: str = ""
+    caption: str = ""
+    alt: str = ""
+
+    @property
+    def is_empty(self) -> bool:
+        return not (self.src or self.caption)
+
+
+def normalise_image(spec: Any) -> ImageNode:
+    """A figure: an image/SVG `src` (+ caption/alt). HTML inlines it; gslide shows a native
+    figure card (the full graphic lives in the high-fidelity doc)."""
+    s = _as_spec(spec)
+    if isinstance(s, dict):
+        return ImageNode(str(s.get("src", "") or s.get("path", "")), str(s.get("caption", "")), str(s.get("alt", "") or s.get("title", "")))
+    return ImageNode(str(spec or "").strip())

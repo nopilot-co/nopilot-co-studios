@@ -42,6 +42,7 @@ SAMPLES = {
     "cta": "Book a paid Lunch and Learn.",
     "bullseye": "rings:\n  - {ring: Core, items: [Agentic platform]}\n  - {ring: Adjacent, items: [RAG, Evals]}\n  - {ring: Frontier, items: [Multi-agent]}",
     "hype-cycle": "phases: [Trigger, Peak, Trough, Slope, Plateau]\npoints:\n  - {label: Agentic, phase: Peak, tooltip: Overhyped now}\n  - {label: RAG, phase: Slope, tooltip: Maturing fast}",
+    "image": "src: missing.svg\ncaption: A bespoke figure",
 }
 
 
@@ -89,6 +90,7 @@ GSLIDE_OK = {
     "cta": lambda reqs: any("Lunch" in t for t in _inserts(reqs)),
     "bullseye": lambda reqs: any("Core" in t for t in _inserts(reqs)),
     "hype-cycle": lambda reqs: any("Agentic" in t for t in _inserts(reqs)) and any("Overhyped" in t for t in _inserts(reqs)),  # point + visible tooltip note
+    "image": lambda reqs: any("bespoke figure" in t for t in _inserts(reqs)),  # native figure card carries the caption
 }
 PPTX_OK = {
     "chart": lambda sh: any(getattr(x, "has_chart", False) for x in sh),
@@ -105,6 +107,7 @@ HTML_OK = {
     "cta": lambda h: "uds-banner" in h and ":::" not in h,
     "bullseye": lambda h: "uds-bullseye" in h and ":::" not in h,
     "hype-cycle": lambda h: "uds-hype" in h and "<title>Overhyped" in h and ":::" not in h,  # hover tooltip + visible note
+    "image": lambda h: "uds-figure" in h and ":::" not in h,
 }
 PROBE = {"gslide": (_gslide_reqs, GSLIDE_OK), "pptx": (_pptx_shapes, PPTX_OK), "html": (_html, HTML_OK)}
 

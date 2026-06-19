@@ -216,10 +216,10 @@ def _flat_blocks(body: str) -> list[tuple]:
                     if isinstance(spec, dict):
                         spec.setdefault("type", b[1])
                         out.append(("diagram", spec))
-                elif b[0] == "fence" and b[1] in ("cards", "panel", "flow", "process", "chart", "stat-panel", "stats", "bullseye", "hype-cycle", "hype"):
+                elif b[0] == "fence" and b[1] in ("cards", "panel", "flow", "process", "chart", "stat-panel", "stats", "bullseye", "hype-cycle", "hype", "image", "figure", "asset-embed"):
                     try:
                         spec = yaml.safe_load(b[2])
-                        kind = {"process": "flow", "stats": "stat-panel", "hype": "hype-cycle"}.get(b[1], b[1])
+                        kind = {"process": "flow", "stats": "stat-panel", "hype": "hype-cycle", "figure": "image", "asset-embed": "image"}.get(b[1], b[1])
                         out.append((kind, spec))
                     except Exception:
                         out.append(("p", _clean(b[2])))
@@ -323,7 +323,7 @@ def slide_specs_flat(src_path: Path, *, brand: str = "nopilot", lines_per_slide:
                 head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
                 _emit(head, sub_title); pending = []
                 deck.append({"kind": "chart", "eyebrow": gtitle, "title": sub_title, "spec": b[1] or {}, "lead": lead})
-            elif b[0] in ("stat-panel", "bullseye", "hype-cycle"):  # stat tiles / bullseye / hype-cycle → its own slide
+            elif b[0] in ("stat-panel", "bullseye", "hype-cycle", "image"):  # viz / figure → its own slide
                 head, lead = (pending[:-group_lead], pending[-group_lead:]) if group_lead else (pending, [])
                 _emit(head, sub_title); pending = []
                 deck.append({"kind": b[0], "eyebrow": gtitle, "title": sub_title, "spec": b[1], "lead": lead})
@@ -799,6 +799,24 @@ def _hype_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> 
     return out
 
 
+def _image_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> list[dict]:
+    """A native figure card for a bespoke graphic — FIGURE eyebrow + accent edge + caption
+    in a framed box. The full SVG lives in the high-fidelity doc; the deck references it."""
+    if node.is_empty:
+        return []
+    bh = min(h, 2_800_000)
+    out = _shape(slide_id, f"{slide_id}_fig", "ROUND_RECTANGLE", x, y, w, bh, p["paper"])
+    out += _shape(slide_id, f"{slide_id}_fige2", "RECTANGLE", x, y, 46_000, bh, p["primary"])
+    out.append(_text_box(slide_id, f"{slide_id}_fige", x + 340_000, y + 260_000, w - 680_000, 280_000))
+    out.append({"insertText": {"objectId": f"{slide_id}_fige", "text": "FIGURE", "insertionIndex": 0}})
+    out += _style(f"{slide_id}_fige", font=p["body"], size=8, color=_rgb(p["primary"]), weight=600)
+    cap = node.caption or node.alt or node.src
+    out.append(_text_box(slide_id, f"{slide_id}_figc", x + 340_000, y + 620_000, w - 680_000, bh - 920_000))
+    out.append({"insertText": {"objectId": f"{slide_id}_figc", "text": str(cap), "insertionIndex": 0}})
+    out += _style(f"{slide_id}_figc", font=p["display"], size=14, color=_rgb(p["ink"]))
+    return out
+
+
 def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None) -> tuple[str, list[dict]]:
     """IR → Slides API batchUpdate requests (cover, section, quote, content). A render
     ``profile`` (e.g. 'proposal') sets the reading sizes + column count from the UDS."""
@@ -924,6 +942,12 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
             hyy = _lead_band(sid, s.get("lead"), 1_650_000)
             reqs += _hype_reqs(sid, archetype_ir.normalise_hype(s.get("spec")), MARGIN, hyy, cw, PAGE_H - hyy - MARGIN, p)
+        elif kind == "image":              # bespoke graphic → native figure card
+            reqs.append(_bg(sid, p["surface"]))
+            add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow")
+            add_role(sid, 1, s.get("title", ""), 850_000, 620_000, "topic-title")
+            iy = _lead_band(sid, s.get("lead"), 1_650_000)
+            reqs += _image_reqs(sid, archetype_ir.normalise_image(s.get("spec")), MARGIN, iy, cw, PAGE_H - iy - MARGIN, p)
         elif kind == "pullquote":          # native pull-quote
             reqs.append(_bg(sid, p["paper"]))
             add_role(sid, 0, s.get("eyebrow", ""), 700_000, 320_000, "eyebrow")
