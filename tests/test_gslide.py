@@ -29,7 +29,9 @@ create = [r for r in reqs if "createSlide" in r]
 shapes = [r for r in reqs if "createShape" in r]
 inserts = {r["insertText"]["objectId"] for r in reqs if "insertText" in r}
 check("title from meta", title == "Test", title)
-check(">=4 slides (cover/section/quote/content)", len(create) >= 4, str(len(create)))
+check(">=3 slides (cover/section/content; quotes inline)", len(create) >= 3, str(len(create)))
+_texts = " ".join(r["insertText"]["text"] for r in reqs if "insertText" in r)
+check("hero quote rendered inline (not a separate slide)", "A quote here" in _texts, "quote missing inline")
 check("every shape gets text", all(s["createShape"]["objectId"] in inserts for s in shapes))
 check("blank layout", all(r["createSlide"]["slideLayoutReference"]["predefinedLayout"] == "BLANK" for r in create))
 # cover white bg; a section uses the dark ink bg

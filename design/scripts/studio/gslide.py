@@ -105,9 +105,9 @@ def _topic_body(content_dir: Path, topic: dict[str, Any]) -> tuple[list[str], st
             lines.append(_clean(b[1]))
         elif b[0] == "list":
             lines += ["• " + _clean(it) for it in b[1]]
-        elif b[0] == "quote" and not quote:
-            quote = _clean(b[1])
-    return [ln for ln in lines if ln], quote
+        elif b[0] == "quote":
+            lines.append("❝ " + _clean(b[1]))      # hero quote rendered inline (not a separate slide)
+    return [ln for ln in lines if ln], ""
 
 
 # ----------------------------------------------------------------- IR (flat HTML-laced source → slides)
@@ -390,13 +390,30 @@ def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide:
         if ttype == "interstitial" or not t.get("section_md"):   # a part divider — full-bleed, tone-coloured
             deck.append({"kind": "section", "tone": tone, "eyebrow": eyebrow or "Section", "title": title})
             continue
-        lines, quote = _topic_body(content_dir, t)               # a content topic
-        if quote:
-            deck.append({"kind": "quote", "tone": tone, "eyebrow": eyebrow, "title": title, "quote": quote})
-        chunks = [lines[i:i + lines_per_slide] for i in range(0, len(lines), lines_per_slide)] or [[]]
-        for n, chunk in enumerate(chunks):
-            deck.append({"kind": "content", "tone": tone, "eyebrow": eyebrow,
-                         "title": title + ("" if n == 0 else f" (cont. {n + 1})"), "body": chunk})
+        lines, _q = _topic_body(content_dir, t)                  # a content topic (hero quotes inline)
+        groups, cur = [], []                                     # split into major points at § boundaries
+        for ln in lines:
+            if ln.startswith("§ ") and cur:
+                groups.append(cur); cur = [ln]
+            else:
+                cur.append(ln)
+        if cur:
+            groups.append(cur)
+        pages, cur = [], []                                      # pack points onto slides up to the soft budget (~1 major point/slide)
+        for g in groups:
+            if len(g) > lines_per_slide:                         # an oversized point — split across slides so it never clips
+                if cur:
+                    pages.append(cur); cur = []
+                for i in range(0, len(g), lines_per_slide):
+                    pages.append(g[i:i + lines_per_slide])
+            elif cur and len(cur) + len(g) > lines_per_slide:
+                pages.append(cur); cur = list(g)
+            else:
+                cur += g
+        if cur:
+            pages.append(cur)
+        for body in (pages or [[]]):
+            deck.append({"kind": "content", "tone": tone, "eyebrow": eyebrow, "title": title, "body": body})
         if tid in viz:                                           # native viz for this topic (chart/bullseye/swimlane/hype/image; one or many)
             blocks = viz[tid] if isinstance(viz[tid], list) else [viz[tid]]
             for v in blocks:
@@ -883,14 +900,17 @@ def _md_bold_spans(s: str) -> tuple[str, list[tuple[int, int]]]:
 
 def _rich_text_box(sid: str, box_id: str, lines: list[str], x: int, y: int, w: int, h: int,
                    *, font: str, size: float, color: str, acc: str, serif: str,
-                   weight: int | None = None, line_spacing: float | None = None, space_after: float | None = None) -> list[dict]:
-    """A reading column with structure: ``§`` → serif subhead, ``• `` → native bullet,
-    ``**lead**`` → bold run. One text box; styling applied by char range so prose wraps.
-    ``weight`` sets a true face (e.g. Roboto Light 300); ``line_spacing``/``space_after`` set the reading rhythm."""
+                   weight: int | None = None, line_spacing: float | None = None, space_after: float | None = None,
+                   subhead_size: float | None = None) -> list[dict]:
+    """A reading column with structure: ``§`` → larger reading-font subhead (major point),
+    ``❝`` → inline serif hero quote, ``• `` → native bullet, ``**lead**`` → bold run. One text box;
+    styling applied by char range so prose wraps. ``weight`` sets a true face (e.g. Roboto Light 300)."""
     paras = []  # (clean, kind, bold_spans)
     for ln in lines:
         if ln.startswith("§ "):
             clean, spans = _md_bold_spans(ln[2:]); paras.append((clean, "head", spans))
+        elif ln.startswith("❝ "):
+            clean, spans = _md_bold_spans(ln[2:]); paras.append((clean, "quote", spans))
         elif ln.startswith("• "):
             clean, spans = _md_bold_spans(ln[2:]); paras.append((clean, "bullet", spans))
         else:
@@ -926,10 +946,12 @@ def _rich_text_box(sid: str, box_id: str, lines: list[str], x: int, y: int, w: i
         for bs, be in spans:                       # bold lead-ins / emphasis
             if be > bs:
                 _rng(start + bs, start + be, {"bold": True}, "bold")
-        if kind == "head" and end > start:         # subsection head → serif, slightly larger, accent
-            _rng(start, end, {"bold": True, "fontFamily": serif, "fontSize": {"magnitude": size + 2.5, "unit": "PT"},
-                              "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(acc)}}},
-                 "bold,fontFamily,fontSize,foregroundColor")
+        if kind == "head" and end > start:         # major-point subhead → reading font, larger (e.g. Roboto Light 10.5)
+            _rng(start, end, {"fontSize": {"magnitude": (subhead_size or size + 2.5), "unit": "PT"}}, "fontSize")
+        elif kind == "quote" and end > start:      # inline hero quote → IBM Plex Serif, larger
+            _rng(start, end, {"fontFamily": serif, "fontSize": {"magnitude": (subhead_size or size) + 4.5, "unit": "PT"},
+                              "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(color)}}},
+                 "fontFamily,fontSize,foregroundColor")
         if kind == "bullet":
             run = [start, end] if run is None else [run[0], end]
         elif run is not None:
@@ -945,8 +967,9 @@ def _rich_text_box(sid: str, box_id: str, lines: list[str], x: int, y: int, w: i
 
 
 def _contents_reqs(sid: str, entries: list[dict], x: int, y: int, w: int, h: int,
-                   *, acc: str, txt: str, mut: str, serif: str, mono: str) -> list[dict]:
-    """Numbered contents in two columns: mono accent number + serif title + mono muted descriptor."""
+                   *, acc: str, txt: str, mut: str, sans: str) -> list[dict]:
+    """Numbered contents in two columns — all in the reading sans (Roboto): accent number +
+    reading-font title + muted descriptor. (Only page titles keep the serif.)"""
     if not entries:
         return []
     out: list[dict] = []
@@ -961,22 +984,22 @@ def _contents_reqs(sid: str, entries: list[dict], x: int, y: int, w: int, h: int
         nb, tb = f"{sid}_cn{i}", f"{sid}_ct{i}"
         out.append(_text_box(sid, nb, ex, ey, 520_000, row_h))
         out.append({"insertText": {"objectId": nb, "text": f"{e['n']:02d}", "insertionIndex": 0}})
-        out += _style(nb, font=mono, size=12, color=_rgb(acc), bold=True)
+        out += _style(nb, font=sans, size=10, color=_rgb(acc), weight=500)
         title, desc = e.get("title", ""), e.get("desc", "")
         text = title + (("\n" + desc) if desc else "")
         out.append(_text_box(sid, tb, ex + 560_000, ey, colw - 560_000, row_h))
         out.append({"insertText": {"objectId": tb, "text": text, "insertionIndex": 0}})
         out.append({"updateTextStyle": {"objectId": tb, "textRange": {"type": "ALL"},
-                    "style": {"fontFamily": serif, "fontSize": {"magnitude": 15, "unit": "PT"},
+                    "style": {"weightedFontFamily": {"fontFamily": sans, "weight": 300}, "fontSize": {"magnitude": 12, "unit": "PT"},
                               "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(txt)}}},
-                    "fields": "fontFamily,fontSize,foregroundColor"}})
+                    "fields": "weightedFontFamily,fontSize,foregroundColor"}})
         if desc:
             ds = len(title) + 1
             out.append({"updateTextStyle": {"objectId": tb,
                         "textRange": {"type": "FIXED_RANGE", "startIndex": ds, "endIndex": ds + len(desc)},
-                        "style": {"fontFamily": mono, "fontSize": {"magnitude": 8.5, "unit": "PT"},
+                        "style": {"weightedFontFamily": {"fontFamily": sans, "weight": 400}, "fontSize": {"magnitude": 8.5, "unit": "PT"},
                                   "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(mut)}}},
-                        "fields": "fontFamily,fontSize,foregroundColor"}})
+                        "fields": "weightedFontFamily,fontSize,foregroundColor"}})
     return out
 
 
@@ -1004,7 +1027,9 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
     BASEY = {"table": 1_550_000, "diagram": 1_950_000, "chart": 1_950_000}  # data-heavy slides → tighter header
     # Format typography (proposal longform): Roboto Light reading body, IBM Plex Serif Bold titles, 1.15 line + space-after.
     typo = prof.get("typography", {}) or {}
+    eyebrow_family, eyebrow_weight = typo.get("eyebrow_family"), typo.get("eyebrow_weight")
     body_family, body_weight = typo.get("body_family"), typo.get("body_weight")
+    subhead_size = typo.get("subhead_size")
     title_family, title_weight = typo.get("title_family"), typo.get("title_weight")
     line_sp = round(float(typo["line_height"]) * 100) if typo.get("line_height") else None
     space_aft = typo.get("space_after_pt")
@@ -1017,9 +1042,11 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
         s = text.upper() if st.get("transform") == "upper" else text
         fam = (st.get("family") or "Inter").split(",")[0].strip()
         wt = st.get("weight")
-        if role in _TITLE_ROLES and title_family:       # format titles → IBM Plex Serif Bold
+        if role in _TITLE_ROLES and title_family:            # format titles → IBM Plex Serif (only titles keep the serif)
             fam, wt = title_family, (title_weight or wt)
-        elif role == "body" and body_family:            # format reading body → Roboto Light
+        elif role.startswith("eyebrow") and eyebrow_family:  # format eyebrows → Roboto Medium caps
+            fam, wt = eyebrow_family, (eyebrow_weight or wt)
+        elif role == "body" and body_family:                 # format reading body → Roboto Light
             fam, wt = body_family, (body_weight or wt)
         if "geist" in fam.lower():            # Google Workspace has no Geist Mono → the UDS fallback
             fam = _GSLIDE_MONO
@@ -1067,12 +1094,12 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             if s.get("standfirst"):
                 add_role(sid, 3, s["standfirst"], 3_560_000, 1_000_000, "standfirst", colour=txt)
             if s.get("footer"):
-                add_text(sid, 4, s["footer"], 4_560_000, 340_000, font=p["mono"], size=9, color=_rgb(mut), align="CENTER")
+                add_text(sid, 4, s["footer"], 4_560_000, 340_000, font=p["body"], size=9, color=_rgb(mut), align="CENTER", weight=body_weight)
         elif kind == "contents":
             add_role(sid, 0, s["eyebrow"], 470_000, 320_000, "eyebrow", colour=acc)
             add_role(sid, 1, s["title"], 800_000, 700_000, "section-title", colour=txt)
             reqs += _contents_reqs(sid, s.get("entries", []), MARGIN, 1_560_000, cw, PAGE_H - 1_560_000 - MARGIN,
-                                   acc=acc, txt=txt, mut=mut, serif=p["display"], mono=p["mono"])
+                                   acc=acc, txt=txt, mut=mut, sans=p["body"])
         elif kind == "section":            # part divider — full-bleed, tone-coloured
             add_role(sid, 0, s["eyebrow"], 1_950_000, 360_000, "eyebrow", colour=acc, align="CENTER")
             add_role(sid, 1, s["title"], 2_350_000, 1_600_000, "section-title", colour=txt, align="CENTER")
@@ -1134,13 +1161,13 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
                     colw = (cw - gutter) // 2
                     mid = (len(body) + 1) // 2
                     reqs += _rich_text_box(sid, f"{sid}_b0", body[:mid], MARGIN, by, colw, bh,
-                                           font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft)
+                                           font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft, subhead_size=subhead_size)
                     if body[mid:]:
                         reqs += _rich_text_box(sid, f"{sid}_b1", body[mid:], MARGIN + colw + gutter, by, colw, bh,
-                                               font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft)
+                                               font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft, subhead_size=subhead_size)
                 else:
                     reqs += _rich_text_box(sid, f"{sid}_b0", body, MARGIN, by, cw, bh,
-                                           font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft)
+                                           font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft, subhead_size=subhead_size)
     return title, reqs
 
 

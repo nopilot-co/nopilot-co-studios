@@ -75,20 +75,23 @@ profiles:
   proposal:
     aspect: slide
     columns: 2
-    lines_per_slide: 18            # reading blocks/slide — tuned for the 10pt Roboto Light reading body
+    lines_per_slide: 12            # soft budget — §-aware pagination targets ~1 major point per slide
     table_size: 7                  # data tables read fine small in a document
     table_rows: 12                 # body rows per table slide; longer tables paginate (header repeats) — never truncate
     group_lead: 3                  # paragraphs of supporting prose that group onto a table/diagram slide (kills white space)
-    # Typography — the longform proposal reading contract (format globals, NPT UDS):
-    # Roboto Light reading body @10pt / 1.15 line / space after blocks; IBM Plex Serif Bold titles.
+    # Typography — the longform proposal reading contract (format globals, NPT UDS), matched to the 12mXSD hand-edit.
+    # Only titles keep the serif; everything else is Roboto (Medium caps eyebrows, Light reading body).
     typography:
+      eyebrow_family: Roboto
+      eyebrow_weight: 500          # Roboto Medium, caps
       body_family: Roboto
-      body_weight: 300
+      body_weight: 300             # Roboto Light reading body
+      subhead_size: 10.5           # major-point subhead (Roboto Light), above the 8pt body
       title_family: IBM Plex Serif
-      title_weight: 700
+      title_weight: 400            # IBM Plex Serif (not bold) — content titles at 16pt
       line_height: 1.15
-      space_after_pt: 6
-    sizes: { eyebrow: 11, eyebrow-ondark: 11, cover-title: 44, standfirst: 14, section-title: 40, topic-title: 18, body: 10, quote: 16 }
+      space_after_pt: 5
+    sizes: { eyebrow: 12, eyebrow-ondark: 12, cover-title: 44, standfirst: 13, section-title: 40, topic-title: 16, body: 8, quote: 15 }
 
 # The three register layers (full contracts in archetypes.yml).
 register_layers:
