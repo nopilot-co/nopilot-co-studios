@@ -436,12 +436,37 @@ def _engine_frame(
     return {sfmt: dest}
 
 
+def _engine_gslide(
+    session_path: Path, resolved: dict[str, Any], state: dict[str, Any], version: str
+) -> dict[str, Path]:
+    """Native Google Slides renderer (manifest-native via studio.gslide). Builds the
+    Slides batchUpdate payload (the renderable artifact) from the session source + brand
+    tokens, honouring the format's render profile (e.g. proposal → longform typography +
+    figures). Pushing to a live deck is a separate `python -m studio.gslide --execute`
+    step (an account write); bespoke SVG figures rasterise at push time."""
+    import json as _json
+
+    from . import gslide as gslide_mod
+
+    slug = state["brand"]
+    profile = resolved.get("profile") or (resolved.get("render") or {}).get("profile")
+    src = session_path / "inputs" / "source.md"
+    dest = session_path / "outputs" / f"{_out_stem(state)}.v{version}.gslide.json"
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    title, reqs = gslide_mod.build_requests(src, brand=slug, profile=profile)
+    payload = {"title": title, "slides": sum(1 for r in reqs if "createSlide" in r),
+               "requests": [r for r in reqs if "_studio_image" not in r]}
+    dest.write_text(_json.dumps(payload, indent=2), encoding="utf-8")
+    return {"gslide": dest}
+
+
 # Registry of engine name -> function. Layouts declare which engine they use.
 _ENGINES: dict[str, Engine] = {
     "linear-engine": _engine_linear,
     "pptx-engine": _engine_pptx,
     "uds-pdf-engine": _engine_uds_pdf,
     "frame-engine": _engine_frame,
+    "gslide-engine": _engine_gslide,
 }
 
 

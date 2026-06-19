@@ -2,7 +2,7 @@ asset: anchor-link
 name: Anchor link
 description: An inline or block hyperlink styled to stand out as a navigation target.
 buckets: [documents]
-exports: [html, pdf]
+exports: [html, pdf, gslide]
 style:
   color: "{colors.tertiary}"
 authoring:

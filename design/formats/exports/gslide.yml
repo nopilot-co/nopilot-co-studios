@@ -1,18 +1,26 @@
 # Export: gslide — Google Slides deck (editable native blocks).
-# Canonical contract exists; the studio produces this in slice 4 via PPTX import.
+# REAL renderer: manifest-native via scripts/studio/gslide.py (Slides REST API
+# `presentations.batchUpdate`), NOT Quarto. Builds the deck from a UDS docket manifest
+# (tone / eyebrow / type per topic) with the brand's tokens.yaml; bespoke SVG figures are
+# rasterised (headless Chromium / playwright) and embedded as real native images.
 export: gslide
 name: Google Slides
 asset_type: deck
 render:
-  engine: gslide
-  studio_format: null      # not renderable yet; `studio render` will refuse
-  status: planned
+  engine: gslide-engine      # studio.render._engine_gslide → studio.gslide.build_requests
+  studio_format: gslide      # renderable; push a live deck via `python -m studio.gslide <manifest> --execute --account <acct>`
+  status: supported
 requires:
-  render: [quarto]
+  render: [google-api-python-client, google-auth-oauthlib]   # Slides + Drive APIs (OAuth for a personal My Drive)
+  figures: [playwright]      # optional — rasterises bespoke SVG figures to embedded images; absent → figure cards
 style_guide:
-  layout: 16:9 slides; one idea per slide; editable native shapes
-  notes: parity with pptx/html/pdf; blocks must remain natively editable in Google Slides
+  layout: 16:9 slides; editable native shapes; light/dark tone rhythm per topic; colour-split eyebrows
+  notes: >-
+    Native + editable in Google Slides (no image-of-slide). Cover / contents / part-dividers /
+    content / tables / charts / swimlanes / hype-cycle all render as native shapes + text and stay
+    editable. Bespoke SVG figures are rasterised and embedded as real images (full-bleed, they carry
+    their own header). One source (the docket manifest + tokens.yaml) → a faithful native deck.
 ruleset:
-  supported: false         # renderer guard
-  max_slides: 20
-  max_words_per_view: 40
+  supported: true
+  max_slides: null           # longform purposes paginate (never truncate); a presentation format may re-cap
+  max_words_per_view: null

@@ -1,6 +1,6 @@
 ---
 name: render
-description: Render the session's source Markdown to its locked format's export (PDF, PPTX, HTML, or RevealJS) using Quarto + Typst with the active brand's _brand.yml. The export is fixed by the session's format slug. Outputs are versioned (semver). Use after session-init.
+description: Render the session's source Markdown to its locked format's export (PDF, PPTX, HTML, RevealJS, or Google Slides) using the right engine — Quarto+Typst for the doc pipeline, or a native engine (python-pptx, UDS→PDF via Chromium, gslide via the Slides API). The export is fixed by the session's format slug. Outputs are versioned (semver). Use after session-init.
 ---
 
 # render
@@ -52,6 +52,25 @@ session's locked format contract**.
 
 4. Report back: the output path and size, the format slug, and any ruleset
    violations or Quarto warnings (e.g. font fallbacks, missing logo variants).
+
+## Native engines (no Quarto)
+
+Not every export goes through Quarto. `studio render` dispatches on the format's
+resolved `render.engine`:
+
+- **pptx-engine** — native python-pptx.
+- **uds-pdf-engine** — the UDS reading document printed via Chromium (landscape proposal).
+- **gslide-engine** — native **Google Slides** via the Slides API
+  (`studio.gslide.build_requests`). `studio render` produces the **batchUpdate payload**
+  (`<stem>.v<ver>.gslide.json`) honouring the format's render profile — e.g.
+  `proposal-gslide` → the longform reading contract: **Roboto Light body @10pt / 1.15 line /
+  space-after, IBM Plex Serif Bold titles**, light/dark tone rhythm, colour-split eyebrows.
+  **Pushing to a live deck is a separate, explicit account write** (confirm first):
+  `python -m studio.gslide <manifest> --execute --account <acct> --presentation-id <id>`.
+  Bespoke SVG figures are **rasterised at push time** (playwright → Drive → native image);
+  without playwright they degrade to a caption figure card.
+
+These engines need no Quarto/Typst — each has its own deps (see the format's `requires`).
 
 ## Failure handling
 

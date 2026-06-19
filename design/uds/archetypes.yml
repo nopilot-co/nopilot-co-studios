@@ -147,7 +147,7 @@ archetypes:
     extends: [series, type]
   image:
     tier: component
-    intent: Figure — frame, aspect, caption, credit; full-bleed vs inset.
+    intent: Figure — frame, aspect, caption, credit; full-bleed vs inset. HTML inlines the SVG; gslide/pptx rasterise a bespoke SVG to a native image (playwright), else a caption figure card.
     asset: asset-embed
     formats: [html, pdf, pptx, docx, gslide, gdoc]
     tokens: [line, radius, text-muted]

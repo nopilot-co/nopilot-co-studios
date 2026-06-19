@@ -40,9 +40,9 @@
       "properties": {
         "engine": { "type": "string" },
         "studio_format": {
-          "description": "Short studio render format (pdf|pptx|html|revealjs), or null if not renderable.",
+          "description": "Short studio render format (pdf|pptx|html|revealjs|gslide), or null if not renderable.",
           "type": ["string", "null"],
-          "enum": ["pdf", "pptx", "html", "revealjs", null]
+          "enum": ["pdf", "pptx", "html", "revealjs", "gslide", null]
         },
         "status": { "type": "string" }
       }
@@ -71,8 +71,8 @@
       "properties": {
         "required_sections": { "type": "array", "items": { "type": "string" } },
         "max_pages": { "type": "integer", "minimum": 1 },
-        "max_slides": { "type": "integer", "minimum": 1 },
-        "max_words_per_view": { "type": "integer", "minimum": 1 },
+        "max_slides": { "type": ["integer", "null"], "minimum": 1, "description": "null = longform, paginates without a hard cap." },
+        "max_words_per_view": { "type": ["integer", "null"], "minimum": 1 },
         "max_scroll_screens": { "type": "integer", "minimum": 1 },
         "supported": { "type": "boolean" },
         "structure": { "type": "string" },

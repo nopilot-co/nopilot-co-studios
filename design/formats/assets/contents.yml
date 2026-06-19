@@ -2,7 +2,7 @@ asset: contents
 name: Contents / index
 description: A formatted table of contents listing sections with page references.
 buckets: [documents]
-exports: [html, pdf]
+exports: [html, pdf, gslide]
 style:
   typography: "{typography.body}"
   leader: "{colors.secondary}"

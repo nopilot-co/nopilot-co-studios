@@ -1,0 +1,24 @@
+# Format: proposal-gslide = purposes/proposal.yml <- layouts/uds.yml <- exports/gslide.yml <- overrides
+# The UDS longform proposal as a native, editable Google Slides deck (the 360 GTM proposition).
+# Manifest-native render (scripts/studio/gslide.py): light/dark tone rhythm + colour-split eyebrows
+# + rich cover / contents / part-dividers + Roboto-Light reading body + IBM-Plex-Serif-Bold titles
+# + real rasterised figures. UDS is the *layout*; gslide is the *export*.
+extends: proposal
+export: gslide
+layout: uds
+overrides:
+  profile: proposal          # the longform reading profile (uds.yml profiles.proposal): typography + 2-col + pagination
+  requires:
+    render: [google-api-python-client, google-auth-oauthlib]
+    figures: [playwright]
+  style_guide:
+    typography: >-
+      Roboto Light reading body @10pt / 1.15 line-height / space-after on paragraphs + bullets;
+      IBM Plex Serif Bold titles + subheads; IBM Plex Mono eyebrows. (uds.yml profiles.proposal.typography)
+    figures: >-
+      Bespoke SVG figures (pillars, dartboard, economics, model, lean-core) are rasterised and embedded
+      as native images, full-bleed. Native viz (chart / swimlane / hype-cycle) stays editable.
+    tone: light/dark rhythm per topic; eyebrows + accents colour-split (primary on light, secondary on dark)
+  ruleset:
+    supported: true
+    max_slides: null         # longform — paginates, never truncates

@@ -2,7 +2,7 @@ asset: cta
 name: Call to action
 description: A prominent block prompting the reader to take a specific next step.
 buckets: [documents]
-exports: [html, pdf]
+exports: [html, pdf, gslide]
 style:
   primary-bg: "{colors.tertiary}"
   on: "{colors.on-primary}"

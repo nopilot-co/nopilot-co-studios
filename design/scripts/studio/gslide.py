@@ -1009,6 +1009,8 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
     line_sp = round(float(typo["line_height"]) * 100) if typo.get("line_height") else None
     space_aft = typo.get("space_after_pt")
     _TITLE_ROLES = {"cover-title", "section-title", "topic-title", "quote"}
+    if body_family:
+        p = {**p, "body": body_family}    # the format reading face reaches every component (tables, charts, stat tiles, labels) — no brand-body leakage
 
     def add_role(slide_id: str, n: int, text: str, y: int, h: int, role: str, *, colour=None, align=None, x=None, w=None) -> None:
         st = R.get(role) or {}

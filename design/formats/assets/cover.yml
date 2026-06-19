@@ -2,7 +2,7 @@ asset: cover
 name: Document cover
 description: Full-page cover carrying the document title, brand logo, and metadata.
 buckets: [documents]
-exports: [html, pdf]
+exports: [html, pdf, gslide]
 style:
   bg: "{colors.neutral}"
   title: "{typography.display}"
