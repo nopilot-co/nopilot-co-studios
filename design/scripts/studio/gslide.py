@@ -641,7 +641,7 @@ def _flow_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> 
         out += _style(f"{cid}cap", font=p["body"], size=8, color=_rgb(p["muted"]))
         if c < per_row - 1 and i < n - 1:   # arrow to the next chip in the row
             aid = f"{slide_id}_fa{i}"
-            out.append(_text_box(slide_id, aid, cx0 + chip_w - 32_000, cy0 + row_h // 2 - 170_000, arrow_w, 340_000))   # optical centre: nudge ~7px left (→ glyph mass sits on the arrowhead)
+            out.append(_text_box(slide_id, aid, cx0 + chip_w - 95_000, cy0 + row_h // 2 - 170_000, arrow_w, 340_000))   # optical centre: nudge ~10px left (→ glyph mass sits on the arrowhead)
             out.append({"insertText": {"objectId": aid, "text": "→", "insertionIndex": 0}})
             out += _style(aid, font=p["body"], size=14, color=_rgb(p["primary"]), align="CENTER")
     return out
@@ -709,7 +709,7 @@ def _stat_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> 
         return []
     gap = 200_000
     tw = (w - gap * (n - 1)) // n
-    th = min(h, 1_500_000)
+    th = min(h, 2_000_000)                                   # taller tiles so long labels do not overflow
     out: list[dict] = []
     for i, st in enumerate(stats):
         tx = x + i * (tw + gap)
@@ -717,8 +717,8 @@ def _stat_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) -> 
         out += _shape(slide_id, f"{cid}b", "ROUND_RECTANGLE", tx, y, tw, th, p["paper"])
         out.append(_text_box(slide_id, f"{cid}v", tx + 200_000, y + 200_000, tw - 400_000, 620_000))
         out.append({"insertText": {"objectId": f"{cid}v", "text": str(st.value), "insertionIndex": 0}})
-        out += _style(f"{cid}v", font=p["display"], size=26, color=_rgb(p["primary"]), weight=600)
-        out.append(_text_box(slide_id, f"{cid}l", tx + 200_000, y + 880_000, tw - 400_000, 400_000))
+        out += _style(f"{cid}v", font=p["display"], size=24, color=_rgb(p["primary"]), weight=600)
+        out.append(_text_box(slide_id, f"{cid}l", tx + 200_000, y + 880_000, tw - 400_000, 1_000_000))
         out.append({"insertText": {"objectId": f"{cid}l", "text": str(st.label), "insertionIndex": 0}})
         out += _style(f"{cid}l", font=p["body"], size=9, color=_rgb(p["muted"]))
         if st.delta:
@@ -1093,9 +1093,9 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
     return title, reqs
 
 
-def payload(manifest_path: Path, *, brand: str = "nopilot") -> dict[str, Any]:
+def payload(manifest_path: Path, *, brand: str = "nopilot", profile: str | None = None) -> dict[str, Any]:
     """The dry-run: the full native-slide spec (title + batchUpdate requests), no creds."""
-    title, reqs = build_requests(manifest_path, brand=brand)
+    title, reqs = build_requests(manifest_path, brand=brand, profile=profile)
     return {"title": title, "slides": sum(1 for r in reqs if "createSlide" in r), "requests": reqs}
 
 
@@ -1299,6 +1299,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser(prog="python -m studio.gslide", description="Native Google Slides from a UDS docket (ADR-006).")
     ap.add_argument("manifest", nargs="?", help="docket manifest or flat .md source (omit with --payload / --authorize)")
     ap.add_argument("--brand", default="nopilot")
+    ap.add_argument("--profile", help="render profile (presentation | proposal) — sets sizes + column count")
     ap.add_argument("--out", help="write the dry-run payload JSON here")
     ap.add_argument("--execute", action="store_true", help="create/update the live deck (an account write)")
     ap.add_argument("--payload", help="push a pre-built .gslide.json {title,requests} instead of rebuilding from a manifest")
@@ -1342,7 +1343,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if not args.manifest:
         ap.error("a manifest is required for a dry-run (or use --execute --payload, or --authorize)")
-    pl = payload(Path(args.manifest), brand=args.brand)
+    pl = payload(Path(args.manifest), brand=args.brand, profile=args.profile)
     if args.out:
         Path(args.out).write_text(json.dumps(pl, indent=2), encoding="utf-8")
         print(f"wrote {args.out} — {pl['slides']} slides, {len(pl['requests'])} requests")

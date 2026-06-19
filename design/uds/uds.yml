@@ -71,6 +71,7 @@ profiles:
   presentation:
     aspect: slide
     columns: 1
+    sizes: { eyebrow: 10, eyebrow-ondark: 10, cover-title: 40, standfirst: 13, section-title: 24, topic-title: 20, body: 10, quote: 14 }
   proposal:
     aspect: slide
     columns: 2
