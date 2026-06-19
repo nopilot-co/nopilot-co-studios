@@ -86,7 +86,7 @@ profiles:
       eyebrow_weight: 500          # Roboto Medium, caps
       body_family: Roboto
       body_weight: 300             # Roboto Light reading body
-      subhead_size: 10.5           # major-point subhead (Roboto Light), above the 8pt body
+      subhead_size: 12             # major-point subhead (Roboto Light, accent colour), above the 8pt body
       title_family: IBM Plex Serif
       title_weight: 400            # IBM Plex Serif (not bold) — content titles at 16pt
       line_height: 1.15

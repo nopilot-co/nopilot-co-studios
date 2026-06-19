@@ -106,7 +106,11 @@ def _topic_body(content_dir: Path, topic: dict[str, Any]) -> tuple[list[str], st
         elif b[0] == "list":
             lines += ["• " + _clean(it) for it in b[1]]
         elif b[0] == "quote":
-            lines.append("❝ " + _clean(b[1]))      # hero quote rendered inline (not a separate slide)
+            q = _clean(b[1])
+            if q.lstrip().startswith("!"):                       # `> ! …` → an insert / callout box
+                lines.append("‼ " + q.lstrip("! ").strip())
+            else:
+                lines.append("❝ " + q)                            # plain `> …` → inline hero quote
     return [ln for ln in lines if ln], ""
 
 
@@ -391,29 +395,8 @@ def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide:
             deck.append({"kind": "section", "tone": tone, "eyebrow": eyebrow or "Section", "title": title})
             continue
         lines, _q = _topic_body(content_dir, t)                  # a content topic (hero quotes inline)
-        groups, cur = [], []                                     # split into major points at § boundaries
-        for ln in lines:
-            if ln.startswith("§ ") and cur:
-                groups.append(cur); cur = [ln]
-            else:
-                cur.append(ln)
-        if cur:
-            groups.append(cur)
-        pages, cur = [], []                                      # pack points onto slides up to the soft budget (~1 major point/slide)
-        for g in groups:
-            if len(g) > lines_per_slide:                         # an oversized point — split across slides so it never clips
-                if cur:
-                    pages.append(cur); cur = []
-                for i in range(0, len(g), lines_per_slide):
-                    pages.append(g[i:i + lines_per_slide])
-            elif cur and len(cur) + len(g) > lines_per_slide:
-                pages.append(cur); cur = list(g)
-            else:
-                cur += g
-        if cur:
-            pages.append(cur)
-        for body in (pages or [[]]):
-            deck.append({"kind": "content", "tone": tone, "eyebrow": eyebrow, "title": title, "body": body})
+        deck.append({"kind": "content", "tone": tone, "eyebrow": eyebrow, "title": title,
+                     "sections": _split_sections(lines)})        # build_requests flows sections into columns by measured height
         if tid in viz:                                           # native viz for this topic (chart/bullseye/swimlane/hype/image; one or many)
             blocks = viz[tid] if isinstance(viz[tid], list) else [viz[tid]]
             for v in blocks:
@@ -421,8 +404,8 @@ def slide_specs(manifest_path: Path, *, brand: str = "nopilot", lines_per_slide:
                              "title": _clean(v.get("title", title)), "spec": v.get("spec", {}), "lead": v.get("lead", [])})
     if embeds:
         deck.append({"kind": "content", "tone": "dark", "eyebrow": "Appendix", "title": "Related documents",
-                     "body": ["Maintained as separate standalone documents (linked, not embedded):"]
-                             + [f"• **{label}** — docket: {tid}" for tid, label in embeds]})
+                     "sections": _split_sections(["Maintained as separate standalone documents (linked, not embedded):"]
+                             + [f"• **{label}** — docket: {tid}" for tid, label in embeds])})
     return str(meta.get("doc_title", "360 proposition")), deck
 
 
@@ -886,7 +869,9 @@ def _image_reqs(slide_id: str, node, x: int, y: int, w: int, h: int, p: dict) ->
 
 
 def _md_bold_spans(s: str) -> tuple[str, list[tuple[int, int]]]:
-    """Strip ``**bold**`` markers, returning the clean text + the bold char ranges."""
+    """Strip ``**bold**`` markers, returning the clean text + the bold char ranges.
+    Leftover (unpaired) ``**`` markers — stray footnote/verification marks in the source —
+    are removed, with the bold ranges shifted to stay correct."""
     out, spans = "", []
     for part in re.split(r"(\*\*.+?\*\*)", s):
         if len(part) >= 4 and part.startswith("**") and part.endswith("**"):
@@ -895,6 +880,10 @@ def _md_bold_spans(s: str) -> tuple[str, list[tuple[int, int]]]:
             out += t
         else:
             out += part
+    while "**" in out:                                   # drop unpaired markers, keep spans correct
+        i = out.index("**")
+        out = out[:i] + out[i + 2:]
+        spans = [(a - 2 if a > i else a, b - 2 if b > i else b) for a, b in spans]
     return out, spans
 
 
@@ -946,8 +935,9 @@ def _rich_text_box(sid: str, box_id: str, lines: list[str], x: int, y: int, w: i
         for bs, be in spans:                       # bold lead-ins / emphasis
             if be > bs:
                 _rng(start + bs, start + be, {"bold": True}, "bold")
-        if kind == "head" and end > start:         # major-point subhead → reading font, larger (e.g. Roboto Light 10.5)
-            _rng(start, end, {"fontSize": {"magnitude": (subhead_size or size + 2.5), "unit": "PT"}}, "fontSize")
+        if kind == "head" and end > start:         # major-point subhead → larger + accent colour (matches the reference)
+            _rng(start, end, {"fontSize": {"magnitude": (subhead_size or size + 2.5), "unit": "PT"},
+                              "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(acc)}}}, "fontSize,foregroundColor")
         elif kind == "quote" and end > start:      # inline hero quote → IBM Plex Serif, larger
             _rng(start, end, {"fontFamily": serif, "fontSize": {"magnitude": (subhead_size or size) + 4.5, "unit": "PT"},
                               "foregroundColor": {"opaqueColor": {"rgbColor": _rgb(color)}}},
@@ -964,6 +954,93 @@ def _rich_text_box(sid: str, box_id: str, lines: list[str], x: int, y: int, w: i
                      "textRange": {"type": "FIXED_RANGE", "startIndex": a, "endIndex": b},
                      "bulletPreset": "BULLET_DISC_CIRCLE_SQUARE"}})
     return reqs
+
+
+# ----------------------------------------------------------------- content flow (sections → columns)
+def _split_sections(lines: list[str]) -> list[dict]:
+    """Group body lines into whole sections — a ``§`` subhead + its prose/bullets, a ``❝`` hero
+    quote, or a ``‼`` insert/callout — so a section is never split across a column boundary."""
+    sections: list[dict] = []
+    cur: dict | None = None
+    for ln in lines:
+        if ln.startswith("❝ "):
+            if cur:
+                sections.append(cur); cur = None
+            sections.append({"type": "quote", "lines": [ln]})
+        elif ln.startswith("‼ "):
+            if cur and cur["type"] == "callout":
+                cur["lines"].append(ln)
+            else:
+                if cur:
+                    sections.append(cur)
+                cur = {"type": "callout", "lines": [ln]}
+        elif ln.startswith("§ "):
+            if cur:
+                sections.append(cur)
+            cur = {"type": "prose", "lines": [ln]}
+        else:
+            if cur and cur["type"] == "prose":
+                cur["lines"].append(ln)
+            else:
+                if cur:
+                    sections.append(cur)
+                cur = {"type": "prose", "lines": [ln]}
+    if cur:
+        sections.append(cur)
+    return sections
+
+
+def _est_lines(text: str, sz: float, colw_emu: int) -> int:
+    cpl = max(8, int((colw_emu / 914400.0) * 142.0 / max(sz, 1)))    # ~chars per line at this size + width
+    return max(1, -(-len(text) // cpl))
+
+
+def _section_h(section: dict, colw: int, body_sz: float, sub_sz: float) -> float:
+    """Estimated rendered height (pt) of a section, for the column-flow + overflow guard."""
+    h = 0.0
+    for ln in section["lines"]:
+        if ln.startswith("§ "):
+            h += _est_lines(ln[2:], sub_sz, colw) * sub_sz * 1.2 + 7
+        elif ln.startswith("❝ "):
+            h += _est_lines(ln[2:], body_sz + 4.5, colw) * (body_sz + 4.5) * 1.25 + 9
+        elif ln.startswith("‼ ") or ln.startswith("• "):
+            h += _est_lines(ln[2:], body_sz, colw) * body_sz * 1.15 + 6
+        else:
+            h += _est_lines(ln, body_sz, colw) * body_sz * 1.15 + 6
+    if section["type"] == "callout":
+        h += 26
+    return h
+
+
+def _flow_sections(sections: list[dict], colw: int, col_h_pt: float, body_sz: float, sub_sz: float) -> list[tuple[list, list]]:
+    """Flow whole sections into (col1, col2) per slide: fill column 1 to the bottom margin, then
+    column 2, then a new slide. A section is never split; overflow goes to the next column/slide."""
+    pages: list[tuple[list, list]] = []
+    cols: list[list] = [[], []]
+    hs = [0.0, 0.0]
+    ci = 0
+    for sec in sections:
+        sh = _section_h(sec, colw, body_sz, sub_sz)
+        if hs[ci] > 0 and hs[ci] + sh > col_h_pt:      # current column full → next column
+            ci += 1
+            if ci > 1:                                  # both columns full → new slide
+                pages.append((cols[0], cols[1])); cols = [[], []]; hs = [0.0, 0.0]; ci = 0
+        cols[ci].append(sec); hs[ci] += sh
+    if cols[0] or cols[1]:
+        pages.append((cols[0], cols[1]))
+    return pages or [([], [])]
+
+
+def _callout_box(sid: str, bid: str, x: int, y: int, w: int, h: int, lines: list[str], *,
+                 acc: str, bgc: str, txt: str, sans: str, weight: int | None) -> list[dict]:
+    """An inset / callout box: tinted fill + accent left edge + the items inside (reading font)."""
+    out = _shape(sid, f"{bid}_bx", "ROUND_RECTANGLE", x, y, w, h, _mix(acc, bgc, 0.86))
+    out += _shape(sid, f"{bid}_eg", "RECTANGLE", x, y, 42_000, h, acc)
+    pad = 200_000
+    body = [ln[2:] if ln.startswith("‼ ") else ln for ln in lines]
+    out += _rich_text_box(sid, f"{bid}_tx", body, x + pad + 40_000, y + pad // 2, w - 2 * pad - 40_000, h - pad,
+                          font=sans, size=8, color=txt, acc=acc, serif=sans, weight=weight, line_spacing=115, space_after=4)
+    return out
 
 
 def _contents_reqs(sid: str, entries: list[dict], x: int, y: int, w: int, h: int,
@@ -1067,6 +1144,22 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             add_role(sid, 9, "\n\n".join(lead[mid:]), base_y, lh, "body", colour=colour, x=MARGIN + colw + gutter, w=colw)
         return base_y + lh + 200_000
 
+    # Column-flow: expand each content topic into per-slide (col1, col2) by measured section height,
+    # keeping every section whole and reserving a bottom margin so nothing overflows the canvas.
+    CONTENT_TOP, BOTTOM_MARGIN, GUTTER = 1_700_000, 380_000, 360_000
+    _colw = (cw - GUTTER) // 2
+    _col_h_pt = (PAGE_H - CONTENT_TOP - MARGIN - BOTTOM_MARGIN) / PT
+    _sub = subhead_size or 12
+    _flowed: list[dict] = []
+    for s in deck:
+        if s.get("kind") == "content" and "sections" in s:
+            _base = {k: s[k] for k in ("kind", "tone", "eyebrow", "title")}
+            for c1, c2 in _flow_sections(s["sections"], _colw, _col_h_pt, bodysize, _sub):
+                _flowed.append({**_base, "col1": c1, "col2": c2})
+        else:
+            _flowed.append(s)
+    deck = _flowed
+
     for i, s in enumerate(deck):
         sid = f"slide{i:03d}"  # Slides object IDs must be >= 5 chars
         reqs.append({"createSlide": {"objectId": sid, "insertionIndex": i,
@@ -1150,24 +1243,22 @@ def build_requests(manifest_path: Path, *, brand: str = "nopilot", profile: str 
             reqs += _pullquote_reqs(sid, archetype_ir.normalise_pullquote(s.get("spec")), MARGIN, 1_300_000, cw, 2_800_000, pv)
         elif kind == "cta":                # native CTA banner
             reqs += _cta_reqs(sid, archetype_ir.normalise_cta(s.get("spec")), MARGIN, 2_000_000, cw, 1_150_000, pv)
-        else:  # content
+        else:  # content — sections flowed into two columns, each a stack of positioned boxes
             add_role(sid, 0, s["eyebrow"], 520_000, 300_000, "eyebrow", colour=acc)
             add_role(sid, 1, s["title"], 850_000, 760_000, "topic-title", colour=txt)
-            body = s.get("body") or []
-            if body:
-                by, bh = 1_700_000, PAGE_H - 1_700_000 - MARGIN
-                if columns == 2:                       # two-column reading layout (proposal)
-                    gutter = 360_000
-                    colw = (cw - gutter) // 2
-                    mid = (len(body) + 1) // 2
-                    reqs += _rich_text_box(sid, f"{sid}_b0", body[:mid], MARGIN, by, colw, bh,
-                                           font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft, subhead_size=subhead_size)
-                    if body[mid:]:
-                        reqs += _rich_text_box(sid, f"{sid}_b1", body[mid:], MARGIN + colw + gutter, by, colw, bh,
-                                               font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft, subhead_size=subhead_size)
-                else:
-                    reqs += _rich_text_box(sid, f"{sid}_b0", body, MARGIN, by, cw, bh,
-                                           font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"], weight=body_weight, line_spacing=line_sp, space_after=space_aft, subhead_size=subhead_size)
+            for ci, col in enumerate((s.get("col1", []), s.get("col2", []))):
+                cx0 = MARGIN + ci * (_colw + GUTTER)
+                yy = CONTENT_TOP
+                for si, sec in enumerate(col):
+                    sh = round(_section_h(sec, _colw, bodysize, _sub) * PT) + 70_000
+                    bid = f"{sid}_c{ci}s{si}"
+                    if sec["type"] == "callout":
+                        reqs += _callout_box(sid, bid, cx0, yy, _colw, sh, sec["lines"], acc=acc, bgc=bgc, txt=txt, sans=p["body"], weight=body_weight)
+                    else:
+                        reqs += _rich_text_box(sid, bid, sec["lines"], cx0, yy, _colw, sh,
+                                               font=(body_family or p["body"]), size=bodysize, color=txt, acc=acc, serif=p["display"],
+                                               weight=body_weight, line_spacing=line_sp, space_after=space_aft, subhead_size=subhead_size)
+                    yy += sh + 90_000
     return title, reqs
 
 
