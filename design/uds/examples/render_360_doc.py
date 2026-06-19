@@ -174,7 +174,7 @@ def main():
     Path("design/uds/examples/_360-doc.html").write_text(doc_html, encoding="utf-8")
     media = MediaIoBaseUpload(io.BytesIO(doc_html.encode("utf-8")), mimetype="text/html", resumable=False)
     f = drive.files().create(
-        body={"name": "360 — A Partnership Proposition", "mimeType": "application/vnd.google-apps.document"},
+        body={"name": os.environ.get("DOC_NAME", "360 — A Partnership Proposition"), "mimeType": "application/vnd.google-apps.document"},
         media_body=media, fields="id,webViewLink").execute()
     print("DOC:", f.get("webViewLink"))
 
