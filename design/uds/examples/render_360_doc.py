@@ -106,23 +106,29 @@ def table_html(rows):
     return f"<table>{head}{body}</table>"
 
 
-CSS = """body{font-family:'Roboto',sans-serif;font-weight:300;font-size:10pt;color:#15181E;line-height:1.5;}
-h1{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:22pt;margin:32pt 0 10pt;page-break-after:avoid;}
-h1.doctitle{font-size:34pt;margin-top:0;}
-h2{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:16pt;margin:24pt 0 8pt;page-break-after:avoid;}
-h3{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:12pt;margin:16pt 0 6pt;page-break-after:avoid;}
-p{margin:0 0 11pt;orphans:2;widows:2;}
-li{margin:0 0 8pt;}
-ul{margin:6pt 0 14pt;}
-blockquote{font-family:'IBM Plex Serif',serif;font-style:italic;font-size:13pt;margin:16pt 0;color:#2C333D;page-break-inside:avoid;}
-.pullquote{font-family:'IBM Plex Serif',serif;font-size:12pt;margin:0 0 11pt;}
-.callout{border-left:3px solid #3B4FE0;padding-left:12pt;margin:14pt 0;page-break-inside:avoid;}
-.cap{font-size:8.5pt;color:#5B6470;margin:12pt 0 2pt;}
-table{border-collapse:collapse;font-size:9pt;margin:10pt 0 18pt;width:100%;page-break-inside:avoid;}
-th,td{border:1px solid #DCE0E6;padding:5pt 7pt;text-align:left;vertical-align:top;}
-th{font-weight:600;background:#F1F1F4;}
-figure{margin:14pt 0;page-break-inside:avoid;}
-img{max-width:100%;}"""
+# 360 brand palette — indigo primary, terracotta secondary (the colour-split applied to headings).
+INK, INDIGO, TERRA, MUTED = "#15181E", "#3B4FE0", "#C2410C", "#5B6470"
+CSS = f"""body{{font-family:'Roboto',sans-serif;font-weight:300;font-size:10pt;color:{INK};line-height:1.5;}}
+h1{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:22pt;color:{INDIGO};margin:32pt 0 10pt;page-break-after:avoid;}}
+h2{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:16pt;color:{INDIGO};margin:24pt 0 8pt;page-break-after:avoid;}}
+h3{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:12pt;color:{TERRA};margin:16pt 0 6pt;page-break-after:avoid;}}
+.cover{{margin-top:150pt;}}
+.cover-mark{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:84pt;color:{INDIGO};line-height:1;}}
+.cover-title{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:30pt;color:{INK};margin:8pt 0 0;}}
+.cover-sub{{font-size:13pt;color:{MUTED};margin:16pt 0 0;}}
+.cover-meta{{font-size:10pt;color:{MUTED};margin:54pt 0 380pt;}}
+p{{margin:0 0 11pt;orphans:2;widows:2;}}
+li{{margin:0 0 8pt;}}
+ul{{margin:6pt 0 14pt;}}
+blockquote{{font-family:'IBM Plex Serif',serif;font-style:italic;font-size:13pt;margin:16pt 0;color:#2C333D;page-break-inside:avoid;}}
+.pullquote{{font-family:'IBM Plex Serif',serif;font-size:12pt;color:{INDIGO};margin:0 0 11pt;}}
+.callout{{border-left:3px solid {INDIGO};padding-left:12pt;margin:14pt 0;page-break-inside:avoid;}}
+.cap{{font-size:8.5pt;color:{MUTED};margin:12pt 0 2pt;}}
+table{{border-collapse:collapse;font-size:9pt;margin:10pt 0 18pt;width:100%;page-break-inside:avoid;}}
+th,td{{border:1px solid #DCE0E6;padding:5pt 7pt;text-align:left;vertical-align:top;}}
+th{{font-weight:600;background:#F1F1F4;color:{INK};}}
+figure{{margin:14pt 0;page-break-inside:avoid;}}
+img{{max-width:100%;}}"""
 
 
 def main():
@@ -144,8 +150,12 @@ def main():
     for tid, urls in extract_dist_charts(drive, set(VIZ_SVG)).items():   # …plus every other chart from the dist render
         charts.setdefault(tid, []).extend(urls)
 
-    body = ['<h1 class="doctitle">360° — A Partnership Proposition</h1>',
-            '<p>A partnership proposition — Context Operating Systems for established businesses.</p>']
+    body = ['<div class="cover">'
+            '<div class="cover-mark">360°</div>'
+            '<div class="cover-title">A Partnership Proposition</div>'
+            '<div class="cover-sub">Context operating systems for established businesses</div>'
+            '<div class="cover-meta">Prepared for Dan · June 2026 · Private &amp; confidential</div>'
+            '</div>']
     embeds = []
     for t in manifest.get("topics", []):
         tid, tp, title = t.get("id"), t.get("type", "content"), (t.get("title") or "").strip()
