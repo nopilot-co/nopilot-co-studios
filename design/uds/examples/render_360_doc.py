@@ -74,23 +74,43 @@ def md(s):                                            # **bold** → <b>; drop s
     return s.replace("**", "")
 
 
+# Editor annotations that must never reach the delivered doc: [[validate:…]], [[modelled:…]],
+# [[PROOF]], [[diagram…]] and [render:…] notes-to-self. Stripped before rendering.
+_ANNO = re.compile(r"\[\[.*?\]\]|\[render:.*?\]", re.S | re.I)
+
+
+def _clean(s):
+    return re.sub(r"\s{2,}", " ", _ANNO.sub("", s)).strip()
+
+
+def strip_annotations(lines):
+    return _ANNO.sub("", "\n".join(lines)).split("\n")
+
+
 def lines_html(lines):
     out, in_ul = [], False
     for ln in lines:
-        if ln.startswith("• "):
+        marker = ""
+        for m in ("• ", "§ ", "❝ ", "‼ ", "❞ "):
+            if ln.startswith(m):
+                marker, ln = m, ln[len(m):]; break
+        ln = _clean(ln)
+        if not ln:                                       # annotation-only / blank line → drop
+            continue
+        if marker == "• ":
             if not in_ul:
                 out.append("<ul>"); in_ul = True
-            out.append(f"<li>{md(ln[2:])}</li>"); continue
+            out.append(f"<li>{md(ln)}</li>"); continue
         if in_ul:
             out.append("</ul>"); in_ul = False
-        if ln.startswith("§ "):
-            out.append(f"<h3>{md(ln[2:])}</h3>")
-        elif ln.startswith("❝ "):
-            out.append(f"<blockquote>{md(ln[2:])}</blockquote>")
-        elif ln.startswith("‼ "):
-            out.append(f'<p class="callout">{md(ln[2:])}</p>')
-        elif ln.startswith("❞ "):
-            out.append(f'<p class="pullquote">{md(ln[2:].replace(" -- ", " — "))}</p>')
+        if marker == "§ ":
+            out.append(f"<h3>{md(ln)}</h3>")
+        elif marker == "❝ ":
+            out.append(f"<blockquote>{md(ln)}</blockquote>")
+        elif marker == "‼ ":
+            out.append(f'<p class="callout">{md(ln)}</p>')
+        elif marker == "❞ ":
+            out.append(f'<p class="pullquote">{md(ln.replace(" -- ", " — "))}</p>')
         else:
             out.append(f"<p>{md(ln)}</p>")
     if in_ul:
@@ -112,6 +132,7 @@ CSS = f"""body{{font-family:'Roboto',sans-serif;font-weight:300;font-size:10pt;c
 h1{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:22pt;color:{INDIGO};margin:32pt 0 10pt;page-break-after:avoid;}}
 h2{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:16pt;color:{INDIGO};margin:24pt 0 8pt;page-break-after:avoid;}}
 h3{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:12pt;color:{TERRA};margin:16pt 0 6pt;page-break-after:avoid;}}
+.part{{font-family:'Roboto',sans-serif;font-weight:500;font-size:11pt;letter-spacing:0.14em;text-transform:uppercase;color:{INDIGO};border-top:2px solid {INDIGO};padding-top:9pt;margin:36pt 0 2pt;page-break-after:avoid;}}
 .cover{{margin-top:150pt;}}
 .cover-mark{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:84pt;color:{INDIGO};line-height:1;}}
 .cover-title{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:30pt;color:{INK};margin:8pt 0 0;}}
@@ -156,7 +177,9 @@ def main():
             '<div class="cover-sub">Context operating systems for established businesses</div>'
             '<div class="cover-meta">Prepared for Dan · June 2026 · Private &amp; confidential</div>'
             '</div>']
-    embeds = []
+    embeds, last = [], ""
+    def norm(s):
+        return re.sub(r"\W+", "", s).lower()
     for t in manifest.get("topics", []):
         tid, tp, title = t.get("id"), t.get("type", "content"), (t.get("title") or "").strip()
         if tp == "index" or tid == "cover":
@@ -164,12 +187,13 @@ def main():
         if tp == "embed":
             embeds.append((tid, title)); continue
         if tp == "interstitial" or not t.get("section_md"):
-            if title:
-                body.append(f"<h1>{esc(title)}</h1>")
+            if title and norm(title) != last:            # part divider; skip if it repeats the last heading
+                body.append(f'<h1 class="part">{esc(title)}</h1>'); last = norm(title)
             continue
-        body.append(f"<h2>{esc(title)}</h2>")
+        if title and norm(title) != last:                # topic title; skip if the part divider already said it
+            body.append(f"<h2>{esc(title)}</h2>"); last = norm(title)
         lines, _q = gslide._topic_body(content_dir, t)
-        body.append(lines_html(lines))
+        body.append(lines_html(strip_annotations(lines)))
         for tbl in (t.get("tables") or []):
             rows = gslide._csv_table(content_dir, tbl, max_cols=8)
             if rows:
