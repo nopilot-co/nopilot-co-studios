@@ -79,19 +79,22 @@ profiles:
     table_size: 7                  # data tables read fine small in a document
     table_rows: 12                 # body rows per table slide; longer tables paginate (header repeats) — never truncate
     group_lead: 3                  # paragraphs of supporting prose that group onto a table/diagram slide (kills white space)
-    # Typography — the longform proposal reading contract (format globals, NPT UDS), matched to the 12mXSD hand-edit.
-    # Only titles keep the serif; everything else is Roboto (Medium caps eyebrows, Light reading body).
+    # Typography — the longform proposal reading contract (format globals, NPT UDS). Folded back from the
+    # hand-tuned "v1.0" reference doc: ink IBM Plex Serif titles (44 cover / 22 section), Roboto Light 10
+    # reading body, and a RED accent (#CC0000) on the standfirst + subheads. Only titles keep the serif;
+    # everything else is Roboto. Colour VALUES live in the brand tokens.yaml (semantic.light.text = ink,
+    # semantic.light.accent = #CC0000) — this grammar carries only sizes + weights, never token values.
     typography:
       eyebrow_family: Roboto
       eyebrow_weight: 500          # Roboto Medium, caps
       body_family: Roboto
-      body_weight: 300             # Roboto Light reading body
-      subhead_size: 12             # major-point subhead (Roboto Light, accent colour), above the 8pt body
+      body_weight: 300             # Roboto Light reading body (10pt)
+      subhead_size: 14             # red Roboto subhead, above the 10pt body
       title_family: IBM Plex Serif
-      title_weight: 400            # IBM Plex Serif (not bold) — content titles at 16pt
-      line_height: 1.15
-      space_after_pt: 5
-    sizes: { eyebrow: 12, eyebrow-ondark: 12, cover-title: 44, standfirst: 13, section-title: 40, topic-title: 16, body: 8, quote: 15 }
+      title_weight: 600            # semibold ink content titles (22pt); cover at 44pt
+      line_height: 1.4
+      space_after_pt: 6
+    sizes: { eyebrow: 10, cover-title: 44, standfirst: 18, section-title: 22, topic-title: 22, subhead: 14, body: 10, quote: 13, caption: 8, table: 9 }
 
 # The three register layers (full contracts in archetypes.yml).
 register_layers:

@@ -126,29 +126,32 @@ def table_html(rows):
     return f"<table>{head}{body}</table>"
 
 
-# 360 brand palette — indigo primary, terracotta secondary (the colour-split applied to headings).
-INK, INDIGO, TERRA, MUTED = "#15181E", "#3B4FE0", "#C2410C", "#5B6470"
-CSS = f"""body{{font-family:'Roboto',sans-serif;font-weight:300;font-size:10pt;color:{INK};line-height:1.5;}}
-h1{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:22pt;color:{INDIGO};margin:32pt 0 10pt;page-break-after:avoid;}}
-h2{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:16pt;color:{INDIGO};margin:24pt 0 8pt;page-break-after:avoid;}}
-h3{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:12pt;color:{TERRA};margin:16pt 0 6pt;page-break-after:avoid;}}
-.part{{font-family:'Roboto',sans-serif;font-weight:500;font-size:11pt;letter-spacing:0.14em;text-transform:uppercase;color:{INDIGO};border-top:2px solid {INDIGO};padding-top:9pt;margin:36pt 0 2pt;page-break-after:avoid;}}
-.cover{{margin-top:150pt;}}
-.cover-mark{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:84pt;color:{INDIGO};line-height:1;}}
-.cover-title{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:30pt;color:{INK};margin:8pt 0 0;}}
-.cover-sub{{font-size:13pt;color:{MUTED};margin:16pt 0 0;}}
-.cover-meta{{font-size:10pt;color:{MUTED};margin:54pt 0 380pt;}}
-p{{margin:0 0 11pt;orphans:2;widows:2;}}
-li{{margin:0 0 8pt;}}
-ul{{margin:6pt 0 14pt;}}
-blockquote{{font-family:'IBM Plex Serif',serif;font-style:italic;font-size:13pt;margin:16pt 0;color:#2C333D;page-break-inside:avoid;}}
-.pullquote{{font-family:'IBM Plex Serif',serif;font-size:12pt;color:{INDIGO};margin:0 0 11pt;}}
-.callout{{border-left:3px solid {INDIGO};padding-left:12pt;margin:14pt 0;page-break-inside:avoid;}}
-.cap{{font-size:8.5pt;color:{MUTED};margin:12pt 0 2pt;}}
-table{{border-collapse:collapse;font-size:9pt;margin:10pt 0 18pt;width:100%;page-break-inside:avoid;}}
+# NPT UDS — proposal "v1.0" type scale + palette, folded back from the hand-tuned reference doc:
+# ink IBM Plex Serif titles (22/44), RED accent (#cc0000) on standfirst + subheads, Roboto Light 10 body.
+# Note: keep-together rules deliberately relaxed (no page-break-inside:avoid) — they were stranding tall
+# charts on their own page and leaving the blank spaces.
+INK, ACCENT, MUTED, SECOND = "#15181E", "#CC0000", "#5B6470", "#2C333D"
+CSS = f"""body{{font-family:'Roboto',sans-serif;font-weight:300;font-size:10pt;color:{INK};line-height:1.4;}}
+h1{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:22pt;color:{INK};margin:30pt 0 8pt;page-break-after:avoid;}}
+h2{{font-family:'IBM Plex Serif',serif;font-weight:600;font-size:22pt;color:{INK};margin:24pt 0 8pt;page-break-after:avoid;}}
+h3{{font-family:'Roboto',sans-serif;font-weight:300;font-size:14pt;color:{ACCENT};margin:16pt 0 5pt;page-break-after:avoid;}}
+.part{{font-family:'Roboto',sans-serif;font-weight:500;font-size:11pt;letter-spacing:0.14em;text-transform:uppercase;color:{ACCENT};border-top:2px solid {ACCENT};padding-top:9pt;margin:34pt 0 2pt;page-break-after:avoid;}}
+.cover{{margin-top:60pt;}}
+.cover-mark{{font-family:'IBM Plex Serif',serif;font-weight:500;font-size:44pt;color:{INK};line-height:1.1;}}
+.cover-title{{font-family:'IBM Plex Serif',serif;font-weight:500;font-size:44pt;color:{INK};margin:0;}}
+.cover-sub{{font-size:18pt;font-weight:300;color:{ACCENT};margin:18pt 0 0;}}
+.cover-meta{{font-size:10pt;color:{MUTED};margin:20pt 0 64pt;}}
+p{{margin:0 0 10pt;orphans:2;widows:2;}}
+li{{margin:0 0 7pt;}}
+ul{{margin:6pt 0 12pt;}}
+blockquote{{font-family:'IBM Plex Serif',serif;font-style:italic;font-size:13pt;margin:14pt 0;color:{SECOND};}}
+.pullquote{{font-family:'IBM Plex Serif',serif;font-size:13pt;color:{SECOND};margin:0 0 10pt;}}
+.callout{{border-left:3px solid {ACCENT};padding-left:12pt;margin:12pt 0;}}
+.cap{{font-size:8pt;color:{MUTED};margin:10pt 0 2pt;}}
+table{{border-collapse:collapse;font-size:9pt;margin:10pt 0 16pt;width:100%;}}
 th,td{{border:1px solid #DCE0E6;padding:5pt 7pt;text-align:left;vertical-align:top;}}
 th{{font-weight:600;background:#F1F1F4;color:{INK};}}
-figure{{margin:14pt 0;page-break-inside:avoid;}}
+figure{{margin:12pt 0;}}
 img{{max-width:100%;}}"""
 
 
@@ -174,7 +177,7 @@ def main():
     body = ['<div class="cover">'
             '<div class="cover-mark">360°</div>'
             '<div class="cover-title">A Partnership Proposition</div>'
-            '<div class="cover-sub">Context operating systems for established businesses</div>'
+            '<div class="cover-sub">Agent and Context Operating Systems for established businesses</div>'
             '<div class="cover-meta">Prepared for Dan · June 2026 · Private &amp; confidential</div>'
             '</div>']
     embeds, last = [], ""
