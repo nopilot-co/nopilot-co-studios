@@ -1,3 +1,15 @@
+> # ⚠️ ARCHIVED — merged into nopilot-co-workspace
+>
+> As of 2026-06-25 this repository is **retired**. Its entire tree was merged
+> into the consolidated monorepo to manage cross-repo technical debt:
+>
+> **➡️ https://github.com/nopilot-co/nopilot-co-workspace**  (under `studios/`)
+>
+> This repo is read-only and kept only as the historical record. Do not open new
+> work here. Tag `archived-2026-06-25` marks the final pre-merge state.
+
+---
+
 # Studios
 
 A Claude Code plugin marketplace for branded creative work — one brief, routed
